@@ -4,4 +4,19 @@
 
 - kombinace: velky B-strom s malymi hash tabulkami, apod.
 
+- hash tabulky:
+	okamzikem zvetseni/zmenseni si jenom naalokovat pamet,
+	ale zacit tam kopirovat data az postupne, abych nemusel
+	na miste zaplatit O(N)
+
+- Judy array?
+
+- vetsi hodnoty? parametricke na velikosti hodnot?
+
 Testing data
+
+Integrace:
+	- Memcache?
+	- Python/Ruby built-in hashes?
+
+- jiny programovaci jazyk? (D ma bohatsi compile-time)
