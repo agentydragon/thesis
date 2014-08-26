@@ -2,6 +2,8 @@
 
 #include <stdlib.h>
 
+#include "../log/log.h"
+
 struct hash_s {
 	void* opaque;
 	const hash_api* api;
@@ -47,4 +49,12 @@ int8_t hash_insert(hash* this, uint64_t key, uint64_t value) {
 
 int8_t hash_delete(hash* this, uint64_t key) {
 	return this->api->delete(this->opaque, key);
+}
+
+void hash_dump(hash* this) {
+	if (this->api->dump) {
+		this->api->dump(this->opaque);
+	} else {
+		log_info("cannot dump hash of type %s", this->api->name);
+	}
 }

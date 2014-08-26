@@ -124,5 +124,7 @@ const hash_api hash_array = {
 
 	.insert = insert,
 	.find = find,
-	.delete = delete
+	.delete = delete,
+
+	.name = "hash_array"
 };

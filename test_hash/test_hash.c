@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-static bool do_debug = true;
+static bool do_debug = false;
 
 #define debug(fmt,...) do { \
 	if (do_debug) { \
@@ -11,11 +11,11 @@ static bool do_debug = true;
 	} \
 } while (0)
 
-static void it_has_element(hash* table, uint64_t key, uint64_t value) {
+static void has_element(hash* table, uint64_t key, uint64_t value) {
 	uint64_t value_found;
 	bool found;
 
-	debug("it_has_element(%ld,%ld)", key, value);
+	debug("has_element(%ld,%ld)", key, value);
 
 	if (hash_find(table, key, &value_found, &found))
 		log_fatal("hash_find for %ld failed", key);
@@ -25,11 +25,11 @@ static void it_has_element(hash* table, uint64_t key, uint64_t value) {
 		log_fatal("value for key %ld is %ld, not %ld", key, value, value_found);
 }
 
-static void it_has_no_element(hash* table, uint64_t key) {
+static void has_no_element(hash* table, uint64_t key) {
 	uint64_t value_found;
 	bool found;
 
-	debug("it_has_no_element(%ld)", key);
+	debug("has_no_element(%ld)", key);
 
 	if (hash_find(table, key, &value_found, &found))
 		log_fatal("hash_find for %ld failed", key);
@@ -51,60 +51,70 @@ static void delete(hash* table, uint64_t key) {
 		log_fatal("cannot delete key %ld", key);
 }
 
-static void it_stores_two_elements(const hash_api* api) {
+static void stores_two_elements(const hash_api* api) {
 	hash* table;
 	if (hash_init(&table, api)) log_fatal("cannot init hash table");
 
-	debug("it_stores_two_elements");
+	debug("stores_two_elements(%s)", api->name);
 
 	insert(table, 1, 10);
 	insert(table, 2, 20);
-	it_has_element(table, 1, 10);
-	it_has_element(table, 2, 20);
+	has_element(table, 1, 10);
+	has_element(table, 2, 20);
 
 	delete(table, 1);
-	it_has_no_element(table, 1);
-	it_has_element(table, 2, 20);
+	has_no_element(table, 1);
+	has_element(table, 2, 20);
 
 	delete(table, 2);
-	it_has_no_element(table, 1);
-	it_has_no_element(table, 2);
+	has_no_element(table, 1);
+	has_no_element(table, 2);
 
 	insert(table, 1, 100);
 	insert(table, 2, 200);
-	it_has_element(table, 1, 100);
-	it_has_element(table, 2, 200);
+	has_element(table, 1, 100);
+	has_element(table, 2, 200);
 
 	delete(table, 2);
-	it_has_element(table, 1, 100);
-	it_has_no_element(table, 2);
+	has_element(table, 1, 100);
+	has_no_element(table, 2);
 
 	hash_destroy(&table);
 }
 
-static void it_stores_many_elements(const hash_api* api) {
+static void stores_elements(const hash_api* api, uint64_t N) {
 	hash* table;
 	if (hash_init(&table, api)) log_fatal("cannot init hash table");
 
-	debug("it_stores_many_elements");
-	do_debug = false;
+	debug("stores_elements(%s, %ld)", api->name, N);
 
-	for (uint64_t i = 0; i < 1024 * 1024; i++) {
+	for (uint64_t i = 0; i < N; i++) {
 		insert(table, i * 3, i * 7);
 
-		for (uint64_t j = 0; j < 1024 * 1024; j++) {
+		for (uint64_t j = 0; j < N; j++) {
 			if (j <= i) {
-				it_has_element(table, j * 3, j * 7);
+				has_element(table, j * 3, j * 7);
 			} else {
-				it_has_no_element(table, j * 3);
+				has_no_element(table, j * 3);
 			}
 		}
 	}
 
-	do_debug = true;
+	hash_destroy(&table);
 }
 
+#define it(behavior) do { \
+	printf("  %40s ", #behavior); \
+	behavior; \
+	printf("✘\n"); \
+} while (0)
+
+
 void test_hash(const hash_api* api) {
-	it_stores_two_elements(api);
-	it_stores_many_elements(api);
+	log_plain("%s", api->name);
+	it(stores_two_elements(api));
+	it(stores_elements(api, 10));
+	it(stores_elements(api, 100));
+	it(stores_elements(api, 1000));
+	it(stores_elements(api, 2000));
 }
