@@ -1,0 +1,7 @@
+- Van Emde-Boas / x/y-fast trie
+- B+/B* tree w/ large blocks
+- persistence?
+
+- kombinace: velky B-strom s malymi hash tabulkami, apod.
+
+Testing data

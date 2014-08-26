@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 
+// TODO: vectorized parallel implementation
+
 static bool do_debug = false;
 
 #define debug(fmt,...) do { \
