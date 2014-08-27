@@ -228,32 +228,29 @@ static int8_t insert(void* _this, uint64_t key, uint64_t value) {
 
 	log_info("insert(%ld, %ld)", key, value);
 
-	// TODO: no.
-	while (too_dense(this->pair_count + 1, this->table_size)) {
+	uint64_t new_size = this->table_size;
+	while (too_dense(this->pair_count + 1, new_size)) {
+		new_size = next_bigger_size(new_size);
+	}
+	if (new_size != this->table_size) {
 		if (resize(this, next_bigger_size(this->table_size))) {
 			log_error("failed to resize when inserting %ld=%ld", key, value);
 			return 1;
 		}
 	}
 
-	// TODO: maybe taking a perf hit here?
-	bool found;
-	if (find(this, key, NULL, &found)) {
-		log_error("cannot lookup when inserting %ld=%ld", key, value);
-		return 1;
-	}
-
-	if (found) {
-		log_error("duplicate when inserting %ld=%ld", key, value);
-		return 1;
-	}
-
 	uint64_t key_hash = hash_of(this, key);
 	uint64_t index;
 
 	for (index = key_hash; this->table[index].occupied; index = next_index(this, index)) {
-		if (!this->table[index].occupied) break;
-		// TODO: guard against infinite loop?
+		if (this->table[index].occupied) {
+			if (this->table[index].key == key) {
+				log_error("duplicate when inserting %ld=%ld", key, value);
+				return 1;
+			}
+		} else {
+			break;
+		}
 	}
 
 	memcpy(&this->table[index], & (struct bucket) {
@@ -273,27 +270,18 @@ static int8_t delete(void* _this, uint64_t key) {
 
 	log_info("delete(%ld)", key);
 
-	// TODO: no.
-	while (too_sparse(this->pair_count - 1, this->table_size)) {
-		if (resize(this, next_smaller_size(this->table_size))) {
+	uint64_t new_size = this->table_size;
+	while (too_sparse(this->pair_count - 1, new_size)) {
+		new_size = next_smaller_size(new_size);
+	}
+	if (new_size != this->table_size) {
+		if (resize(this, next_smaller_size(new_size))) {
 			log_error("failed to resize while deleting key %ld", key);
 			return 1;
 		}
 	}
 
 	uint64_t key_hash = hash_of(this, key);
-
-	// TODO: maybe taking a perf hit here?
-	bool found;
-	if (find(this, key, NULL, &found)) {
-		log_error("cannot lookup when deleting %ld", key);
-		return 1;
-	}
-
-	if (!found) {
-		log_error("key %ld does not exist, cannot delete", key);
-		return 1;
-	}
 
 	uint64_t index = key_hash;
 	uint64_t keys_with_hash = this->table[key_hash].keys_with_hash;
@@ -313,7 +301,7 @@ static int8_t delete(void* _this, uint64_t key) {
 		}
 	}
 
-	log_error("fatal error when deleting %ld", key);
+	log_error("key %ld not present, cannot delete", key);
 	return 1;
 }
 
