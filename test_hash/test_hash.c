@@ -140,10 +140,9 @@ void test_hash(const hash_api* api) {
 	it(stores_elements(api, 50));
 	it(stores_elements(api, 100));
 	it(stores_elements(api, 200));
-	it(stores_elements(api, 500));
-	it(stores_elements(api, 1000));
-//	it(stores_elements(api, 2000));
-//	it(stores_elements(api, 5000));
+	// There was a 500, 1000 and 2000 test here, but they were slow.
+
+	// TODO: more complex deletion tests.
 
 	// TODO: find accepts NULLs
 }

@@ -14,7 +14,10 @@ static uint64_t* values;
 // odmitne naalokovat uz 4.0GB blok :(
 
 // 2**25 zabira asi 1 GB pameti; je to radove 33 000 000.
-static uint64_t N = (1L << 25);
+// static uint64_t N = (1L << 25);
+
+// It was too slow in Valgrind.
+static uint64_t N = (1L << 20);
 
 static uint64_t make_key(uint64_t i) {
 	return toycrypt(i, 0x0123456789ABCDEFLL);
