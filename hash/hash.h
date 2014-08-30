@@ -7,7 +7,7 @@
 typedef struct hash_s hash;
 
 typedef struct {
-	int8_t (*init)(void**);
+	int8_t (*init)(void**, void* args);
 	void (*destroy)(void**);
 
 	int8_t (*find)(void*, uint64_t key, uint64_t *value, bool *found);
@@ -20,7 +20,7 @@ typedef struct {
 	void (*dump)(void*);
 } hash_api;
 
-int8_t hash_init(hash**, const hash_api* api);
+int8_t hash_init(hash**, const hash_api* api, void* args);
 void hash_destroy(hash**);
 
 int8_t hash_find(hash*, uint64_t key, uint64_t *value, bool *found);

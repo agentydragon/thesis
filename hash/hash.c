@@ -9,7 +9,7 @@ struct hash_s {
 	const hash_api* api;
 };
 
-int8_t hash_init(hash** _this, const hash_api* api) {
+int8_t hash_init(hash** _this, const hash_api* api, void* args) {
 	hash* this = malloc(sizeof(struct hash_s));
 
 	if (!this) {
@@ -17,7 +17,7 @@ int8_t hash_init(hash** _this, const hash_api* api) {
 	}
 
 	this->api = api;
-	if (this->api->init(&this->opaque)) {
+	if (this->api->init(&this->opaque, args)) {
 		goto err_2;
 	}
 

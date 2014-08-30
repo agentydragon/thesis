@@ -70,7 +70,9 @@ static uint64_t next_smaller_size(uint64_t x) {
 	return i / 2;
 }
 
-static int8_t init(void** _this) {
+static int8_t init(void** _this, void* args_unused) {
+	(void) args_unused;
+
 	struct data* this = malloc(sizeof(struct data));
 	if (!this) {
 		log_error("cannot allocate new hash_hashtable");

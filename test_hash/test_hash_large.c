@@ -33,7 +33,7 @@ void test_hash_large(const hash_api* api) {
 	*/
 
 	hash* table;
-	if (hash_init(&table, api)) log_fatal("cannot init hash table");
+	if (hash_init(&table, api, NULL)) log_fatal("cannot init hash table");
 
 	log_info("Inserting %" PRIu64 " elements...", N);
 	for (uint64_t i = 0; i < N; i++) {

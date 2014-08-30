@@ -18,7 +18,9 @@ struct data {
 	uint64_t pair_capacity;
 };
 
-static int8_t init(void** _this) {
+static int8_t init(void** _this, void* args_unused) {
+	(void) args_unused;
+
 	struct data* this = malloc(sizeof(struct data));
 	if (!this) return 1;
 	memcpy(this, & (struct data) {

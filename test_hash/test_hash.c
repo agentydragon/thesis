@@ -57,7 +57,7 @@ static void delete(hash* table, uint64_t key) {
 
 static void stores_two_elements(const hash_api* api) {
 	hash* table;
-	if (hash_init(&table, api)) log_fatal("cannot init hash table");
+	if (hash_init(&table, api, NULL)) log_fatal("cannot init hash table");
 
 	debug("stores_two_elements(%s)", api->name);
 
@@ -88,7 +88,7 @@ static void stores_two_elements(const hash_api* api) {
 
 static void stores_elements(const hash_api* api, uint64_t N) {
 	hash* table;
-	if (hash_init(&table, api)) log_fatal("cannot init hash table");
+	if (hash_init(&table, api, NULL)) log_fatal("cannot init hash table");
 
 	debug("stores_elements(%s, %ld)", api->name, N);
 
