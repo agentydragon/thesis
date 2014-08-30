@@ -23,11 +23,11 @@ static int8_t init(void** _this, void* args_unused) {
 
 	struct data* this = malloc(sizeof(struct data));
 	if (!this) return 1;
-	memcpy(this, & (struct data) {
+	*this = (struct data) {
 		.pairs = NULL,
 		.pair_count = 0,
 		.pair_capacity = 0
-	}, sizeof(struct data));
+	};
 	*_this = this;
 	return 0;
 }
@@ -95,10 +95,10 @@ static int8_t insert(void* _this, uint64_t key, uint64_t value) {
 		this->pair_capacity = new_capacity;
 	}
 
-	memcpy(&this->pairs[this->pair_count++], & (struct pair) {
+	this->pairs[this->pair_count++] = (struct pair) {
 		.key = key,
 		.value = value
-	}, sizeof(struct pair));
+	};
 	return 0;
 
 err_1:

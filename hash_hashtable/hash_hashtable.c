@@ -79,11 +79,11 @@ static int8_t init(void** _this, void* args_unused) {
 		goto err_1;
 	}
 
-	memcpy(this, & (struct data) {
+	*this = (struct data) {
 		.table = malloc(sizeof(struct bucket) * MIN_SIZE),
 		.table_size = MIN_SIZE,
 		.pair_count = 0
-	}, sizeof(struct data));
+	};
 
 	if (!this->table) {
 		log_error("cannot allocate hash table");
@@ -264,11 +264,11 @@ static int8_t insert(void* _this, uint64_t key, uint64_t value) {
 		}
 	}
 
-	memcpy(&this->table[free_index], & (struct bucket) {
+	this->table[free_index] = (struct bucket) {
 		.occupied = true,
 		.key = key,
 		.value = value
-	}, sizeof(struct bucket));
+	};
 
 	this->table[key_hash].keys_with_hash++;
 	this->pair_count++;
