@@ -1,6 +1,7 @@
 #ifndef LOG_H_INCLUDED
 #define LOG_H_INCLUDED
 
+#include <stdlib.h>
 #include <stdio.h>
 
 #define log_plain(fmt,...) do { \

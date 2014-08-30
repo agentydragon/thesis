@@ -240,20 +240,29 @@ static int8_t insert(void* _this, uint64_t key, uint64_t value) {
 	}
 
 	uint64_t key_hash = hash_of(this, key);
-	uint64_t index;
 
-	for (index = key_hash; this->table[index].occupied; index = next_index(this, index)) {
+	bool free_index_found = false;
+	uint64_t free_index;
+
+	for (uint64_t i = 0, index = key_hash; i < this->table[key_hash].keys_with_hash || !free_index_found; index = next_index(this, index)) {
 		if (this->table[index].occupied) {
-			if (this->table[index].key == key) {
-				log_error("duplicate when inserting %ld=%ld", key, value);
-				return 1;
+			if (hash_of(this, this->table[index].key) == key_hash) {
+				i++;
+
+				if (this->table[index].key == key) {
+					log_error("duplicate when inserting %ld=%ld", key, value);
+					return 1;
+				}
 			}
 		} else {
-			break;
+			if (!free_index_found) {
+				free_index = index;
+				free_index_found = true;
+			}
 		}
 	}
 
-	memcpy(&this->table[index], & (struct bucket) {
+	memcpy(&this->table[free_index], & (struct bucket) {
 		.occupied = true,
 		.key = key,
 		.value = value

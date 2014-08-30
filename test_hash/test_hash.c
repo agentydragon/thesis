@@ -2,6 +2,8 @@
 #include "../log/log.h"
 
 #include <stdlib.h>
+#include <assert.h>
+#include <time.h>
 
 // TODO: vectorized parallel implementation
 
@@ -105,10 +107,28 @@ static void stores_elements(const hash_api* api, uint64_t N) {
 	hash_destroy(&table);
 }
 
+typedef struct timespec time_s;
+
+static time_s time_now() {
+	time_s t;
+	assert(clock_gettime(CLOCK_REALTIME, &t) == 0);
+	return t;
+}
+
+static uint64_t time_diff_nsec(time_s t1, time_s t2) {
+	return
+		(t1.tv_sec * 1000000000LL + t1.tv_nsec) -
+		(t2.tv_sec * 1000000000LL + t2.tv_nsec);
+}
+
 #define it(behavior) do { \
 	printf("  %40s ", #behavior); \
+	\
+	time_s started_at = time_now(); \
+	\
 	behavior; \
-	printf("✘\n"); \
+	\
+	printf("✘ %ld us\n", time_diff_nsec(time_now(), started_at)); \
 } while (0)
 
 
@@ -116,7 +136,12 @@ void test_hash(const hash_api* api) {
 	log_plain("%s", api->name);
 	it(stores_two_elements(api));
 	it(stores_elements(api, 10));
+	it(stores_elements(api, 20));
+	it(stores_elements(api, 50));
 	it(stores_elements(api, 100));
+	it(stores_elements(api, 200));
+	it(stores_elements(api, 500));
 	it(stores_elements(api, 1000));
-	it(stores_elements(api, 2000));
+//	it(stores_elements(api, 2000));
+//	it(stores_elements(api, 5000));
 }
