@@ -39,6 +39,7 @@ err_1:
 void observation_destroy(observation** _this) {
 	if (_this) {
 		observation* this = *_this;
+		free(this->operations);
 		free(this);
 		*_this = NULL;
 	}
