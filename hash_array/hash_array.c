@@ -56,8 +56,10 @@ static int8_t find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 	struct data* this = _this;
 	uint64_t index;
 
-	_lookup_index(this, key, found, &index);
-	if (*found && value) *value = this->pairs[index].value;
+	bool pair_found;
+	_lookup_index(this, key, &pair_found, &index);
+	if (found) *found = pair_found;
+	if (pair_found && value) *value = this->pairs[index].value;
 
 	return 0;
 }

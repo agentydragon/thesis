@@ -144,4 +144,6 @@ void test_hash(const hash_api* api) {
 	it(stores_elements(api, 1000));
 //	it(stores_elements(api, 2000));
 //	it(stores_elements(api, 5000));
+
+	// TODO: find accepts NULLs
 }

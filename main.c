@@ -7,6 +7,7 @@
 #include "hash_hashtable/hash_hashtable.h"
 
 #include "test_hash/test_hash.h"
+#include "test_observation/test_observation.h"
 #include "test_hash/test_hash_large.h"
 
 #include "log/log.h"
@@ -18,6 +19,8 @@ int main(int argc, char** argv) {
 
 	test_hash(&hash_array);
 	test_hash(&hash_hashtable);
+
+	test_observation(); // Uses hash_array.
 
 //	test_hash_large(&hash_array);
 	test_hash_large(&hash_hashtable);
