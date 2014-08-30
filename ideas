@@ -20,3 +20,6 @@ Integrace:
 	- Python/Ruby built-in hashes?
 
 - jiny programovaci jazyk? (D ma bohatsi compile-time)
+- nejake perfektni nebo perfektnejsi hashovani?
+- analyzovat pocet cache missu
+- analyzovat prumernou velikost table bucketu
