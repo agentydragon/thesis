@@ -43,4 +43,6 @@ void test_hash_large(const hash_api* api) {
 	}
 
 	log_info("Inserted");
+
+	hash_destroy(&table);
 }
