@@ -1,9 +1,9 @@
 #include "test_hash.h"
 #include "../log/log.h"
+#include "../stopwatch/stopwatch.h"
 
 #include <stdlib.h>
 #include <assert.h>
-#include <time.h>
 
 // TODO: vectorized parallel implementation
 
@@ -107,28 +107,12 @@ static void stores_elements(const hash_api* api, uint64_t N) {
 	hash_destroy(&table);
 }
 
-typedef struct timespec time_s;
-
-static time_s time_now() {
-	time_s t;
-	assert(clock_gettime(CLOCK_REALTIME, &t) == 0);
-	return t;
-}
-
-static uint64_t time_diff_nsec(time_s t1, time_s t2) {
-	return
-		(t1.tv_sec * 1000000000LL + t1.tv_nsec) -
-		(t2.tv_sec * 1000000000LL + t2.tv_nsec);
-}
-
 #define it(behavior) do { \
 	printf("  %40s ", #behavior); \
 	\
-	time_s started_at = time_now(); \
-	\
+	stopwatch watch = stopwatch_start(); \
 	behavior; \
-	\
-	printf("✘ %ld us\n", time_diff_nsec(time_now(), started_at)); \
+	printf("✘ %ld us\n", stopwatch_read_nsec(watch)); \
 } while (0)
 
 

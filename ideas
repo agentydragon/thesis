@@ -23,3 +23,5 @@ Integrace:
 - nejake perfektni nebo perfektnejsi hashovani?
 - analyzovat pocet cache missu
 - analyzovat prumernou velikost table bucketu
+
+- jake jsou idealni meze pro naplnenost hash tabulky?

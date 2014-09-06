@@ -12,10 +12,27 @@
 
 #include "log/log.h"
 
+#include "performance/random_read.h"
+
 int test_mmap();
 
 int main(int argc, char** argv) {
 	(void) argc; (void) argv;
+
+	time_random_reads(&hash_array, 1000, 10000);
+	time_random_reads(&hash_hashtable, 1000, 10000);
+
+	time_random_reads(&hash_array, 10000, 100000);
+	time_random_reads(&hash_hashtable, 10000, 100000);
+	time_random_reads(&hash_hashtable, 20000, 100000);
+	time_random_reads(&hash_hashtable, 30000, 100000);
+	time_random_reads(&hash_hashtable, 40000, 100000);
+	time_random_reads(&hash_hashtable, 50000, 100000);
+	time_random_reads(&hash_hashtable, 60000, 100000);
+	time_random_reads(&hash_hashtable, 70000, 100000);
+	time_random_reads(&hash_hashtable, 80000, 100000);
+	time_random_reads(&hash_hashtable, 90000, 100000);
+	time_random_reads(&hash_hashtable, 100000, 100000);
 
 	test_hash(&hash_array);
 	test_hash(&hash_hashtable);
