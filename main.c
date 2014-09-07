@@ -19,6 +19,7 @@ int test_mmap();
 int main(int argc, char** argv) {
 	(void) argc; (void) argv;
 
+	/*
 	time_random_reads(&hash_array, 1000, 10000);
 
 	time_random_reads(&hash_array, 10000, 100000);
@@ -34,6 +35,7 @@ int main(int argc, char** argv) {
 	time_random_reads(&hash_hashtable, 10000000, 20000000);
 	time_random_reads(&hash_hashtable, 20000000, 100000000);
 	time_random_reads(&hash_hashtable, 50000000, 100000000);
+	*/
 
 	test_hash(&hash_array);
 	test_hash(&hash_hashtable);

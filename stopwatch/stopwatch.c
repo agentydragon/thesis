@@ -19,3 +19,17 @@ uint64_t stopwatch_read_nsec(stopwatch this) {
 	assert(clock_gettime(CLOCK_REALTIME, &now) == 0);
 	return timespec_diff_nsec(now, this.started_at);
 }
+
+uint64_t stopwatch_read_usec(stopwatch this) {
+	return stopwatch_read_nsec(this) / 1000;
+}
+
+uint64_t stopwatch_read_msec(stopwatch this) {
+	return stopwatch_read_usec(this) / 1000;
+}
+
+void stopwatch_read_sec_msec(stopwatch this, uint64_t* sec, uint64_t* msec) {
+	uint64_t nsec = stopwatch_read_nsec(this);
+	*msec = (nsec / 1000000) % 1000;
+	*sec = (nsec / 1000000) / 1000;
+}

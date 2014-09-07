@@ -25,4 +25,11 @@
 	abort(); \
 } while (0)
 
+#define CHECK(x) do { \
+	if (!x) { \
+		log_error("check failed: " #x); \
+		abort(); \
+	} \
+} while (0)
+
 #endif
