@@ -25,3 +25,6 @@ Integrace:
 - analyzovat prumernou velikost table bucketu
 
 - jake jsou idealni meze pro naplnenost hash tabulky?
+
+- multithreading
+

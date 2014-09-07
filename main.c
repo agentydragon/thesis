@@ -20,19 +20,20 @@ int main(int argc, char** argv) {
 	(void) argc; (void) argv;
 
 	time_random_reads(&hash_array, 1000, 10000);
-	time_random_reads(&hash_hashtable, 1000, 10000);
 
 	time_random_reads(&hash_array, 10000, 100000);
-	time_random_reads(&hash_hashtable, 10000, 100000);
-	time_random_reads(&hash_hashtable, 20000, 100000);
-	time_random_reads(&hash_hashtable, 30000, 100000);
-	time_random_reads(&hash_hashtable, 40000, 100000);
-	time_random_reads(&hash_hashtable, 50000, 100000);
-	time_random_reads(&hash_hashtable, 60000, 100000);
-	time_random_reads(&hash_hashtable, 70000, 100000);
-	time_random_reads(&hash_hashtable, 80000, 100000);
-	time_random_reads(&hash_hashtable, 90000, 100000);
-	time_random_reads(&hash_hashtable, 100000, 100000);
+
+	time_random_reads(&hash_hashtable, 10000, 200000);
+	time_random_reads(&hash_hashtable, 20000, 200000);
+	time_random_reads(&hash_hashtable, 50000, 200000);
+	time_random_reads(&hash_hashtable, 100000, 200000);
+	time_random_reads(&hash_hashtable, 200000, 200000);
+	time_random_reads(&hash_hashtable, 1000000, 2000000);
+	time_random_reads(&hash_hashtable, 2000000, 10000000);
+	time_random_reads(&hash_hashtable, 5000000, 10000000);
+	time_random_reads(&hash_hashtable, 10000000, 20000000);
+	time_random_reads(&hash_hashtable, 20000000, 100000000);
+	time_random_reads(&hash_hashtable, 50000000, 100000000);
 
 	test_hash(&hash_array);
 	test_hash(&hash_hashtable);
