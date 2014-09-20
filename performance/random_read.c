@@ -45,6 +45,8 @@ void time_random_reads(const hash_api* api, int size, int reads) {
 		results = measurement_end(measurement);
 	}
 
+	hash_dump(table);
+
 	uint64_t duration = stopwatch_read_nsec(watch);
 	printf("%" PRIu64 " nsec (%" PRIu64 " nsec/read, %" PRIu64 " cache references, "
 		"%" PRIu64 " cache misses, %.2lf cache misses/read)\n",

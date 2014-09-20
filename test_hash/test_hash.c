@@ -112,7 +112,7 @@ static void stores_elements(const hash_api* api, uint64_t N) {
 	\
 	stopwatch watch = stopwatch_start(); \
 	behavior; \
-	printf("✘ %ld us\n", stopwatch_read_nsec(watch)); \
+	printf("OK %ld us\n", stopwatch_read_nsec(watch)); \
 } while (0)
 
 
