@@ -1,4 +1,8 @@
 #include "hash_hashtable.h"
+#include "private/data.h"
+#include "private/dump.h"
+#include "private/hash.h"
+#include "private/traversal.h"
 
 #define NO_LOG_INFO
 
@@ -7,33 +11,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
+#include <assert.h>
 
 static const uint64_t MIN_SIZE = 4; // 8;
 
-struct bucket {
-	// how many keys have this hash?
-	uint64_t keys_with_hash;
-
-	// the key stored in this bucket
-	bool occupied;
-	uint64_t key;
-	uint64_t value;
-};
-
-struct data {
-	struct bucket* table;
-	uint64_t table_size;
-	uint64_t pair_count;
-};
-
-uint64_t PRIME_X = 433024253L, PRIME_Y = 817504243;
-
-static uint64_t hash_of(struct data* this, uint64_t x);
-static void dump(void* _this);
-
-static void check_invariants(struct data* this) {
-	dump(this);
-
+static void check_invariants(struct hashtable_data* this) {
 	uint64_t total = 0;
 	for (uint64_t i = 0; i < this->table_size; i++) {
 		if (this->table[i].occupied) total++;
@@ -53,21 +35,6 @@ static void check_invariants(struct data* this) {
 	}
 	CHECK(this->pair_count == total);
 	log_info("check_invariants OK");
-}
-
-static uint64_t hash_fn(uint64_t x, uint64_t max) {
-	// TODO: very slow
-	return ((x * PRIME_X) ^ (x * PRIME_Y)) % max;
-}
-
-static uint64_t hash_of(struct data* this, uint64_t x) {
-	uint64_t result = hash_fn(x, this->table_size);
-	// log_info("hash(%" PRIu64 ") where size=%ld = %" PRIu64, x, this->table_size, result);
-	return result;
-}
-
-static uint64_t next_index(struct data* this, uint64_t i) {
-	return (i + 1) % this->table_size;
 }
 
 static bool too_sparse(uint64_t pairs, uint64_t buckets) {
@@ -102,14 +69,14 @@ static uint64_t next_smaller_size(uint64_t x) {
 static int8_t init(void** _this, void* args_unused) {
 	(void) args_unused;
 
-	struct data* this = malloc(sizeof(struct data));
+	struct hashtable_data* this = malloc(sizeof(struct hashtable_data));
 	if (!this) {
 		log_error("cannot allocate new hash_hashtable");
 		goto err_1;
 	}
 
-	*this = (struct data) {
-		.table = malloc(sizeof(struct bucket) * MIN_SIZE),
+	*this = (struct hashtable_data) {
+		.table = malloc(sizeof(struct hashtable_bucket) * MIN_SIZE),
 		.table_size = MIN_SIZE,
 		.pair_count = 0
 	};
@@ -118,7 +85,7 @@ static int8_t init(void** _this, void* args_unused) {
 		log_error("cannot allocate hash table");
 		goto err_2;
 	}
-	memset(this->table, 0, sizeof(struct bucket) * MIN_SIZE);
+	memset(this->table, 0, sizeof(struct hashtable_bucket) * MIN_SIZE);
 
 	*_this = this;
 
@@ -132,7 +99,7 @@ err_1:
 
 static void destroy(void** _this) {
 	if (_this) {
-		struct data* this = *_this;
+		struct hashtable_data* this = *_this;
 		if (this) {
 			free(this->table);
 		}
@@ -142,7 +109,7 @@ static void destroy(void** _this) {
 }
 
 static int8_t find(void* _this, uint64_t key, uint64_t *value, bool *found) {
-	struct data* this = _this;
+	struct hashtable_data* this = _this;
 
 	log_info("find(%" PRIu64 "(h=%" PRIu64 "))", key, hash_of(this, key));
 
@@ -151,7 +118,7 @@ static int8_t find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 	uint64_t index = key_hash;
 	uint64_t keys_with_hash = this->table[index].keys_with_hash;
 
-	for (uint64_t i = 0; i < keys_with_hash; index = next_index(this, index)) {
+	for (uint64_t i = 0; i < keys_with_hash; index = hashtable_next_index(this, index)) {
 		if (this->table[index].occupied) {
 			if (this->table[index].key == key) {
 				*found = true;
@@ -174,10 +141,10 @@ static int8_t find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 
 // TODO: make public?
 // TODO: allow break?
-static int8_t foreach(struct data* this, int8_t (*iterate)(void*, uint64_t key, uint64_t value), void* opaque) {
+static int8_t foreach(struct hashtable_data* this, int8_t (*iterate)(void*, uint64_t key, uint64_t value), void* opaque) {
 	log_info("entering foreach");
 	for (uint64_t i = 0; i < this->table_size; i++) {
-		const struct bucket *bucket = &this->table[i];
+		const struct hashtable_bucket *bucket = &this->table[i];
 		if (bucket->occupied) {
 			log_info("foreach: %" PRIu64 "=%" PRIu64, bucket->key, bucket->value);
 			if (iterate(opaque, bucket->key, bucket->value)) {
@@ -190,12 +157,12 @@ static int8_t foreach(struct data* this, int8_t (*iterate)(void*, uint64_t key, 
 	return 0;
 }
 
-static int8_t insert_internal(struct data* this, uint64_t key, uint64_t value);
+static int8_t insert_internal(struct hashtable_data* this, uint64_t key, uint64_t value);
 static int8_t insert_internal_wrap(void* this, uint64_t key, uint64_t value) {
 	return insert_internal(this, key, value);
 }
 
-static int8_t resize(struct data* this, uint64_t new_size) {
+static int8_t resize(struct hashtable_data* this, uint64_t new_size) {
 	if (new_size < this->pair_count) {
 		log_error("cannot resize: target size %" PRIu64 " too small for %" PRIu64 " pairs", new_size, this->pair_count);
 		goto err_1;
@@ -203,8 +170,8 @@ static int8_t resize(struct data* this, uint64_t new_size) {
 	// TODO: try new hash function in this case?
 
 	// Cannot use realloc, because this can both upscale and downscale.
-	struct data new_this = {
-		.table = malloc(sizeof(struct bucket) * new_size),
+	struct hashtable_data new_this = {
+		.table = malloc(sizeof(struct hashtable_bucket) * new_size),
 		.table_size = new_size,
 		.pair_count = 0
 	};
@@ -216,7 +183,7 @@ static int8_t resize(struct data* this, uint64_t new_size) {
 		goto err_1;
 	}
 
-	memset(new_this.table, 0, sizeof(struct bucket) * new_size);
+	memset(new_this.table, 0, sizeof(struct hashtable_bucket) * new_size);
 
 	if (foreach(this, insert_internal_wrap, &new_this)) {
 		log_error("iteration failed");
@@ -237,36 +204,7 @@ err_1:
 	return 1;
 }
 
-static void dump_bucket(struct data* this, uint64_t index, struct bucket* bucket) {
-	if (bucket->occupied) {
-		log_plain("[%04" PRIu64 "] keys_with_hash=%" PRIu64 " occupied, %" PRIu64 "(h=%" PRIu64 ")=%" PRIu64,
-			index,
-			bucket->keys_with_hash,
-			bucket->key,
-			hash_of(this, bucket->key),
-			bucket->value
-		);
-	} else {
-		log_plain("[%04" PRIu64 "] keys_with_hash=%" PRIu64 " not occupied",
-			index,
-			bucket->keys_with_hash
-		);
-	}
-}
-
-static void dump(void* _this) {
-	struct data* this = _this;
-
-	log_plain("hash_hashtable table_size=%ld pair_count=%ld",
-		this->table_size,
-		this->pair_count);
-
-	for (uint64_t i = 0; i < this->table_size; i++) {
-		dump_bucket(this, i, &this->table[i]);
-	}
-}
-
-static int8_t insert_internal(struct data* this, uint64_t key, uint64_t value) {
+static int8_t insert_internal(struct hashtable_data* this, uint64_t key, uint64_t value) {
 	log_info("insert_internal");
 
 	uint64_t key_hash = hash_of(this, key);
@@ -276,7 +214,7 @@ static int8_t insert_internal(struct data* this, uint64_t key, uint64_t value) {
 
 	for (uint64_t i = 0, index = key_hash;
 		i < this->table[key_hash].keys_with_hash || !free_index_found;
-		index = next_index(this, index)\
+		index = hashtable_next_index(this, index)\
 	) {
 
 		if (this->table[index].occupied) {
@@ -309,7 +247,7 @@ static int8_t insert_internal(struct data* this, uint64_t key, uint64_t value) {
 }
 
 static int8_t insert(void* _this, uint64_t key, uint64_t value) {
-	struct data* this = _this;
+	struct hashtable_data* this = _this;
 
 	log_info("insert(%" PRIu64 ", %" PRIu64 ")", key, value);
 
@@ -328,7 +266,7 @@ static int8_t insert(void* _this, uint64_t key, uint64_t value) {
 }
 
 static int8_t delete(void* _this, uint64_t key) {
-	struct data* this = _this;
+	struct hashtable_data* this = _this;
 
 	log_info("delete(%" PRIu64 ")", key);
 
@@ -348,7 +286,7 @@ static int8_t delete(void* _this, uint64_t key) {
 	uint64_t index = key_hash;
 	uint64_t keys_with_hash = this->table[key_hash].keys_with_hash;
 
-	for (uint64_t i = 0; i < keys_with_hash; index = next_index(this, index)) {
+	for (uint64_t i = 0; i < keys_with_hash; index = hashtable_next_index(this, index)) {
 		if (this->table[index].occupied) {
 			if (this->table[index].key == key) {
 				this->table[index].occupied = false;
@@ -378,7 +316,7 @@ const hash_api hash_hashtable = {
 	.insert = insert,
 	.delete = delete,
 
-	.dump = dump,
+	.dump = hashtable_dump,
 
 	.name = "hash_hashtable"
 };

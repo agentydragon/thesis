@@ -1,10 +1,13 @@
 CFLAGS=-g -std=gnu11 -W -Wall
 CC=gcc
+
 SOURCES= \
 	hash/*.c test_hash/*.c \
+	hash_hashtable/private/*.c \
 	stopwatch/*.c measurement/*.c \
 	hash_array/*.c hash_hashtable/*.c \
 	observation/*.c test_observation/*.c \
+	util/*.c \
 	performance/*.c
 
 all: bin/main bin/hash_test bin/shakespeare

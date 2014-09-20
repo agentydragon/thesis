@@ -3,7 +3,7 @@
 
 #include "../hash/hash.h"
 
-// Open hashing.
+// Open addressing hashing.
 //
 // If a bucket is already used, we just keep pushing to the right.
 
