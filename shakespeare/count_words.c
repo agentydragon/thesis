@@ -97,16 +97,16 @@ int main(int argc, char** argv) {
 		lineno++;
 
 		if (lineno % 1000 == 0) {
-			printf("line %" PRIu64 ", last 1000 lines took %" PRIu64 " ms\n", lineno, stopwatch_read_msec(watch_1000));
+			printf("line %" PRIu64 ", last 1000 lines took %" PRIu64 " ms\n", lineno, stopwatch_read_ms(watch_1000));
 			watch_1000 = stopwatch_start();
 		}
 	}
 
 	fclose(f);
 
-	uint64_t sec, msec;
-	stopwatch_read_sec_msec(watch, &sec, &msec);
-	printf("Finished in %" PRIu64 ".%03" PRIu64 " s .\n", sec, msec);
+	uint64_t s, ms;
+	stopwatch_read_s_ms(watch, &s, &ms);
+	printf("Finished in %" PRIu64 ".%03" PRIu64 " s .\n", s, ms);
 
 	report_count("the");
 	report_count("obsequious");
