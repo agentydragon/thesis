@@ -38,7 +38,7 @@ void time_random_reads(const hash_api* api, int size, int reads) {
 			int k = rand() % size;
 			uint64_t value;
 			bool found;
-			if (hash_find(table, make_key(k), &value, &found)) log_fatal("cannot insert");
+			assert(!hash_find(table, make_key(k), &value, &found));
 			assert(found && value == make_value(k));
 		}
 
@@ -48,11 +48,15 @@ void time_random_reads(const hash_api* api, int size, int reads) {
 	hash_dump(table);
 
 	uint64_t duration_ns = stopwatch_read_ns(watch);
-	printf("%.2lf s (%" PRIu64 " ns/read, %" PRIu64 " cache references, "
-		"%" PRIu64 " cache misses, %.2lf cache misses/read)\n",
-		((double) duration_ns) / (1000*1000*1000), duration_ns / reads,
+
+	printf("%.2lf s (%" PRIu64 " ns/read)\n",
+		((double) duration_ns) / (1000*1000*1000), duration_ns / reads);
+
+	printf("\t%" PRIu64 " cache refs, %" PRIu64 " cache misses (%.2lf per read)\n",
 		results.cache_references, results.cache_misses,
 		((double) results.cache_misses) / reads);
+
+	printf("\t");
 
 	hash_destroy(&table);
 }
