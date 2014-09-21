@@ -3,10 +3,71 @@
 
 #include <inttypes.h>
 #include <string.h>
+#include <assert.h>
 
 #define NO_LOG_INFO
 
 #include "../../log/log.h"
+
+static const uint64_t MIN_SIZE = 4; // 8;
+
+static bool too_sparse(uint64_t pairs, uint64_t buckets) {
+	// Keep at least MIN_SIZE buckets.
+	if (buckets <= MIN_SIZE) return false;
+
+	// At least one quarter full.
+	return pairs * 4 < buckets;
+}
+
+static bool too_dense(uint64_t pairs, uint64_t buckets) {
+	// Keep at least MIN_SIZE buckets.
+	if (buckets < MIN_SIZE) return true;
+
+	// At most three quarters full.
+	return pairs * 4 > buckets * 3;
+}
+
+static uint64_t next_bigger_size(uint64_t x) {
+	if (x < MIN_SIZE) return MIN_SIZE;
+
+	// Next power of 2
+	uint64_t i = 1;
+	while (i <= x) i *= 2;
+	return i;
+}
+
+static uint64_t next_smaller_size(uint64_t x) {
+	// Previous power of 2
+	uint64_t i = 1;
+	while (i < x) i *= 2;
+	return i / 2;
+}
+
+static int8_t resize(struct hashtable_data* this, uint64_t new_size);
+
+int8_t hashtable_resize_to_fit(struct hashtable_data* this, uint64_t to_fit) {
+	uint64_t new_size = this->table_size;
+
+	while (too_sparse(to_fit, new_size)) {
+		new_size = next_smaller_size(new_size);
+	}
+
+	while (too_dense(to_fit, new_size)) {
+		new_size = next_bigger_size(new_size);
+	}
+
+	assert(!too_sparse(to_fit, new_size) && !too_dense(to_fit, new_size));
+
+	// TODO: make this operation a takeback instead?
+	if (new_size != this->table_size) {
+		if (resize(this, new_size)) {
+			log_error("failed to resize");
+			return 1;
+		}
+	}
+
+	return 0;
+}
 
 // TODO: make public?
 // TODO: allow break?
@@ -27,7 +88,7 @@ static int8_t insert_internal_wrap(void* this, uint64_t key, uint64_t value) {
 	return hashtable_insert_internal(this, key, value);
 }
 
-int8_t hashtable_resize(struct hashtable_data* this, uint64_t new_size) {
+static int8_t resize(struct hashtable_data* this, uint64_t new_size) {
 	if (new_size < this->pair_count) {
 		log_error("cannot resize: target size %" PRIu64 " too small for %" PRIu64 " pairs", new_size, this->pair_count);
 		goto err_1;
