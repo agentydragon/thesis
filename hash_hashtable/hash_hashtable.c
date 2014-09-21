@@ -204,10 +204,16 @@ err_1:
 	return 1;
 }
 
+const uint32_t HASHTABLE_KEYS_WITH_HASH_MAX = (1LL << 32LL) - 1;
+
 static int8_t insert_internal(struct hashtable_data* this, uint64_t key, uint64_t value) {
 	log_info("insert_internal");
 
 	uint64_t key_hash = hash_of(this, key);
+	if (this->table[key_hash].keys_with_hash == HASHTABLE_KEYS_WITH_HASH_MAX) {
+		log_error("cannot insert - overflow in maximum bucket size");
+		return 1;
+	}
 
 	bool free_index_found = false;
 	uint64_t free_index;
@@ -239,6 +245,7 @@ static int8_t insert_internal(struct hashtable_data* this, uint64_t key, uint64_
 	this->table[free_index].value = value;
 
 	this->table[key_hash].keys_with_hash++;
+
 	this->pair_count++;
 
 	// check_invariants(this);

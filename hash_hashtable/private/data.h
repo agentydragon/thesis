@@ -4,12 +4,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+const uint32_t HASHTABLE_KEYS_WITH_HASH_MAX;
+
+// Takes 3x8 bytes
 struct hashtable_bucket {
 	// how many keys have this hash?
-	uint64_t keys_with_hash;
+	uint32_t keys_with_hash;
 
 	// the key stored in this bucket
 	bool occupied;
+
 	uint64_t key;
 	uint64_t value;
 };
