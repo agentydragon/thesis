@@ -3,6 +3,8 @@
 #include "private/dump.h"
 #include "private/hash.h"
 #include "private/traversal.h"
+#include "private/resizing.h"
+#include "private/insertion.h"
 
 #define NO_LOG_INFO
 
@@ -139,119 +141,7 @@ static int8_t find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 	return 0;
 }
 
-// TODO: make public?
-// TODO: allow break?
-static int8_t foreach(struct hashtable_data* this, int8_t (*iterate)(void*, uint64_t key, uint64_t value), void* opaque) {
-	log_info("entering foreach");
-	for (uint64_t i = 0; i < this->table_size; i++) {
-		const struct hashtable_bucket *bucket = &this->table[i];
-		if (bucket->occupied) {
-			log_info("foreach: %" PRIu64 "=%" PRIu64, bucket->key, bucket->value);
-			if (iterate(opaque, bucket->key, bucket->value)) {
-				log_error("foreach iteration failed on %ld=%ld", bucket->key, bucket->value);
-				return 1;
-			}
-		}
-	}
-	log_info("foreach complete");
-	return 0;
-}
-
-static int8_t insert_internal(struct hashtable_data* this, uint64_t key, uint64_t value);
-static int8_t insert_internal_wrap(void* this, uint64_t key, uint64_t value) {
-	return insert_internal(this, key, value);
-}
-
-static int8_t resize(struct hashtable_data* this, uint64_t new_size) {
-	if (new_size < this->pair_count) {
-		log_error("cannot resize: target size %" PRIu64 " too small for %" PRIu64 " pairs", new_size, this->pair_count);
-		goto err_1;
-	}
-	// TODO: try new hash function in this case?
-
-	// Cannot use realloc, because this can both upscale and downscale.
-	struct hashtable_data new_this = {
-		.table = malloc(sizeof(struct hashtable_bucket) * new_size),
-		.table_size = new_size,
-		.pair_count = 0
-	};
-
-	log_info("resizing to %" PRIu64, new_this.table_size);
-
-	if (!new_this.table) {
-		log_error("cannot allocate memory for %ld buckets", new_size);
-		goto err_1;
-	}
-
-	memset(new_this.table, 0, sizeof(struct hashtable_bucket) * new_size);
-
-	if (foreach(this, insert_internal_wrap, &new_this)) {
-		log_error("iteration failed");
-		goto err_2;
-	}
-
-	free(this->table);
-	this->table = new_this.table;
-	this->table_size = new_this.table_size;
-
-	log_info("resized to %" PRIu64, new_this.table_size);
-
-	return 0;
-
-err_2:
-	free(new_this.table);
-err_1:
-	return 1;
-}
-
 const uint32_t HASHTABLE_KEYS_WITH_HASH_MAX = (1LL << 32LL) - 1;
-
-static int8_t insert_internal(struct hashtable_data* this, uint64_t key, uint64_t value) {
-	log_info("insert_internal");
-
-	uint64_t key_hash = hash_of(this, key);
-	if (this->table[key_hash].keys_with_hash == HASHTABLE_KEYS_WITH_HASH_MAX) {
-		log_error("cannot insert - overflow in maximum bucket size");
-		return 1;
-	}
-
-	bool free_index_found = false;
-	uint64_t free_index;
-
-	for (uint64_t i = 0, index = key_hash;
-		i < this->table[key_hash].keys_with_hash || !free_index_found;
-		index = hashtable_next_index(this, index)\
-	) {
-
-		if (this->table[index].occupied) {
-			if (hash_of(this, this->table[index].key) == key_hash) {
-				i++;
-
-				if (this->table[index].key == key) {
-					log_error("duplicate in bucket %" PRIu64 " when inserting %" PRIu64 "=%" PRIu64, index, key, value);
-					return 1;
-				}
-			}
-		} else {
-			if (!free_index_found) {
-				free_index = index;
-				free_index_found = true;
-			}
-		}
-	}
-
-	this->table[free_index].occupied = true;
-	this->table[free_index].key = key;
-	this->table[free_index].value = value;
-
-	this->table[key_hash].keys_with_hash++;
-
-	this->pair_count++;
-
-	// check_invariants(this);
-
-	return 0;
-}
 
 static int8_t insert(void* _this, uint64_t key, uint64_t value) {
 	struct hashtable_data* this = _this;
@@ -263,13 +153,13 @@ static int8_t insert(void* _this, uint64_t key, uint64_t value) {
 		new_size = next_bigger_size(new_size);
 	}
 	if (new_size != this->table_size) {
-		if (resize(this, next_bigger_size(this->table_size))) {
+		if (hashtable_resize(this, next_bigger_size(this->table_size))) {
 			log_error("failed to resize when inserting %ld=%ld", key, value);
 			return 1;
 		}
 	}
 
-	return insert_internal(this, key, value);
+	return hashtable_insert_internal(this, key, value);
 }
 
 static int8_t delete(void* _this, uint64_t key) {
@@ -282,7 +172,7 @@ static int8_t delete(void* _this, uint64_t key) {
 		new_size = next_smaller_size(new_size);
 	}
 	if (new_size != this->table_size) {
-		if (resize(this, next_smaller_size(new_size))) {
+		if (hashtable_resize(this, next_smaller_size(new_size))) {
 			log_error("failed to resize while deleting key %ld", key);
 			return 1;
 		}
