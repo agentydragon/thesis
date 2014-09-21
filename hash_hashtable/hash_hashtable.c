@@ -27,7 +27,7 @@ static void check_invariants(struct hashtable_data* this) {
 			}
 		}
 		if (count != this->table[i].keys_with_hash) {
-			log_fatal("bucket %" PRIu64 " claims to have %" PRIu64 " pairs, but actually has %" PRIu64 "!",
+			log_fatal("bucket %" PRIu64 " claims to have %" PRIu32 " pairs, but actually has %" PRIu64 "!",
 				i,
 				this->table[i].keys_with_hash,
 				count);

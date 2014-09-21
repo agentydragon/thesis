@@ -40,7 +40,7 @@ static void calculate_distances(struct hashtable_data* this, int distances[100])
 
 static void dump_bucket(struct hashtable_data* this, uint64_t index, struct hashtable_bucket* bucket) {
 	if (bucket->occupied) {
-		log_plain("[%04" PRIu64 "] keys_with_hash=%" PRIu64 " occupied, %" PRIu64 "(h=%" PRIu64 ")=%" PRIu64,
+		log_plain("[%04" PRIu64 "] keys_with_hash=%" PRIu32 " occupied, %" PRIu64 "(h=%" PRIu64 ")=%" PRIu64,
 			index,
 			bucket->keys_with_hash,
 			bucket->key,
@@ -48,7 +48,7 @@ static void dump_bucket(struct hashtable_data* this, uint64_t index, struct hash
 			bucket->value
 		);
 	} else {
-		log_plain("[%04" PRIu64 "] keys_with_hash=%" PRIu64 " not occupied",
+		log_plain("[%04" PRIu64 "] keys_with_hash=%" PRIu32 " not occupied",
 			index,
 			bucket->keys_with_hash
 		);
