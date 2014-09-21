@@ -14,7 +14,7 @@
 #include <assert.h>
 
 // TODO: PERF_COUNT_SW_ALIGNMENT_FAULTS
-// TODO: maybe group all measurements together? maybe the kernel allows this...
+// TODO: use perf_event groups later?
 
 static int perf_event_open(struct perf_event_attr *hw_event, pid_t pid, int cpu, int group_fd, unsigned long flags) {
 	return syscall(__NR_perf_event_open, hw_event, pid, cpu, group_fd, flags);
