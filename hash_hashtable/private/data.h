@@ -6,21 +6,20 @@
 
 const uint32_t HASHTABLE_KEYS_WITH_HASH_MAX;
 
-// Takes 3x8 bytes
-struct hashtable_bucket {
-	// how many keys have this hash?
+// je to velke 56 bytu. keys_with_hash muze byt jenom uint32_t
+// a je tam moc prazdneho prostoru :(
+struct hashtable_block {
+	uint64_t keys[3];
+	uint64_t values[3];
+	bool occupied[3];
 	uint32_t keys_with_hash;
 
-	// the key stored in this bucket
-	bool occupied;
-
-	uint64_t key;
-	uint64_t value;
+	uint8_t _unused[8]; // padded to 64 bytes
 };
 
 struct hashtable_data {
-	struct hashtable_bucket* table;
-	uint64_t table_size;
+	struct hashtable_block* blocks;
+	uint64_t blocks_size;
 	uint64_t pair_count;
 };
 

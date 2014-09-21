@@ -7,46 +7,48 @@
 #include "../../log/log.h"
 
 int8_t hashtable_insert_internal(struct hashtable_data* this, uint64_t key, uint64_t value) {
-	uint64_t key_hash = hash_of(this, key);
-	if (this->table[key_hash].keys_with_hash == HASHTABLE_KEYS_WITH_HASH_MAX) {
+	uint64_t key_hash = hashtable_hash_of(this, key);
+	struct hashtable_block* home_block = &this->blocks[key_hash];
+
+	if (home_block->keys_with_hash == HASHTABLE_KEYS_WITH_HASH_MAX) {
 		log_error("cannot insert - overflow in maximum bucket size");
 		return 1;
 	}
 
 	bool free_index_found = false;
-	uint64_t free_index;
 
 	for (uint64_t i = 0, index = key_hash;
-		i < this->table[key_hash].keys_with_hash || !free_index_found;
-		index = hashtable_next_index(this, index)\
+		i < home_block->keys_with_hash || !free_index_found;
+		index = hashtable_next_index(this, index)
 	) {
+		struct hashtable_block* block = &this->blocks[index];
 
-		if (this->table[index].occupied) {
-			if (hash_of(this, this->table[index].key) == key_hash) {
-				i++;
-
-				if (this->table[index].key == key) {
-					log_error("duplicate in bucket %" PRIu64 " when inserting %" PRIu64 "=%" PRIu64, index, key, value);
+		for (int subindex = 0; subindex < 3; subindex++) {
+			if (block->occupied[subindex]) {
+				if (block->keys[subindex] == key) {
+					log_error("duplicate in bucket %" PRIu64 " "
+						"when inserting %" PRIu64 "=%" PRIu64,
+						index, key, value);
 					return 1;
 				}
-			}
-		} else {
-			if (!free_index_found) {
-				free_index = index;
-				free_index_found = true;
+
+				if (hashtable_hash_of(this, block->keys[subindex]) == key_hash) {
+					i++;
+				}
+			} else {
+				block->occupied[subindex] = true;
+				block->keys[subindex] = key;
+				block->values[subindex] = value;
+
+				home_block->keys_with_hash++;
+
+				this->pair_count++;
+
+				return 0;
 			}
 		}
 	}
 
-	this->table[free_index].occupied = true;
-	this->table[free_index].key = key;
-	this->table[free_index].value = value;
-
-	this->table[key_hash].keys_with_hash++;
-
-	this->pair_count++;
-
-	// check_invariants(this);
-
-	return 0;
+	log_error("?!");
+	return 1;
 }

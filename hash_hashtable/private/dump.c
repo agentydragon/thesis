@@ -10,6 +10,7 @@
 #include <string.h>
 #include <assert.h>
 
+/*
 static void calculate_bucket_sizes(struct hashtable_data* this, int bucket_sizes[100]) {
 	memset(bucket_sizes, 0, sizeof(int) * 100);
 	for (uint64_t i = 0; i < this->table_size; i++) {
@@ -68,26 +69,25 @@ void hashtable_dump(void* _this) {
 	calculate_bucket_sizes(this, bucket_sizes);
 	calculate_distances(this, distances);
 
-	/*
 	for (int i = 0; i < 100; i++) {
 		if (bucket_sizes[i] > 0) {
 			log_plain("%d same-hash groups of size %d", bucket_sizes[i], i);
 		}
 	}
-	*/
 	log_plain("average bucket size: %.2lf", histogram_average_i(bucket_sizes, 100));
-	/*
 	for (int i = 0; i < 100; i++) {
 		if (distances[i] > 0) {
 			log_plain("%d groups of distance %d", distances[i], i);
 		}
 	}
-	*/
 	log_plain("average distance: %.2lf", histogram_average_i(distances, 100));
-
-	/*
 	for (uint64_t i = 0; i < this->table_size; i++) {
 		dump_bucket(this, i, &this->table[i]);
 	}
-	*/
+}
+*/
+
+void hashtable_dump(void* _this) {
+	(void) _this;
+	log_error("TODO: implement hashtable_dump!");
 }

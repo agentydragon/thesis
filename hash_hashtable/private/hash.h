@@ -3,6 +3,7 @@
 
 #include "data.h"
 
-uint64_t hash_of(struct hashtable_data* this, uint64_t x);
+uint64_t hashtable_hash_of(struct hashtable_data* this, uint64_t key);
+// uint64_t hash_of(struct hashtable_data* this, uint64_t x);
 
 #endif

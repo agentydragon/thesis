@@ -15,6 +15,7 @@
 #include <inttypes.h>
 #include <assert.h>
 
+/*
 static void check_invariants(struct hashtable_data* this) {
 	uint64_t total = 0;
 	for (uint64_t i = 0; i < this->table_size; i++) {
@@ -36,6 +37,7 @@ static void check_invariants(struct hashtable_data* this) {
 	CHECK(this->pair_count == total);
 	log_info("check_invariants OK");
 }
+*/
 
 static int8_t init(void** _this, void* args_unused) {
 	(void) args_unused;
@@ -47,8 +49,8 @@ static int8_t init(void** _this, void* args_unused) {
 	}
 
 	*this = (struct hashtable_data) {
-		.table = NULL,
-		.table_size = 0,
+		.blocks = NULL,
+		.blocks_size = 0,
 		.pair_count = 0
 	};
 	*_this = this;
@@ -59,7 +61,7 @@ static void destroy(void** _this) {
 	if (_this) {
 		struct hashtable_data* this = *_this;
 		if (this) {
-			free(this->table);
+			free(this->blocks);
 		}
 		free(this);
 		*_this = NULL;
@@ -69,24 +71,29 @@ static void destroy(void** _this) {
 static int8_t find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 	struct hashtable_data* this = _this;
 
-	log_info("find(%" PRIu64 "(h=%" PRIu64 "))", key, hash_of(this, key));
+	uint64_t key_hash = hashtable_hash_of(this, key);
 
-	uint64_t key_hash = hash_of(this, key);
+	log_info("find(%" PRIu64 "(h=%" PRIu64 "))", key, key_hash);
 
 	uint64_t index = key_hash;
-	uint64_t keys_with_hash = this->table[index].keys_with_hash;
+	uint64_t keys_with_hash = this->blocks[index].keys_with_hash;
 
 	for (uint64_t i = 0; i < keys_with_hash; index = hashtable_next_index(this, index)) {
-		if (this->table[index].occupied) {
-			if (this->table[index].key == key) {
-				*found = true;
-				if (value) *value = this->table[index].value;
-				log_info("find(%" PRIu64 "): found, value=%" PRIu64, key, this->table[index].value);
-				return 0;
-			}
+		struct hashtable_block* block = &this->blocks[index];
 
-			if (hash_of(this, this->table[index].key) == key_hash) {
-				i++;
+		for (int subindex = 0; subindex < 3; subindex++) {
+			if (block->occupied[subindex]) {
+				if (block->keys[subindex] == key) {
+					*found = true;
+					if (value) *value = block->values[subindex];
+					log_info("find(%" PRIu64 "): found, value=%" PRIu64,
+							key, block->values[subindex]);
+					return 0;
+				}
+
+				if (hashtable_hash_of(this, block->keys[subindex]) == key_hash) {
+					i++;
+				}
 			}
 		}
 		// TODO: guard against infinite loop?
@@ -122,25 +129,29 @@ static int8_t delete(void* _this, uint64_t key) {
 		return 1;
 	}
 
-	uint64_t key_hash = hash_of(this, key);
+	uint64_t key_hash = hashtable_hash_of(this, key);
 
 	uint64_t index = key_hash;
-	uint64_t keys_with_hash = this->table[key_hash].keys_with_hash;
+	uint64_t keys_with_hash = this->blocks[key_hash].keys_with_hash;
 
 	for (uint64_t i = 0; i < keys_with_hash; index = hashtable_next_index(this, index)) {
-		if (this->table[index].occupied) {
-			if (this->table[index].key == key) {
-				this->table[index].occupied = false;
-				this->table[key_hash].keys_with_hash--;
-				this->pair_count--;
+		struct hashtable_block* block = &this->blocks[index];
 
-				// check_invariants(this);
+		for (int subindex = 0; subindex < 3; subindex++) {
+			if (block->occupied[subindex]) {
+				if (block->keys[subindex] == key) {
+					block->occupied[subindex] = false;
+					this->blocks[key_hash].keys_with_hash--;
+					this->pair_count--;
 
-				return 0;
-			}
+					// check_invariants(this);
 
-			if (hash_of(this, this->table[index].key) == key_hash) {
-				i++;
+					return 0;
+				}
+
+				if (hashtable_hash_of(this, block->keys[subindex])) {
+					i++;
+				}
 			}
 		}
 	}
