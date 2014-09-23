@@ -5,6 +5,7 @@
 #include "private/traversal.h"
 #include "private/resizing.h"
 #include "private/insertion.h"
+#include "private/find.h"
 
 #define NO_LOG_INFO
 
@@ -68,42 +69,6 @@ static void destroy(void** _this) {
 	}
 }
 
-static int8_t find(void* _this, uint64_t key, uint64_t *value, bool *found) {
-	struct hashtable_data* this = _this;
-
-	uint64_t key_hash = hashtable_hash_of(this, key);
-
-	log_info("find(%" PRIu64 "(h=%" PRIu64 "))", key, key_hash);
-
-	uint64_t index = key_hash;
-	uint64_t keys_with_hash = this->blocks[index].keys_with_hash;
-
-	for (uint64_t i = 0; i < keys_with_hash; index = hashtable_next_index(this, index)) {
-		struct hashtable_block* block = &this->blocks[index];
-
-		for (int subindex = 0; subindex < 3; subindex++) {
-			if (block->occupied[subindex]) {
-				if (block->keys[subindex] == key) {
-					*found = true;
-					if (value) *value = block->values[subindex];
-					log_info("find(%" PRIu64 "): found, value=%" PRIu64,
-							key, block->values[subindex]);
-					return 0;
-				}
-
-				if (hashtable_hash_of(this, block->keys[subindex]) == key_hash) {
-					i++;
-				}
-			}
-		}
-		// TODO: guard against infinite loop?
-	}
-
-	log_info("find(%" PRIu64 "): not found", key);
-	*found = false;
-	return 0;
-}
-
 const uint32_t HASHTABLE_KEYS_WITH_HASH_MAX = (1LL << 32LL) - 1;
 
 static int8_t insert(void* _this, uint64_t key, uint64_t value) {
@@ -164,7 +129,7 @@ const hash_api hash_hashtable = {
 	.init = init,
 	.destroy = destroy,
 
-	.find = find,
+	.find = hashtable_find,
 	.insert = insert,
 	.delete = delete,
 

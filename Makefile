@@ -1,4 +1,4 @@
-CFLAGS=-g -std=gnu11 -W -Wall
+CFLAGS=-g -std=gnu11 -W -Wall -O3
 CC=gcc
 
 SOURCES= \

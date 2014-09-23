@@ -20,25 +20,6 @@ static void calculate_bucket_sizes(struct hashtable_data* this, int bucket_sizes
 	}
 }
 
-static void calculate_distances(struct hashtable_data* this, int distances[100]) {
-	memset(distances, 0, sizeof(int) * 100);
-	// TODO: optimize?
-	for (uint64_t i = 0; i < this->table_size; i++) {
-		uint64_t distance = 0;
-
-		for (uint64_t j = i, count = 0;
-			count < this->table[i].keys_with_hash;
-			j = hashtable_next_index(this, j), distance++) {
-			if (this->table[j].occupied) {
-				if (hash_of(this, this->table[j].key) == i) {
-					distances[distance]++;
-					count++;
-				}
-			}
-		}
-	}
-}
-
 static void dump_bucket(struct hashtable_data* this, uint64_t index, struct hashtable_bucket* bucket) {
 	if (bucket->occupied) {
 		log_plain("[%04" PRIu64 "] keys_with_hash=%" PRIu32 " occupied, %" PRIu64 "(h=%" PRIu64 ")=%" PRIu64,
@@ -67,7 +48,6 @@ void hashtable_dump(void* _this) {
 	int distances[100] = { 0 };
 
 	calculate_bucket_sizes(this, bucket_sizes);
-	calculate_distances(this, distances);
 
 	for (int i = 0; i < 100; i++) {
 		if (bucket_sizes[i] > 0) {
@@ -75,19 +55,43 @@ void hashtable_dump(void* _this) {
 		}
 	}
 	log_plain("average bucket size: %.2lf", histogram_average_i(bucket_sizes, 100));
-	for (int i = 0; i < 100; i++) {
-		if (distances[i] > 0) {
-			log_plain("%d groups of distance %d", distances[i], i);
-		}
-	}
-	log_plain("average distance: %.2lf", histogram_average_i(distances, 100));
 	for (uint64_t i = 0; i < this->table_size; i++) {
 		dump_bucket(this, i, &this->table[i]);
 	}
 }
 */
 
+static void calculate_distances(struct hashtable_data* this, int distances[100]) {
+	memset(distances, 0, sizeof(int) * 100);
+	// TODO: optimize?
+	for (uint64_t i = 0; i < this->blocks_size; i++) {
+		for (int subindex = 0; subindex < 3; subindex++) {
+			if (!this->blocks[i].occupied[subindex]) continue;
+
+			uint64_t should_be_at = hashtable_hash_of(this, this->blocks[i].keys[subindex]);
+
+			uint64_t distance;
+			if (should_be_at <= i) distance = i - should_be_at;
+			else distance = (this->blocks_size - should_be_at) + i;
+			distances[distance]++;
+		}
+	}
+}
+
 void hashtable_dump(void* _this) {
-	(void) _this;
-	log_error("TODO: implement hashtable_dump!");
+	struct hashtable_data* this = _this;
+
+	log_plain("hash_hashtable blocks:%ld pair_count:%ld",
+			this->blocks_size, this->pair_count);
+
+	{
+		int distances[100] = { 0 };
+		calculate_distances(this, distances);
+		log_plain("average distance: %.2lf", histogram_average_i(distances, 100));
+		for (int i = 0; i < 100; i++) {
+			if (distances[i] > 0) {
+				log_plain("distance %3d: %8d groups", i, distances[i]);
+			}
+		}
+	}
 }
