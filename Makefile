@@ -7,6 +7,7 @@ SOURCES= \
 	stopwatch/*.c measurement/*.c \
 	hash_array/*.c hash_hashtable/*.c \
 	observation/*.c test_observation/*.c \
+	rand/*.c test_rand/*.c \
 	util/*.c \
 	performance/*.c
 

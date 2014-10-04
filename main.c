@@ -7,8 +7,9 @@
 #include "hash_hashtable/hash_hashtable.h"
 
 #include "test_hash/test_hash.h"
-#include "test_observation/test_observation.h"
 #include "test_hash/test_hash_large.h"
+#include "test_observation/test_observation.h"
+#include "test_rand/test_rand.h"
 
 #include "log/log.h"
 
@@ -18,6 +19,8 @@ int test_mmap();
 
 int main(int argc, char** argv) {
 	(void) argc; (void) argv;
+
+	test_rand();
 
 	time_random_reads(&hash_array, 1000, 10000);
 
