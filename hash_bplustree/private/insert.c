@@ -20,6 +20,7 @@ static void insert_into_leaf(struct hashbplustree_node* node,
 	node->keys[index] = key;
 	node->values[index] = value;
 	node->keys_count++;
+	// TODO: check that it's not overfull
 }
 
 int8_t hashbplustree_insert(void* _this, uint64_t key, uint64_t value) {
