@@ -17,11 +17,16 @@
 
 int test_mmap();
 
-int main(int argc, char** argv) {
-	(void) argc; (void) argv;
-
+void run_unit_tests() {
 	test_rand();
+	test_hash(&hash_array);
+	test_hash(&hash_hashtable);
+	test_observation(); // Uses hash_array.
+//	test_hash_large(&hash_array);
+	test_hash_large(&hash_hashtable);
+}
 
+void run_performance_tests() {
 	time_random_reads(&hash_array, 1000, 10000);
 
 	time_random_reads(&hash_array, 10000, 100000);
@@ -37,18 +42,15 @@ int main(int argc, char** argv) {
 	time_random_reads(&hash_hashtable, 10000000, 20000000);
 	time_random_reads(&hash_hashtable, 20000000, 100000000);
 	time_random_reads(&hash_hashtable, 50000000, 100000000);
-
-	test_hash(&hash_array);
-	test_hash(&hash_hashtable);
-
-	test_observation(); // Uses hash_array.
-
-//	test_hash_large(&hash_array);
-	test_hash_large(&hash_hashtable);
-
 //	if (test_mmap()) return 1;
 }
 
+int main(int argc, char** argv) {
+	(void) argc; (void) argv;
+
+	run_unit_tests();
+	run_performance_tests();
+}
 
 int test_mmap() {
 	// 4 GB

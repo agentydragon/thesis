@@ -1,6 +1,9 @@
 #include "hash.h"
+#include <assert.h>
 
 uint64_t hashtable_hash_of(struct hashtable_data* this, uint64_t x) {
+	assert(this->blocks_size > 0);
+
 	// FNV
 	uint64_t result = 0xcbf29ce484222325;
 	for (int i = 0; i < 8; i++) {
@@ -8,6 +11,7 @@ uint64_t hashtable_hash_of(struct hashtable_data* this, uint64_t x) {
 		result ^= x & 0xFF;
 		x >>= 8;
 	}
+
 	return result % this->blocks_size;
 }
 

@@ -55,6 +55,26 @@ static void delete(hash* table, uint64_t key) {
 		log_fatal("cannot delete key %ld", key);
 }
 
+static void has_no_elements_at_first(const hash_api* api) {
+	hash* table;
+	if (hash_init(&table, api, NULL)) log_fatal("cannot init hash table");
+
+	has_no_element(table, 1);
+	has_no_element(table, 2);
+
+	hash_destroy(&table);
+}
+
+static void doesnt_delete_at_first(const hash_api* api) {
+	hash* table;
+	if (hash_init(&table, api, NULL)) log_fatal("cannot init hash table");
+
+	assert(hash_delete(table, 1));
+	assert(hash_delete(table, 2));
+
+	hash_destroy(&table);
+}
+
 static void stores_two_elements(const hash_api* api) {
 	hash* table;
 	if (hash_init(&table, api, NULL)) log_fatal("cannot init hash table");
@@ -62,6 +82,9 @@ static void stores_two_elements(const hash_api* api) {
 	debug("stores_two_elements(%s)", api->name);
 
 	insert(table, 1, 10);
+	has_element(table, 1, 10);
+	has_no_element(table, 2);
+
 	insert(table, 2, 20);
 	has_element(table, 1, 10);
 	has_element(table, 2, 20);
@@ -118,7 +141,12 @@ static void stores_elements(const hash_api* api, uint64_t N) {
 
 void test_hash(const hash_api* api) {
 	log_plain("%s", api->name);
+
+	it(has_no_elements_at_first(api));
+	it(doesnt_delete_at_first(api));
+
 	it(stores_two_elements(api));
+
 	it(stores_elements(api, 10));
 	it(stores_elements(api, 20));
 	it(stores_elements(api, 50));

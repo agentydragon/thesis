@@ -89,6 +89,11 @@ static int8_t delete(void* _this, uint64_t key) {
 
 	log_info("delete(%" PRIu64 ")", key);
 
+	if (this->pair_count == 0) {
+		// Empty hash table has no elements.
+		return 1;
+	}
+
 	if (hashtable_resize_to_fit(this, this->pair_count - 1)) {
 		log_error("failed to resize to fit one less element");
 		return 1;

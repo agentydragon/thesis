@@ -13,6 +13,12 @@
 int8_t hashtable_find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 	struct hashtable_data* this = _this;
 
+	// Empty hash tables have undefined hashes.
+	if (this->blocks_size == 0) {
+		*found = false;
+		return 0;
+	}
+
 	const uint64_t key_hash = hashtable_hash_of(this, key);
 
 	log_info("find(%" PRIu64 "(h=%" PRIu64 "))", key, key_hash);

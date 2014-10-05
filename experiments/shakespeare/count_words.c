@@ -5,6 +5,7 @@
 #include <string.h>
 #include <assert.h>
 
+#include "../../log/log.h"
 #include "../../stopwatch/stopwatch.h"
 #include "../../hash/hash.h"
 #include "../../hash_hashtable/hash_hashtable.h"
@@ -77,12 +78,18 @@ static void report_count(const char* word) {
 	}
 }
 
+#define PATH "shakespeare.txt"
+
 int main(int argc, char** argv) {
 	(void) argc; (void) argv;
 
 	assert(!hash_init(&word_count, &hash_hashtable, NULL));
 
-	FILE* f = fopen("shakespeare/shakespeare.txt", "r");
+	FILE* f = fopen(PATH, "r");
+	if (!f) {
+		log_fatal("Cannot open " PATH);
+	}
+
 	char line[65535];
 
 	printf("Counting words...\n");
@@ -95,6 +102,8 @@ int main(int argc, char** argv) {
 		fgets(line, sizeof(line), f);
 		process_line(line);
 		lineno++;
+
+		printf("line: %s\n", line);
 
 		if (lineno % 1000 == 0) {
 			printf("line %" PRIu64 ", last 1000 lines took %" PRIu64 " ms\n", lineno, stopwatch_read_ms(watch_1000));
