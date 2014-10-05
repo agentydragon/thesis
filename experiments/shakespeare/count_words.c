@@ -44,12 +44,13 @@ static void add_word(char* word) {
 	bool found;
 	uint64_t value;
 	assert(!hash_find(word_count, key, &value, &found));
+	// hash_dump(word_count);
 	if (found) {
-		// printf("[%s]: %" PRIu64 " -> %" PRIu64 "\n", normalized, key, value + 1);
+		// printf("[%s]: %" PRIx64 " -> %" PRIu64 "\n", normalized, key, value + 1);
 		assert(!hash_delete(word_count, key));
 		assert(!hash_insert(word_count, key, value + 1));
 	} else {
-		// printf("[%s]: %" PRIu64 " = 1 (not found yet)\n", normalized, key);
+		// printf("[%s]: %" PRIx64 " = 1 (not found yet)\n", normalized, key);
 		assert(!hash_insert(word_count, key, 1));
 	}
 
@@ -102,8 +103,6 @@ int main(int argc, char** argv) {
 		fgets(line, sizeof(line), f);
 		process_line(line);
 		lineno++;
-
-		printf("line: %s\n", line);
 
 		if (lineno % 1000 == 0) {
 			printf("line %" PRIu64 ", last 1000 lines took %" PRIu64 " ms\n", lineno, stopwatch_read_ms(watch_1000));

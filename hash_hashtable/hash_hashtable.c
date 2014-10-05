@@ -19,19 +19,24 @@
 /*
 static void check_invariants(struct hashtable_data* this) {
 	uint64_t total = 0;
-	for (uint64_t i = 0; i < this->table_size; i++) {
-		if (this->table[i].occupied) total++;
+	for (uint64_t i = 0; i < this->blocks_size; i++) {
+		for (int subindex1 = 0; subindex1 < 3; subindex1++) {
+			if (this->blocks[i].occupied[subindex1]) total++;
+		}
 
 		uint64_t count = 0;
-		for (uint64_t j = 0; j < this->table_size; j++) {
-			if (this->table[j].occupied && hash_of(this, this->table[j].key) == i) {
-				count++;
+		for (uint64_t j = 0; j < this->blocks_size; j++) {
+			for (int subindex = 0; subindex < 3; subindex++) {
+				if (this->blocks[j].occupied[subindex] &&
+						hashtable_hash_of(this, this->blocks[j].keys[subindex]) == i) {
+					count++;
+				}
 			}
 		}
-		if (count != this->table[i].keys_with_hash) {
-			log_fatal("bucket %" PRIu64 " claims to have %" PRIu32 " pairs, but actually has %" PRIu64 "!",
+		if (count != this->blocks[i].keys_with_hash) {
+			log_fatal("bucket %" PRIx64 " claims to have %" PRIu32 " pairs, but actually has %" PRIx64 "!",
 				i,
-				this->table[i].keys_with_hash,
+				this->blocks[i].keys_with_hash,
 				count);
 		}
 	}
@@ -74,7 +79,7 @@ const uint32_t HASHTABLE_KEYS_WITH_HASH_MAX = (1LL << 32LL) - 1;
 static int8_t insert(void* _this, uint64_t key, uint64_t value) {
 	struct hashtable_data* this = _this;
 
-	log_info("insert(%" PRIu64 ", %" PRIu64 ")", key, value);
+	log_info("insert(%" PRIx64 ", %" PRIx64 ")", key, value);
 
 	if (hashtable_resize_to_fit(this, this->pair_count + 1)) {
 		log_error("failed to resize to fit one more element");
@@ -87,7 +92,7 @@ static int8_t insert(void* _this, uint64_t key, uint64_t value) {
 static int8_t delete(void* _this, uint64_t key) {
 	struct hashtable_data* this = _this;
 
-	log_info("delete(%" PRIu64 ")", key);
+	log_info("delete(%" PRIx64 ")", key);
 
 	if (this->pair_count == 0) {
 		// Empty hash table has no elements.
@@ -99,35 +104,29 @@ static int8_t delete(void* _this, uint64_t key) {
 		return 1;
 	}
 
-	uint64_t key_hash = hashtable_hash_of(this, key);
+	const uint64_t key_hash = hashtable_hash_of(this, key);
 
-	uint64_t index = key_hash;
-	uint64_t keys_with_hash = this->blocks[key_hash].keys_with_hash;
+	struct hashtable_block *_block;
+	uint8_t _subindex;
+	bool _found;
 
-	for (uint64_t i = 0; i < keys_with_hash; index = hashtable_next_index(this, index)) {
-		struct hashtable_block* block = &this->blocks[index];
-
-		for (int subindex = 0; subindex < 3; subindex++) {
-			if (block->occupied[subindex]) {
-				if (block->keys[subindex] == key) {
-					block->occupied[subindex] = false;
-					this->blocks[key_hash].keys_with_hash--;
-					this->pair_count--;
-
-					// check_invariants(this);
-
-					return 0;
-				}
-
-				if (hashtable_hash_of(this, block->keys[subindex])) {
-					i++;
-				}
-			}
-		}
+	if (hashtable_find_position(this, key,
+			&_block, &_subindex, &_found)) {
+		return 1;
 	}
 
-	log_error("key %" PRIu64 " not present, cannot delete", key);
-	return 1;
+	if (_found) {
+		_block->occupied[_subindex] = false;
+		this->blocks[key_hash].keys_with_hash--;
+		this->pair_count--;
+
+		// check_invariants(this);
+
+		return 0;
+	} else {
+		log_error("key %" PRIx64 " not present, cannot delete", key);
+		return 1;
+	}
 }
 
 const hash_api hash_hashtable = {

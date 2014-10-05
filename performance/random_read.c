@@ -46,7 +46,7 @@ void time_random_reads(const hash_api* api, int size, int reads) {
 		results = measurement_end(measurement);
 	}
 
-	hash_dump(table);
+	// hash_dump(table);
 
 	uint64_t duration_ns = stopwatch_read_ns(watch);
 

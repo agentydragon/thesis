@@ -7,6 +7,7 @@
 #include <string.h>
 #include <assert.h>
 
+#define NO_LOG_INFO
 #include "../../log/log.h"
 
 static const uint64_t MIN_SIZE = 2;
@@ -65,8 +66,8 @@ int8_t hashtable_resize_to_fit(struct hashtable_data* this, uint64_t to_fit) {
 
 	// TODO: make this operation a takeback instead?
 	if (new_blocks_size != this->blocks_size) {
-		// log_info("will resize to %" PRIu64 " to fit %" PRIu64,
-		// 		new_blocks_size, to_fit);
+		log_info("will resize to %" PRIu64 " to fit %" PRIu64,
+				new_blocks_size, to_fit);
 
 		if (resize(this, new_blocks_size)) {
 			log_error("failed to resize");
@@ -116,7 +117,7 @@ static int8_t resize(struct hashtable_data* this, uint64_t new_blocks_size) {
 		.pair_count = 0
 	};
 
-	// log_info("resizing to %" PRIu64, new_this.blocks_size);
+	log_info("resizing to %" PRIu64, new_this.blocks_size);
 
 	if (!new_this.blocks) {
 		log_error("cannot allocate memory for %ld blocks", new_blocks_size);
