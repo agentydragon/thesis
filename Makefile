@@ -9,15 +9,13 @@ SOURCES= \
 	observation/*.c test_observation/*.c \
 	rand/*.c test_rand/*.c \
 	util/*.c \
-	performance/*.c
+	performance/*.c \
+	test_hash_bplustree/*.c hash_bplustree/*.c hash_bplustree/private/*.c \
 
-all: bin/test bin/performance bin/hash_test
+all: bin/test bin/performance
 
 bin/test: test.c $(SOURCES)
 	$(CC) $(CFLAGS) test.c $(SOURCES) -o $@
 
 bin/performance: performance.c $(SOURCES)
 	$(CC) $(CFLAGS) performance.c $(SOURCES) -o $@
-
-bin/hash_test: hash_test.c $(SOURCES)
-	$(CC) $(CFLAGS) hash_test.c $(SOURCES) -o $@

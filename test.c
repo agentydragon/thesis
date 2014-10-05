@@ -9,12 +9,17 @@
 #include "test_observation/test_observation.h"
 #include "test_rand/test_rand.h"
 
+#include "test_hash_bplustree/test_hash_bplustree.h"
+
 #include "log/log.h"
 
 #include "performance/random_read.h"
 
 void run_unit_tests() {
 	test_rand();
+
+	test_hash_bplustree();
+
 	test_hash(&hash_array);
 	test_hash(&hash_hashtable);
 	test_observation(); // Uses hash_array.
