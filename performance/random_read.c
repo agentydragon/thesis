@@ -3,6 +3,7 @@
 #include "../hash/hash.h"
 #include "../stopwatch/stopwatch.h"
 #include "../measurement/measurement.h"
+#include "../rand/rand.h"
 
 #include <inttypes.h>
 #include <assert.h>
@@ -26,7 +27,7 @@ void time_random_reads(const hash_api* api, int size, int reads) {
 		if (hash_insert(table, make_key(i), make_value(i))) log_fatal("cannot insert");
 	}
 
-	srand(0);
+	rand_generator generator = { .state = 0 };
 	stopwatch watch = stopwatch_start();
 
 	struct measurement_results results;
@@ -35,7 +36,7 @@ void time_random_reads(const hash_api* api, int size, int reads) {
 
 		// Let every read be a hit.
 		for (int i = 0; i < reads; i++) {
-			int k = rand() % size;
+			int k = rand_next(&generator, size);
 			uint64_t value;
 			bool found;
 			assert(!hash_find(table, make_key(k), &value, &found));

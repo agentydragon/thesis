@@ -7,6 +7,7 @@ typedef struct {
 	uint64_t state;
 } rand_generator;
 
+void rand_seed_with_time(rand_generator* generator);
 uint64_t rand_next(rand_generator* generator, uint64_t max);
 
 #endif
