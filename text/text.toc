@@ -1,0 +1,12 @@
+\select@language {czech}
+\contentsline {section}{\numberline {1}\IeC {\'U}vod}{1}
+\contentsline {subsection}{\numberline {1.1}Roz\IeC {\v s}\IeC {\'\i }\IeC {\v r}en\IeC {\'\i } slovn\IeC {\'\i }ku}{2}
+\contentsline {subsection}{\numberline {1.2}Trivi\IeC {\'a}ln\IeC {\'\i } implementace}{2}
+\contentsline {subsubsection}{\numberline {1.2.1}Pole p\IeC {\'a}r\IeC {\r u} kl\IeC {\'\i }\IeC {\v c}-hodnota}{2}
+\contentsline {subsubsection}{\numberline {1.2.2}P\IeC {\v r}\IeC {\'\i }m\IeC {\'a} adresace}{2}
+\contentsline {section}{\numberline {2}Hashov\IeC {\'a}n\IeC {\'\i }}{2}
+\contentsline {subsection}{\numberline {2.1}Kolizn\IeC {\'\i } seznam}{3}
+\contentsline {subsection}{\numberline {2.2}Dvojit\IeC {\'e} hashov\IeC {\'a}n\IeC {\'\i }}{3}
+\contentsline {subsection}{\numberline {2.3}Otev\IeC {\v r}en\IeC {\'a} adresace}{3}
+\contentsline {subsection}{\numberline {2.4}Kuka\IeC {\v c}\IeC {\v c}\IeC {\'\i } hashov\IeC {\'a}n\IeC {\'\i } (\textit {cuckoo hashing})}{3}
+\contentsline {section}{\numberline {3}Vyhled\IeC {\'a}vac\IeC {\'\i } stromy}{3}

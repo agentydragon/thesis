@@ -1,0 +1,16 @@
+2014-09-20:
+	Pomohlo tomu hodne zmenit hash funkci na neco jineho.
+	Kybliky mely spatnou distribuci velikosti, takze se hodne zvetsovala
+	typicka doba na dotaz.
+
+	Funkce byla:
+		PRIME_X = 433024253L, PRIME_Y = 817504243;
+		=> ((x * PRIME_X) ^ (x * PRIME_Y)) % max;
+
+2014-10-05:
+	core i7 etc.: cache line = 64 B (getconf LEVEL1_DCACHE_LINESIZE)
+
+	C minimum perfect hashing: http://cmph.sourceforge.net/
+	http://en.wikipedia.org/wiki/Dynamic_perfect_hashing
+
+	Dump assembleru: objdump -d -M intel -S abc.o
