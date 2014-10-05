@@ -5,9 +5,9 @@
 #include <string.h>
 #include <assert.h>
 
-#include "../stopwatch/stopwatch.h"
-#include "../hash/hash.h"
-#include "../hash_hashtable/hash_hashtable.h"
+#include "../../stopwatch/stopwatch.h"
+#include "../../hash/hash.h"
+#include "../../hash_hashtable/hash_hashtable.h"
 
 hash* word_count;
 
