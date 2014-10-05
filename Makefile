@@ -11,10 +11,13 @@ SOURCES= \
 	util/*.c \
 	performance/*.c
 
-all: bin/main bin/hash_test
+all: bin/test bin/performance bin/hash_test
 
-bin/main: main.c $(SOURCES)
-	$(CC) $(CFLAGS) main.c $(SOURCES) -o $@
+bin/test: test.c $(SOURCES)
+	$(CC) $(CFLAGS) test.c $(SOURCES) -o $@
+
+bin/performance: performance.c $(SOURCES)
+	$(CC) $(CFLAGS) performance.c $(SOURCES) -o $@
 
 bin/hash_test: hash_test.c $(SOURCES)
 	$(CC) $(CFLAGS) hash_test.c $(SOURCES) -o $@
