@@ -4,14 +4,15 @@
 
 #include <assert.h>
 
+typedef struct hashbplustree_node node;
+typedef struct hashbplustree tree;
+
 static void test_inserting_to_empty_root_leaf() {
-	struct hashbplustree_node root = {
+	node root = {
 		.is_leaf = true,
 		.keys_count = 0
 	};
-	struct hashbplustree tree = {
-		.root = &root
-	};
+	tree tree = { .root = &root };
 
 	assert(!hashbplustree_insert(&tree, 10, 12345));
 
@@ -22,15 +23,13 @@ static void test_inserting_to_empty_root_leaf() {
 }
 
 static void test_inserting_to_nonempty_root_leaf() {
-	struct hashbplustree_node root = {
+	node root = {
 		.is_leaf = true,
 		.keys_count = 2,
 		.keys = { 10, 30 },
 		.values = { 100, 300 }
 	};
-	struct hashbplustree tree = {
-		.root = &root
-	};
+	tree tree = { .root = &root };
 
 	assert(!hashbplustree_insert(&tree, 20, 200));
 
