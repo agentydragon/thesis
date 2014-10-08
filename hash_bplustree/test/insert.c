@@ -1,9 +1,10 @@
-#include "../hash_bplustree/private/data.h"
-#include "../hash_bplustree/private/insert.h"
+#include "insert.h"
+#include "../private/data.h"
+#include "../private/insert.h"
 
 #include <assert.h>
 
-void test_inserting_to_empty_root_leaf() {
+static void test_inserting_to_empty_root_leaf() {
 	struct hashbplustree_node root = {
 		.is_leaf = true,
 		.keys_count = 0
@@ -20,7 +21,7 @@ void test_inserting_to_empty_root_leaf() {
 	assert(root.values[0] == 12345);
 }
 
-void test_inserting_to_nonempty_root_leaf() {
+static void test_inserting_to_nonempty_root_leaf() {
 	struct hashbplustree_node root = {
 		.is_leaf = true,
 		.keys_count = 2,
@@ -46,7 +47,7 @@ void test_inserting_to_nonempty_root_leaf() {
 	assert(root.values[2] == 300);
 }
 
-void test_hash_bplustree() {
+void test_hash_bplustree_insert() {
 	test_inserting_to_empty_root_leaf();
 	test_inserting_to_nonempty_root_leaf();
 }

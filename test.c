@@ -10,7 +10,7 @@
 
 #include "rand/test/test.h"
 #include "hash_hashtable/test/test.h"
-#include "test_hash_bplustree/test_hash_bplustree.h"
+#include "hash_bplustree/test/test.h"
 
 #include "log/log.h"
 

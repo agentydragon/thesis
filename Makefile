@@ -10,7 +10,7 @@ SOURCES= \
 	rand/*.c rand/test/*.c \
 	util/*.c \
 	performance/*.c \
-	test_hash_bplustree/*.c hash_bplustree/*.c hash_bplustree/private/*.c \
+	hash_bplustree/*.c hash_bplustree/private/*.c hash_bplustree/test/*.c \
 
 all: bin/test bin/performance
 
