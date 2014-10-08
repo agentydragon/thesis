@@ -9,6 +9,7 @@
 #include "test_observation/test_observation.h"
 #include "test_rand/test_rand.h"
 
+#include "hash_hashtable/test/test.h"
 #include "test_hash_bplustree/test_hash_bplustree.h"
 
 #include "log/log.h"
@@ -18,6 +19,7 @@
 void run_unit_tests() {
 	test_rand();
 
+	test_hash_hashtable();
 	test_hash_bplustree();
 
 	test_hash(&hash_array);

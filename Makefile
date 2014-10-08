@@ -3,7 +3,7 @@ CC=gcc
 
 SOURCES= \
 	hash/*.c test_hash/*.c \
-	hash_hashtable/private/*.c \
+	hash_hashtable/private/*.c hash_hashtable/test/*.c \
 	stopwatch/*.c measurement/*.c \
 	hash_array/*.c hash_hashtable/*.c \
 	observation/*.c test_observation/*.c \

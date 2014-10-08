@@ -21,6 +21,9 @@ struct hashtable_data {
 	struct hashtable_block* blocks;
 	uint64_t blocks_size;
 	uint64_t pair_count;
+
+	uint64_t (*hash_fn_override)(void* opaque, uint64_t key);
+	void* hash_fn_override_opaque;
 };
 
 #endif
