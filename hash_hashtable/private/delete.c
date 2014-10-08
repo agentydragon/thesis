@@ -8,6 +8,8 @@
 
 #include <inttypes.h>
 
+#define NO_LOG_INFO
+
 int8_t hashtable_delete(void* _this, uint64_t key) {
 	struct hashtable_data* this = _this;
 

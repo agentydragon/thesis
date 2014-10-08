@@ -130,28 +130,17 @@ static void stores_elements(const hash_api* api, uint64_t N) {
 	hash_destroy(&table);
 }
 
-#define it(behavior) do { \
-	printf("  %40s ", #behavior); \
-	\
-	stopwatch watch = stopwatch_start(); \
-	behavior; \
-	printf("OK %ld us\n", stopwatch_read_ns(watch)); \
-} while (0)
-
-
 void test_hash(const hash_api* api) {
-	log_plain("%s", api->name);
+	has_no_elements_at_first(api);
+	doesnt_delete_at_first(api);
 
-	it(has_no_elements_at_first(api));
-	it(doesnt_delete_at_first(api));
+	stores_two_elements(api);
 
-	it(stores_two_elements(api));
-
-	it(stores_elements(api, 10));
-	it(stores_elements(api, 20));
-	it(stores_elements(api, 50));
-	it(stores_elements(api, 100));
-	it(stores_elements(api, 200));
+	stores_elements(api, 10);
+	stores_elements(api, 20);
+	stores_elements(api, 50);
+	stores_elements(api, 100);
+	stores_elements(api, 200);
 	// There was a 500, 1000 and 2000 test here, but they were slow.
 
 	// TODO: more complex deletion tests.

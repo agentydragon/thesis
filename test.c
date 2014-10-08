@@ -7,8 +7,8 @@
 #include "test_hash/test_hash.h"
 #include "test_hash/test_hash_large.h"
 #include "test_observation/test_observation.h"
-#include "test_rand/test_rand.h"
 
+#include "rand/test/test.h"
 #include "hash_hashtable/test/test.h"
 #include "test_hash_bplustree/test_hash_bplustree.h"
 

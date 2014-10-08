@@ -7,7 +7,7 @@ SOURCES= \
 	stopwatch/*.c measurement/*.c \
 	hash_array/*.c hash_hashtable/*.c \
 	observation/*.c test_observation/*.c \
-	rand/*.c test_rand/*.c \
+	rand/*.c rand/test/*.c \
 	util/*.c \
 	performance/*.c \
 	test_hash_bplustree/*.c hash_bplustree/*.c hash_bplustree/private/*.c \

@@ -1,18 +1,9 @@
-#include "test_rand.h"
-#include "../rand/rand.h"
-#include "../log/log.h"
-#include "../stopwatch/stopwatch.h"
+#include "test.h"
+#include "../rand.h"
+#include "../../log/log.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#define it(behavior) do { \
-	printf("  %40s ", #behavior); \
-	\
-	stopwatch watch = stopwatch_start(); \
-	behavior; \
-	printf("OK %ld us\n", stopwatch_read_ns(watch)); \
-} while (0)
 
 static void distribution_within(int hits, int buckets,
 		int bucket_min, int bucket_max) {
@@ -34,6 +25,6 @@ static void distribution_within(int hits, int buckets,
 }
 
 void test_rand() {
-	it(distribution_within(10000, 10, 900, 1100));
-	it(distribution_within(10000000, 200, 49000, 51000));
+	distribution_within(10000, 10, 900, 1100);
+	distribution_within(10000000, 200, 49000, 51000);
 }
