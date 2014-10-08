@@ -10,3 +10,4 @@
 \contentsline {subsection}{\numberline {2.3}Otev\IeC {\v r}en\IeC {\'a} adresace}{3}
 \contentsline {subsection}{\numberline {2.4}Kuka\IeC {\v c}\IeC {\v c}\IeC {\'\i } hashov\IeC {\'a}n\IeC {\'\i } (\textit {cuckoo hashing})}{3}
 \contentsline {section}{\numberline {3}Vyhled\IeC {\'a}vac\IeC {\'\i } stromy}{3}
+\contentsline {section}{\numberline {4}Reference}{3}

@@ -4,7 +4,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+// TODO: rename
 #define LEAF_CAPACITY 3
+#define INTERNAL_CAPACITY 3
 
 // Enhancement ideas:
 //   - Pointers are aligned, we can drop the ends.
