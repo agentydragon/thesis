@@ -30,7 +30,7 @@ int8_t hashbplustree_insert(void* _this, uint64_t key, uint64_t value) {
 	struct hashbplustree_node* node = this->root;
 	while (!node->is_leaf) {
 		int8_t index = node_key_index(node, key);
-		struct hashbplustree_node* next = node->values[index];
+		struct hashbplustree_node* next = (struct hashbplustree_node*) node->values[index];
 		node = next;
 	}
 

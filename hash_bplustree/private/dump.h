@@ -3,6 +3,6 @@
 
 #include <stdint.h>
 
-int8_t hashbplustree_dump(void* this);
+void hashbplustree_dump(void* this);
 
 #endif
