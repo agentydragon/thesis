@@ -18,7 +18,12 @@ struct hashbplustree_node {
 	uint8_t keys_count;
 
 	uint64_t keys[3];
-	uint64_t values[4];
+
+	union {
+		// FIXME: implicit expectation sizeof(uint64_t) >= sizeof(void*)
+		uint64_t values[3];
+		struct hashbplustree_node* pointers[4];
+	};
 
 	// sizeof == 64 B
 };
