@@ -24,6 +24,7 @@ void run_unit_tests() {
 
 	test_hash(&hash_array);
 	test_hash(&hash_hashtable);
+
 	test_observation(); // Uses hash_array.
 //	test_hash_large(&hash_array);
 	test_hash_large(&hash_hashtable);

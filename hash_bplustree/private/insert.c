@@ -174,6 +174,8 @@ static void insert_recursion(node* target, uint64_t key, uint64_t value,
 		} else {
 			// Oops, we need to split.
 			node* new_leaf = malloc(sizeof(node));
+			assert(new_leaf);
+			// TODO: proper error checking, custom allocator?
 			new_leaf->is_leaf = true;
 
 			hashbplustree_split_leaf_and_add(target, key, value,
@@ -199,7 +201,15 @@ int8_t hashbplustree_insert(void* _this, uint64_t key, uint64_t value) {
 	insert_recursion(this->root, key, value,
 			&need_new_root, &new_root_key, &new_branch);
 	if (need_new_root) {
-		log_fatal("not implemented: split root");
+		node* new_root = malloc(sizeof(node));
+		assert(new_root); // TODO: proper error handling
+		*new_root = (node) {
+			.is_leaf = false,
+			.keys_count = 1,
+			.keys = { new_root_key },
+			.pointers = { this->root, new_branch }
+		};
+		this->root = new_root;
 	}
 	return 0;
 }

@@ -1,4 +1,5 @@
 #include "insert.h"
+#include "helpers.h"
 #include "../private/data.h"
 #include "../private/insert.h"
 
@@ -6,9 +7,6 @@
 #include <inttypes.h>
 
 #include "../../log/log.h"
-
-typedef struct hashbplustree_node node;
-typedef struct hashbplustree tree;
 
 static void test_inserting_to_empty_root_leaf() {
 	node root = {
@@ -48,49 +46,6 @@ static void test_inserting_to_nonempty_root_leaf() {
 	assert(root.keys[2] == 30);
 	assert(root.values[2] == 300);
 }
-
-void assert_key(const node* const target, uint64_t index, uint64_t expected) {
-	if (target->keys[index] != expected) {
-		log_fatal("node has key %" PRIu64 " equal to %" PRIu64 ", "
-				"should be %" PRIu64,
-				index, target->keys[index], expected);
-	}
-}
-
-void assert_value(const node* const target, uint64_t index, uint64_t expected) {
-	if (target->values[index] != expected) {
-		log_fatal("node has value %" PRIu64 " equal to %" PRIu64 ", "
-				"should be %" PRIu64,
-				index, target->values[index], expected);
-	}
-}
-
-void assert_pointer(const node* const target, uint64_t index,
-		const void* const expected) {
-	if (target->pointers[index] != expected) {
-		log_fatal("node has pointer %" PRIu64 " equal to %p, "
-				"should be %p",
-				index, target->pointers[index], expected);
-	}
-}
-
-void assert_n_keys(const node* const target, uint64_t expected) {
-	if (target->keys_count != expected) { \
-		log_fatal("node has %" PRIu64 " keys, should have %d",
-				expected, target->keys_count);
-	}
-}
-
-#define assert_leaf(_node,...) do { \
-	const node* const target = _node; \
-	struct { uint64_t key, value; } pairs[] = { __VA_ARGS__ }; \
-	uint64_t N = sizeof(pairs) / sizeof(*pairs); \
-	assert_n_keys(target, N); \
-	for (uint64_t i = 0; i < N; i++) { \
-		assert_key(target, i, pairs[i].key); \
-		assert_value(target, i, pairs[i].value); \
-	} \
-} while (0)
 
 void test_splitting_leaves() {
 	node split;
@@ -186,9 +141,28 @@ void test_splitting_internal() {
 	}
 }
 
+void test_splitting_root() {
+	node original_root = {
+		.keys_count = 3,
+		.keys = { 10, 20, 30 },
+		.values = { 100, 200, 300 },
+		.is_leaf = true
+	};
+	tree tree = { .root = &original_root };
+	hashbplustree_insert(&tree, 25, 250);
+
+	assert(!tree.root->is_leaf);
+	assert_key(tree.root, 0, 25);
+
+	node* left = tree.root->pointers[0], *right = tree.root->pointers[1];
+	assert_leaf(left, {10, 100}, {20, 200});
+	assert_leaf(right, {25, 250}, {30, 300});
+}
+
 void test_hash_bplustree_insert() {
 	test_inserting_to_empty_root_leaf();
 	test_inserting_to_nonempty_root_leaf();
 	test_splitting_leaves();
 	test_splitting_internal();
+	test_splitting_root();
 }
