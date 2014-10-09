@@ -16,11 +16,8 @@ static void test_inserting_to_empty_root_leaf() {
 	tree tree = { .root = &root };
 
 	assert(!hashbplustree_insert(&tree, 10, 12345));
-
 	assert(root.is_leaf);
-	assert(root.keys_count == 1);
-	assert(root.keys[0] == 10);
-	assert(root.values[0] == 12345);
+	assert_leaf(&root, {10, 12345});
 }
 
 static void test_inserting_to_nonempty_root_leaf() {

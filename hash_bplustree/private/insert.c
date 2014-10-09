@@ -1,32 +1,23 @@
 #include "data.h"
+#include "helpers.h"
 #include "insert.h"
 
 #include "../../log/log.h"
 
 #include <assert.h>
-#include <stdio.h>
 #include <inttypes.h>
 
-typedef struct hashbplustree_node node;
+static void insert_into_leaf(node* leaf, uint64_t key, uint64_t value) {
+	assert(leaf->keys_count < LEAF_CAPACITY);
 
-static int8_t node_key_index(node* node, uint64_t key) {
-	for (int i = 0; i < node->keys_count; i++) {
-		if (node->keys[i] > key) return i;
+	int8_t index = node_key_index(leaf, key);
+	for (int8_t i = leaf->keys_count; i > index; i--) {
+		leaf->keys[i] = leaf->keys[i - 1];
+		leaf->values[i] = leaf->values[i - 1];
 	}
-	return node->keys_count;
-}
-
-static void insert_into_leaf(node* node, uint64_t key, uint64_t value) {
-	assert(node->keys_count < LEAF_CAPACITY);
-
-	int8_t index = node_key_index(node, key);
-	for (int8_t i = node->keys_count; i > index; i--) {
-		node->keys[i] = node->keys[i - 1];
-		node->values[i] = node->values[i - 1];
-	}
-	node->keys[index] = key;
-	node->values[index] = value;
-	node->keys_count++;
+	leaf->keys[index] = key;
+	leaf->values[index] = value;
+	leaf->keys_count++;
 }
 
 // TODO: remove duplicity?

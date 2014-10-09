@@ -28,4 +28,9 @@ void assert_n_keys(const node* const target, uint64_t expected);
 	} \
 } while (0)
 
+#define assert_empty_leaf(_node) do { \
+	const node* const target = _node; \
+	assert_n_keys(target, 0); \
+} while (0)
+
 #endif
