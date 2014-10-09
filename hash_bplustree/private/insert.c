@@ -4,6 +4,8 @@
 #include "../../log/log.h"
 
 #include <assert.h>
+#include <stdio.h>
+#include <inttypes.h>
 
 typedef struct hashbplustree_node node;
 
@@ -76,13 +78,57 @@ void hashbplustree_split_leaf_and_add(node* leaf,
 	}
 }
 
-// TODO: remove duplicity. generic malloc? C templates?
 void hashbplustree_split_internal_and_add(node* target,
 		uint64_t new_key, node* new_pointer, node* split,
 		uint64_t* split_key) {
-	(void) target; (void) new_key; (void) new_pointer; (void) split;
-	(void) split_key;
-	log_fatal("not implemented");
+	assert(target->keys_count == INTERNAL_CAPACITY);
+
+	int8_t index = node_key_index(target, new_key);
+
+	// TODO: optimize and unduplicate
+
+	uint64_t keys[INTERNAL_CAPACITY + 1];
+	node* pointers[INTERNAL_CAPACITY + 2];
+
+	pointers[0] = target->pointers[0];
+
+	for (int8_t i = 0; i < INTERNAL_CAPACITY + 1; i++) {
+		uint64_t key;
+		node* pointer;
+
+		if (i < index) {
+			key = target->keys[i];
+			pointer = target->pointers[i + 1];
+		} else if (i == index) {
+			key = new_key;
+			pointer = new_pointer;
+		} else {
+			key = target->keys[i - 1];
+			pointer = target->pointers[i];
+		}
+
+		keys[i] = key;
+		pointers[i + 1] = pointer;
+	}
+
+	int8_t right_count = INTERNAL_CAPACITY / 2,
+		left_count = INTERNAL_CAPACITY - right_count;
+
+	target->keys_count = left_count;
+	target->pointers[0] = pointers[0];
+	for (int8_t i = 0; i < left_count; i++) {
+		target->keys[i] = keys[i];
+		target->pointers[i + 1] = pointers[i + 1];
+	}
+
+	*split_key = keys[left_count];
+
+	split->keys_count = right_count;
+	split->pointers[0] = pointers[left_count + 1];
+	for (int8_t i = 0; i < right_count; i++) {
+		split->keys[i] = keys[left_count + 1 + i];
+		split->pointers[i + 1] = pointers[left_count + 2 + i];
+	}
 }
 
 static void insert_recursion(node* target, uint64_t key, uint64_t value,
