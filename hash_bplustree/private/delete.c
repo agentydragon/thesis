@@ -14,46 +14,154 @@ static void delete_from_leaf(node* leaf, int8_t index) {
 	leaf->keys_count--;
 }
 
-static int8_t delete_recursion(node* target, uint64_t key, bool is_root) {
+static void delete_from_internal(node* target, int8_t pointer_index) {
+	for (int8_t i = pointer_index; i < target->keys_count; i++) {
+		target->pointers[i] = target->pointers[i + 1];
+	}
+	for (int8_t i = pointer_index + 1; i < target->keys_count; i++) {
+		target->keys[i - 1] = target->keys[i];
+	}
+	target->keys_count--;
+}
+
+static void redistribute_leaf_pairs(node* a, node* b,
+		bool* should_delete, bool prefer_left) {
+	assert(a->is_leaf && b->is_leaf);
+
+	int8_t total = a->keys_count + b->keys_count;
+	int8_t to_left, to_right;
+
+	assert(total >= LEAF_MINIMUM);
+
+	if (total >= LEAF_MINIMUM * 2) {
+		// We will just do a redistribution.
+		to_left = total / 2;
+		to_right = total - to_left;
+		*should_delete = false;
+	} else {
+		assert(total <= LEAF_CAPACITY);
+		// Can't feed both nodes.
+		// Give all to the preferred one and sacrifice the right one
+		// afterwards.
+		if (prefer_left) {
+			to_left = total;
+			to_right = 0;
+		} else {
+			to_left = 0;
+			to_right = total;
+		}
+		*should_delete = true;
+	}
+
+	// TODO: optimize?
+	uint64_t keys[LEAF_CAPACITY * 2];
+	uint64_t values[LEAF_CAPACITY * 2];
+
+	for (int8_t i = 0; i < total; i++) {
+		if (i < a->keys_count) {
+			keys[i] = a->keys[i];
+			values[i] = a->values[i];
+		} else {
+			keys[i] = b->keys[i - a->keys_count];
+			values[i] = b->values[i - a->keys_count];
+		}
+	}
+
+	a->keys_count = to_left;
+	b->keys_count = to_right;
+	for (int8_t i = 0; i < total; i++) {
+		if (i < to_left) {
+			a->keys[i] = keys[i];
+			a->values[i] = values[i];
+		} else {
+			b->keys[i - to_left] = keys[i];
+			b->values[i - to_left] = values[i];
+		}
+	}
+}
+
+static int8_t delete_recursion(node* target, uint64_t key, bool is_root,
+		node* left_sibling, node* right_sibling,
+		bool* should_bubble_up_delete) {
 	if (!target->is_leaf) {
+		int8_t index = node_key_index(target, key);
+
+		node* left_sibling = index > 0 ? target->pointers[index - 1] : NULL;
+		node* right_sibling = index < target->keys_count ?
+				target->pointers[index + 1] : NULL;
+
+		bool should_delete;
+
 		if (delete_recursion(
-				target->pointers[node_key_index(target, key)],
-				key, false)) {
+				target->pointers[index],
+				key, false,
+				left_sibling, right_sibling,
+				&should_delete)) {
 			// Key not found below.
+			*should_bubble_up_delete = false;
 			return 1;
 		}
 
 		// All is good.
+		*should_bubble_up_delete = false;
+
+		if (should_delete) {
+			free(target->pointers[index]);
+			delete_from_internal(target, index);
+
+			if (target->keys_count < INTERNAL_MINIMUM && !is_root) {
+				// Need to merge.
+				log_fatal("internal merge not implemented");
+			}
+
+			if (is_root && target->keys_count == 0) {
+				*should_bubble_up_delete = true;
+			}
+		}
+
 		return 0;
 	} else {
-		if (target->keys_count >= LEAF_MINIMUM + 1 ||
-				is_root) {
-			// Delete from this leaf.
-			int8_t index = leaf_key_index(target, key);
-			if (index == -1) {
-				// Key not found in leaf.
-				return 1;
-			} else {
-				delete_from_leaf(target, index);
-				return 0;
-			}
-		} else {
-			// We need to merge :(
-			log_fatal("not implemented");
+		// Delete from this leaf.
+		int8_t index = leaf_key_index(target, key);
+		if (index == -1) {
+			// Key not found in leaf.
+			*should_bubble_up_delete = false;
 			return 1;
 		}
+		delete_from_leaf(target, index);
+
+		if (target->keys_count < LEAF_MINIMUM && !is_root) {
+			// Need to merge.
+			if (left_sibling != NULL && (right_sibling == NULL ||
+					 left_sibling->keys_count > right_sibling->keys_count)) {
+				redistribute_leaf_pairs(left_sibling, target,
+						should_bubble_up_delete, true);
+
+			} else if (right_sibling != NULL) {
+				redistribute_leaf_pairs(target, right_sibling,
+						should_bubble_up_delete, false);
+			} else {
+				log_fatal("no siblings passed, but not in root");
+			}
+		}
+
+		return 0;
 	}
 }
 
 int8_t hashbplustree_delete(void* _this, uint64_t key) {
 	struct hashbplustree* this = _this;
 
-	// (void) _this; (void) key;
-	// log_error("not implemented");
-	// return 1;
-
-	if (delete_recursion(this->root, key, true)) {
+	bool should_delete_root = false;
+	if (delete_recursion(this->root, key, true, NULL, NULL,
+				&should_delete_root)) {
 		return 1;
 	}
+	if (should_delete_root) {
+		node* new_root = this->root->pointers[0];
+		free(this->root);
+		this->root = new_root;
+	}
+
 	return 0;
 }

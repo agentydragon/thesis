@@ -154,6 +154,9 @@ void test_splitting_root() {
 	node* left = tree.root->pointers[0], *right = tree.root->pointers[1];
 	assert_leaf(left, {10, 100}, {20, 200});
 	assert_leaf(right, {25, 250}, {30, 300});
+
+	free(tree.root);
+	free(right);
 }
 
 void test_hash_bplustree_insert() {
