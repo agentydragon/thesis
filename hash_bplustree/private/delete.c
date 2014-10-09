@@ -41,7 +41,7 @@ static void redistribute_leaf_pairs(node* a, node* b,
 	} else {
 		assert(total <= LEAF_CAPACITY);
 		// Can't feed both nodes.
-		// Give all to the preferred one and sacrifice the right one
+		// Give all to the preferred one and sacrifice the other one
 		// afterwards.
 		if (prefer_left) {
 			to_left = total;
@@ -80,23 +80,96 @@ static void redistribute_leaf_pairs(node* a, node* b,
 	}
 }
 
+// TODO: remove duplication?
+void bplustree_merge_internal_nodes(node* a, node* b,
+		uint64_t middle_key, bool prefer_left) {
+	assert(!a->is_leaf && !b->is_leaf);
+
+	int8_t total = a->keys_count + b->keys_count + 1;
+	int8_t to_left, to_right;
+
+	assert(total >= INTERNAL_MINIMUM);
+	assert(total <= INTERNAL_CAPACITY);
+
+	// Can't feed both nodes.
+	// Give all to the preferred one and sacrifice the other one
+	// afterwards.
+	if (prefer_left) {
+		to_left = total;
+		to_right = 0;
+	} else {
+		to_left = 0;
+		to_right = total;
+	}
+
+	// TODO: optimize?
+	uint64_t keys[INTERNAL_CAPACITY * 2 + 1];
+	node* pointers[INTERNAL_CAPACITY * 2 + 2];
+
+	for (int8_t i = 0; i < total + 2; i++) {
+		if (i < a->keys_count + 1) {
+			pointers[i] = a->pointers[i];
+		} else {
+			pointers[i] = b->pointers[i - a->keys_count - 1];
+		}
+	}
+
+	for (int8_t i = 0; i < total + 1; i++) {
+		if (i < a->keys_count) {
+			keys[i] = a->keys[i];
+		} else if (i == a->keys_count) {
+			keys[i] = middle_key;
+		} else {
+			keys[i] = b->keys[i - a->keys_count - 1];
+		}
+	}
+
+	for (int8_t i = 0; i < total + 1; i++) {
+		if (prefer_left) {
+			a->keys[i] = keys[i];
+		} else {
+			b->keys[i] = keys[i];
+		}
+	}
+
+	for (int8_t i = 0; i < total + 2; i++) {
+		if (prefer_left) {
+			a->pointers[i] = pointers[i];
+		} else {
+			b->pointers[i] = pointers[i];
+		}
+	}
+
+	a->keys_count = to_left;
+	b->keys_count = to_right;
+}
+
+static const uint64_t INVALID = 0xDEADBEEFDEADBEEFULL;
+
 static int8_t delete_recursion(node* target, uint64_t key, bool is_root,
 		node* left_sibling, node* right_sibling,
-		bool* should_bubble_up_delete) {
+		uint64_t target_key, uint64_t right_sibling_key,
+		bool* should_bubble_up_delete, uint64_t* to_bubble_delete) {
 	if (!target->is_leaf) {
 		int8_t index = node_key_index(target, key);
 
-		node* left_sibling = index > 0 ? target->pointers[index - 1] : NULL;
-		node* right_sibling = index < target->keys_count ?
+		node* next_left_sibling = index > 0 ? target->pointers[index - 1] : NULL;
+		uint64_t next_target_key = index > 0 ? target->keys[index - 1] : INVALID;
+
+		node* next_right_sibling = index < target->keys_count ?
 				target->pointers[index + 1] : NULL;
+		uint64_t next_right_sibling_key = index < target->keys_count ?
+				target->keys[index] : INVALID;
 
 		bool should_delete;
+		uint64_t i_should_delete = INVALID;
 
 		if (delete_recursion(
 				target->pointers[index],
 				key, false,
-				left_sibling, right_sibling,
-				&should_delete)) {
+				next_left_sibling, next_right_sibling,
+				next_target_key, next_right_sibling_key,
+				&should_delete, &i_should_delete)) {
 			// Key not found below.
 			*should_bubble_up_delete = false;
 			return 1;
@@ -106,15 +179,27 @@ static int8_t delete_recursion(node* target, uint64_t key, bool is_root,
 		*should_bubble_up_delete = false;
 
 		if (should_delete) {
-			free(target->pointers[index]);
-			delete_from_internal(target, index);
+			int8_t index_to_delete = node_key_index(target, i_should_delete);
+			free(target->pointers[index_to_delete]);
+			delete_from_internal(target, index_to_delete);
 
 			if (target->keys_count < INTERNAL_MINIMUM && !is_root) {
 				// Need to merge.
-				log_fatal("internal merge not implemented");
-			}
+				if (left_sibling != NULL && (right_sibling == NULL ||
+						left_sibling->keys_count > right_sibling->keys_count)) {
+					bplustree_merge_internal_nodes(left_sibling, target,
+							target_key, true);
+					*to_bubble_delete = target_key;
+				} else if (right_sibling != NULL) {
+					bplustree_merge_internal_nodes(target, right_sibling,
+							right_sibling_key, false);
+					*to_bubble_delete = right_sibling_key;
+				} else {
+					log_fatal("cannot merge, got no siblings");
+				}
 
-			if (is_root && target->keys_count == 0) {
+				*should_bubble_up_delete = true;
+			} else if (is_root && target->keys_count == 0) {
 				*should_bubble_up_delete = true;
 			}
 		}
@@ -136,10 +221,11 @@ static int8_t delete_recursion(node* target, uint64_t key, bool is_root,
 					 left_sibling->keys_count > right_sibling->keys_count)) {
 				redistribute_leaf_pairs(left_sibling, target,
 						should_bubble_up_delete, true);
-
+				*to_bubble_delete = target_key;
 			} else if (right_sibling != NULL) {
 				redistribute_leaf_pairs(target, right_sibling,
 						should_bubble_up_delete, false);
+				*to_bubble_delete = right_sibling_key;
 			} else {
 				log_fatal("no siblings passed, but not in root");
 			}
@@ -154,7 +240,8 @@ int8_t hashbplustree_delete(void* _this, uint64_t key) {
 
 	bool should_delete_root = false;
 	if (delete_recursion(this->root, key, true, NULL, NULL,
-				&should_delete_root)) {
+				-1, -1,
+				&should_delete_root, NULL)) {
 		return 1;
 	}
 	if (should_delete_root) {

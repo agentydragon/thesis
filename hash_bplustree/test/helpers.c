@@ -32,7 +32,7 @@ void assert_pointer(const node* const target, uint64_t index,
 
 void assert_n_keys(const node* const target, uint64_t expected) {
 	if (target->keys_count != expected) { \
-		log_fatal("node has %" PRIu64 " keys, should have %d",
-				expected, target->keys_count);
+		log_fatal("node has %d keys, should have %" PRIu64,
+				target->keys_count, expected);
 	}
 }

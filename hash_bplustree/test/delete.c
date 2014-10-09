@@ -69,8 +69,66 @@ static void test_collapsing_into_root_leaf() {
 	free(tree.root);
 }
 
+void test_merging_internal_nodes() {
+	void* A = (void*) 0x10, *B = (void*) 0x20, *C = (void*) 0x30,
+		*D = (void*) 0x40;
+
+	{
+		node a = (node) {
+			.is_leaf = false,
+			.keys_count = 1,
+			.keys = { 10 },
+			.pointers = { A, B }
+		}, b = (node) {
+			.is_leaf = false,
+			.keys_count = 1,
+			.keys = { 30 },
+			.pointers = { C, D }
+		};
+
+		bplustree_merge_internal_nodes(&a, &b, 20, true);
+		assert_n_keys(&a, 3);
+		assert_pointer(&a, 0, A);
+		assert_key(&a, 0, 10);
+		assert_pointer(&a, 1, B);
+		assert_key(&a, 1, 20);
+		assert_pointer(&a, 2, C);
+		assert_key(&a, 2, 30);
+		assert_pointer(&a, 3, D);
+
+		assert_n_keys(&b, 0);
+	}
+
+	{
+		node a = (node) {
+			.is_leaf = false,
+			.keys_count = 1,
+			.keys = { 10 },
+			.pointers = { A, B }
+		}, b = (node) {
+			.is_leaf = false,
+			.keys_count = 1,
+			.keys = { 30 },
+			.pointers = { C, D }
+		};
+
+		bplustree_merge_internal_nodes(&a, &b, 20, false);
+		assert_n_keys(&b, 3);
+		assert_pointer(&b, 0, A);
+		assert_key(&b, 0, 10);
+		assert_pointer(&b, 1, B);
+		assert_key(&b, 1, 20);
+		assert_pointer(&b, 2, C);
+		assert_key(&b, 2, 30);
+		assert_pointer(&b, 3, D);
+
+		assert_n_keys(&a, 0);
+	}
+}
+
 void test_hash_bplustree_delete() {
 	test_deleting_from_root_leaf();
 	test_collapsing_into_root_leaf();
+	test_merging_internal_nodes();
 	// TODO
 }
