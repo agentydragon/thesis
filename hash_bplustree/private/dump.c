@@ -4,10 +4,20 @@
 
 #include <inttypes.h>
 
-void hashbplustree_dump(void* _this) {
-	(void) _this;
-	log_error("not implemented");
+static void dump_walk(struct hashbplustree_node* node) {
+	hashbplustree_dump_node(node);
+	if (!node->is_leaf) {
+		for (int8_t i = 0; i < node->keys_count + 1; i++) {
+			hashbplustree_dump_node(node->pointers[i]);
+		}
+	}
 }
+
+void hashbplustree_dump(void* _this) {
+	struct hashbplustree* this = _this;
+	dump_walk(this->root);
+}
+
 
 void hashbplustree_dump_node(struct hashbplustree_node* target) {
 	if (target->is_leaf) {
