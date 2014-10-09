@@ -4,11 +4,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static void distribution_within(int hits, int buckets,
 		int bucket_min, int bucket_max) {
 	rand_generator generator = { .state = 0 };
 	int* histogram = malloc(sizeof(int) * buckets);
+	memset(histogram, 0, sizeof(int) * buckets);
 
 	for (int i = 0; i < hits; i++) {
 		histogram[rand_next(&generator, buckets)]++;
