@@ -1,7 +1,7 @@
-#include "test_observation.h"
-#include "../observation/observation.h"
-#include "../hash_array/hash_array.h"
-#include "../log/log.h"
+#include "test.h"
+#include "../observation.h"
+#include "../../hash_array/hash_array.h"
+#include "../../log/log.h"
 
 #include <stdlib.h>
 #include <assert.h>

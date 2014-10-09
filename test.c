@@ -6,11 +6,11 @@
 
 #include "test_hash/test_hash.h"
 #include "test_hash/test_hash_large.h"
-#include "test_observation/test_observation.h"
 
-#include "rand/test/test.h"
 #include "hash_hashtable/test/test.h"
 #include "hash_bplustree/test/test.h"
+#include "observation/test/test.h"
+#include "rand/test/test.h"
 
 #include "log/log.h"
 
