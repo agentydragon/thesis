@@ -4,6 +4,7 @@
 #include "private/delete.h"
 #include "private/dump.h"
 #include "private/data.h"
+#include "private/helpers.h"
 
 #include "../log/log.h"
 
@@ -12,12 +13,12 @@
 static int8_t init(void** _this, void* args_unused) {
 	(void) args_unused;
 
-	struct hashbplustree* this = malloc(sizeof(struct hashbplustree));
+	struct hashbplustree* this = malloc(sizeof(tree));
 	if (!this) {
 		goto err_1;
 	}
 
-	this->root = malloc(sizeof(struct hashbplustree_node));
+	this->root = malloc(sizeof(node));
 	if (!this->root) {
 		goto err_2;
 	}
@@ -35,10 +36,24 @@ err_1:
 	return 1;
 }
 
+static void destroy_recursive(node* target) {
+	if (!target->is_leaf) {
+		for (int8_t i = 0; i < target->keys_count + 1; i++) {
+			destroy_recursive(target->pointers[i]);
+		}
+	}
+	free(target);
+}
+
 static void destroy(void** _this) {
-	// TODO: destroy all nodes, walking up from leaves
+	if (_this) {
+		tree* this = *_this;
+		if (this) {
+			destroy_recursive(this->root);
+			free(this);
+		}
+	}
 	*_this = NULL;
-	log_error("destroy not fully implemented");
 }
 
 

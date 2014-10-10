@@ -159,10 +159,56 @@ void test_splitting_root() {
 	free(right);
 }
 
+void test_maximize_internal() {
+	node a = {
+		.keys_count = 3,
+		.keys = { 1, 2, 3 },
+		.values = { 10, 20, 30 },
+		.is_leaf = true
+	}, b = {
+		.keys_count = 3,
+		.keys = { 100, 101, 102 },
+		.values = { 110, 120, 130 },
+		.is_leaf = true
+	}, c = {
+		.keys_count = 3,
+		.keys = { 200, 201, 202 },
+		.values = { 20, 21, 22 },
+		.is_leaf = true
+	};
+	node root = {
+		.keys_count = 2,
+		.keys = { 100, 200 },
+		.pointers = { &a, &b, &c },
+		.is_leaf = false
+	};
+	tree tree = { .root = &root };
+
+	hashbplustree_insert(&tree, 110, 999);
+
+	assert(tree.root == &root);
+	assert_n_keys(&root, 3);
+	assert_pointer(&root, 0, &a);
+	assert_key(&root, 0, 100);
+	assert_pointer(&root, 1, &b);
+	assert_key(&root, 1, 102);
+	// Inserted node.
+	assert_key(&root, 2, 200);
+	assert_pointer(&root, 3, &c);
+
+	assert_leaf(&a, {1, 10}, {2, 20}, {3, 30});
+	assert_leaf(&b, {100, 110}, {101, 120});
+	assert_leaf(root.pointers[2], {102, 130}, {110, 999});
+	assert_leaf(&c, {200, 20}, {201, 21}, {202, 22});
+
+	free(root.pointers[2]);
+}
+
 void test_hash_bplustree_insert() {
 	test_inserting_to_empty_root_leaf();
 	test_inserting_to_nonempty_root_leaf();
 	test_splitting_leaves();
 	test_splitting_internal();
 	test_splitting_root();
+	test_maximize_internal();
 }

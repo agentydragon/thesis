@@ -1,9 +1,11 @@
 #include "data.h"
 #include "helpers.h"
 #include "insert.h"
+#include "dump.h"
 
 #include "../../log/log.h"
 
+#include <stdio.h>
 #include <assert.h>
 #include <inttypes.h>
 
@@ -26,11 +28,13 @@ static void insert_into_internal(node* target, uint64_t key, node* pointer) {
 
 	int8_t index = node_key_index(target, key);
 	for (int8_t i = target->keys_count; i > index; i--) {
+		target->pointers[i + 1] = target->pointers[i];
+	}
+	for (int8_t i = target->keys_count; i > index; i--) {
 		target->keys[i] = target->keys[i - 1];
-		target->pointers[i] = target->pointers[i - 1];
 	}
 	target->keys[index] = key;
-	target->pointers[index] = pointer;
+	target->pointers[index + 1] = pointer;
 	target->keys_count++;
 }
 
@@ -131,6 +135,7 @@ static void insert_recursion(node* target, uint64_t key, uint64_t value,
 		uint64_t key_i_need_to_add;
 		node* node_i_need_to_add;
 
+		assert(target->pointers[index]);
 		insert_recursion(target->pointers[index], key, value,
 				&i_need_to_add_node,
 				&key_i_need_to_add,
@@ -144,6 +149,8 @@ static void insert_recursion(node* target, uint64_t key, uint64_t value,
 			} else {
 				// Oops, we need to split.
 				node* new_internal = malloc(sizeof(node));
+				assert(new_internal);
+				new_internal->keys_count = 0;
 				new_internal->is_leaf = false;
 
 				uint64_t new_internal_key;
@@ -153,8 +160,12 @@ static void insert_recursion(node* target, uint64_t key, uint64_t value,
 					node_i_need_to_add, new_internal,
 					&new_internal_key);
 
-				log_fatal("not implemented");
+				*need_to_add_node = true;
+				*key_to_add = new_internal_key,
+				*node_to_add = new_internal;
 			}
+		} else {
+			*need_to_add_node = false;
 		}
 	} else {
 		// OK, we got to the leaf. Now we will try to insert this pair

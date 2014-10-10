@@ -3,6 +3,7 @@
 
 #include "hash_array/hash_array.h"
 #include "hash_hashtable/hash_hashtable.h"
+#include "hash_bplustree/hash_bplustree.h"
 
 #include "test_hash/test_hash.h"
 #include "test_hash/test_hash_large.h"
@@ -26,8 +27,9 @@ void run_unit_tests() {
 	test_hash(&hash_hashtable);
 
 	test_observation(); // Uses hash_array.
-//	test_hash_large(&hash_array);
-	test_hash_large(&hash_hashtable);
+	test_hash_large(&hash_array, 1 << 10);
+	test_hash_large(&hash_hashtable, 1 << 20);
+	test_hash_large(&hash_bplustree, 1 << 20);
 }
 
 int main(int argc, char** argv) {
