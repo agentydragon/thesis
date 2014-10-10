@@ -5,6 +5,10 @@
 
 #include <assert.h>
 #include <inttypes.h>
+#include <string.h>
+
+// TODO: eagerly merge small nodes whenever traversing tree
+// TODO: maybe even reshuffle?
 
 static void delete_from_leaf(node* leaf, int8_t index) {
 	for (int8_t i = index + 1; i < leaf->keys_count; i++) {
@@ -24,8 +28,7 @@ static void delete_from_internal(node* target, int8_t pointer_index) {
 	target->keys_count--;
 }
 
-static void redistribute_leaf_pairs(node* a, node* b,
-		bool* should_delete, bool prefer_left) {
+static void redistribute_leaf_pairs(node* a, node* b, bool* should_delete) {
 	assert(a->is_leaf && b->is_leaf);
 
 	int8_t total = a->keys_count + b->keys_count;
@@ -43,13 +46,8 @@ static void redistribute_leaf_pairs(node* a, node* b,
 		// Can't feed both nodes.
 		// Give all to the preferred one and sacrifice the other one
 		// afterwards.
-		if (prefer_left) {
-			to_left = total;
-			to_right = 0;
-		} else {
-			to_left = 0;
-			to_right = total;
-		}
+		to_left = total;
+		to_right = 0;
 		*should_delete = true;
 	}
 
@@ -80,71 +78,7 @@ static void redistribute_leaf_pairs(node* a, node* b,
 	}
 }
 
-// TODO: remove duplication?
-void bplustree_merge_internal_nodes(node* a, node* b,
-		uint64_t middle_key, bool prefer_left) {
-	assert(!a->is_leaf && !b->is_leaf);
-
-	int8_t total = a->keys_count + b->keys_count + 1;
-	int8_t to_left, to_right;
-
-	assert(total >= INTERNAL_MINIMUM);
-	assert(total <= INTERNAL_CAPACITY);
-
-	// Can't feed both nodes.
-	// Give all to the preferred one and sacrifice the other one
-	// afterwards.
-	if (prefer_left) {
-		to_left = total;
-		to_right = 0;
-	} else {
-		to_left = 0;
-		to_right = total;
-	}
-
-	// TODO: optimize?
-	uint64_t keys[INTERNAL_CAPACITY * 2 + 1];
-	node* pointers[INTERNAL_CAPACITY * 2 + 2];
-
-	for (int8_t i = 0; i < total + 2; i++) {
-		if (i < a->keys_count + 1) {
-			pointers[i] = a->pointers[i];
-		} else {
-			pointers[i] = b->pointers[i - a->keys_count - 1];
-		}
-	}
-
-	for (int8_t i = 0; i < total + 1; i++) {
-		if (i < a->keys_count) {
-			keys[i] = a->keys[i];
-		} else if (i == a->keys_count) {
-			keys[i] = middle_key;
-		} else {
-			keys[i] = b->keys[i - a->keys_count - 1];
-		}
-	}
-
-	for (int8_t i = 0; i < total + 1; i++) {
-		if (prefer_left) {
-			a->keys[i] = keys[i];
-		} else {
-			b->keys[i] = keys[i];
-		}
-	}
-
-	for (int8_t i = 0; i < total + 2; i++) {
-		if (prefer_left) {
-			a->pointers[i] = pointers[i];
-		} else {
-			b->pointers[i] = pointers[i];
-		}
-	}
-
-	a->keys_count = to_left;
-	b->keys_count = to_right;
-}
-
-static const uint64_t INVALID = 0xDEADBEEFDEADBEEFULL;
+static const uint64_t INVALID = 0xDEADBEEFDEADBEEFull;
 
 static int8_t delete_recursion(node* target, uint64_t key, bool is_root,
 		node* left_sibling, node* right_sibling,
@@ -183,24 +117,13 @@ static int8_t delete_recursion(node* target, uint64_t key, bool is_root,
 			free(target->pointers[index_to_delete]);
 			delete_from_internal(target, index_to_delete);
 
-			if (target->keys_count < INTERNAL_MINIMUM && !is_root) {
-				// Need to merge.
-				if (left_sibling != NULL && (right_sibling == NULL ||
-						left_sibling->keys_count > right_sibling->keys_count)) {
-					bplustree_merge_internal_nodes(left_sibling, target,
-							target_key, true);
-					*to_bubble_delete = target_key;
-				} else if (right_sibling != NULL) {
-					bplustree_merge_internal_nodes(target, right_sibling,
-							right_sibling_key, false);
-					*to_bubble_delete = right_sibling_key;
-				} else {
-					log_fatal("cannot merge, got no siblings");
-				}
-
-				*should_bubble_up_delete = true;
-			} else if (is_root && target->keys_count == 0) {
-				*should_bubble_up_delete = true;
+			// NOTE: this is a special case of node merging usable only
+			// for 2-3-4 trees.
+			if (target->keys_count < INTERNAL_MINIMUM) {
+				assert(target->keys_count == 0);
+				node* to_delete = target->pointers[0];
+				memcpy(target, target->pointers[0], sizeof(node));
+				free(to_delete);
 			}
 		}
 
@@ -220,11 +143,11 @@ static int8_t delete_recursion(node* target, uint64_t key, bool is_root,
 			if (left_sibling != NULL && (right_sibling == NULL ||
 					 left_sibling->keys_count > right_sibling->keys_count)) {
 				redistribute_leaf_pairs(left_sibling, target,
-						should_bubble_up_delete, true);
+						should_bubble_up_delete);
 				*to_bubble_delete = target_key;
 			} else if (right_sibling != NULL) {
 				redistribute_leaf_pairs(target, right_sibling,
-						should_bubble_up_delete, false);
+						should_bubble_up_delete);
 				*to_bubble_delete = right_sibling_key;
 			} else {
 				log_fatal("no siblings passed, but not in root");

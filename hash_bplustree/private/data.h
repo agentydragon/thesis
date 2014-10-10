@@ -8,7 +8,7 @@
 #define LEAF_CAPACITY 3
 #define INTERNAL_CAPACITY 3
 #define LEAF_MINIMUM 2
-#define INTERNAL_MINIMUM 2
+#define INTERNAL_MINIMUM 1
 
 // Enhancement ideas:
 //   - Pointers are aligned, we can drop the ends.

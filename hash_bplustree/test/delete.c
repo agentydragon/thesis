@@ -2,6 +2,7 @@
 #include "helpers.h"
 #include "../private/data.h"
 #include "../private/delete.h"
+#include "../private/dump.h"
 
 #include <assert.h>
 #include <inttypes.h>
@@ -59,76 +60,77 @@ static void test_collapsing_into_root_leaf() {
 
 	assert(!hashbplustree_delete(&tree, 100));
 
-	// Left got all nodes. Right got deleted, left got promoted to root.
-	// Root got deleted. Just left is still allocated.
-	assert(tree.root == a);
+	assert(tree.root == root);
+	assert(root->is_leaf);
+	assert_leaf(root, {1, 11}, {2, 22}, {200, 222});
 
-	assert(tree.root->is_leaf);
-	assert_leaf(tree.root, {1, 11}, {2, 22}, {200, 222});
-
-	free(tree.root);
+	free(root);
 }
 
-void test_merging_internal_nodes() {
-	void* A = (void*) 0x10, *B = (void*) 0x20, *C = (void*) 0x30,
-		*D = (void*) 0x40;
+void test_collapse_level() {
+	void* A = (void*) 0x10, *B = (void*) 0x20;
+	node *root, *collapsed_left, *leaf1, *leaf2, *right;
+	root = malloc(sizeof(node));
+	collapsed_left = malloc(sizeof(node));
+	leaf1 = malloc(sizeof(node));
+	leaf2 = malloc(sizeof(node));
+	right = malloc(sizeof(node));
 
-	{
-		node a = (node) {
-			.is_leaf = false,
-			.keys_count = 1,
-			.keys = { 10 },
-			.pointers = { A, B }
-		}, b = (node) {
-			.is_leaf = false,
-			.keys_count = 1,
-			.keys = { 30 },
-			.pointers = { C, D }
-		};
+	*root = (node) {
+		.is_leaf = false,
+		.keys_count = 1,
+		.keys = { 1000 },
+		.pointers = { collapsed_left, right }
+	};
 
-		bplustree_merge_internal_nodes(&a, &b, 20, true);
-		assert_n_keys(&a, 3);
-		assert_pointer(&a, 0, A);
-		assert_key(&a, 0, 10);
-		assert_pointer(&a, 1, B);
-		assert_key(&a, 1, 20);
-		assert_pointer(&a, 2, C);
-		assert_key(&a, 2, 30);
-		assert_pointer(&a, 3, D);
+	*collapsed_left = (node) {
+		.is_leaf = false,
+		.keys_count = 1,
+		.keys = { 100 },
+		.pointers = { leaf1, leaf2 }
+	};
 
-		assert_n_keys(&b, 0);
-	}
+	*leaf1 = (node) {
+		.is_leaf = true,
+		.keys_count = 2,
+		.keys = { 1, 2 },
+		.values = { 10, 20 }
+	};
 
-	{
-		node a = (node) {
-			.is_leaf = false,
-			.keys_count = 1,
-			.keys = { 10 },
-			.pointers = { A, B }
-		}, b = (node) {
-			.is_leaf = false,
-			.keys_count = 1,
-			.keys = { 30 },
-			.pointers = { C, D }
-		};
+	*leaf2 = (node) {
+		.is_leaf = true,
+		.keys_count = 2,
+		.keys = { 150, 160 },
+		.values = { 151, 161 }
+	};
 
-		bplustree_merge_internal_nodes(&a, &b, 20, false);
-		assert_n_keys(&b, 3);
-		assert_pointer(&b, 0, A);
-		assert_key(&b, 0, 10);
-		assert_pointer(&b, 1, B);
-		assert_key(&b, 1, 20);
-		assert_pointer(&b, 2, C);
-		assert_key(&b, 2, 30);
-		assert_pointer(&b, 3, D);
+	*right = (node) {
+		.is_leaf = false,
+		.keys_count = 1,
+		.keys = { 2000 },
+		.pointers = { A, B }
+	};
 
-		assert_n_keys(&a, 0);
-	}
+	tree tree = { .root = root };
+
+	assert(!hashbplustree_delete(&tree, 2));
+
+	assert(tree.root == root);
+	assert_n_keys(root, 1);
+	assert_pointer(root, 0, collapsed_left);
+	assert_key(root, 0, 1000);
+	assert_pointer(root, 1, right);
+
+	assert_leaf(collapsed_left, {1, 10}, {150, 151}, {160, 161});
+
+	free(root);
+	free(collapsed_left);
+	free(right);
 }
 
 void test_hash_bplustree_delete() {
 	test_deleting_from_root_leaf();
 	test_collapsing_into_root_leaf();
-	test_merging_internal_nodes();
+	test_collapse_level();
 	// TODO
 }
