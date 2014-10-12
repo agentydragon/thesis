@@ -107,6 +107,6 @@ void hashtable_dump(void* _this) {
 	log_plain("hash_hashtable blocks:%ld pair_count:%ld",
 			this->blocks_size, this->pair_count);
 
-	dump_blocks(this);
+	// dump_blocks(this);
 	dump_distances(this);
 }
