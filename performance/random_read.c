@@ -59,5 +59,7 @@ void time_random_reads(const hash_api* api, int size, int reads) {
 
 	printf("\t");
 
+	//hash_dump(table);
+
 	hash_destroy(&table);
 }
