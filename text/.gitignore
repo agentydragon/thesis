@@ -1,3 +1,8 @@
 *.aux
 *.pdf
 *.log
+*.toc
+*.out
+*.dvi
+*.ps
+*.bbl
