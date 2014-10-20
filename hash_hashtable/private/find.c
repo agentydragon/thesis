@@ -11,7 +11,7 @@
 #include <inttypes.h>
 
 int8_t hashtable_find(void* _this, uint64_t key, uint64_t *value, bool *found) {
-	struct hashtable_data* this = _this;
+	hashtable* this = _this;
 
 	bool _found;
 	struct hashtable_slot_pointer pointer;

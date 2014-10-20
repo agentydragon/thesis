@@ -1,14 +1,15 @@
 #include "insertion.h"
 #include "hash.h"
 #include "traversal.h"
+#include "helper.h"
 
 #include <inttypes.h>
 
 #include "../../log/log.h"
 
-int8_t hashtable_insert_internal(struct hashtable_data* this, uint64_t key, uint64_t value) {
+int8_t hashtable_insert_internal(hashtable* this, uint64_t key, uint64_t value) {
 	uint64_t key_hash = hashtable_hash_of(this, key);
-	struct hashtable_block* home_block = &this->blocks[key_hash];
+	block* home_block = &this->blocks[key_hash];
 
 	if (home_block->keys_with_hash == HASHTABLE_KEYS_WITH_HASH_MAX) {
 		log_error("cannot insert - overflow in maximum bucket size");
@@ -21,24 +22,26 @@ int8_t hashtable_insert_internal(struct hashtable_data* this, uint64_t key, uint
 		i < home_block->keys_with_hash || !free_index_found;
 		index = hashtable_next_index(this, index)
 	) {
-		struct hashtable_block* block = &this->blocks[index];
+		block* current_block = &this->blocks[index];
 
-		for (int subindex = 0; subindex < 3; subindex++) {
-			if (block->occupied[subindex]) {
-				if (block->keys[subindex] == key) {
+		for (int8_t slot = 0; slot < 3; slot++) {
+			if (current_block->occupied[slot]) {
+				if (current_block->keys[slot] == key) {
 					log_error("duplicate in bucket %" PRIu64 " "
 						"when inserting %" PRIu64 "=%" PRIu64,
 						index, key, value);
 					return 1;
 				}
 
-				if (hashtable_hash_of(this, block->keys[subindex]) == key_hash) {
+				if (hashtable_hash_of(this, current_block->keys[slot]) == key_hash) {
 					i++;
 				}
 			} else {
-				block->occupied[subindex] = true;
-				block->keys[subindex] = key;
-				block->values[subindex] = value;
+				free_index_found = true;
+
+				current_block->occupied[slot] = true;
+				current_block->keys[slot] = key;
+				current_block->values[slot] = value;
 
 				home_block->keys_with_hash++;
 
@@ -49,6 +52,6 @@ int8_t hashtable_insert_internal(struct hashtable_data* this, uint64_t key, uint
 		}
 	}
 
-	log_error("?!");
+	log_error("?!"); // TODO
 	return 1;
 }

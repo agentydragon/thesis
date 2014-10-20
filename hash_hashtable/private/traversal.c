@@ -4,11 +4,11 @@
 
 #include <string.h>
 
-uint64_t hashtable_next_index(struct hashtable_data* this, uint64_t i) {
+uint64_t hashtable_next_index(const hashtable* this, uint64_t i) {
 	return (i + 1) % this->blocks_size;
 }
 
-uint8_t hashtable_scan(struct hashtable_data* this, uint64_t key,
+uint8_t hashtable_scan(hashtable* this, uint64_t key,
 		slot_pointer* key_slot, slot_pointer* last_slot_with_hash,
 		bool* _found) {
 	*_found = false;
@@ -19,19 +19,19 @@ uint8_t hashtable_scan(struct hashtable_data* this, uint64_t key,
 		return 0;
 	}
 
-	const uint64_t key_hash = hashtable_hash_of(this, key);
+	const uint64_t key_hash = hash_of(this, key);
 	uint64_t index = key_hash;
 	const uint64_t keys_with_hash = this->blocks[index].keys_with_hash;
-	struct hashtable_block block;
+	block current_block;
 
 	for (uint64_t i = 0; i < keys_with_hash; index = hashtable_next_index(this, index)) {
 		// Make a local copy
-		memcpy(&block, &this->blocks[index], sizeof(block));
+		memcpy(&current_block, &this->blocks[index], sizeof(block));
 
 		for (uint8_t slot = 0; slot < 3; slot++) {
-			const uint64_t current_key = block.keys[slot];
+			const uint64_t current_key = current_block.keys[slot];
 
-			if (block.occupied[slot]) {
+			if (current_block.occupied[slot]) {
 				if (current_key == key) {
 					*_found = true;
 
@@ -46,7 +46,7 @@ uint8_t hashtable_scan(struct hashtable_data* this, uint64_t key,
 					}
 				}
 
-				if (hashtable_hash_of(this, current_key) == key_hash) {
+				if (hash_of(this, current_key) == key_hash) {
 					if (i == keys_with_hash - 1 &&
 							last_slot_with_hash != NULL) {
 						last_slot_with_hash->block = &this->blocks[index];

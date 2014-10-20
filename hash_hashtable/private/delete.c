@@ -10,9 +10,7 @@
 
 #include <inttypes.h>
 
-int8_t hashtable_delete(void* _this, uint64_t key) {
-	struct hashtable_data* this = _this;
-
+int8_t hashtable_delete(hashtable* this, uint64_t key) {
 	log_info("delete(%" PRIx64 ")", key);
 
 	if (this->pair_count == 0) {

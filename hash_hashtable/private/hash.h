@@ -2,8 +2,8 @@
 #define HASH_HASHTABLE_PRIVATE_HASH_H
 
 #include "data.h"
+#include "helper.h"
 
-uint64_t hashtable_hash_of(struct hashtable_data* this, uint64_t key);
-// uint64_t hash_of(struct hashtable_data* this, uint64_t x);
+uint64_t hash_of(hashtable* this, uint64_t key);
 
 #endif

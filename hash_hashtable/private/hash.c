@@ -1,7 +1,7 @@
 #include "hash.h"
 #include <assert.h>
 
-uint64_t hashtable_hash_of(struct hashtable_data* this, uint64_t x) {
+uint64_t hashtable_hash_of(hashtable* this, uint64_t x) {
 	assert(this->blocks_size > 0);
 
 	if (this->hash_fn_override) {
@@ -25,7 +25,7 @@ static uint64_t hash_fn(uint64_t x, uint64_t max) {
 	return ((x * PRIME_X) ^ (x * PRIME_Y)) % max;
 }
 
-static uint64_t hash_of(struct hashtable_data* this, uint64_t x) {
+static uint64_t hash_of(hashtable* this, uint64_t x) {
 	uint64_t result = hash_fn(x, this->table_size);
 	// log_info("hash(%" PRIu64 ") where size=%ld = %" PRIu64, x, this->table_size, result);
 	return result;

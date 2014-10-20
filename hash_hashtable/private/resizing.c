@@ -1,7 +1,11 @@
 #include "resizing.h"
 #include "insertion.h"
+#include "helper.h"
+#include "data.h"
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 
 #include <inttypes.h>
 #include <string.h>
@@ -48,9 +52,9 @@ static uint64_t next_smaller_size(uint64_t x) {
 	return i / 2;
 }
 
-static int8_t resize(struct hashtable_data* this, uint64_t new_blocks_size);
+static int8_t resize(hashtable* this, uint64_t new_blocks_size);
 
-int8_t hashtable_resize_to_fit(struct hashtable_data* this, uint64_t to_fit) {
+int8_t hashtable_resize_to_fit(hashtable* this, uint64_t to_fit) {
 	uint64_t new_blocks_size = this->blocks_size;
 
 	while (too_sparse(to_fit, new_blocks_size)) {
@@ -80,16 +84,19 @@ int8_t hashtable_resize_to_fit(struct hashtable_data* this, uint64_t to_fit) {
 
 // TODO: make public?
 // TODO: allow break?
-static int8_t foreach(struct hashtable_data* this, int8_t (*iterate)(void*, uint64_t key, uint64_t value), void* opaque) {
+static int8_t foreach(hashtable* this,
+		int8_t (*iterate)(void*, uint64_t key, uint64_t value),
+		void* opaque) {
 	for (uint64_t i = 0; i < this->blocks_size; i++) {
-		const struct hashtable_block* block = &this->blocks[i];
+		const block* current_block = &this->blocks[i];
 
-		for (int subindex = 0; subindex < 3; subindex++) {
-			if (block->occupied[subindex]) {
-				const uint64_t key = block->keys[subindex],
-				      value = block->values[subindex];
+		for (uint8_t slot = 0; slot < 3; slot++) {
+			if (current_block->occupied[slot]) {
+				const uint64_t key = current_block->keys[slot],
+					      value = current_block->values[slot];
 				if (iterate(opaque, key, value)) {
-					log_error("foreach iteration failed on %ld=%ld", key, value);
+					log_error("foreach iteration failed on %ld=%ld",
+							key, value);
 					return 1;
 				}
 			}
@@ -102,7 +109,7 @@ static int8_t insert_internal_wrap(void* this, uint64_t key, uint64_t value) {
 	return hashtable_insert_internal(this, key, value);
 }
 
-static int8_t resize(struct hashtable_data* this, uint64_t new_blocks_size) {
+static int8_t resize(hashtable* this, uint64_t new_blocks_size) {
 	if (new_blocks_size * 3 < this->pair_count) {
 		log_error("cannot resize: %" PRIu64 " blocks don't fit %" PRIu64 " pairs",
 			new_blocks_size, this->pair_count);
@@ -111,8 +118,8 @@ static int8_t resize(struct hashtable_data* this, uint64_t new_blocks_size) {
 	// TODO: try new hash function?
 
 	// Cannot use realloc, because this can both upscale and downscale.
-	struct hashtable_data new_this = {
-		.blocks = aligned_alloc(64, sizeof(struct hashtable_block) * new_blocks_size),
+	hashtable new_this = {
+		.blocks = aligned_alloc(64, sizeof(block) * new_blocks_size),
 		.blocks_size = new_blocks_size,
 		.pair_count = 0
 	};
@@ -124,7 +131,7 @@ static int8_t resize(struct hashtable_data* this, uint64_t new_blocks_size) {
 		goto err_1;
 	}
 
-	memset(new_this.blocks, 0, sizeof(struct hashtable_block) * new_blocks_size);
+	memset(new_this.blocks, 0, sizeof(block) * new_blocks_size);
 
 	if (foreach(this, insert_internal_wrap, &new_this)) {
 		log_error("iteration failed");

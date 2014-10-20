@@ -11,7 +11,7 @@
 #include <assert.h>
 
 /*
-static void calculate_bucket_sizes(struct hashtable_data* this, int bucket_sizes[100]) {
+static void calculate_bucket_sizes(hashtable* this, int bucket_sizes[100]) {
 	memset(bucket_sizes, 0, sizeof(int) * 100);
 	for (uint64_t i = 0; i < this->table_size; i++) {
 		uint64_t bucket_size = this->table[i].keys_with_hash;
@@ -21,7 +21,7 @@ static void calculate_bucket_sizes(struct hashtable_data* this, int bucket_sizes
 }
 
 void hashtable_dump(void* _this) {
-	struct hashtable_data* this = _this;
+	hashtable* this = _this;
 
 	log_plain("hash_hashtable table_size=%ld pair_count=%ld",
 		this->table_size,
@@ -41,7 +41,7 @@ void hashtable_dump(void* _this) {
 }
 */
 
-static void dump_block(struct hashtable_data* this, uint64_t index, struct hashtable_block* block) {
+static void dump_block(hashtable* this, uint64_t index, block* block) {
 	char buffer[256], buffer2[256];
 	snprintf(buffer, sizeof(buffer),
 			"[%04" PRIx64 "] keys_with_hash=%" PRIu32,
@@ -53,7 +53,9 @@ static void dump_block(struct hashtable_data* this, uint64_t index, struct hasht
 			snprintf(buffer, sizeof(buffer),
 					"%s [%016" PRIx64 "(%04" PRIx64 ")=%016" PRIx64 "]",
 					buffer2,
-					block->keys[i], hashtable_hash_of(this, block->keys[i]), block->values[i]);
+					block->keys[i],
+					hashtable_hash_of(this, block->keys[i]),
+					block->values[i]);
 		} else {
 			strncpy(buffer2, buffer, sizeof(buffer2) - 1);
 			snprintf(buffer, sizeof(buffer),
@@ -65,13 +67,13 @@ static void dump_block(struct hashtable_data* this, uint64_t index, struct hasht
 	log_plain("%s", buffer);
 }
 
-static void dump_blocks(struct hashtable_data* this) {
+static void dump_blocks(hashtable* this) {
 	for (uint64_t i = 0; i < this->blocks_size; i++) {
 		dump_block(this, i, &this->blocks[i]);
 	}
 }
 
-static void calculate_distances(struct hashtable_data* this, int distances[100]) {
+static void calculate_distances(hashtable* this, int distances[100]) {
 	memset(distances, 0, sizeof(int) * 100);
 	// TODO: optimize?
 	for (uint64_t i = 0; i < this->blocks_size; i++) {
@@ -88,7 +90,7 @@ static void calculate_distances(struct hashtable_data* this, int distances[100])
 	}
 }
 
-static void dump_distances(struct hashtable_data* this) {
+static void dump_distances(hashtable* this) {
 	if (this->blocks_size > 0) {
 		int distances[100] = { 0 };
 		calculate_distances(this, distances);
@@ -102,7 +104,7 @@ static void dump_distances(struct hashtable_data* this) {
 }
 
 void hashtable_dump(void* _this) {
-	struct hashtable_data* this = _this;
+	hashtable* this = _this;
 
 	log_plain("hash_hashtable blocks:%ld pair_count:%ld",
 			this->blocks_size, this->pair_count);

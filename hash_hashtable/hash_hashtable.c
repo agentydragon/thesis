@@ -90,6 +90,10 @@ static int8_t insert(void* _this, uint64_t key, uint64_t value) {
 	return hashtable_insert_internal(this, key, value);
 }
 
+static int8_t delete(void* _this, uint64_t key) {
+	struct hashtable_data* this = _this;
+	return hashtable_delete(this, key);
+}
 
 const hash_api hash_hashtable = {
 	.init = init,
@@ -97,7 +101,7 @@ const hash_api hash_hashtable = {
 
 	.find = hashtable_find,
 	.insert = insert,
-	.delete = hashtable_delete,
+	.delete = delete,
 
 	.dump = hashtable_dump,
 
