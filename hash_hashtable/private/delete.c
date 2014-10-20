@@ -27,16 +27,15 @@ int8_t hashtable_delete(void* _this, uint64_t key) {
 
 	const uint64_t key_hash = hashtable_hash_of(this, key);
 
-	struct hashtable_block *_block;
-	uint8_t _subindex;
+	struct hashtable_slot_pointer pointer;
 	bool _found;
 
-	if (hashtable_find_position(this, key, &_block, &_subindex, &_found)) {
+	if (hashtable_find_position(this, key, &pointer, &_found)) {
 		return 1;
 	}
 
 	if (_found) {
-		_block->occupied[_subindex] = false;
+		pointer.block->occupied[pointer.slot] = false;
 		this->blocks[key_hash].keys_with_hash--;
 		this->pair_count--;
 

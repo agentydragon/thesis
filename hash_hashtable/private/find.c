@@ -13,20 +13,18 @@
 int8_t hashtable_find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 	struct hashtable_data* this = _this;
 
-	struct hashtable_block *_block;
-	uint8_t _subindex;
 	bool _found;
+	struct hashtable_slot_pointer pointer;
 
-	if (hashtable_find_position(this, key,
-			&_block, &_subindex, &_found)) {
+	if (hashtable_find_position(this, key, &pointer, &_found)) {
 		return 1;
 	}
 
 	if (_found) {
 		log_info("find(%" PRIu64 "): found, value=%" PRIu64,
-				key, _block->values[_subindex]);
+				key, pointer.block->values[pointer.slot]);
 		*found = true;
-		if (value) *value = _block->values[_subindex];
+		if (value) *value = pointer.block->values[pointer.slot];
 	} else {
 		log_info("find(%" PRIu64 "): not found", key);
 		*found = false;

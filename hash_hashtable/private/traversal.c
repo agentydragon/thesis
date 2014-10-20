@@ -8,8 +8,7 @@ uint64_t hashtable_next_index(struct hashtable_data* this, uint64_t i) {
 }
 
 uint8_t hashtable_find_position(struct hashtable_data* this, uint64_t key,
-		struct hashtable_block** _block, uint8_t* _subindex,
-		bool* _found) {
+		struct hashtable_slot_pointer* pointer, bool* _found) {
 	// Special case for empty hash tables.
 	if (this->blocks_size == 0) {
 		*_found = false;
@@ -31,8 +30,8 @@ uint8_t hashtable_find_position(struct hashtable_data* this, uint64_t key,
 			if (block.occupied[subindex]) {
 				if (current_key == key) {
 					*_found = true;
-					*_block = &this->blocks[index];
-					*_subindex = subindex;
+					pointer->block = &this->blocks[index];
+					pointer->slot = subindex;
 					return 0;
 				}
 
