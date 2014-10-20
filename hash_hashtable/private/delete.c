@@ -27,15 +27,21 @@ int8_t hashtable_delete(void* _this, uint64_t key) {
 
 	const uint64_t key_hash = hashtable_hash_of(this, key);
 
-	struct hashtable_slot_pointer pointer;
+	struct hashtable_slot_pointer to_delete, last;
 	bool _found;
 
-	if (hashtable_find_position(this, key, &pointer, &_found)) {
+	if (hashtable_scan(this, key, &to_delete, &last, &_found)) {
 		return 1;
 	}
 
 	if (_found) {
-		pointer.block->occupied[pointer.slot] = false;
+		// Shorten the chain by 1.
+		last.block->occupied[last.slot] = false;
+		to_delete.block->keys[to_delete.slot] =
+			last.block->keys[last.slot];
+		to_delete.block->values[to_delete.slot] =
+			last.block->values[last.slot];
+
 		this->blocks[key_hash].keys_with_hash--;
 		this->pair_count--;
 

@@ -16,7 +16,7 @@ int8_t hashtable_find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 	bool _found;
 	struct hashtable_slot_pointer pointer;
 
-	if (hashtable_find_position(this, key, &pointer, &_found)) {
+	if (hashtable_scan(this, key, &pointer, NULL, &_found)) {
 		return 1;
 	}
 

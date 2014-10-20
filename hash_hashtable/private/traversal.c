@@ -1,5 +1,6 @@
 #include "traversal.h"
 #include "hash.h"
+#include "helper.h"
 
 #include <string.h>
 
@@ -7,8 +8,11 @@ uint64_t hashtable_next_index(struct hashtable_data* this, uint64_t i) {
 	return (i + 1) % this->blocks_size;
 }
 
-uint8_t hashtable_find_position(struct hashtable_data* this, uint64_t key,
-		struct hashtable_slot_pointer* pointer, bool* _found) {
+uint8_t hashtable_scan(struct hashtable_data* this, uint64_t key,
+		slot_pointer* key_slot, slot_pointer* last_slot_with_hash,
+		bool* _found) {
+	*_found = false;
+
 	// Special case for empty hash tables.
 	if (this->blocks_size == 0) {
 		*_found = false;
@@ -24,24 +28,36 @@ uint8_t hashtable_find_position(struct hashtable_data* this, uint64_t key,
 		// Make a local copy
 		memcpy(&block, &this->blocks[index], sizeof(block));
 
-		for (int subindex = 0; subindex < 3; subindex++) {
-			const uint64_t current_key = block.keys[subindex];
+		for (uint8_t slot = 0; slot < 3; slot++) {
+			const uint64_t current_key = block.keys[slot];
 
-			if (block.occupied[subindex]) {
+			if (block.occupied[slot]) {
 				if (current_key == key) {
 					*_found = true;
-					pointer->block = &this->blocks[index];
-					pointer->slot = subindex;
-					return 0;
+
+					if (key_slot != NULL) {
+						key_slot->block = &this->blocks[index];
+						key_slot->slot = slot;
+					}
+
+					if (last_slot_with_hash == NULL) {
+						// We don't care and we're done.
+						return 0;
+					}
 				}
 
 				if (hashtable_hash_of(this, current_key) == key_hash) {
+					if (i == keys_with_hash - 1 &&
+							last_slot_with_hash != NULL) {
+						last_slot_with_hash->block = &this->blocks[index];
+						last_slot_with_hash->slot = slot;
+					}
 					i++;
 				}
 			}
 		}
 		// TODO: guard against infinite loop?
 	}
-	*_found = false;
+
 	return 0;
 }
