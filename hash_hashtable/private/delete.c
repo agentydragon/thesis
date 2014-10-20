@@ -31,8 +31,7 @@ int8_t hashtable_delete(void* _this, uint64_t key) {
 	uint8_t _subindex;
 	bool _found;
 
-	if (hashtable_find_position(this, key,
-			&_block, &_subindex, &_found)) {
+	if (hashtable_find_position(this, key, &_block, &_subindex, &_found)) {
 		return 1;
 	}
 
