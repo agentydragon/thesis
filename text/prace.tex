@@ -28,7 +28,7 @@
 \def\nazevprace{Název práce} % TODO
 
 %% csLaTeX
-\usepackage{czech}
+\usepackage[czech]{babel}
 
 \usepackage[utf8]{inputenc}
 
@@ -39,7 +39,8 @@
 %% Balíček hyperref, kterým jdou vyrábět klikací odkazy v PDF,
 %% ale hlavně ho používáme k uložení metadat do PDF (včetně obsahu).
 %% POZOR, nezapomeňte vyplnit jméno práce a autora.
-\usepackage[ps2pdf,unicode]{hyperref}   % Musí být za všemi ostatními balíčky
+%\usepackage[ps2pdf,unicode]{hyperref}   % Musí být za všemi ostatními balíčky
+\usepackage[unicode]{hyperref}   % Musí být za všemi ostatními balíčky
 \hypersetup{pdftitle=Název práce} % TODO
 \hypersetup{pdfauthor=Michael Pokorný}
 

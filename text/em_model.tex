@@ -1,4 +1,7 @@
-\chapter{Model externí paměti}
+\def\O{\mathcal{O}} % TODO
+
+\chapter{Výpočetní model s externí pamětí}
+\section{RAM a reálné počítače}
 
 Časová náročnost algoritmů a datových struktur se většinou měří v takzvaném
 RAM (\textit{Random Access Memory}) modelu. Paměť RAM modelu je neomezená a
@@ -53,7 +56,7 @@ Architektura skutečných počítačů se však od RAM modelu podstatně liší.
 Zatímco v RAM modelu se platí konstantní cena za přístup k libovolné buňce
 paměti, v reálných počítačích se čas přístupu do paměti výrazně liší
 v závislosti na druhu paměti, ve kterém jsou data uložena.
-Tabulka \ref{table:speeds} tento fakt ilustruje porovnáním
+Tabulka \ref{tbl:speeds} tento fakt ilustruje porovnáním
 řádových rychlostí přístupu k různým druhům paměti.
 
 \begin{table}
@@ -70,7 +73,7 @@ Tabulka \ref{table:speeds} tento fakt ilustruje porovnáním
 	Vzdálený počítač & -- & 50 ms
 	\end{tabular}
 	\caption{Porovnání rychlostí přístupu k různým druhům paměti}
-	\label{table:speeds}
+	\label{tbl:speeds}
 \end{table}
 \todo{Najít přesnější čísla}
 
@@ -104,6 +107,7 @@ operace, ale jsou také podstatně dražší. Aby CPU zbytečně nečekalo na RA
 díky cachím rychle pracovat s malým množstvím dat, ke kterým nedávno přistoupilo.
 Mnoho algoritmů nepotřebuje v každém podprogramu zpracovávat velké množství dat,
 a tedy se na nich projeví zrychlení díky cachím.\todo{konkretni materialy?}
+\todo{obrazek hierarchie}
 
 Rychlost přístupu k datům v reálném počítači je tedy řízena dvěma faktory:
 \begin{itemize}
@@ -120,4 +124,38 @@ Rychlost přístupu k datům v reálném počítači je tedy řízena dvěma fak
 	blízko místa, které právě upravujeme.
 \end{itemize}
 
-\todo{kvuli tomu existuje EM model}
+Pokud si tedy přejeme efektivně využít reálné počítače, RAM model má na velkých
+datech podstatné nevýhody. Pokud pracujeme s malými daty, která se vejdou
+do cache, může RAM model předpovídat rychlost výpočtu poměrně přesně, avšak
+jakmile začnou být data dostatečně velká, přestane model RAM být užitečný,
+protože pro něj má čtení z náhodného místa na disku stejnou cenu jako čtení
+z registru CPU -- $\O(1)$.
+
+\begin{table}
+	\centering
+	\begin{tabular}{l|r|l}
+	Velikost vstupu & Čas běhu, sekvenční přístup & Čas běhu, náhodný
+		přístup \\
+	\hline
+	1 kB & ... & ... \\
+	32 kB & ... & ... \\
+	1 MB & ... & ... \\
+	32 MB & ... & ... \\
+	1 GB & ... & ... \\
+	\end{tabular}
+	\label{tbl:apatterns}
+	\caption{Porovnání rychlosti ekvivalentních programů s jiným pořadím
+	přístupu k paměti}
+\end{table}
+\todo{vyplnit, prostredi a program}
+
+Tabulka \ref{tbl:apatterns} ukazuje, jak dramatický může být
+rozdíl mezi rychlostí programu, který respektuje blokovou strukturu paměti,
+a programu, který je funkčně shodný, ale přistupuje k paměti v náhodném pořadí.
+Oba programy počítají XOR pseudonáhodných bytů uložených v hlavní paměti.
+%%\todo{k tabulce pripojit data jak to zopakovat a parametry}
+
+\section{RAM s externí pamětí}
+
+%\todo{kvuli tomu existuje EM model}
+\clearpage
