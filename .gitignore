@@ -1,5 +1,1 @@
 *.swp
-main
-
-bin/*
-~bin/.gitignore
