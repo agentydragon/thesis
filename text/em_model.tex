@@ -1,0 +1,123 @@
+\chapter{Model externí paměti}
+
+Časová náročnost algoritmů a datových struktur se většinou měří v takzvaném
+RAM (\textit{Random Access Memory}) modelu. Paměť RAM modelu je neomezená a
+skládá se ze stejně velkých buněk označených čísly od 0 výše. Každá buňka
+obsahuje jedno číslo z předem vymezeného intervalu. Program se reprezentuje
+jako posloupnost instrukcí, na které se lze odkazovat čísly. Kompletní sada
+instrukcí pro RAM se skládá například z:
+\begin{itemize}
+\item
+	Načtení konstanty do buňky: například \texttt{[3]=123} uloží do buňky
+	3 hodnotu 123.
+\item
+	Zkopírování obsahu jedné buňky do druhé: například \texttt{[0]=[1]}
+	zkopíruje obsah buňky 1 do buňky 0.
+\item
+	Dereference: například instrukce \texttt{[[0]]=[1]} uloží obsah
+	buňky 1 na místo, které je uložené v buňce 0 a instrukce
+	\texttt{[1]=[[0]]} naopak do buňky 1 uloží obsah buňky, jejíž
+	číslo je uloženo v buňce 0.
+\item
+	Aritmetické operace, které vezmou obsahy dvou buněk,
+	provedou nad nimi binární operaci a výsledek uloží do jiné buňky.
+	Typická sada operací může zahrnovat sčítání, odečítání, násobení,
+	celočíselné dělení a operaci zbytku po dělení, bitový AND, OR a XOR a
+	bitové posuny doleva a doprava.
+	Například \texttt{[4]=[1]+[5]} přečte obsahy buňek 1 a 5, sečte je a
+	výsledek uloží do buňky 4.
+\item
+	Podmíněný skok: například není-li v buňce číslo \texttt{x}
+	uložena nula, skoč na instrukci, jejíž číslo je uloženo v buňce
+	\texttt{target}. Například \texttt{if [0] 30}: není-li v buňce číslo
+	0, skoč na instrukci číslo 30.
+\item
+	Zastavení programu.
+\end{itemize}
+
+Vstup a výstup RAM modelu se může například předávat na předem daných buňkách,
+nebo lze pro vstup a výstup přidat další instrukce.
+
+V RAM modelu je dále potřeba specifikovat chování v případě čtení
+neinicializované paměti. Obvykle se čtení z neinicializované paměti považuje
+za chybu programu a požaduje se, aby se všechna paměť před čtením
+vynulovala.
+\todo{Zmínit magii, která se stane, když se to umožní.}
+Paměťová složitost programu běžícího v RAM se pak měří počtem popsaných buněk,
+zatímco časová složitost je dána počtem vykonaných instrukcí.
+Jméno \textit{random access memory} připomíná, že tento model na rozdíl od
+jiných (například Turingova stroje) umožňuje v konstantním čase přistoupit
+na libovolné místo v paměti.
+
+Architektura skutečných počítačů se však od RAM modelu podstatně liší.
+Zatímco v RAM modelu se platí konstantní cena za přístup k libovolné buňce
+paměti, v reálných počítačích se čas přístupu do paměti výrazně liší
+v závislosti na druhu paměti, ve kterém jsou data uložena.
+Tabulka \ref{table:speeds} tento fakt ilustruje porovnáním
+řádových rychlostí přístupu k různým druhům paměti.
+
+\begin{table}
+	\centering
+	\begin{tabular}{l|r|l}
+	Druh paměti & Velikost & Čas na přístup \\
+	\hline
+	CPU registry & 128 B & 0.1 ns \\
+	L1 cache & 32 kB & 0.5 ns \\
+	L2 cache & 256 kB & 7 ns \\
+	L3 cache & 3 MB & 30 ns \\
+	RAM & 8 GB & 100 ns \\
+	Pevný disk & 500 GB & 3 ms \\
+	Vzdálený počítač & -- & 50 ms
+	\end{tabular}
+	\caption{Porovnání rychlostí přístupu k různým druhům paměti}
+	\label{table:speeds}
+\end{table}
+\todo{Najít přesnější čísla}
+
+Instrukce pro skutečné procesory umožňují operace s registry a RAM
+\footnote{RAM zde v hardwarovém významu.}.
+Registry jsou drobné paměti určené pro \uv{dočasné hodnoty}. Například CPU
+Intel Core i7 mají 16 registrů, každý z nich velký 64 bitů.
+Operace, které operují s RAM, jsou transparentně zrychleny pomocí hierarchie
+\textit{vyrovnávacích pamětí} (anglicky \textit{cache}).
+Nejrychlejší a nejmenší cache se označuje jako L1 (level 1), další čísla
+označují větší a pomalejší cache.
+
+Tyto cache obsahují \uv{pracovní kopie} nedávno přečtených nebo zapsaných buněk
+paměti.  Když CPU provádí instrukci pracující s obsahem RAM, pokusí se nejdříve
+najít nebo přepsat hodnoty v cachích a pokud žádná cache neobsahuje kopii dané
+buňky, a teprve když žádná rychlá cache tuto buňku neobsahuje, přistoupí k
+pomalé hlavní paměti. Záznam z paměti se pak může propsat do cachí. Pokud jsou
+všechna místa, na které jde daný záznam zacachovat, plná, určí takzvaná
+\textsl{cache replacement policy} způsob, jak tuto situaci vyřešit. Obvykle
+se z cache odebere ta položka, která byla použita naposledy. Tato cache
+replacement policy se nazývá LRU (\textit{least recently used}).
+
+Protože by bylo složité a paměťově náročné separátně cachovat každý byte paměti,
+ukládají se do cachí pouze souvislé bloky nazývané \textsl{cache lines}.
+Například architektura Core i7 má v cachích L1, L2 i L3 shodnou velikost cache
+line 64 B.
+
+Tato hierarchie cachí vznikly především protože rychlost CPU se vyvíjela rychleji,
+než rychlost levných dynamických pamětí. Statické paměti sice umožňují rychlejší
+operace, ale jsou také podstatně dražší. Aby CPU zbytečně nečekalo na RAM, může
+díky cachím rychle pracovat s malým množstvím dat, ke kterým nedávno přistoupilo.
+Mnoho algoritmů nepotřebuje v každém podprogramu zpracovávat velké množství dat,
+a tedy se na nich projeví zrychlení díky cachím.\todo{konkretni materialy?}
+
+Rychlost přístupu k datům v reálném počítači je tedy řízena dvěma faktory:
+\begin{itemize}
+\item
+	\textit{Temporal locality}: Pokud byla data nedávno použita, jsou
+	pravděpodobně uložena v některé z cachí. Čím dále v minulosti byla
+	data naposledy použita, tím pomalejší bude další operace nad těmito
+	daty.
+\item
+	\textit{Spatial locality}: Data se cachují po drobných blocích. Čtení
+	z disků taktéž probíhá po blocích (obvykle velkých 4 kB), a kromě
+	toho je mnohem rychlejší provádět na discích sekvenční čtení než čtení
+	z náhodných míst. Obecně je rychlejší přistupovat k údajům uloženým
+	blízko místa, které právě upravujeme.
+\end{itemize}
+
+\todo{kvuli tomu existuje EM model}
