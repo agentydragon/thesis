@@ -28,3 +28,6 @@ Integrace:
 
 - multithreading
 
+- MMAP na disk - jsou tam vetsi bloky a vic zabavy
+- existuje neco jako "paralelne precti 2 mista v pameti"?
+	- z experimentu s nahodnym ctenim to tak vypadalo...
