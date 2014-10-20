@@ -54,7 +54,7 @@ static void dump_block(hashtable* this, uint64_t index, block* block) {
 					"%s [%016" PRIx64 "(%04" PRIx64 ")=%016" PRIx64 "]",
 					buffer2,
 					block->keys[i],
-					hashtable_hash_of(this, block->keys[i]),
+					hash_of(this, block->keys[i]),
 					block->values[i]);
 		} else {
 			strncpy(buffer2, buffer, sizeof(buffer2) - 1);
@@ -77,14 +77,18 @@ static void calculate_distances(hashtable* this, int distances[100]) {
 	memset(distances, 0, sizeof(int) * 100);
 	// TODO: optimize?
 	for (uint64_t i = 0; i < this->blocks_size; i++) {
-		for (int subindex = 0; subindex < 3; subindex++) {
-			if (!this->blocks[i].occupied[subindex]) continue;
+		for (int8_t slot = 0; slot < 3; slot++) {
+			if (!this->blocks[i].occupied[slot]) continue;
 
-			uint64_t should_be_at = hashtable_hash_of(this, this->blocks[i].keys[subindex]);
+			const uint64_t should_be_at =
+				hash_of(this, this->blocks[i].keys[slot]);
 
 			uint64_t distance;
-			if (should_be_at <= i) distance = i - should_be_at;
-			else distance = (this->blocks_size - should_be_at) + i;
+			if (should_be_at <= i) {
+				distance = i - should_be_at;
+			} else {
+				distance = (this->blocks_size - should_be_at) + i;
+			}
 			distances[distance]++;
 		}
 	}

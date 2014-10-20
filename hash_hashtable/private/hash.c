@@ -1,7 +1,7 @@
 #include "hash.h"
 #include <assert.h>
 
-uint64_t hashtable_hash_of(hashtable* this, uint64_t x) {
+uint64_t hash_of(hashtable* this, uint64_t x) {
 	assert(this->blocks_size > 0);
 
 	if (this->hash_fn_override) {

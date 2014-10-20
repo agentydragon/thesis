@@ -23,7 +23,7 @@ int8_t hashtable_delete(hashtable* this, uint64_t key) {
 		return 1;
 	}
 
-	const uint64_t key_hash = hashtable_hash_of(this, key);
+	const uint64_t key_hash = hash_of(this, key);
 
 	struct hashtable_slot_pointer to_delete, last;
 	bool _found;

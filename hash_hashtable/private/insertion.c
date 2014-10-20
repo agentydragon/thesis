@@ -8,8 +8,8 @@
 #include "../../log/log.h"
 
 int8_t hashtable_insert_internal(hashtable* this, uint64_t key, uint64_t value) {
-	uint64_t key_hash = hashtable_hash_of(this, key);
-	block* home_block = &this->blocks[key_hash];
+	const uint64_t key_hash = hash_of(this, key);
+	block* const home_block = &this->blocks[key_hash];
 
 	if (home_block->keys_with_hash == HASHTABLE_KEYS_WITH_HASH_MAX) {
 		log_error("cannot insert - overflow in maximum bucket size");
@@ -33,7 +33,7 @@ int8_t hashtable_insert_internal(hashtable* this, uint64_t key, uint64_t value) 
 					return 1;
 				}
 
-				if (hashtable_hash_of(this, current_block->keys[slot]) == key_hash) {
+				if (hash_of(this, current_block->keys[slot]) == key_hash) {
 					i++;
 				}
 			} else {
