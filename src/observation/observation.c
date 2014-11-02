@@ -19,7 +19,7 @@ int8_t observation_init(observation** _this) {
 		goto err_1;
 	}
 	*this = (observation) {
-		.operations = malloc(sizeof(struct observed_operation) * MIN_CAPACITY),
+		.operations = calloc(MIN_CAPACITY, sizeof(struct observed_operation)),
 		.size = 0,
 		.capacity = MIN_CAPACITY
 	};
