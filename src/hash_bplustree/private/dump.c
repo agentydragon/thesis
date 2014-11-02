@@ -3,6 +3,7 @@
 #include "helpers.h"
 #include "../../log/log.h"
 
+#include <stdio.h>
 #include <inttypes.h>
 
 /*

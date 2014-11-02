@@ -3,6 +3,7 @@
 #include "data.h"
 #include "../../log/log.h"
 
+#include <stdlib.h>
 #include <assert.h>
 #include <inttypes.h>
 #include <string.h>

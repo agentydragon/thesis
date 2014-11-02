@@ -6,6 +6,7 @@
 #include "../../util/average.h"
 #include "../../log/log.h"
 
+#include <stdio.h>
 #include <inttypes.h>
 #include <string.h>
 #include <assert.h>

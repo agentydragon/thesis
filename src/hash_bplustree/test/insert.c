@@ -3,6 +3,7 @@
 #include "../private/data.h"
 #include "../private/insert.h"
 
+#include <stdlib.h>
 #include <assert.h>
 #include <inttypes.h>
 

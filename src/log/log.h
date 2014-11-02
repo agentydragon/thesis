@@ -1,28 +1,23 @@
 #ifndef LOG_H_INCLUDED
 #define LOG_H_INCLUDED
 
-#include <stdlib.h>
-#include <stdio.h>
+void __log(const char* tag, const char* format, ...);
+void log_fatal(const char* format, ...);
 
 #define log_plain(fmt,...) do { \
-	fprintf(stderr, "     : " fmt "\n", ##__VA_ARGS__); \
+	__log("     ", fmt, ##__VA_ARGS__); \
 } while (0)
 
 #ifndef NO_LOG_INFO
 #define log_info(fmt,...) do { \
-	fprintf(stderr, " INFO: " fmt "\n", ##__VA_ARGS__); \
+	__log(" INFO", fmt, ##__VA_ARGS__); \
 } while (0)
 #else
 #define log_info(...) (void)(0)
 #endif
 
 #define log_error(fmt,...) do { \
-	fprintf(stderr, "ERROR: " fmt "\n", ##__VA_ARGS__); \
-} while (0)
-
-#define log_fatal(...) do { \
-	log_error(__VA_ARGS__); \
-	abort(); \
+	__log("ERROR", fmt, ##__VA_ARGS__); \
 } while (0)
 
 #define CHECK(x) do { \

@@ -4,6 +4,7 @@
 #include "../private/delete.h"
 #include "../private/dump.h"
 
+#include <stdlib.h>
 #include <assert.h>
 #include <inttypes.h>
 

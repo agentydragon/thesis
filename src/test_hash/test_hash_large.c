@@ -2,6 +2,7 @@
 #include "test_hash_large.h"
 #include "../log/log.h"
 
+#include <stdlib.h>
 #include <inttypes.h> // PRIu64
 
 // sizeof(struct bucket) == 32 => ~ 500 000 000 === ~14 GB pameti
@@ -30,7 +31,9 @@ void test_hash_large(const hash_api* api, uint64_t N) {
 	*/
 
 	hash* table;
-	if (hash_init(&table, api, NULL)) log_fatal("cannot init hash table");
+	if (hash_init(&table, api, NULL)) {
+		log_fatal("cannot init hash table");
+	}
 
 	log_info("Inserting %" PRIu64 " elements...", N);
 	for (uint64_t i = 0; i < N; i++) {

@@ -8,6 +8,7 @@ SOURCES= \
 	hash_bplustree/*.c hash_bplustree/private/*.c hash_bplustree/test/*.c \
 	hash_hashtable/*.c hash_hashtable/private/*.c hash_hashtable/test/*.c \
 	observation/*.c observation/test/*.c \
+	log/*.c \
 	performance/*.c \
 	rand/*.c rand/test/*.c \
 	util/*.c \
