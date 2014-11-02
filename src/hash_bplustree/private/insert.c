@@ -10,6 +10,12 @@
 #include <assert.h>
 #include <inttypes.h>
 
+static node* alloc_node() {
+	node* new_node = aligned_alloc(64, sizeof(node));
+	assert(new_node);
+	return new_node;
+}
+
 static void insert_into_leaf(node* leaf, uint64_t key, uint64_t value) {
 	assert(leaf->keys_count < LEAF_CAPACITY);
 
@@ -149,8 +155,7 @@ static void insert_recursion(node* target, uint64_t key, uint64_t value,
 				*need_to_add_node = false;
 			} else {
 				// Oops, we need to split.
-				node* new_internal = malloc(sizeof(node));
-				assert(new_internal);
+				node* new_internal = alloc_node();
 				new_internal->keys_count = 0;
 				new_internal->is_leaf = false;
 
@@ -176,8 +181,7 @@ static void insert_recursion(node* target, uint64_t key, uint64_t value,
 			*need_to_add_node = false;
 		} else {
 			// Oops, we need to split.
-			node* new_leaf = malloc(sizeof(node));
-			assert(new_leaf);
+			node* new_leaf = alloc_node();
 			// TODO: proper error checking, custom allocator?
 			new_leaf->is_leaf = true;
 
@@ -204,8 +208,7 @@ int8_t hashbplustree_insert(void* _this, uint64_t key, uint64_t value) {
 	insert_recursion(this->root, key, value,
 			&need_new_root, &new_root_key, &new_branch);
 	if (need_new_root) {
-		node* new_root = malloc(sizeof(node));
-		assert(new_root); // TODO: proper error handling
+		node* new_root = alloc_node();
 		*new_root = (node) {
 			.is_leaf = false,
 			.keys_count = 1,
