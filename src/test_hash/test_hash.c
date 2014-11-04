@@ -2,6 +2,7 @@
 #include "../log/log.h"
 #include "../stopwatch/stopwatch.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
