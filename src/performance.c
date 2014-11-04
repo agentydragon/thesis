@@ -13,34 +13,19 @@ int test_mmap();
 
 void run_performance_tests() {
 	time_random_reads(&hash_array, 1000, 10000);
-
 	time_random_reads(&hash_array, 10000, 100000);
 
-	time_random_reads(&hash_hashtable, 10000, 200000);
-	time_random_reads(&hash_hashtable, 20000, 200000);
-	time_random_reads(&hash_hashtable, 50000, 200000);
-	time_random_reads(&hash_hashtable, 100000, 200000);
-	time_random_reads(&hash_hashtable, 200000, 200000);
-	time_random_reads(&hash_hashtable, 1000000, 2000000);
-	time_random_reads(&hash_hashtable, 2000000, 10000000);
-	time_random_reads(&hash_hashtable, 5000000, 10000000);
-	// time_random_reads(&hash_hashtable, 10000000, 20000000);
-	// time_random_reads(&hash_hashtable, 20000000, 100000000);
-	// time_random_reads(&hash_hashtable, 50000000, 100000000);
+	log_info("Hash table");
+	for (uint64_t size = 10000; size < 20 * 1024ULL * 1024ULL;
+			size *= 2) {
+		time_random_reads(&hash_hashtable, size, size);
+	}
 
-	time_random_reads(&hash_bplustree, 10000, 200000);
-	time_random_reads(&hash_bplustree, 20000, 200000);
-	time_random_reads(&hash_bplustree, 50000, 200000);
-	time_random_reads(&hash_bplustree, 100000, 200000);
-	time_random_reads(&hash_bplustree, 200000, 200000);
-	time_random_reads(&hash_bplustree, 1000000, 2000000);
-	time_random_reads(&hash_bplustree, 2000000, 10000000);
-	time_random_reads(&hash_bplustree, 5000000, 10000000);
-	time_random_reads(&hash_bplustree, 10000000, 10000000);
-	time_random_reads(&hash_bplustree, 20000000, 10000000);
-	time_random_reads(&hash_bplustree, 50000000, 10000000);
-
-//	if (test_mmap()) return 1;
+	log_info("B+ tree");
+	for (uint64_t size = 10000; size < 20 * 1024ULL * 1024ULL;
+			size *= 2) {
+		time_random_reads(&hash_bplustree, size, size);
+	}
 }
 
 int main(int argc, char** argv) {
