@@ -71,28 +71,33 @@ Neplatné věty nemají důkaz.
 		\end{itemize}
 	\end{itemize}
 
-\item Implementace slovníku
+\item Triviální implementace slovníku
 	\begin{itemize}
 	\item Triviální pole (unrolled linked list?)
 	\item Triviální přímá adresace pro malé klíče
-	\item Hashování
-		\begin{itemize}
-		\item Seznam
+
+\item Hashování
+	\begin{itemize}
+		\item Seznam prvků v kolizi
 		\item Linear probing (open addressing)
 		\item Double hashing
 		\item Cuckoo hashing
-		\end{itemize}
-	\item Vyhledávací stromy
-		\begin{itemize}
-		\item B-stromy
-		\end{itemize}
+	\end{itemize}
 
-	\item Speciality pro vnější paměť
-		\begin{itemize}
-		\item Directory hashing (extensible hashing, linear hashing) 
+\item Vyhledávací stromy
+	\begin{itemize}
+		\item B-stromy (a 2-3-4 stromy)
+		\item Červenočerné stromy
+		\item Splay stromy (TODO: zkusit vymyslet N-arni splay stromy)
+		\item Van Emde-Boas uspořádání
+		\item T-stromy (?)
+	\end{itemize}
+
+\item Speciality pro vnější paměť
+	\begin{itemize}
+		\item Directory hashing (extensible hashing, linear hashing)
 		\item Directoryless hashing methods
 		\item Tree EM structures
-		\end{itemize}
 	\end{itemize}
 
 
