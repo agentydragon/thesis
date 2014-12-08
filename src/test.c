@@ -17,6 +17,8 @@
 
 #include "performance/random_read.h"
 
+#include "splay_tree/test.h"
+
 void run_unit_tests() {
 	test_rand();
 
@@ -30,6 +32,8 @@ void run_unit_tests() {
 	test_hash_large(&hash_array, 1 << 10);
 	test_hash_large(&hash_hashtable, 1 << 20);
 	test_hash_large(&hash_bplustree, 1 << 20);
+
+	test_splay_tree();
 }
 
 int main(int argc, char** argv) {

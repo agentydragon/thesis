@@ -2,15 +2,23 @@ CFLAGS=-g -std=gnu11 -W -Wall -O3
 CC=gcc
 
 SOURCES= \
-	stopwatch/*.c measurement/*.c \
-	hash/*.c test_hash/*.c \
 	hash_array/*.c \
-	hash_bplustree/*.c hash_bplustree/private/*.c hash_bplustree/test/*.c \
-	hash_hashtable/*.c hash_hashtable/private/*.c hash_hashtable/test/*.c \
-	observation/*.c observation/test/*.c \
+	hash_bplustree/*.c \
+	hash_bplustree/private/*.c \
+	hash_bplustree/test/*.c \
+	hash/*.c test_hash/*.c \
+	hash_hashtable/*.c \
+	hash_hashtable/private/*.c \
+	hash_hashtable/test/*.c \
 	log/*.c \
+	measurement/*.c \
+	observation/*.c \
+	observation/test/*.c \
 	performance/*.c \
-	rand/*.c rand/test/*.c \
+	rand/*.c \
+	rand/test/*.c \
+	splay_tree/*.c \
+	stopwatch/*.c \
 	util/*.c \
 
 all: bin/test bin/performance
