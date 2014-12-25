@@ -1,4 +1,4 @@
-CFLAGS=-g -std=gnu11 -W -Wall -O3
+CFLAGS=-g -std=gnu11 -W -Wall -O3 -rdynamic
 CC=gcc
 
 SOURCES= \
