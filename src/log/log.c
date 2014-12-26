@@ -16,7 +16,7 @@ void __log_v(const char* tag, const char* format, va_list args) {
 	free(message);
 }
 
-void __log(const char* tag, const char* format, ...) {
+void __log_basic(const char* tag, const char* format, ...) {
 	va_list args;
 	va_start(args, format);
 	__log_v(tag, format, args);
