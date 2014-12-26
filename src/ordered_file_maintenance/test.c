@@ -9,13 +9,6 @@
 #define UNDEF 0xDEADBEEF
 #define NOTHING 0xDEADDEADDEADDEAD
 
-/*
-#define assert_occupied(subrange,...) do { \
-	const bool _expected[] = { __VA_ARGS__ }; \
-	assert(memcmp(subrange.occupied, _expected, sizeof(_expected)) == 0); \
-} while (0)
-*/
-
 #define assert_contents(subrange,...) do { \
 	const uint64_t _expected[] = { __VA_ARGS__ }; \
 	const uint64_t size = sizeof(_expected) / sizeof(*_expected); \
@@ -184,16 +177,12 @@ static void test_insert_after_very_dense() {
 	bool occupied[] = {
 		false, false, true, false,
 		false, false, false, false,
-			// 1
 		true, true, true, true,
 		true, true, false, true,
-			// 8
 		true, true, true, true,
 		true, true, true, true,
-			// 16
 		true, true, false, true,
 		true, true, true, true
-			// 23
 	};
 	uint64_t contents[] = {
 		UNDEF, UNDEF, 100, UNDEF,

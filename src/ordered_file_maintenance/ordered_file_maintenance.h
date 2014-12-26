@@ -32,6 +32,11 @@ struct watched_index {
 	uint64_t* new_location;
 };
 
+struct reorg_range {
+	uint64_t begin;
+	uint64_t size;
+};
+
 // TODO: maybe relax requirements to allow easier implementation
 // TODO: change to subrange_insert_before_index to let me pass 0
 bool subrange_insert_after(struct subrange subrange, uint64_t inserted_item,
@@ -43,8 +48,11 @@ void subrange_spread_evenly(struct subrange subrange,
 		struct watched_index watched_index);
 void subrange_describe(struct subrange subrange, char* buffer);
 
-void ordered_file_insert_after(struct ordered_file file, uint64_t item,
-		uint64_t insert_after_index);
+// Those functions return the touched range.
+struct reorg_range ordered_file_insert_after(struct ordered_file file,
+		uint64_t item, uint64_t insert_after_index);
+struct reorg_range ordered_file_delete(struct ordered_file file,
+		uint64_t index);
 
 bool density_is_within_threshold(uint64_t slots_used, uint64_t slots_available,
 		uint64_t depth, uint64_t structure_height);

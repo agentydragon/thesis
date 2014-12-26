@@ -2,6 +2,7 @@
 #include "../log/log.h"
 #include "../math/math.h"
 
+#include <assert.h>
 #include <inttypes.h>
 #include <math.h>
 #include <stdio.h>
@@ -159,38 +160,40 @@ bool density_is_within_threshold(uint64_t slots_used, uint64_t slots_available,
 	return A && B;
 }
 
-static bool reorganize(struct ordered_file file, uint64_t index, struct watched_index watched_index) {
+// Returns touched range.
+static struct reorg_range reorganize(struct ordered_file file, uint64_t index, struct watched_index watched_index) {
 	const uint64_t leaf_size = subrange_leaf_size(file.capacity);
 	uint64_t block_size = leaf_size;
 	uint64_t depth = leaf_depth(file.capacity);
+	uint64_t block_offset;
 
 	while (block_size <= file.capacity) {
-		uint64_t block_offset =
-				(index / block_size) * leaf_size;
+		block_offset = (index / block_size) * leaf_size;
 
 		struct subrange block_subrange = {
 			.occupied = file.occupied + block_offset,
 			.contents = file.contents + block_offset,
 			.size = block_size
 		};
-
-		log_info("depth=%" PRIu64, depth);
 		if (density_is_within_threshold(
 				subrange_get_occupied(block_subrange),
-				block_size, depth,
-				leaf_depth(file.capacity))) {
-			char description[512];
-			subrange_describe(block_subrange, description);
-			log_info("before spread_evenly: %s", description);
+				block_size, depth, leaf_depth(file.capacity))) {
 			subrange_spread_evenly(block_subrange, watched_index);
-			subrange_describe(block_subrange, description);
-			log_info("after spread_evenly: %s", description);
-			return true;  // found!
+			return (struct reorg_range) {
+				.begin = block_offset,
+				.size = block_size
+			};
 		}
 		block_size *= 2;
 		depth--;
 	}
-	return false;
+
+	log_fatal("ordered file maintenance structure "
+			"does not meet density bounds. TODO: resize to fit.");
+	return (struct reorg_range) {
+		.begin = INVALID_INDEX,
+		.size = INVALID_INDEX
+	};
 }
 
 static struct subrange get_leaf_subrange(struct ordered_file file, uint64_t index) {
@@ -205,29 +208,53 @@ static struct subrange get_leaf_subrange(struct ordered_file file, uint64_t inde
 	};
 }
 
-void ordered_file_insert_after(struct ordered_file file, uint64_t item,
-		uint64_t insert_after_index) {
-	if (subrange_insert_after(get_leaf_subrange(file, insert_after_index),
-				item, file.contents[insert_after_index])) {
+struct reorg_range ordered_file_insert_after(struct ordered_file file,
+		uint64_t item, uint64_t insert_after_index) {
+	// TODO: perhaps we should reorg when the block stops meeting
+	// density conditions?
+	struct subrange leaf_subrange = get_leaf_subrange(file,
+			insert_after_index);
+	if (subrange_insert_after(leaf_subrange, item,
+				file.contents[insert_after_index])) {
 		// All is good.
-		return;
+		return (struct reorg_range) {
+			// TODO: hack
+			.begin = leaf_subrange.contents - file.contents,
+			.size = leaf_subrange.size
+		};
 	}
 
 	log_info("we will need to reorganize");
-	if (!reorganize(file, insert_after_index, (struct watched_index) {
-		.index = insert_after_index,
-		.new_location = &insert_after_index
-	})) {
-		log_fatal("ordered file maintenance structure "
-				"does not meet density bounds.");
+	struct reorg_range reorg_range = reorganize(file, insert_after_index,
+			(struct watched_index) {
+				.index = insert_after_index,
+				.new_location = &insert_after_index
+			});
+	// TODO
+	if (!subrange_insert_after(get_leaf_subrange(file, insert_after_index),
+				item, file.contents[insert_after_index])) {
+		log_fatal("reorganization didn't help");
+	}
+	return reorg_range;
+}
+
+struct reorg_range ordered_file_delete(struct ordered_file file,
+		uint64_t index) {
+	// TODO: perhaps we should reorg when the block stops meeting
+	// density conditions?
+	assert(file.occupied[index]);
+	struct subrange leaf = get_leaf_subrange(file, index);
+	subrange_delete(leaf, file.contents[index]);
+	if (subrange_get_occupied(leaf) == 0) {
+		return reorganize(file, index, (struct watched_index) {
+			.index = INVALID_INDEX,
+			.new_location = NULL
+		});
 	} else {
-		// TODO
-		if (subrange_insert_after(get_leaf_subrange(file, insert_after_index),
-					item, file.contents[insert_after_index])) {
-			// All is good.
-			return;
-		} else {
-			log_fatal("reorganization didn't help");
-		}
+		return (struct reorg_range) {
+			// TODO: hack
+			.begin = leaf.contents - file.contents,
+			.size = leaf.size
+		};
 	}
 }
