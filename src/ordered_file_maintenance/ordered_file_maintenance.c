@@ -11,6 +11,9 @@ const uint64_t INVALID_INDEX = 0xDEADBEEFDEADBEEF;
 
 void subrange_describe(struct subrange subrange, char* buffer) {
 	for (uint64_t i = 0; i < subrange.size; i++) {
+		if (i % 4 == 0 && i > 0) {
+			buffer += sprintf(buffer, "\n");
+		}
 		if (subrange.occupied[i]) {
 			buffer += sprintf(buffer, "[%2" PRIu64 "]%4" PRIu64 " ",
 					i, subrange.contents[i]);
@@ -161,7 +164,7 @@ static bool reorganize(struct ordered_file file, uint64_t index, struct watched_
 	uint64_t block_size = leaf_size;
 	uint64_t depth = leaf_depth(file.capacity);
 
-	while (block_size < file.capacity) {
+	while (block_size <= file.capacity) {
 		uint64_t block_offset =
 				(index / block_size) * leaf_size;
 
@@ -171,6 +174,7 @@ static bool reorganize(struct ordered_file file, uint64_t index, struct watched_
 			.size = block_size
 		};
 
+		log_info("depth=%" PRIu64, depth);
 		if (density_is_within_threshold(
 				subrange_get_occupied(block_subrange),
 				block_size, depth,
