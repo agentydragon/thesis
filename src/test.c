@@ -12,12 +12,17 @@
 #include "hash_bplustree/test/test.h"
 #include "observation/test/test.h"
 #include "rand/test/test.h"
+#include "veb_layout/test.h"
+#include "math/test.h"
 
 #include "log/log.h"
 
 #include "performance/random_read.h"
 
 void run_unit_tests() {
+	test_veb_layout();
+
+	test_math();
 	test_rand();
 
 	test_hash_hashtable();
