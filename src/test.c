@@ -11,6 +11,7 @@
 #include "hash_hashtable/test/test.h"
 #include "hash_bplustree/test/test.h"
 #include "observation/test/test.h"
+#include "ordered_file_maintenance/test.h"
 #include "rand/test/test.h"
 #include "veb_layout/test.h"
 #include "math/test.h"
@@ -24,6 +25,7 @@ void run_unit_tests() {
 
 	test_math();
 	test_rand();
+	test_ordered_file_maintenance();
 
 	test_hash_hashtable();
 	test_hash_bplustree();

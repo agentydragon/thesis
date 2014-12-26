@@ -1,4 +1,4 @@
-CFLAGS=-g -std=gnu11 -W -Wall -O3 -rdynamic
+CFLAGS=-g -std=gnu11 -W -Wall -O3 -rdynamic -lm
 CC=gcc
 
 SOURCES= \
@@ -8,6 +8,7 @@ SOURCES= \
 	hash_bplustree/*.c hash_bplustree/private/*.c hash_bplustree/test/*.c \
 	hash_hashtable/*.c hash_hashtable/private/*.c hash_hashtable/test/*.c \
 	observation/*.c observation/test/*.c \
+	ordered_file_maintenance/*.c \
 	log/*.c \
 	math/*.c \
 	performance/*.c \
