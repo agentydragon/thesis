@@ -11,12 +11,12 @@ static uint64_t m_exp2(uint64_t x) {
 }
 
 static void split_height(uint64_t height, uint64_t* bottom, uint64_t* top) {
-	if (closest_pow2_floor(height) != height) {
-		*bottom = closest_pow2_floor(height - 1);
-		*top = height - *bottom;
-	} else {
+	if (is_pow2(height)) {
 		*bottom = height / 2;
 		*top = height / 2;
+	} else {
+		*bottom = closest_pow2_floor(height - 1);
+		*top = height - *bottom;
 	}
 	assert(*top + *bottom == height);
 }
