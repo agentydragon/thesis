@@ -7,105 +7,114 @@
 #include <string.h>
 #include "../log/log.h"
 
+const uint64_t NOTHING = 0xDEADBEEF;
+typedef struct veb_node {
+	uint64_t left, right;
+} veb_node;
+
 static veb_node veb_buffer[256];
 
 const int STRIDE = 5;
 
-static veb_node* MOCK(uint64_t n) {
-	return (veb_node*) (0x1000 + n * sizeof(veb_node) * STRIDE);
-}
-
-static veb_node* PTR(uint64_t n) {
-	return &veb_buffer[n];
-}
-
-static void base_and_diff(const char* base, uint64_t diff, char* output) {
-	if (diff > 0) {
-		sprintf(output, "%s+%" PRIu64, base, diff);
+static void set_node(uint64_t node, veb_pointer left, veb_pointer right) {
+	if (left.present) {
+		veb_buffer[node].left = left.node;
 	} else {
-		strcpy(output, base);
+		veb_buffer[node].left = NOTHING;
 	}
-}
 
-static void describe(const veb_node* node, char* description) {
-	char buffer[20];
-	if (((uint64_t) node) < 0x10000) {
-		uint64_t diff = ((uint64_t) node) - ((uint64_t) MOCK(0));
-		sprintf(buffer, "MOCK(%" PRIu64 ")",
-				diff / (sizeof(veb_node) * STRIDE));
-		base_and_diff(buffer, diff % (sizeof(veb_node) * STRIDE),
-				description);
-	} else if (node >= veb_buffer && node < veb_buffer + sizeof(veb_buffer)) {
-		uint64_t diff = ((uint64_t) node) - ((uint64_t) veb_buffer);
-		sprintf(buffer, "veb_buffer[%" PRIu64 "]",
-				diff / sizeof(veb_node));
-		base_and_diff(buffer, diff % sizeof(veb_node),
-				description);
+	if (right.present) {
+		veb_buffer[node].right = right.node;
 	} else {
-		sprintf(description, "%p", node);
+		veb_buffer[node].right = NOTHING;
 	}
 }
 
 #define check(index,left_n,right_n) do { \
-	char should[100], found[100]; \
 	const veb_node node = veb_buffer[index]; \
-	if (node.left != left_n) { \
-		describe(node.left, found); \
-		describe(left_n, should); \
-		log_fatal("node %d has left wrong (is %s, should be %s)", \
-				index, found, should); \
-	} \
-	if (node.right != right_n) { \
-		describe(node.right, found); \
-		describe(right_n, should); \
-		log_fatal("node %d has right wrong (is %s, should be %s)", \
-				index, found, should); \
-	} \
+	assert(node.left == left_n && node.right == right_n); \
 } while (0)
 
+static void build_with_height(uint64_t height) {
+	build_veb_layout(height, 0, set_node,
+			(veb_pointer) { .present = false }, 0);
+}
+
 static void test_1() {
-	build_veb_layout(1, veb_buffer, MOCK(0), STRIDE);
-	check(0, MOCK(0), MOCK(1));
+	build_with_height(1);
+	check(0, NOTHING, NOTHING);
 }
 
 static void test_2() {
-	build_veb_layout(2, veb_buffer, MOCK(0), STRIDE);
-
-	check(0, PTR(1), PTR(2));
-	check(1, MOCK(0), MOCK(1));
-	check(2, MOCK(2), MOCK(3));
+	build_with_height(2);
+	check(0, 1, 2);
+	check(1, NOTHING, NOTHING);
+	check(2, NOTHING, NOTHING);
 }
 
 static void test_3() {
-	build_veb_layout(3, veb_buffer, MOCK(0), STRIDE);
-
-	check(0, PTR(1), PTR(4));
-	check(1, PTR(2), PTR(3));
-	check(2, MOCK(0), MOCK(1));
-	check(3, MOCK(2), MOCK(3));
-	check(4, PTR(5), PTR(6));
-	check(5, MOCK(4), MOCK(5));
-	check(6, MOCK(6), MOCK(7));
+	build_with_height(3);
+	check(0, 1, 4);
+	check(1, 2, 3);
+	check(2, NOTHING, NOTHING);
+	check(3, NOTHING, NOTHING);
+	check(4, 5, 6);
+	check(5, NOTHING, NOTHING);
+	check(6, NOTHING, NOTHING);
 }
 
 static void test_4() {
-	build_veb_layout(4, veb_buffer, MOCK(0), STRIDE);
+	build_with_height(4);
+	check(0, 1, 2);
+	check(1, 3, 6);
+	check(2, 9, 12);
+	check(3, 4, 5);
+	check(4, NOTHING, NOTHING);
+	check(5, NOTHING, NOTHING);
+	check(6, 7, 8);
+	check(7, NOTHING, NOTHING);
+	check(8, NOTHING, NOTHING);
+	check(9, 10, 11);
+	check(10, NOTHING, NOTHING);
+	check(11, NOTHING, NOTHING);
+	check(12, 13, 14);
+	check(13, NOTHING, NOTHING);
+	check(14, NOTHING, NOTHING);
+}
 
-	check(0, PTR(1), PTR(2));
-	check(1, PTR(3), PTR(6));
-	check(2, PTR(9), PTR(12));
-	check(3, PTR(4), PTR(5));
-	check(4, MOCK(0), MOCK(1));
-	check(5, MOCK(2), MOCK(3));
-	check(6, PTR(7), PTR(8));
-	check(7, MOCK(4), MOCK(5));
-	check(8, MOCK(6), MOCK(7));
-	check(9, PTR(10), PTR(11));
-	check(10, MOCK(8), MOCK(9));
-	check(11, MOCK(10), MOCK(11));
-	check(12, PTR(13), PTR(14));
-	check(13, MOCK(12), MOCK(13));
-	check(14, MOCK(14), MOCK(15));
+static void test_5() {
+	build_with_height(5);
+	check(0, 1, 16);
+	check(1, 2, 3);
+	check(2, 4, 7);
+	check(3, 10, 13);
+	check(4, 5, 6);
+	check(5, NOTHING, NOTHING);
+	check(6, NOTHING, NOTHING);
+	check(7, 8, 9);
+	check(8, NOTHING, NOTHING);
+	check(9, NOTHING, NOTHING);
+	check(10, 11, 12);
+	check(11, NOTHING, NOTHING);
+	check(12, NOTHING, NOTHING);
+	check(13, 14, 15);
+	check(14, NOTHING, NOTHING);
+	check(15, NOTHING, NOTHING);
+	check(16, 17, 18);
+	check(17, 19, 22);
+	check(18, 25, 28);
+	check(19, 20, 21);
+	check(20, NOTHING, NOTHING);
+	check(21, NOTHING, NOTHING);
+	check(22, 23, 24);
+	check(23, NOTHING, NOTHING);
+	check(24, NOTHING, NOTHING);
+	check(25, 26, 27);
+	check(26, NOTHING, NOTHING);
+	check(27, NOTHING, NOTHING);
+	check(28, 29, 30);
+	check(29, NOTHING, NOTHING);
+	check(30, NOTHING, NOTHING);
 }
 
 void test_veb_layout() {
@@ -113,4 +122,5 @@ void test_veb_layout() {
 	test_2();
 	test_3();
 	test_4();
+	test_5();
 }

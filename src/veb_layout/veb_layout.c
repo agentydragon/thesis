@@ -21,21 +21,25 @@ static void split_height(uint64_t height, uint64_t* bottom, uint64_t* top) {
 	assert(*top + *bottom == height);
 }
 
-void build_veb_layout(uint64_t height, veb_node* space,
-		veb_node* leaf_start, uint64_t leaf_stride) {
-	log_info("build_veb_layout(height=%d,space=%p,leaf_start=%p,leaf_stride=%d)",
-			height, space, leaf_start, leaf_stride);
+static veb_pointer veb_pointer_add(veb_pointer base, uint64_t shift) {
+	return (veb_pointer) {
+		.present = base.present,
+		.node = base.node + shift
+	};
+}
+
+void build_veb_layout(uint64_t height,
+		uint64_t node_start,
+		void (*set_node)(uint64_t node, veb_pointer left, veb_pointer right),
+		veb_pointer leaf_source, uint64_t leaf_stride) {
 	if (height == 0) {
 		return;
 	} else if (height == 1) {
-		space[0].left = leaf_start;
-		space[0].right = leaf_start + leaf_stride;
+		set_node(node_start, leaf_source,
+				veb_pointer_add(leaf_source, leaf_stride));
 	} else {
 		uint64_t bottom_height, top_height;
 		split_height(height, &bottom_height, &top_height);
-
-		log_info("bottom_height=%d top_height=%d",
-				bottom_height, top_height);
 
 		const uint64_t nodes_in_top_block = m_exp2(top_height) - 1;
 		const uint64_t number_of_bottom_blocks = m_exp2(top_height);
@@ -43,22 +47,24 @@ void build_veb_layout(uint64_t height, veb_node* space,
 			m_exp2(bottom_height) - 1;
 		const uint64_t leaves_per_bottom_block = m_exp2(bottom_height);
 
-		veb_node* my_leaf_start = space + nodes_in_top_block;
-
-		veb_node* write_to = space;
-		build_veb_layout(top_height, write_to,
-				my_leaf_start, nodes_in_bottom_block);
-		write_to += nodes_in_top_block;
+		build_veb_layout(top_height, node_start,
+				set_node,
+				(veb_pointer) {
+					.present = true,
+					.node = node_start + nodes_in_top_block
+				}, nodes_in_bottom_block);
+		node_start += nodes_in_top_block;
 
 		for (uint64_t bottom_block_index = 0;
 				bottom_block_index < number_of_bottom_blocks;
 				bottom_block_index++) {
 			log_info("-> building leaf %d/%d",
 					bottom_block_index + 1, bottom_blocks);
-			build_veb_layout(bottom_height, write_to,
-					leaf_start + (bottom_block_index * leaf_stride * leaves_per_bottom_block),
-					leaf_stride);
-			write_to += nodes_in_bottom_block;
+			build_veb_layout(bottom_height, node_start,
+					set_node,
+					leaf_source, leaf_stride);
+			node_start += nodes_in_bottom_block;
+			leaf_source = veb_pointer_add(leaf_source, leaf_stride * leaves_per_bottom_block);
 		}
 	}
 }
