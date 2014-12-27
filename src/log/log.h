@@ -2,7 +2,7 @@
 #define LOG_H_INCLUDED
 
 void __log_basic(const char* tag, const char* format, ...);
-void log_fatal(const char* format, ...);
+void log_fatal(const char* format, ...) __attribute__((noreturn));
 
 #define log_plain(fmt,...) do { \
 	__log_basic("     ", fmt, ##__VA_ARGS__); \
