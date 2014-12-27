@@ -30,12 +30,14 @@ static veb_pointer veb_pointer_add(veb_pointer base, uint64_t shift) {
 
 void build_veb_layout(uint64_t height,
 		uint64_t node_start,
-		void (*set_node)(uint64_t node, veb_pointer left, veb_pointer right),
+		void (*set_node)(void* opaque,
+			uint64_t node, veb_pointer left, veb_pointer right),
+		void* set_node_opaque,
 		veb_pointer leaf_source, uint64_t leaf_stride) {
 	if (height == 0) {
 		return;
 	} else if (height == 1) {
-		set_node(node_start, leaf_source,
+		set_node(set_node_opaque, node_start, leaf_source,
 				veb_pointer_add(leaf_source, leaf_stride));
 	} else {
 		uint64_t bottom_height, top_height;
@@ -48,7 +50,7 @@ void build_veb_layout(uint64_t height,
 		const uint64_t leaves_per_bottom_block = m_exp2(bottom_height);
 
 		build_veb_layout(top_height, node_start,
-				set_node,
+				set_node, set_node_opaque,
 				(veb_pointer) {
 					.present = true,
 					.node = node_start + nodes_in_top_block
@@ -61,7 +63,7 @@ void build_veb_layout(uint64_t height,
 			log_info("-> building leaf %d/%d",
 					bottom_block_index + 1, bottom_blocks);
 			build_veb_layout(bottom_height, node_start,
-					set_node,
+					set_node, set_node_opaque,
 					leaf_source, leaf_stride);
 			node_start += nodes_in_bottom_block;
 			leaf_source = veb_pointer_add(leaf_source, leaf_stride * leaves_per_bottom_block);

@@ -8,35 +8,37 @@
 #include "../log/log.h"
 
 const uint64_t NOTHING = 0xDEADBEEF;
-typedef struct veb_node {
+
+typedef struct {
 	uint64_t left, right;
-} veb_node;
+} persisted_node;
 
-static veb_node veb_buffer[256];
+static persisted_node NODE_POOL[256];
 
-const int STRIDE = 5;
+static void set_node(void* _veb_buffer, uint64_t node,
+		veb_pointer left, veb_pointer right) {
+	persisted_node* pool = _veb_buffer;
 
-static void set_node(uint64_t node, veb_pointer left, veb_pointer right) {
 	if (left.present) {
-		veb_buffer[node].left = left.node;
+		pool[node].left = left.node;
 	} else {
-		veb_buffer[node].left = NOTHING;
+		pool[node].left = NOTHING;
 	}
 
 	if (right.present) {
-		veb_buffer[node].right = right.node;
+		pool[node].right = right.node;
 	} else {
-		veb_buffer[node].right = NOTHING;
+		pool[node].right = NOTHING;
 	}
 }
 
 #define check(index,left_n,right_n) do { \
-	const veb_node node = veb_buffer[index]; \
+	const persisted_node node = NODE_POOL[index]; \
 	assert(node.left == left_n && node.right == right_n); \
 } while (0)
 
 static void build_with_height(uint64_t height) {
-	build_veb_layout(height, 0, set_node,
+	build_veb_layout(height, 0, set_node, NODE_POOL,
 			(veb_pointer) { .present = false }, 0);
 }
 
