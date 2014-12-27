@@ -1,9 +1,7 @@
 #include "math.h"
 
 static uint64_t m_exp2(uint64_t x) {
-	uint64_t log, n;
-	for (log = 0, n = 1; log < x; n *= 2, ++log);
-	return n;
+	return 1ULL << x;
 }
 
 bool is_pow2(uint64_t x) {
