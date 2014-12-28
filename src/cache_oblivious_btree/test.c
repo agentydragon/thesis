@@ -62,9 +62,76 @@ void destroy_file(struct ordered_file file) {
 	free(file.contents);
 }
 
+#define assert_previous_key(cob,key,previous_key) do { \
+	bool found; \
+	uint64_t found_key; \
+	cob_previous_key(cob, key, &found, &found_key); \
+	if (previous_key != NIL) { \
+		if (!found) { \
+			log_fatal("no previous key for %" PRIu64 ", expected " \
+					"%" PRIu64, key, previous_key); \
+		} \
+		assert(previous_key == found_key); \
+	} else { \
+		assert(!found); \
+	} \
+} while (0)
+
+void check_key_sequence(struct cob cob,
+		const uint64_t* sequence, uint64_t count) {
+	// Check sequence inside.
+	for (uint64_t i = 0; i < count; i++) {
+		if (sequence[i] == NIL) continue;
+
+		for (uint64_t j = i + 1; j < count; j++) {
+			if (sequence[j] == NIL) {
+				continue;
+			} else {
+				assert_previous_key(&cob, sequence[j], sequence[i]);
+				break;
+			}
+
+			/*
+			cob_next_key(&cob, sequence[i], &found_found,
+					&found);
+			assert(found_found && found == sequence[j]);
+			*/
+		}
+	}
+
+	// Check that previous(first) doesn't exist and next(first-1) == first.
+	for (uint64_t i = 0; i < count; i++) {
+		if (sequence[i] != NIL) {
+			assert_previous_key(&cob, sequence[i], NIL);
+
+			/*
+			cob_next_key(&cob, sequence[i] - 1, &found_found,
+						&found);
+			assert(found_found && found == sequence[i]);
+			*/
+			break;
+		}
+	}
+
+	// Check that next(last) doesn't exist and previous(last+1) == last.
+	for (uint64_t i = 0; i < count; i++) {
+		uint64_t j = count - 1 - i;
+		if (sequence[j] != NIL) {
+			/*
+			cob_next_key(&cob, sequence[j], &found_found, &found);
+			assert(!found_found);
+			*/
+
+			assert_previous_key(&cob, sequence[j] + 1, sequence[j]);
+			break;
+		}
+	}
+}
+
 #define assert_content(cob,...) do { \
-	uint64_t _expected[] = { __VA_ARGS__ }; \
-	for (uint64_t i = 0; i < sizeof(_expected) / sizeof(*_expected); i++) { \
+	const uint64_t _expected[] = { __VA_ARGS__ }; \
+	const uint64_t _count = sizeof(_expected) / sizeof(*_expected); \
+	for (uint64_t i = 0; i < _count; i++) { \
 		if (_expected[i] == NIL) { \
 			assert(!cob.file.occupied[i]); \
 		} else { \
@@ -72,6 +139,7 @@ void destroy_file(struct ordered_file file) {
 			assert(cob.file.contents[i] == _expected[i]); \
 		} \
 	} \
+	check_key_sequence(cob, _expected, _count); \
 } while (0)
 
 static void test_simple_delete() {

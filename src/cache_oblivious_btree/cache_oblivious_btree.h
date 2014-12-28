@@ -27,10 +27,12 @@ struct cob {
 	uint64_t* veb_minima;
 };
 
-void cob_insert(struct cob* this, uint64_t key);  // TODO
+void cob_insert(struct cob* this, uint64_t key);  // TODO: insert value
 void cob_delete(struct cob* this, uint64_t key);
-void cob_search(struct cob* this, uint64_t key, bool *found);
-void cob_next_key(struct cob* this, uint64_t key, uint64_t *next_key);
-void cob_previous_key(struct cob* this, uint64_t key, uint64_t *previous_key);
+void cob_has_key(const struct cob* this, uint64_t key, bool *found);  // TODO: get value
+void cob_next_key(const struct cob* this, uint64_t key,
+		bool *next_key_exists, uint64_t *next_key);
+void cob_previous_key(const struct cob* this, uint64_t key,
+		bool *previous_key_exists, uint64_t *previous_key);
 
 #endif
