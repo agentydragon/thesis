@@ -11,6 +11,8 @@
 //
 // The density of the entire structure is within [0.5;0.75].
 
+// TODO: subranges must not be left empty at any time
+
 struct ordered_file {
 	// TODO: store as bitmap
 	bool* occupied;
@@ -39,6 +41,7 @@ struct reorg_range {
 
 // TODO: maybe relax requirements to allow easier implementation
 // TODO: change to subrange_insert_before_index to let me pass 0
+uint64_t subrange_leaf_size(uint64_t capacity);
 bool subrange_insert_after(struct subrange subrange, uint64_t inserted_item,
 		uint64_t insert_after);
 void subrange_delete(struct subrange subrange, uint64_t item);
@@ -47,6 +50,8 @@ void subrange_compact(struct subrange subrange,
 void subrange_spread_evenly(struct subrange subrange,
 		struct watched_index watched_index);
 void subrange_describe(struct subrange subrange, char* buffer);
+
+struct subrange get_leaf_subrange(struct ordered_file file, uint64_t index);
 
 // Those functions return the touched range.
 struct reorg_range ordered_file_insert_after(struct ordered_file file,

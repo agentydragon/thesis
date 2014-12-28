@@ -196,9 +196,13 @@ static struct reorg_range reorganize(struct ordered_file file, uint64_t index, s
 	};
 }
 
-static struct subrange get_leaf_subrange(struct ordered_file file, uint64_t index) {
+static struct subrange get_leaf_subrange_for(struct ordered_file file, uint64_t index) {
 	const uint64_t leaf_size = subrange_leaf_size(file.capacity);
-	const uint64_t leaf_number = index / leaf_size;
+	return get_leaf_subrange(file, index / leaf_size);
+}
+
+struct subrange get_leaf_subrange(struct ordered_file file, uint64_t leaf_number) {
+	const uint64_t leaf_size = subrange_leaf_size(file.capacity);
 	const uint64_t leaf_offset = leaf_number * leaf_size;
 
 	return (struct subrange) {
@@ -212,7 +216,7 @@ struct reorg_range ordered_file_insert_after(struct ordered_file file,
 		uint64_t item, uint64_t insert_after_index) {
 	// TODO: perhaps we should reorg when the block stops meeting
 	// density conditions?
-	struct subrange leaf_subrange = get_leaf_subrange(file,
+	struct subrange leaf_subrange = get_leaf_subrange_for(file,
 			insert_after_index);
 	if (subrange_insert_after(leaf_subrange, item,
 				file.contents[insert_after_index])) {
@@ -231,7 +235,7 @@ struct reorg_range ordered_file_insert_after(struct ordered_file file,
 				.new_location = &insert_after_index
 			});
 	// TODO
-	if (!subrange_insert_after(get_leaf_subrange(file, insert_after_index),
+	if (!subrange_insert_after(get_leaf_subrange_for(file, insert_after_index),
 				item, file.contents[insert_after_index])) {
 		log_fatal("reorganization didn't help");
 	}
@@ -243,7 +247,7 @@ struct reorg_range ordered_file_delete(struct ordered_file file,
 	// TODO: perhaps we should reorg when the block stops meeting
 	// density conditions?
 	assert(file.occupied[index]);
-	struct subrange leaf = get_leaf_subrange(file, index);
+	struct subrange leaf = get_leaf_subrange_for(file, index);
 	subrange_delete(leaf, file.contents[index]);
 	if (subrange_get_occupied(leaf) == 0) {
 		return reorganize(file, index, (struct watched_index) {
