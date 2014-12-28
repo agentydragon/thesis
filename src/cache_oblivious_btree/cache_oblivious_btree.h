@@ -29,7 +29,7 @@ struct cob {
 
 void cob_insert(struct cob* this, uint64_t key);  // TODO
 void cob_delete(struct cob* this, uint64_t key);
-void cob_search(struct cob* this, uint64_t key, uint64_t *value, bool *found);
+void cob_search(struct cob* this, uint64_t key, bool *found);
 void cob_next_key(struct cob* this, uint64_t key, uint64_t *next_key);
 void cob_previous_key(struct cob* this, uint64_t key, uint64_t *previous_key);
 

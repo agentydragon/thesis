@@ -92,7 +92,7 @@ static void test_simple_delete() {
 	cob_delete(&cob, 10);
 
 	assert_content(cob,
-		NIL, NIL, 20, 30,
+		NIL, 20, NIL, 30,
 		40, NIL, 50, NIL);
 	assert(cob.veb_minima[0] == 20);
 	assert(cob.veb_minima[1] == 20);
@@ -142,7 +142,6 @@ static void test_complex_delete() {
 		80, 100, 100, 120, 131, 131, 140
 	};
 	assert(memcmp(expected_veb_minima, cob.veb_minima, sizeof(expected_veb_minima)) == 0);
-
 	destroy_file(cob.file);
 }
 
@@ -166,11 +165,10 @@ static void test_simple_insert() {
 		NIL, NIL, NIL, 700,
 		NIL, NIL, 800, 900);
 	dump_cob(cob);
+	destroy_file(cob.file);
 }
 
-/*
 static void test_insert_new_minimum_with_overflow() {
-	log_info("==============");
 	// van Emde Boas order: (will have 4 leaves)
 	//     0
 	//  1    4
@@ -184,9 +182,17 @@ static void test_insert_new_minimum_with_overflow() {
 		NIL, NIL, 800, 900);
 
 	cob_insert(&cob, 42);
-	dump_cob(cob);
+	assert_content(cob,
+		42, 100, 200, NIL,
+		300, NIL, 400, NIL,
+		500, NIL, 600, 700,
+		NIL, 800, NIL, 900);
+	const uint64_t expected_veb_minima[] = {
+		42, 42, 42, 300, 500, 500, 800
+	};
+	assert(memcmp(expected_veb_minima, cob.veb_minima, sizeof(expected_veb_minima)) == 0);
+	destroy_file(cob.file);
 }
-*/
 
 void test_cache_oblivious_btree() {
 	test_simple_delete();
@@ -194,5 +200,5 @@ void test_cache_oblivious_btree() {
 	test_simple_insert();
 	// TODO: insert smallest element
 	// TODO: overflow in insert
-	//test_insert_new_minimum_with_overflow();
+	test_insert_new_minimum_with_overflow();
 }

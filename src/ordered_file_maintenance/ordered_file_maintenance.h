@@ -42,9 +42,9 @@ struct reorg_range {
 // TODO: maybe relax requirements to allow easier implementation
 // TODO: change to subrange_insert_before_index to let me pass 0
 uint64_t subrange_leaf_size(uint64_t capacity);
-bool subrange_insert_after(struct subrange subrange, uint64_t inserted_item,
+void subrange_insert_after(struct subrange subrange, uint64_t inserted_item,
 		uint64_t insert_after);
-void subrange_delete(struct subrange subrange, uint64_t item);
+void subrange_delete_at(struct subrange subrange, uint64_t index);
 void subrange_compact(struct subrange subrange,
 		struct watched_index watched_index);
 void subrange_spread_evenly(struct subrange subrange,
@@ -56,6 +56,8 @@ struct subrange get_leaf_subrange(struct ordered_file file, uint64_t index);
 // Those functions return the touched range.
 struct reorg_range ordered_file_insert_after(struct ordered_file file,
 		uint64_t item, uint64_t insert_after_index);
+struct reorg_range ordered_file_insert_first(struct ordered_file file,
+		uint64_t item);
 struct reorg_range ordered_file_delete(struct ordered_file file,
 		uint64_t index);
 

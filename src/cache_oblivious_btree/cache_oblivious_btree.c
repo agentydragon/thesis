@@ -47,7 +47,10 @@ static struct reorg_range insert_sorted_order(struct ordered_file file,
 		return ordered_file_insert_after(file,
 				inserted_item, insert_after_index);
 	} else {
-		log_fatal("TODO: insert at beginning");
+		// TODO: hack. check this is the first subrange.
+		// (otherwise we would not need to do this)
+		assert(subrange.occupied == file.occupied);
+		return ordered_file_insert_first(file, inserted_item);
 	}
 }
 

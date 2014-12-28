@@ -38,7 +38,7 @@ static void test_insert_simple() {
 		.contents = contents,
 		.size = 5
 	};
-	assert(subrange_insert_after(subrange, 200, 100));
+	subrange_insert_after(subrange, 200, 0);
 
 	assert_contents(subrange, 100, 200, NOTHING, NOTHING, NOTHING);
 }
@@ -51,39 +51,14 @@ static void test_shift() {
 		.contents = contents,
 		.size = 5
 	};
-	assert(subrange_insert_after(subrange, 200, 100));
+	subrange_insert_after(subrange, 200, 0);
 
 	assert_contents(subrange, 100, 200, 300, 400, NOTHING);
-}
-
-void test_insert_to_full() {
-	bool occupied[] = { true, true, true, true, true };
-	uint64_t contents[] = { 0, 0, 100, 0, 0 };
-	struct subrange subrange = {
-		.occupied = occupied,
-		.contents = contents,
-		.size = 5
-	};
-	assert(!subrange_insert_after(subrange, 200, 100));
 }
 
 static void test_subrange_insert_after() {
 	test_insert_simple();
 	test_shift();
-	test_insert_to_full();
-}
-
-void test_subrange_delete() {
-	bool occupied[] = { true, true, true, true, false };
-	uint64_t contents[] = { 10, 20, 30, 40, 0 };
-	struct subrange subrange = {
-		.occupied = occupied,
-		.contents = contents,
-		.size = 5
-	};
-	subrange_delete(subrange, 30);
-
-	assert_contents(subrange, 10, 20, NOTHING, 40, NOTHING);
 }
 
 static void test_subrange_compact() {
@@ -229,7 +204,6 @@ static void test_insert_after() {
 
 void test_ordered_file_maintenance() {
 	test_subrange_insert_after();
-	test_subrange_delete();
 	test_subrange_compact();
 	test_subrange_spread_evenly();
 	test_insert_after();
