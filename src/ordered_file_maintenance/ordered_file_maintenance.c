@@ -21,7 +21,7 @@ void subrange_describe(struct subrange subrange, char* buffer) {
 		}
 		if (subrange.occupied[i]) {
 			buffer += sprintf(buffer, "[%2" PRIu64 "]%4" PRIu64 " ",
-					i, subrange.contents[i]);
+					i, subrange.keys[i]);
 		} else {
 			buffer += sprintf(buffer, "[%2" PRIu64 "]---- ", i);
 		}
@@ -51,7 +51,7 @@ void subrange_compact(struct subrange subrange,
 			subrange.occupied[source] = false;
 			while (subrange.occupied[target]) target++;
 			subrange.occupied[target] = true;
-			subrange.contents[target] = subrange.contents[source];
+			subrange.keys[target] = subrange.keys[source];
 			if (source == watched_index.index) {
 				*(watched_index.new_location) = target;
 			}
@@ -83,10 +83,10 @@ void subrange_insert_first(struct subrange subrange, uint64_t inserted_item) {
 	const uint64_t occupied = subrange_get_occupied(subrange);
 	for (uint64_t i = 0; i < occupied; i++) {
 		subrange.occupied[occupied - i] = subrange.occupied[occupied - i - 1];
-		subrange.contents[occupied - i] = subrange.contents[occupied - i - 1];
+		subrange.keys[occupied - i] = subrange.keys[occupied - i - 1];
 	}
 	subrange.occupied[0] = true;
-	subrange.contents[0] = inserted_item;
+	subrange.keys[0] = inserted_item;
 }
 
 void subrange_insert_after(struct subrange subrange, uint64_t inserted_item,
@@ -103,13 +103,13 @@ void subrange_insert_after(struct subrange subrange, uint64_t inserted_item,
 			insert_after_index, occupied);
 	for (uint64_t copy_from = occupied - 1; ; copy_from--) {
 		subrange.occupied[copy_from + 1] = subrange.occupied[copy_from];
-		subrange.contents[copy_from + 1] = subrange.contents[copy_from];
+		subrange.keys[copy_from + 1] = subrange.keys[copy_from];
 
 		if (copy_from == insert_after_index) {
 			break;
 		}
 	}
-	subrange.contents[insert_after_index + 1] = inserted_item;
+	subrange.keys[insert_after_index + 1] = inserted_item;
 }
 
 void subrange_spread_evenly(struct subrange subrange,
@@ -127,7 +127,7 @@ void subrange_spread_evenly(struct subrange subrange,
 	for (uint64_t i = 0; i < elements; i++) {
 		const uint64_t target_index =
 				subrange.size - 1 - round(i * gap_size);
-		subrange.contents[target_index] = subrange.contents[elements - 1 - i];
+		subrange.keys[target_index] = subrange.keys[elements - 1 - i];
 		subrange.occupied[elements - 1 - i] = false;
 		subrange.occupied[target_index] = true;
 		if (sublocation == elements - 1 - i) {
@@ -168,7 +168,7 @@ static struct reorg_range reorganize(struct ordered_file file, uint64_t index,
 
 		struct subrange block_subrange = {
 			.occupied = file.occupied + block_offset,
-			.contents = file.contents + block_offset,
+			.keys = file.keys + block_offset,
 			.size = block_size
 		};
 		if (density_is_within_threshold(
@@ -199,7 +199,7 @@ struct subrange get_leaf_subrange(struct ordered_file file, uint64_t leaf_number
 
 	return (struct subrange) {
 		.occupied = file.occupied + leaf_offset,
-		.contents = file.contents + leaf_offset,
+		.keys = file.keys + leaf_offset,
 		.size = leaf_size
 	};
 }

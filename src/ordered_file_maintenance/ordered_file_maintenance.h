@@ -11,12 +11,10 @@
 //
 // The density of the entire structure is within [0.5;0.75].
 
-// TODO: subranges must not be left empty at any time
-
 struct ordered_file {
 	// TODO: store as bitmap
 	bool* occupied;
-	uint64_t* contents;
+	uint64_t* keys;
 	uint64_t capacity;
 };
 
@@ -25,7 +23,7 @@ typedef uint64_t ordered_file_pointer;
 // Conceptual.
 struct subrange {
 	bool* occupied;
-	uint64_t* contents;
+	uint64_t* keys;
 	uint64_t size;
 };
 
@@ -40,7 +38,6 @@ struct reorg_range {
 };
 
 // TODO: maybe relax requirements to allow easier implementation
-// TODO: change to subrange_insert_before_index to let me pass 0
 uint64_t subrange_leaf_size(uint64_t capacity);
 void subrange_insert_after(struct subrange subrange, uint64_t inserted_item,
 		uint64_t insert_after);

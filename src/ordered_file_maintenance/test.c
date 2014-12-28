@@ -9,7 +9,7 @@
 #define UNDEF 0xDEADBEEF
 #define NOTHING 0xDEADDEADDEADDEAD
 
-#define assert_contents(subrange,...) do { \
+#define assert_keys(subrange,...) do { \
 	const uint64_t _expected[] = { __VA_ARGS__ }; \
 	const uint64_t size = sizeof(_expected) / sizeof(*_expected); \
 	for (uint64_t i = 0; i < size; i++) { \
@@ -17,7 +17,7 @@
 			if (subrange.occupied[i]) { \
 				log_fatal("index %" PRIu64 " should be empty, " \
 						"but is occupied by %" PRIu64, \
-						i, subrange.contents[i]); \
+						i, subrange.keys[i]); \
 			} \
 		} else { \
 			if (!subrange.occupied[i]) { \
@@ -25,35 +25,35 @@
 						"%" PRIu64 ", but it's empty", \
 						i, _expected[i]); \
 			} \
-			assert(subrange.contents[i] == _expected[i]); \
+			assert(subrange.keys[i] == _expected[i]); \
 		} \
 	} \
 } while (0)
 
 static void test_insert_simple() {
 	bool occupied[] = { true, false, false, false, false };
-	uint64_t contents[] = { 100, 0, 0, 0, 0 };
+	uint64_t keys[] = { 100, 0, 0, 0, 0 };
 	struct subrange subrange = {
 		.occupied = occupied,
-		.contents = contents,
+		.keys = keys,
 		.size = 5
 	};
 	subrange_insert_after(subrange, 200, 0);
 
-	assert_contents(subrange, 100, 200, NOTHING, NOTHING, NOTHING);
+	assert_keys(subrange, 100, 200, NOTHING, NOTHING, NOTHING);
 }
 
 static void test_shift() {
 	bool occupied[] = { true, true, true, false, false };
-	uint64_t contents[] = { 100, 300, 400, 0, 0 };
+	uint64_t keys[] = { 100, 300, 400, 0, 0 };
 	struct subrange subrange = {
 		.occupied = occupied,
-		.contents = contents,
+		.keys = keys,
 		.size = 5
 	};
 	subrange_insert_after(subrange, 200, 0);
 
-	assert_contents(subrange, 100, 200, 300, 400, NOTHING);
+	assert_keys(subrange, 100, 200, 300, 400, NOTHING);
 }
 
 static void test_subrange_insert_after() {
@@ -63,10 +63,10 @@ static void test_subrange_insert_after() {
 
 static void test_subrange_compact() {
 	bool occupied[] = { true, true, false, false, false, false, false, true };
-	uint64_t contents[] = { 10, 20, 0, 0, 0, 0, 0, 30 };
+	uint64_t keys[] = { 10, 20, 0, 0, 0, 0, 0, 30 };
 	struct subrange subrange = {
 		.occupied = occupied,
-		.contents = contents,
+		.keys = keys,
 		.size = 8
 	};
 	uint64_t new_location;
@@ -76,16 +76,16 @@ static void test_subrange_compact() {
 	});
 
 	assert(new_location == 2);
-	assert_contents(subrange, 10, 20, 30,
+	assert_keys(subrange, 10, 20, 30,
 			NOTHING, NOTHING, NOTHING, NOTHING);
 }
 
 static void test_subrange_spread_evenly() {
 	bool occupied[] = { true, true, false, false, false, false, false, true };
-	uint64_t contents[] = { 10, 20, 0, 0, 0, 0, 0, 30 };
+	uint64_t keys[] = { 10, 20, 0, 0, 0, 0, 0, 30 };
 	struct subrange subrange = {
 		.occupied = occupied,
-		.contents = contents,
+		.keys = keys,
 		.size = 8
 	};
 	uint64_t new_location;
@@ -95,7 +95,7 @@ static void test_subrange_spread_evenly() {
 	});
 
 	assert(new_location == 4);
-	assert_contents(subrange,
+	assert_keys(subrange,
 			NOTHING, NOTHING, 10, NOTHING,
 			20, NOTHING, NOTHING, 30);
 }
@@ -112,7 +112,7 @@ static void test_insert_after_two_reorg() {
 		false, false, true, true,
 		true, false, true, false,
 	};
-	uint64_t contents[] = {
+	uint64_t keys[] = {
 		100, 200, 300, 400,
 		UNDEF, UNDEF, 500, 600,
 		UNDEF, UNDEF, 700, 800,
@@ -124,17 +124,17 @@ static void test_insert_after_two_reorg() {
 	};
 	struct ordered_file file = {
 		.occupied = occupied,
-		.contents = contents,
+		.keys = keys,
 		.capacity = 32
 	};
 	ordered_file_insert_after(file, 250, 1);
 
 	struct subrange ranged = {
 		.occupied = occupied,
-		.contents = contents,
+		.keys = keys,
 		.size = 32
 	};
-	assert_contents(ranged,
+	assert_keys(ranged,
 			// The following block is changed.
 			100, 200, 250, NOTHING,
 			300, 400, NOTHING, 500,
@@ -159,7 +159,7 @@ static void test_insert_after_very_dense() {
 		true, true, false, true,
 		true, true, true, true
 	};
-	uint64_t contents[] = {
+	uint64_t keys[] = {
 		UNDEF, UNDEF, 100, UNDEF,
 		UNDEF, UNDEF, UNDEF, UNDEF,
 		200, 300, 400, 500,
@@ -171,20 +171,20 @@ static void test_insert_after_very_dense() {
 	};
 	struct ordered_file file = {
 		.occupied = occupied,
-		.contents = contents,
+		.keys = keys,
 		.capacity = 32
 	};
 	ordered_file_insert_after(file, 2400, 31);
 
 	struct subrange ranged = {
 		.occupied = occupied,
-		.contents = contents,
+		.keys = keys,
 		.size = 32
 	};
 	char description[512];
 	subrange_describe(ranged, description);
 	log_info("%s", description);
-	assert_contents(ranged,
+	assert_keys(ranged,
 			// The whole structure is reorged.
 			100, NOTHING, 200, 300,
 			NOTHING, 400, 500, 600,

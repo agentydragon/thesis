@@ -11,7 +11,7 @@
 static bool subrange_find_first_gt(struct subrange subrange,
 		uint64_t key, uint64_t *index) {
 	for (uint64_t i = 0; i < subrange.size; i++) {
-		if (subrange.occupied[i] && subrange.contents[i] > key) {
+		if (subrange.occupied[i] && subrange.keys[i] > key) {
 			*index = i;
 			return true;
 		}
@@ -25,12 +25,12 @@ static bool subrange_find_last_lt(struct subrange subrange,
 	uint64_t index_before = INFINITY;
 	for (uint64_t i = 0; i < subrange.size; i++) {
 		if (subrange.occupied[i]) {
-			if (found_before && subrange.contents[i] >= key) {
+			if (found_before && subrange.keys[i] >= key) {
 				*index = index_before;
 				return true;
 			}
 
-			if (subrange.contents[i] < key) {
+			if (subrange.keys[i] < key) {
 				found_before = true;
 				index_before = i;
 			}
@@ -47,7 +47,7 @@ static bool subrange_find_last_lt(struct subrange subrange,
 static bool subrange_find(struct subrange subrange, uint64_t key,
 		uint64_t *index) {
 	for (uint64_t i = 0; i < subrange.size; i++) {
-		if (subrange.occupied[i] && subrange.contents[i] == key) {
+		if (subrange.occupied[i] && subrange.keys[i] == key) {
 			if (index != NULL) {
 				*index = i;
 			}
@@ -60,11 +60,11 @@ static bool subrange_find(struct subrange subrange, uint64_t key,
 static uint64_t subrange_get_minimum(struct subrange subrange) {
 	uint64_t minimum = INFINITY;
 	for (uint64_t i = 0; i < subrange.size; i++) {
-		if (subrange.occupied[i] && subrange.contents[i] < minimum) {
+		if (subrange.occupied[i] && subrange.keys[i] < minimum) {
 			log_info("[%" PRIu64 "]=%" PRIu64,
-					i, subrange.contents[i]);
-			if (minimum > subrange.contents[i]) {
-				minimum = subrange.contents[i];
+					i, subrange.keys[i]);
+			if (minimum > subrange.keys[i]) {
+				minimum = subrange.keys[i];
 			}
 			assert(minimum < INFINITY);  // sanity check
 		}
@@ -78,12 +78,12 @@ static struct reorg_range insert_sorted_order(struct ordered_file file,
 	uint64_t index_before;
 	for (uint64_t i = 0; i < subrange.size; i++) {
 		if (subrange.occupied[i]) {
-			if (found_before && subrange.contents[i] > inserted_item) {
+			if (found_before && subrange.keys[i] > inserted_item) {
 				// Insert after index_before.
 				break;
 			}
 
-			if (subrange.contents[i] <= inserted_item) {
+			if (subrange.keys[i] <= inserted_item) {
 				found_before = true;
 				index_before = i;
 			}
@@ -91,9 +91,10 @@ static struct reorg_range insert_sorted_order(struct ordered_file file,
 	}
 
 	if (found_before) {
-		const uint64_t insert_after_index = subrange.contents - file.contents + index_before;
-		log_info("inserting %" PRIu64 " after %" PRIu64, inserted_item,
-				insert_after_index);
+		const uint64_t insert_after_index =
+			subrange.keys - file.keys + index_before;
+		log_info("inserting %" PRIu64 " after %" PRIu64,
+				inserted_item, insert_after_index);
 		return ordered_file_insert_after(file,
 				inserted_item, insert_after_index);
 	} else {
@@ -149,7 +150,7 @@ void cob_recalculate_minima(struct cob* this, uint64_t veb_node) {
 
 		struct subrange subrange = {
 			.size = subrange_leaf_size(this->file.capacity),
-			.contents = this->file.contents + leaf_offset,
+			.keys = this->file.keys + leaf_offset,
 			.occupied = this->file.occupied + leaf_offset
 		};
 		this->veb_minima[veb_node] = subrange_get_minimum(subrange);
@@ -288,11 +289,11 @@ void cob_next_key(const struct cob* this, uint64_t key,
 		uint64_t subrange_index;
 		if (subrange_find_first_gt(leaf, key, &subrange_index)) {
 			*next_key_exists = true;
-			*next_key = leaf.contents[subrange_index];
+			*next_key = leaf.keys[subrange_index];
 			return;
 		}
 		leaf.occupied += leaf.size;
-		leaf.contents += leaf.size;
+		leaf.keys += leaf.size;
 		leaf_index++;
 	}
 
@@ -316,11 +317,11 @@ void cob_previous_key(const struct cob* this, uint64_t key,
 		uint64_t subrange_index;
 		if (subrange_find_last_lt(leaf, key, &subrange_index)) {
 			*previous_key_exists = true;
-			*previous_key = leaf.contents[subrange_index];
+			*previous_key = leaf.keys[subrange_index];
 			return;
 		}
 		leaf.occupied -= leaf.size;
-		leaf.contents -= leaf.size;
+		leaf.keys -= leaf.size;
 	} while (leaf_index-- > 0);
 
 	*previous_key_exists = false;

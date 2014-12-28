@@ -22,12 +22,12 @@ static void __attribute__((unused)) dump_cob(struct cob cob) {
 		}
 		if (cob.file.occupied[i]) {
 			offset += sprintf(buffer + offset, "%3" PRIu64 " ",
-					cob.file.contents[i]);
+					cob.file.keys[i]);
 		} else {
 			offset += sprintf(buffer + offset, "--- ");
 		}
 	}
-	log_info("contents={%s}", buffer);
+	log_info("keys={%s}", buffer);
 	offset = 0;
 	for (uint64_t i = 0; i < (1ULL << cob.veb_height) - 1; i++) {
 		offset += sprintf(buffer + offset, "%3" PRIu64 " ",
@@ -44,22 +44,22 @@ static void __attribute__((unused)) dump_cob(struct cob cob) {
 	assert(is_pow2(_count)); \
 	struct ordered_file* file = (_file); \
 	file->occupied = malloc(sizeof(bool) * _count); \
-	file->contents = malloc(sizeof(uint64_t) * _count); \
+	file->keys = malloc(sizeof(uint64_t) * _count); \
 	file->capacity = _count; \
 	for (uint64_t i = 0; i < _count; i++) { \
 		if (_values[i] == NIL) { \
 			file->occupied[i] = false; \
-			file->contents[i] = UNDEF; \
+			file->keys[i] = UNDEF; \
 		} else { \
 			file->occupied[i] = true; \
-			file->contents[i] = _values[i]; \
+			file->keys[i] = _values[i]; \
 		} \
 	} \
 } while (0)
 
 void destroy_file(struct ordered_file file) {
 	free(file.occupied);
-	free(file.contents);
+	free(file.keys);
 }
 
 #define assert_next_key(cob,key,next_key) do { \
@@ -137,7 +137,7 @@ void check_key_sequence(struct cob cob,
 			assert(!cob.file.occupied[i]); \
 		} else { \
 			assert(cob.file.occupied[i]); \
-			assert(cob.file.contents[i] == _expected[i]); \
+			assert(cob.file.keys[i] == _expected[i]); \
 		} \
 	} \
 	check_key_sequence(cob, _expected, _count); \
@@ -267,7 +267,6 @@ void test_cache_oblivious_btree() {
 	test_simple_delete();
 	test_complex_delete();
 	test_simple_insert();
-	// TODO: insert smallest element
 	// TODO: overflow in insert
 	test_insert_new_minimum_with_overflow();
 }
