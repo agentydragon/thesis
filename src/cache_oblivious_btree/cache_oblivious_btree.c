@@ -8,6 +8,17 @@
 
 #define INFINITY 0xFFFFFFFFDEADBEEF
 
+static bool subrange_find_first_gt(struct subrange subrange,
+		uint64_t key, uint64_t *index) {
+	for (uint64_t i = 0; i < subrange.size; i++) {
+		if (subrange.occupied[i] && subrange.contents[i] > key) {
+			*index = i;
+			return true;
+		}
+	}
+	return false;
+}
+
 static bool subrange_find_last_lt(struct subrange subrange,
 		uint64_t key, uint64_t *index) {
 	bool found_before = false;
@@ -272,7 +283,20 @@ void cob_next_key(const struct cob* this, uint64_t key,
 	veb_walk(this, key, node_stack, &node_stack_size, &leaf_index);
 	struct subrange leaf = get_leaf_subrange(this->file, leaf_index);
 
-	log_fatal("TODO: walk to next key");
+	// TODO: plain single FOR?
+	while (leaf_index < subrange_leaf_count(this)) {
+		uint64_t subrange_index;
+		if (subrange_find_first_gt(leaf, key, &subrange_index)) {
+			*next_key_exists = true;
+			*next_key = leaf.contents[subrange_index];
+			return;
+		}
+		leaf.occupied += leaf.size;
+		leaf.contents += leaf.size;
+		leaf_index++;
+	}
+
+	*next_key_exists = false;
 }
 
 // TODO: test

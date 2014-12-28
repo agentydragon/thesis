@@ -62,6 +62,21 @@ void destroy_file(struct ordered_file file) {
 	free(file.contents);
 }
 
+#define assert_next_key(cob,key,next_key) do { \
+	bool found; \
+	uint64_t found_key; \
+	cob_next_key(cob, key, &found, &found_key); \
+	if (next_key != NIL) { \
+		if (!found) { \
+			log_fatal("no next key for %" PRIu64 ", expected " \
+					"%" PRIu64, key, next_key); \
+		} \
+		assert(next_key == found_key); \
+	} else { \
+		assert(!found); \
+	} \
+} while (0)
+
 #define assert_previous_key(cob,key,previous_key) do { \
 	bool found; \
 	uint64_t found_key; \
@@ -88,14 +103,9 @@ void check_key_sequence(struct cob cob,
 				continue;
 			} else {
 				assert_previous_key(&cob, sequence[j], sequence[i]);
+				assert_next_key(&cob, sequence[i], sequence[j]);
 				break;
 			}
-
-			/*
-			cob_next_key(&cob, sequence[i], &found_found,
-					&found);
-			assert(found_found && found == sequence[j]);
-			*/
 		}
 	}
 
@@ -103,12 +113,7 @@ void check_key_sequence(struct cob cob,
 	for (uint64_t i = 0; i < count; i++) {
 		if (sequence[i] != NIL) {
 			assert_previous_key(&cob, sequence[i], NIL);
-
-			/*
-			cob_next_key(&cob, sequence[i] - 1, &found_found,
-						&found);
-			assert(found_found && found == sequence[i]);
-			*/
+			assert_next_key(&cob, sequence[i] - 1, sequence[i]);
 			break;
 		}
 	}
@@ -117,12 +122,8 @@ void check_key_sequence(struct cob cob,
 	for (uint64_t i = 0; i < count; i++) {
 		uint64_t j = count - 1 - i;
 		if (sequence[j] != NIL) {
-			/*
-			cob_next_key(&cob, sequence[j], &found_found, &found);
-			assert(!found_found);
-			*/
-
 			assert_previous_key(&cob, sequence[j] + 1, sequence[j]);
+			assert_next_key(&cob, sequence[j], NIL);
 			break;
 		}
 	}
