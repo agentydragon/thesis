@@ -1,4 +1,5 @@
 #include "math.h"
+#include <assert.h>
 
 static uint64_t m_exp2(uint64_t x) {
 	return 1ULL << x;
@@ -32,4 +33,9 @@ uint64_t closest_pow2_floor(uint64_t x) {
 
 uint64_t ceil_div(uint64_t a, uint64_t b) {
 	return (a / b) + (a % b > 0) ? 1 : 0;
+}
+
+uint8_t exact_log2(uint64_t x) {
+	assert(is_pow2(x));
+	return floor_log2(x);
 }

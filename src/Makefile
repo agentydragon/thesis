@@ -2,6 +2,7 @@ CFLAGS=-g -std=gnu11 -W -Wall -O3 -rdynamic -lm
 CC=gcc
 
 SOURCES= \
+	cache_oblivious_btree/*.c \
 	stopwatch/*.c measurement/*.c \
 	hash/*.c test_hash/*.c \
 	hash_array/*.c \
