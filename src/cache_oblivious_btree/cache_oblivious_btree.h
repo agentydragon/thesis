@@ -19,7 +19,6 @@
 // 3) TODO: pridat indirekci abych se zbavil O((log^2 N) / B)
 
 struct cob {
-	uint8_t veb_height;
 	// vEB-layout nodes
 	// ordered file structure
 	struct ordered_file file;
@@ -34,5 +33,6 @@ void cob_next_key(const struct cob* this, uint64_t key,
 		bool *next_key_exists, uint64_t *next_key);
 void cob_previous_key(const struct cob* this, uint64_t key,
 		bool *previous_key_exists, uint64_t *previous_key);
+uint64_t get_veb_height(const struct cob* this);
 
 #endif

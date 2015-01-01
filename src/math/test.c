@@ -9,9 +9,9 @@ void test_math() {
 	assert(floor_log2(6) == 2);
 	assert(floor_log2(134) == 7);
 
-	assert(closest_pow2_floor(1) == 1);
-	assert(closest_pow2_floor(187) == 128);
-	assert(closest_pow2_floor(67710) == 65536);
+	assert(hyperfloor(1) == 1);
+	assert(hyperfloor(187) == 128);
+	assert(hyperfloor(67710) == 65536);
 
 	assert(is_pow2(1));
 	assert(is_pow2(4096));

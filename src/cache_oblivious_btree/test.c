@@ -13,11 +13,13 @@
 
 // Used for debugging.
 static void __attribute__((unused)) dump_cob(struct cob cob) {
-	log_info("veb height=%" PRIu64, cob.veb_height);
+	log_info("capacity=%" PRIu64 " block_size=%" PRIu64,
+			cob.file.parameters.capacity,
+			cob.file.parameters.block_size);
 	char buffer[256];
 	uint64_t offset = 0;
-	for (uint64_t i = 0; i < cob.file.capacity; i++) {
-		if (i % 4 == 0 && i != 0) {
+	for (uint64_t i = 0; i < cob.file.parameters.capacity; i++) {
+		if (i % 8 == 0 && i != 0) {
 			offset += sprintf(buffer + offset, "\n");
 		}
 		if (cob.file.occupied[i]) {
@@ -29,7 +31,7 @@ static void __attribute__((unused)) dump_cob(struct cob cob) {
 	}
 	log_info("keys={%s}", buffer);
 	offset = 0;
-	for (uint64_t i = 0; i < (1ULL << cob.veb_height) - 1; i++) {
+	for (uint64_t i = 0; i < (1ULL << get_veb_height(&cob)) - 1; i++) {
 		offset += sprintf(buffer + offset, "%3" PRIu64 " ",
 				cob.veb_minima[i]);
 	}
@@ -38,14 +40,16 @@ static void __attribute__((unused)) dump_cob(struct cob cob) {
 
 #define COUNTOF(x) (sizeof(x) / sizeof(*(x)))
 
-#define make_file(_file,...) do { \
+#define make_file(_file,_block_size,...) do { \
 	const uint64_t _values[] = { __VA_ARGS__ }; \
 	const uint64_t _count = COUNTOF(_values); \
 	assert(is_pow2(_count)); \
 	struct ordered_file* file = (_file); \
 	file->occupied = malloc(sizeof(bool) * _count); \
 	file->keys = malloc(sizeof(uint64_t) * _count); \
-	file->capacity = _count; \
+	\
+	file->parameters.capacity = _count; \
+	file->parameters.block_size = _block_size; \
 	for (uint64_t i = 0; i < _count; i++) { \
 		if (_values[i] == NIL) { \
 			file->occupied[i] = false; \
@@ -151,10 +155,9 @@ static void test_simple_delete() {
 		40  /* [4..7] */
 	};
 	struct cob cob = {
-		.veb_height = 2,
 		.veb_minima = veb_minima
 	};
-	make_file(&cob.file,
+	make_file(&cob.file, 4,
 		NIL, 10, 20, 30,
 		40, NIL, 50, NIL);
 
@@ -180,10 +183,9 @@ static void test_complex_delete() {
 		40, 50, 50, 80, 100, 100, 131
 	};
 	struct cob cob = {
-		.veb_height = 4,
 		.veb_minima = veb_minima
 	};
-	make_file(&cob.file,
+	make_file(&cob.file, 4,
 		NIL, NIL, 10, NIL,
 		NIL, 20, NIL, NIL,
 		NIL, NIL, NIL, 30,
@@ -220,8 +222,8 @@ static void test_simple_insert() {
 	//  1    4
 	// 2 3  5 6
 	uint64_t veb_minima[] = { 100, 100, 100, 500, 700, 700, 800 };
-	struct cob cob = { .veb_height = 3, .veb_minima = veb_minima };
-	make_file(&cob.file,
+	struct cob cob = { .veb_minima = veb_minima };
+	make_file(&cob.file, 4,
 		100, 200, 300, 400,
 		500, 600, NIL, NIL,
 		NIL, NIL, NIL, 700,
@@ -243,8 +245,8 @@ static void test_insert_new_minimum_with_overflow() {
 	//  1    4
 	// 2 3  5 6
 	uint64_t veb_minima[] = { 100, 100, 100, 500, 700, 700, 800 };
-	struct cob cob = { .veb_height = 3, .veb_minima = veb_minima };
-	make_file(&cob.file,
+	struct cob cob = { .veb_minima = veb_minima };
+	make_file(&cob.file, 4,
 		100, 200, 300, 400,
 		500, 600, NIL, NIL,
 		NIL, NIL, NIL, 700,

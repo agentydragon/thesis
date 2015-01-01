@@ -10,7 +10,7 @@ static uint64_t m_exp2(uint64_t x) {
 }
 
 static void split_height(uint64_t height, uint64_t* bottom, uint64_t* top) {
-	*bottom = closest_pow2_floor(height - 1);
+	*bottom = hyperfloor(height - 1);
 	*top = height - *bottom;
 }
 

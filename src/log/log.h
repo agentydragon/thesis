@@ -4,6 +4,12 @@
 void __log_basic(const char* tag, const char* format, ...);
 void log_fatal(const char* format, ...) __attribute__((noreturn));
 
+#define CHECK(assertion,message,...) do { \
+	if (!(assertion)) { \
+		log_fatal(message, ##__VA_ARGS__); \
+	} \
+} while (0)
+
 #define log_plain(fmt,...) do { \
 	__log_basic("     ", fmt, ##__VA_ARGS__); \
 } while (0)
@@ -18,13 +24,6 @@ void log_fatal(const char* format, ...) __attribute__((noreturn));
 
 #define log_error(fmt,...) do { \
 	__log_basic("ERROR", fmt, ##__VA_ARGS__); \
-} while (0)
-
-#define CHECK(x) do { \
-	if (!x) { \
-		log_error("check failed: " #x); \
-		abort(); \
-	} \
 } while (0)
 
 #endif

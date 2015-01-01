@@ -27,7 +27,7 @@ uint8_t floor_log2(uint64_t x) {
 	return exp - 1;
 }
 
-uint64_t closest_pow2_floor(uint64_t x) {
+uint64_t hyperfloor(uint64_t x) {
 	return m_exp2(floor_log2(x));
 }
 
