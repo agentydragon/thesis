@@ -99,7 +99,6 @@ static void test_shift() {
 		.begin = 0,
 		.size = 5
 	};
-	log_info("test_shift");
 	range_insert_after(file, range, 200, 0);
 
 	assert_keys(file, range, 100, 200, 300, 400, NOTHING);
