@@ -293,8 +293,6 @@ static void test_insert_new_minimum_with_overflow() {
 	destroy_file(cob.file);
 }
 
-// TODO: what about minimum calculation in empty cob_tree?
-
 static void test_comprehensive_resizing() {
 	uint64_t* veb_minima = malloc(sizeof(uint64_t));
 	veb_minima[0] = COB_INFINITY;
@@ -307,6 +305,12 @@ static void test_comprehensive_resizing() {
 		120, 130, 140, 170, 190, 210, 230, 270, 310, 810, 820, 990,
 		135, 137, 148, 149, 660, 670, 666, 142, 147, 550, 560, 775,
 		143, 157, 168, 152, 915, 965, 963, 998, 916, 971, 561, 567);
+
+	// Negative assertion against _found.
+	bool _found;
+	cob_has_key(&cob, 667, &_found);
+	assert(!_found);
+
 	assert_content_low_detail(&cob,
 		100, 120, 130, 135, 137, 140, 142, 143, 147, 148, 149, 150,
 		152, 157, 168, 170, 190, 200, 210, 230, 250, 270, 300, 310,
@@ -337,6 +341,7 @@ static void test_comprehensive_resizing() {
 	delete_items(&cob, 142, 775, 800, 140);
 	assert_content_low_detail(&cob);
 
+	// Check minimum calculation in empty tree.
 	assert(cob.veb_minima[0] == COB_INFINITY);
 
 	destroy_file(cob.file);
