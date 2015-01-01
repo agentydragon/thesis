@@ -45,7 +45,8 @@ struct parameters adequate_parameters(uint64_t items) {
 		// Global density bounds are [0.5;0.75], this is stricter,
 		// so at least O(N) items will be inserted or deleted
 		// before next resize.
-		//if (density >= 0.55 && density <= 0.7) {
+		// (We could probably say [0.55;0.7] here, but that doesn't
+		// work for very small sizes... TODO: clean up?)
 		if (density >= 0.52 && density <= 0.7) {
 			// Great, this capacity will fit!
 			break;
@@ -115,6 +116,13 @@ static uint64_t range_get_occupied(struct ordered_file file,
 	return occupied;
 }
 
+static uint64_t file_get_occupied(struct ordered_file file) {
+	return range_get_occupied(file, (struct ordered_file_range) {
+		.begin = 0,
+		.size = file.parameters.capacity
+	});
+}
+
 static bool range_is_full(struct ordered_file file,
 		struct ordered_file_range range) {
 	return range_get_occupied(file, range) == range.size;
@@ -172,19 +180,42 @@ void range_insert_after(struct ordered_file file,
 	file.keys[insert_after_index + 1] = inserted_item;
 }
 
+static void evenly_spread_offline(struct ordered_file source_file,
+		struct ordered_file target_file,
+		struct watched_index watched_index) {
+	const uint64_t elements = file_get_occupied(source_file);
+	// TODO: avoid float arithmetic
+	// TOOD: maybe merge with range_spread_evenly?
+	const double gap_size = ((double) target_file.parameters.capacity) /
+			elements;
+	assert(gap_size >= 1.0);
+	uint64_t element_index = 0;
+	for (uint64_t i = 0; i < source_file.parameters.capacity; i++) {
+		if (source_file.occupied[i]) {
+			const uint64_t target_index = round(
+					element_index * gap_size);
+			target_file.occupied[target_index] = true;
+			target_file.keys[target_index] = source_file.keys[i];
+			element_index++;
+			if (i == watched_index.index) {
+				*(watched_index.new_location) = target_index;
+			}
+		}
+	}
+}
+
 void range_spread_evenly(struct ordered_file file,
 		struct ordered_file_range range,
 		struct watched_index watched_index) {
 	uint64_t sublocation = INVALID_INDEX;
-	struct watched_index subwatch = {
+	range_compact(file, range, (struct watched_index) {
 		.index = watched_index.index,
 		.new_location = &sublocation
-	};
-	range_compact(file, range, subwatch);
-	uint64_t elements = range_get_occupied(file, range);
+	});
+	const uint64_t elements = range_get_occupied(file, range);
 
 	// TODO: avoid float arithmetic
-	const float gap_size = ((float) range.size) / ((float) elements);
+	const double gap_size = ((double) range.size) / elements;
 	for (uint64_t i = 0; i < elements; i++) {
 		const uint64_t target_index =
 				range.size - 1 - round(i * gap_size);
@@ -202,22 +233,22 @@ void range_spread_evenly(struct ordered_file file,
 	}
 }
 
-bool dense_enough(uint64_t slots_used, uint64_t slots_available,
+bool dense_enough(uint64_t size, uint64_t capacity,
 		uint64_t depth, uint64_t structure_height) {
 	// used >= available/2 - available/4 depth/s_height
 	// 4*used >= 2*available - available depth/s_height
 	// 4*used*s_height >= 2*available*s_height - available*depth
 	// used / available >= 1/2 - (1/4) (depth / s_height)
-	return (4 * slots_used * structure_height >=
-			2 * slots_available * structure_height - slots_available * depth);
+	return (4 * size * structure_height >=
+			2 * capacity * structure_height - capacity * depth);
 }
 
-bool sparse_enough(uint64_t slots_used, uint64_t slots_available,
+bool sparse_enough(uint64_t size, uint64_t capacity,
 		uint64_t depth, uint64_t structure_height) {
 	// used / available <= 3/4 + (1/4) (depth / s_height)
 	// 4*used*s_height <= 3*available*s_height + available*depth
-	return (4 * slots_used * structure_height <=
-			3 * slots_available * structure_height - slots_available * depth);
+	return (4 * size * structure_height <=
+			3 * capacity * structure_height - capacity * depth);
 }
 
 bool global_density_within_threshold(uint64_t size, uint64_t capacity) {
@@ -228,12 +259,10 @@ bool global_density_within_threshold(uint64_t size, uint64_t capacity) {
 	return density_is_within_threshold(size, capacity, 0, 1);
 }
 
-bool density_is_within_threshold(uint64_t slots_used, uint64_t slots_available,
+bool density_is_within_threshold(uint64_t size, uint64_t capacity,
 		uint64_t depth, uint64_t structure_height) {
-	return dense_enough(slots_used, slots_available,
-			depth, structure_height) &&
-		sparse_enough(slots_used, slots_available,
-			depth, structure_height);
+	return dense_enough(size, capacity, depth, structure_height) &&
+		sparse_enough(size, capacity, depth, structure_height);
 }
 
 static bool range_is_valid(
@@ -256,17 +285,34 @@ static struct ordered_file_range get_leaf_range_for(struct ordered_file file,
 	return get_leaf_range(file, index / file.parameters.block_size);
 }
 
+void destroy_ordered_file(struct ordered_file file) {
+	free(file.occupied);
+	free(file.keys);
+}
+
+static struct ordered_file new_ordered_file(struct parameters parameters) {
+	struct ordered_file file = {
+		.occupied = calloc(parameters.capacity, sizeof(bool)),
+		.keys = calloc(parameters.capacity, sizeof(uint64_t)),
+		.parameters = parameters
+	};
+	// TODO: NULL-resistance
+	assert(file.occupied && file.keys);
+	return file;
+}
+
 // Returns touched range.
 static struct ordered_file_range reorganize(struct ordered_file* file,
 		uint64_t index, struct watched_index watched_index) {
 	const uint64_t leaf_depth = get_leaf_depth(file->parameters);
 	uint64_t depth = leaf_depth;
+	uint64_t occupied;
 
 	struct ordered_file_range block = get_leaf_range_for(*file, index);
 
 	// TODO: interspersed left-right scan
 	while (true) {
-		const uint64_t occupied = range_get_occupied(*file, block);
+		occupied = range_get_occupied(*file, block);
 		if (density_is_within_threshold(
 				occupied, block.size, depth, leaf_depth)) {
 			log_info("evenly spreading range "
@@ -295,9 +341,17 @@ static struct ordered_file_range reorganize(struct ordered_file* file,
 		depth--;
 	}
 
-	// Nova struktura musi mit hustotu 1/2 az 3/4.
-	log_fatal("ordered file maintenance structure "
-			"does not meet density bounds. TODO: resize to fit.");
+	struct ordered_file resized = new_ordered_file(
+			adequate_parameters(occupied));
+	evenly_spread_offline(*file, resized, watched_index);
+	destroy_ordered_file(*file);
+	*file = resized;
+
+	// Everything was reorged.
+	return (struct ordered_file_range) {
+		.begin = 0,
+		.size = file->parameters.capacity
+	};
 }
 
 struct ordered_file_range get_leaf_range(struct ordered_file file,
@@ -336,6 +390,7 @@ struct ordered_file_range ordered_file_insert_after(struct ordered_file* file,
 
 struct ordered_file_range ordered_file_delete(struct ordered_file* file,
 		uint64_t index) {
+	CHECK(index < file->parameters.capacity, "Deleting out of range");
 	CHECK(file->occupied[index], "Deleting empty index %" PRIu64, index);
 	file->occupied[index] = false;
 	return reorganize(file, index, NO_WATCH);

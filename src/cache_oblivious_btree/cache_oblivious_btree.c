@@ -8,6 +8,10 @@
 
 #define INFINITY 0xFFFFFFFFDEADBEEF
 
+static bool parameters_equal(struct parameters x, struct parameters y) {
+	return x.block_size == y.block_size && x.capacity == y.capacity;
+}
+
 static bool range_find_first_gt(
 		struct ordered_file file, struct ordered_file_range range,
 		uint64_t key, uint64_t *index) {
@@ -224,15 +228,22 @@ void cob_insert(struct cob* this, uint64_t key) {
 	uint64_t leaf_index;
 	veb_walk(this, key, node_stack, &node_stack_size, &leaf_index);
 
+	const struct parameters prior_parameters = this->file.parameters;
+
 	// Insert into ordered file.
 	const struct ordered_file_range reorg_range = insert_sorted_order(
 			&this->file, get_leaf_range(this->file, leaf_index), key);
-	const uint64_t levels_up = exact_log2(
-			reorg_range.size / this->file.parameters.block_size);
 
-	// Rebuild reorganized subtree.
-	cob_recalculate_minima(this, node_stack[node_stack_size - 1 - levels_up]);
-	cob_fix_stack(this, node_stack, node_stack_size - levels_up - 1);
+	if (parameters_equal(this->file.parameters, prior_parameters)) {
+		const uint64_t levels_up = exact_log2(
+				reorg_range.size / this->file.parameters.block_size);
+
+		// Rebuild reorganized subtree.
+		cob_recalculate_minima(this, node_stack[node_stack_size - 1 - levels_up]);
+		cob_fix_stack(this, node_stack, node_stack_size - levels_up - 1);
+	} else {
+		log_fatal("TODO: reallocate van emde boas tree");
+	}
 }
 
 void cob_delete(struct cob* this, uint64_t key) {
@@ -244,7 +255,9 @@ void cob_delete(struct cob* this, uint64_t key) {
 	uint64_t leaf_index;
 	veb_walk(this, key, node_stack, &node_stack_size, &leaf_index);
 
-	// Insert into ordered file.
+	const struct parameters prior_parameters = this->file.parameters;
+
+	// Delete from ordered file.
 	struct ordered_file_range leaf_sr = get_leaf_range(this->file,
 			leaf_index);
 	uint64_t index;
@@ -254,13 +267,17 @@ void cob_delete(struct cob* this, uint64_t key) {
 	}
 	const struct ordered_file_range reorg_range = ordered_file_delete(
 			&this->file, index);
-	const uint64_t levels_up = exact_log2(
-			reorg_range.size / this->file.parameters.block_size);
-	log_info("levels_up=%" PRIu64);
+	if (parameters_equal(this->file.parameters, prior_parameters)) {
+		const uint64_t levels_up = exact_log2(
+				reorg_range.size / this->file.parameters.block_size);
+		log_info("levels_up=%" PRIu64);
 
-	// Rebuild reorganized subtree.
-	cob_recalculate_minima(this, node_stack[node_stack_size - 1 - levels_up]);
-	cob_fix_stack(this, node_stack, node_stack_size - levels_up - 1);
+		// Rebuild reorganized subtree.
+		cob_recalculate_minima(this, node_stack[node_stack_size - 1 - levels_up]);
+		cob_fix_stack(this, node_stack, node_stack_size - levels_up - 1);
+	} else {
+		log_fatal("TODO: reallocate van emde boas tree");
+	}
 }
 
 // TODO: test

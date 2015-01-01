@@ -10,14 +10,13 @@
 #include <string.h>
 
 #define UNDEF 0xDEADBEEF
-#define NOTHING 0xDEADDEADDEADDEAD
 #define NIL 0xDEADDEADDEADDEAD
 
 static void _assert_keys(struct ordered_file file,
 		struct ordered_file_range range,
 		const uint64_t *_expected, uint64_t size) {
 	for (uint64_t i = 0; i < size; i++) {
-		if (_expected[i] == NOTHING) {
+		if (_expected[i] == NIL) {
 			CHECK(!file.occupied[range.begin + i],
 					"index %" PRIu64 " should be empty, "
 					"but is occupied by %" PRIu64,
@@ -59,7 +58,7 @@ static void __attribute__((unused)) dump_file(struct ordered_file file) {
 	char buffer[256];
 	uint64_t offset = 0;
 	for (uint64_t i = 0; i < file.parameters.capacity; i++) {
-		if (i % 8 == 0 && i != 0) {
+		if (i % file.parameters.block_size == 0 && i != 0) {
 			offset += sprintf(buffer + offset, "\n");
 		}
 		if (file.occupied[i]) {
@@ -85,7 +84,7 @@ static void test_insert_simple() {
 	};
 	range_insert_after(file, range, 200, 0);
 
-	assert_keys(file, range, 100, 200, NOTHING, NOTHING, NOTHING);
+	assert_keys(file, range, 100, 200, NIL, NIL, NIL);
 }
 
 static void test_shift() {
@@ -101,7 +100,7 @@ static void test_shift() {
 	};
 	range_insert_after(file, range, 200, 0);
 
-	assert_keys(file, range, 100, 200, 300, 400, NOTHING);
+	assert_keys(file, range, 100, 200, 300, 400, NIL);
 }
 
 static void test_range_insert_after() {
@@ -128,7 +127,7 @@ static void test_range_compact() {
 
 	assert(new_location == 2);
 	assert_keys(file, range, 10, 20, 30,
-			NOTHING, NOTHING, NOTHING, NOTHING);
+			NIL, NIL, NIL, NIL);
 }
 
 static void test_range_spread_evenly() {
@@ -150,8 +149,8 @@ static void test_range_spread_evenly() {
 
 	assert(new_location == 4);
 	assert_keys(file, range,
-			NOTHING, NOTHING, 10, NOTHING,
-			20, NOTHING, NOTHING, 30);
+			NIL, NIL, 10, NIL,
+			20, NIL, NIL, 30);
 }
 
 #define COUNTOF(x) (sizeof(x) / sizeof(*(x)))
@@ -197,10 +196,10 @@ static void test_insert_after_two_reorg() {
 	dump_file(file);
 	assert_file(file,
 			// The following block is changed.
-			100, 200, 250, NOTHING,
-			300, 400, NOTHING, 500,
-			NOTHING, 600, 700, NOTHING,
-			800, 900, NOTHING, 1000,
+			100, 200, 250, NIL,
+			300, 400, NIL, 500,
+			NIL, 600, 700, NIL,
+			800, 900, NIL, 1000,
 			// The following is unchanged.
 			NIL, NIL, 1100, 1200,
 			NIL, NIL, NIL, NIL,
@@ -225,19 +224,18 @@ static void test_insert_after_very_dense() {
 
 	assert_file(file,
 			// The whole structure is reorged.
-			100, NOTHING, 200, 300,
-			NOTHING, 400, 500, 600,
-			NOTHING, 700, 800, NOTHING,
-			900, 1000, 1100, NOTHING,
-			1200, 1300, 1400, NOTHING,
-			1500, 1600, NOTHING, 1700,
-			1800, 1900, NOTHING, 2000,
+			100, NIL, 200, 300,
+			NIL, 400, 500, 600,
+			NIL, 700, 800, NIL,
+			900, 1000, 1100, NIL,
+			1200, 1300, 1400, NIL,
+			1500, 1600, NIL, 1700,
+			1800, 1900, NIL, 2000,
 			2100, 2200, 2300, 2400);
 	destroy_file(file);
 }
 
-static void test_insert_with_resize() {
-	/*
+static void test_comprehensive_resizing() {
 	struct ordered_file file;
 	make_file(&file, 4,
 			100, NIL, 200, 300,
@@ -246,26 +244,115 @@ static void test_insert_with_resize() {
 			1000, 1100, 1200, 1300);
 	ordered_file_insert_after(&file, 1242, 14);
 
-	assert(file.parameters.capacity == 64);
+	// 14/20 = 0.7, within bounds.
+	assert(file.parameters.block_size == 5);
+	assert(file.parameters.capacity == 20);
 
-	struct subrange ranged = {
-		.occupied = file.occupied,
-		.keys = file.keys,
-		.size = 64
-	};
-	char description[1024];
-	range_describe(ranged, description);
-	log_info("%s", description);
+	assert_file(file,
+			100, NIL, 200, 300, NIL,
+			400, 500, NIL, 600, 700,
+			NIL, 800, 900, NIL, 1000,
+			1100, 1200, 1242, 1300, NIL);
 
-	log_fatal("TODO write the check");
-	*/
-	log_info("TODO: test resize");
+	ordered_file_insert_after(&file, 942, 12);  // 942 after 900
+	ordered_file_insert_first(&file, 42);
+	ordered_file_insert_first(&file, 15);
+
+	// 17/24 = 0.70833.., within bounds.
+	assert(file.parameters.block_size == 6);
+	assert(file.parameters.capacity == 24);
+	assert_file(file,
+			15, 42, 100, 200, 300, NIL,
+			400, NIL, 500, 600, NIL, 700,
+			800, NIL, 900, 942, NIL, 1000,
+			1100, NIL, 1200, 1242, NIL, 1300);
+
+	ordered_file_insert_after(&file, 17, 0);  // 17 after 15
+	ordered_file_insert_after(&file, 16, 0);  // 16 after 15
+	ordered_file_insert_after(&file, 1142, 19);  // 1142 after 1100
+
+	// 20/32 = 0.625, within bounds.
+	assert(file.parameters.block_size == 4);
+	assert(file.parameters.capacity == 32);
+	assert_file(file,
+			15, NIL, 16, 17,
+			NIL, 42, NIL, 100,
+			200, NIL, 300, NIL,
+			400, 500, NIL, 600,
+			NIL, 700, NIL, 800,
+			900, NIL, 942, NIL,
+			1000, 1100, 1142, 1200,
+			NIL, 1242, 1300, NIL);
+
+	ordered_file_delete(&file, 0);  // deletes 15
+	ordered_file_delete(&file, 30);  // deletes 1300
+	ordered_file_delete(&file, 31);  // deletes 1242
+	assert_file(file,
+			NIL, 16, NIL, 17,
+			NIL, 42, NIL, 100,
+			200, NIL, 300, NIL,
+			400, 500, NIL, 600,
+			NIL, 700, NIL, 800,
+			900, NIL, 942, NIL,
+			/* touched => */ NIL, 1000, NIL, 1100,
+			/* touched => */ NIL, 1142, NIL, 1200);
+
+	ordered_file_delete(&file, 7);  // deletes 100
+	ordered_file_delete(&file, 8);  // deletes 200
+	ordered_file_delete(&file, 11);  // deletes 300
+	ordered_file_delete(&file, 10);  // deletes 400
+
+	assert(file.parameters.block_size == 5);
+	assert(file.parameters.capacity == 20);
+	assert_file(file,
+			16, NIL, 17, 42, NIL,
+			500, 600, NIL, 700, 800,
+			NIL, 900, 942, NIL, 1000,
+			1100, NIL, 1142, 1200, NIL);
+
+	ordered_file_delete(&file, 5);  // deletes 500
+	ordered_file_delete(&file, 6);  // deletes 600
+	assert_file(file,
+			NIL, 16, 17, NIL, 42,
+			NIL, 700, NIL, NIL, 800,
+			NIL, 900, 942, NIL, 1000,
+			1100, NIL, 1142, 1200, NIL);
+
+	ordered_file_delete(&file, 15);  // deletes 1100
+	ordered_file_delete(&file, 19);  // deletes 1200
+	ordered_file_delete(&file, 9);  // deletes 800
+	assert_file(file,
+			NIL, 16, NIL, NIL, 17,
+			NIL, 42, NIL, NIL, 700,
+			NIL, 900, NIL, NIL, 942,
+			NIL, 1000, NIL, NIL, 1142);
+
+	ordered_file_delete(&file, 16);  // deletes 1000
+
+	assert(file.parameters.block_size == 5);
+	assert(file.parameters.capacity == 10);
+	assert_file(file,
+			16, 17, NIL, 42, 700,
+			NIL, 900, 942, NIL, 1142);
+
+	ordered_file_delete(&file, 4);  // deletes 700
+	ordered_file_delete(&file, 6);  // deletes 900
+	ordered_file_delete(&file, 1);  // deletes 16
+	assert_file(file,
+			NIL, 17, NIL, NIL, 42,
+			NIL, 942, NIL, NIL, 1142);
+
+	ordered_file_delete(&file, 1);  // deletes 17
+	assert(file.parameters.block_size == 4);
+	assert(file.parameters.capacity == 4);
+	assert_file(file, 42, 942, NIL, 1142);
+
+	destroy_file(file);
 }
 
 static void test_insert_after() {
 	test_insert_after_two_reorg();
 	test_insert_after_very_dense();
-	test_insert_with_resize();
 }
 
 static void test_parameter_policy() {
@@ -289,4 +376,6 @@ void test_ordered_file_maintenance() {
 	test_range_compact();
 	test_range_spread_evenly();
 	test_insert_after();
+
+	test_comprehensive_resizing();
 }
