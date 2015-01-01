@@ -269,9 +269,7 @@ static void test_insert_after() {
 }
 
 static void test_parameter_policy() {
-	// TODO: also check 1..10
-	/*
-	for (uint64_t N = 10; N < 100000; N++) {
+	for (uint64_t N = 0; N < 100000; N++) {
 		struct parameters parameters = adequate_parameters(N);
 		CHECK(parameters.capacity % parameters.block_size == 0,
 				"Capacity for %" PRIu64 " (%" PRIu64 ") is "
@@ -282,8 +280,6 @@ static void test_parameter_policy() {
 				"not meet global thresholds.",
 				N, parameters.capacity);
 	}
-	*/
-	log_info("TODO: check parameter policy");
 }
 
 void test_ordered_file_maintenance() {

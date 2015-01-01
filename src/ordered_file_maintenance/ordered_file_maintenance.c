@@ -15,41 +15,49 @@ const struct watched_index NO_WATCH = {
 	.new_location = NULL
 };
 
-static uint64_t adequate_block_size(uint64_t capacity) {
-	uint64_t x = floor_log2(capacity);
-	// Because leafs must meet constraints, we need at least 4 slots.
-	if (x < 4) {
-		return 4;
-	} else {
-		return x;
-	}
-}
-
 struct parameters adequate_parameters(uint64_t items) {
-	const double multiplier = 1.25;
-	const uint64_t max_acceptable_capacity = items * 2 - 1;
-	const uint64_t min_acceptable_capacity = (items * 4) / 3 + 1;
-
-	uint64_t capacity = pow(multiplier,
-			ceil(log(items) / log(multiplier)) + 1);
-	const uint64_t block_size = adequate_block_size(capacity);
-
-	uint64_t block_count = capacity / block_size;
-	if (capacity % block_size != 0) {
-		block_count++;
+	if (items <= 4) {
+		return (struct parameters) {
+			.capacity = 4,
+			.block_size = 4
+		};
 	}
 
-	capacity = block_size * block_count;
-	// TODO: should need just O(1) adjustments
-	while (capacity < min_acceptable_capacity) {
-		capacity += block_size;
+	uint64_t multiplier, capacity;
+	for (uint64_t i = 0; ; i++) {
+		switch (i % 3) {
+		case 0:
+			multiplier = 4;
+			break;
+		case 1:
+			multiplier = 5;
+			break;
+		case 2:
+			multiplier = 6;
+			break;
+		default:
+			log_fatal("bad");
+		}
+
+		capacity = multiplier * 1ULL << (i / 3);
+		const double density = ((double) items) / capacity;
+
+		// Global density bounds are [0.5;0.75], this is stricter,
+		// so at least O(N) items will be inserted or deleted
+		// before next resize.
+		//if (density >= 0.55 && density <= 0.7) {
+		if (density >= 0.52 && density <= 0.7) {
+			// Great, this capacity will fit!
+			break;
+		}
+
+		if (density < 0.5) {
+			log_fatal("we will probably not find it :(");
+		}
 	}
-	// TODO: should need just O(1) adjustments
-	while (capacity > max_acceptable_capacity) {
-		capacity -= block_size;
-	}
-	assert(capacity >= min_acceptable_capacity &&
-			capacity <= max_acceptable_capacity);
+
+	uint64_t block_size = multiplier;
+	while (block_size * 2 <= floor_log2(capacity)) block_size *= 2;
 
 	return (struct parameters) {
 		.capacity = capacity,
@@ -81,17 +89,17 @@ void range_compact(
 		struct ordered_file file, struct ordered_file_range range,
 		struct watched_index watched_index) {
 	for (uint64_t source = 0, target = 0; source < range.size; source++) {
-		if (file.occupied[range.begin + source]) {
-			file.occupied[range.begin + source] = false;
+		const uint64_t from = range.begin + source;
+		if (file.occupied[from]) {
+			file.occupied[from] = false;
 			while (file.occupied[range.begin + target]) target++;
-			file.occupied[range.begin + target] = true;
-			file.keys[range.begin + target] =
-					file.keys[range.begin + source];
-			if (source + range.begin == watched_index.index) {
+			const uint64_t to = range.begin + target;
+			file.occupied[to] = true;
+			file.keys[to] = file.keys[from];
+			if (from == watched_index.index) {
 				log_info("compact moves %" PRIu64 " to %" PRIu64,
-						watched_index.index,
-						target + range.begin);
-				*(watched_index.new_location) = target + range.begin;
+						watched_index.index, to);
+				*(watched_index.new_location) = to;
 			}
 		}
 	}
@@ -212,6 +220,14 @@ bool sparse_enough(uint64_t slots_used, uint64_t slots_available,
 			3 * slots_available * structure_height - slots_available * depth);
 }
 
+bool global_density_within_threshold(uint64_t size, uint64_t capacity) {
+	// Workaround for really small sets.
+	if (size <= 4) {
+		return capacity >= size;
+	}
+	return density_is_within_threshold(size, capacity, 0, 1);
+}
+
 bool density_is_within_threshold(uint64_t slots_used, uint64_t slots_available,
 		uint64_t depth, uint64_t structure_height) {
 	return dense_enough(slots_used, slots_available,
@@ -220,64 +236,68 @@ bool density_is_within_threshold(uint64_t slots_used, uint64_t slots_available,
 			depth, structure_height);
 }
 
-/*
-bool global_density_within_threshold(uint64_t slots_used, uint64_t capacity) {
-	if (slots_used <= 4) {
-		return capacity >= 2 * slots_used;
-	}
-	return density_is_within_threshold(slots_used, capacity, 0, 1);
+static bool range_is_valid(
+		struct ordered_file file, struct ordered_file_range block) {
+	return block.begin < file.parameters.capacity &&
+			(block.begin + block.size) <= file.parameters.capacity;
 }
-*/
+
+static struct ordered_file_range get_block_parent(
+		struct ordered_file_range block) {
+	const uint64_t new_size = block.size * 2;
+	return (struct ordered_file_range) {
+		.begin = block.begin - (block.begin % new_size),
+		.size = new_size
+	};
+}
+
+static struct ordered_file_range get_leaf_range_for(struct ordered_file file,
+		uint64_t index) {
+	return get_leaf_range(file, index / file.parameters.block_size);
+}
 
 // Returns touched range.
 static struct ordered_file_range reorganize(struct ordered_file* file,
 		uint64_t index, struct watched_index watched_index) {
-	uint64_t block_size = file->parameters.block_size;
 	const uint64_t leaf_depth = get_leaf_depth(file->parameters);
 	uint64_t depth = leaf_depth;
 
+	struct ordered_file_range block = get_leaf_range_for(*file, index);
+
 	// TODO: interspersed left-right scan
-	while (block_size <= file->parameters.capacity) {
-		uint64_t block_offset = (index / block_size) * block_size;
-
-		assert(block_offset < file->parameters.capacity &&
-				block_offset + block_size <= file->parameters.capacity);
-		assert(file->parameters.capacity % block_size == 0);
-
-		struct ordered_file_range block = {
-			.begin = block_offset,
-			.size = block_size
-		};
+	while (true) {
 		const uint64_t occupied = range_get_occupied(*file, block);
 		if (density_is_within_threshold(
-				occupied, block_size, depth, leaf_depth)) {
+				occupied, block.size, depth, leaf_depth)) {
+			log_info("evenly spreading range "
+					"(%" PRIu64 "...%" PRIu64 "): "
+					"(%" PRIu64 "/%" PRIu64"=%lf)",
+					block.begin, block.begin + block.size,
+					occupied, block.size,
+					((double) occupied) / block.size);
 			range_spread_evenly(*file, block, watched_index);
-			return (struct ordered_file_range) {
-				.begin = block_offset,
-				.size = block_size
-			};
+			return block;
 		} else {
 			log_info("height=%" PRIu64 ", depth=%" PRIu64 ": "
 					"range (%" PRIu64 "...%" PRIu64 ") "
 					"not within threshold "
 					"(%" PRIu64 "/%" PRIu64"=%lf)",
 					leaf_depth, depth,
-					block_offset, block_offset + block_size,
-					occupied, block_size,
-					((double) occupied) / block_size);
+					block.begin, block.begin + block.size,
+					occupied, block.size,
+					((double) occupied) / block.size);
 		}
-		block_size *= 2;
+		block = get_block_parent(block);
+		if (block.size == file->parameters.capacity * 2) {
+			break;
+		}
+		assert(range_is_valid(*file, block));
 		depth--;
 	}
 
 	// Nova struktura musi mit hustotu 1/2 az 3/4.
 	log_fatal("ordered file maintenance structure "
 			"does not meet density bounds. TODO: resize to fit.");
-}
-
-static struct ordered_file_range get_leaf_range_for(struct ordered_file file,
-		uint64_t index) {
-	return get_leaf_range(file, index / file.parameters.block_size);
 }
 
 struct ordered_file_range get_leaf_range(struct ordered_file file,
@@ -316,7 +336,7 @@ struct ordered_file_range ordered_file_insert_after(struct ordered_file* file,
 
 struct ordered_file_range ordered_file_delete(struct ordered_file* file,
 		uint64_t index) {
-	assert(file->occupied[index]);
+	CHECK(file->occupied[index], "Deleting empty index %" PRIu64, index);
 	file->occupied[index] = false;
 	return reorganize(file, index, NO_WATCH);
 }
