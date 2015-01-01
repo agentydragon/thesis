@@ -285,7 +285,6 @@ void cob_delete(struct cob* this, uint64_t key) {
 	}
 }
 
-// TODO: test
 void cob_has_key(const struct cob* this, uint64_t key, bool *found) {
 	// TODO: make this recursive instead
 	uint64_t node_stack[50];
@@ -298,7 +297,6 @@ void cob_has_key(const struct cob* this, uint64_t key, bool *found) {
 			get_leaf_range(this->file, leaf_index), key, NULL);
 }
 
-// TODO: test
 void cob_next_key(const struct cob* this, uint64_t key,
 		bool *next_key_exists, uint64_t* next_key) {
 	// TODO: make this recursive instead
@@ -325,7 +323,6 @@ void cob_next_key(const struct cob* this, uint64_t key,
 	*next_key_exists = false;
 }
 
-// TODO: test
 void cob_previous_key(const struct cob* this, uint64_t key,
 		bool *previous_key_exists, uint64_t* previous_key) {
 	// TODO: make this recursive instead
