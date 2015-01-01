@@ -83,7 +83,7 @@ static void test_insert_simple() {
 		.begin = 0,
 		.size = 5
 	};
-	subrange_insert_after(file, range, 200, 0);
+	range_insert_after(file, range, 200, 0);
 
 	assert_keys(file, range, 100, 200, NOTHING, NOTHING, NOTHING);
 }
@@ -100,17 +100,17 @@ static void test_shift() {
 		.size = 5
 	};
 	log_info("test_shift");
-	subrange_insert_after(file, range, 200, 0);
+	range_insert_after(file, range, 200, 0);
 
 	assert_keys(file, range, 100, 200, 300, 400, NOTHING);
 }
 
-static void test_subrange_insert_after() {
+static void test_range_insert_after() {
 	test_insert_simple();
 	test_shift();
 }
 
-static void test_subrange_compact() {
+static void test_range_compact() {
 	bool occupied[] = { true, true, false, false, false, false, false, true };
 	uint64_t keys[] = { 10, 20, 0, 0, 0, 0, 0, 30 };
 	struct ordered_file file = {
@@ -122,7 +122,7 @@ static void test_subrange_compact() {
 		.size = 8
 	};
 	uint64_t new_location;
-	subrange_compact(file, range, (struct watched_index) {
+	range_compact(file, range, (struct watched_index) {
 		.index = 7,
 		.new_location = &new_location
 	});
@@ -132,7 +132,7 @@ static void test_subrange_compact() {
 			NOTHING, NOTHING, NOTHING, NOTHING);
 }
 
-static void test_subrange_spread_evenly() {
+static void test_range_spread_evenly() {
 	bool occupied[] = { true, true, false, false, false, false, false, true };
 	uint64_t keys[] = { 10, 20, 0, 0, 0, 0, 0, 30 };
 	struct ordered_file file = {
@@ -144,7 +144,7 @@ static void test_subrange_spread_evenly() {
 		.size = 8
 	};
 	uint64_t new_location;
-	subrange_spread_evenly(file, range, (struct watched_index) {
+	range_spread_evenly(file, range, (struct watched_index) {
 		.index = 1,
 		.new_location = &new_location
 	});
@@ -255,7 +255,7 @@ static void test_insert_with_resize() {
 		.size = 64
 	};
 	char description[1024];
-	subrange_describe(ranged, description);
+	range_describe(ranged, description);
 	log_info("%s", description);
 
 	log_fatal("TODO write the check");
@@ -290,8 +290,8 @@ static void test_parameter_policy() {
 void test_ordered_file_maintenance() {
 	test_parameter_policy();
 
-	test_subrange_insert_after();
-	test_subrange_compact();
-	test_subrange_spread_evenly();
+	test_range_insert_after();
+	test_range_compact();
+	test_range_spread_evenly();
 	test_insert_after();
 }

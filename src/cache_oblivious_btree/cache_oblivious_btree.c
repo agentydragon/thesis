@@ -8,7 +8,7 @@
 
 #define INFINITY 0xFFFFFFFFDEADBEEF
 
-static bool subrange_find_first_gt(
+static bool range_find_first_gt(
 		struct ordered_file file, struct ordered_file_range range,
 		uint64_t key, uint64_t *index) {
 	for (uint64_t i = 0; i < range.size; i++) {
@@ -21,7 +21,7 @@ static bool subrange_find_first_gt(
 	return false;
 }
 
-static bool subrange_find_last_lt(
+static bool range_find_last_lt(
 		struct ordered_file file, struct ordered_file_range range,
 		uint64_t key, uint64_t *index) {
 	bool found_before = false;
@@ -47,7 +47,7 @@ static bool subrange_find_last_lt(
 	}
 }
 
-static bool subrange_find(
+static bool range_find(
 		struct ordered_file file, struct ordered_file_range range,
 		uint64_t key, uint64_t *index) {
 	for (uint64_t i = 0; i < range.size; i++) {
@@ -62,7 +62,7 @@ static bool subrange_find(
 	return false;
 }
 
-static uint64_t subrange_get_minimum(struct ordered_file file,
+static uint64_t range_get_minimum(struct ordered_file file,
 		struct ordered_file_range range) {
 	// TODO: optimize. should just be the first item!
 	uint64_t minimum = INFINITY;
@@ -110,14 +110,14 @@ static struct ordered_file_range insert_sorted_order(struct ordered_file* file,
 	}
 }
 
-static uint64_t subrange_leaf_count(const struct cob* this) {
+static uint64_t leaf_range_count(const struct cob* this) {
 	const struct parameters parameters = this->file.parameters;
 	assert(parameters.capacity % parameters.block_size == 0);
 	return parameters.capacity / parameters.block_size;
 }
 
 uint64_t get_veb_height(const struct cob* this) {
-	return exact_log2(subrange_leaf_count(this)) + 1;
+	return exact_log2(leaf_range_count(this)) + 1;
 }
 
 void cob_fix_internal_node(struct cob* this, uint64_t veb_node) {
@@ -154,7 +154,7 @@ void cob_recalculate_minima(struct cob* this, uint64_t veb_node) {
 		const uint64_t leaf_offset = leaf_number *
 				this->file.parameters.block_size;
 
-		this->veb_minima[veb_node] = subrange_get_minimum(
+		this->veb_minima[veb_node] = range_get_minimum(
 				this->file, (struct ordered_file_range) {
 					.begin = leaf_offset,
 					.size = this->file.parameters.block_size,
@@ -226,7 +226,7 @@ void cob_insert(struct cob* this, uint64_t key) {
 
 	// Insert into ordered file.
 	const struct ordered_file_range reorg_range = insert_sorted_order(
-			&this->file, get_leaf_subrange(this->file, leaf_index), key);
+			&this->file, get_leaf_range(this->file, leaf_index), key);
 	const uint64_t levels_up = exact_log2(
 			reorg_range.size / this->file.parameters.block_size);
 
@@ -245,10 +245,10 @@ void cob_delete(struct cob* this, uint64_t key) {
 	veb_walk(this, key, node_stack, &node_stack_size, &leaf_index);
 
 	// Insert into ordered file.
-	struct ordered_file_range leaf_sr = get_leaf_subrange(this->file,
+	struct ordered_file_range leaf_sr = get_leaf_range(this->file,
 			leaf_index);
 	uint64_t index;
-	if (!subrange_find(this->file, leaf_sr, key, &index)) {
+	if (!range_find(this->file, leaf_sr, key, &index)) {
 		log_fatal("deleting nonexistant key %" PRIu64 " "
 				"(leaf index %" PRIu64 ")", key, leaf_index);
 	}
@@ -272,8 +272,8 @@ void cob_has_key(const struct cob* this, uint64_t key, bool *found) {
 	// Walk down vEB layout to find where does the key belong.
 	uint64_t leaf_index;
 	veb_walk(this, key, node_stack, &node_stack_size, &leaf_index);
-	*found = subrange_find(this->file,
-			get_leaf_subrange(this->file, leaf_index), key, NULL);
+	*found = range_find(this->file,
+			get_leaf_range(this->file, leaf_index), key, NULL);
 }
 
 // TODO: test
@@ -286,13 +286,12 @@ void cob_next_key(const struct cob* this, uint64_t key,
 	// Walk down vEB layout to find where does the key belong.
 	uint64_t leaf_index;
 	veb_walk(this, key, node_stack, &node_stack_size, &leaf_index);
-	struct ordered_file_range leaf = get_leaf_subrange(this->file,
-			leaf_index);
+	struct ordered_file_range leaf = get_leaf_range(this->file, leaf_index);
 
 	// TODO: plain single FOR?
-	while (leaf_index < subrange_leaf_count(this)) {
+	while (leaf_index < leaf_range_count(this)) {
 		uint64_t index;
-		if (subrange_find_first_gt(this->file, leaf, key, &index)) {
+		if (range_find_first_gt(this->file, leaf, key, &index)) {
 			*next_key_exists = true;
 			*next_key = this->file.keys[index];
 			return;
@@ -314,13 +313,12 @@ void cob_previous_key(const struct cob* this, uint64_t key,
 	// Walk down vEB layout to find where does the key belong.
 	uint64_t leaf_index;
 	veb_walk(this, key, node_stack, &node_stack_size, &leaf_index);
-	struct ordered_file_range leaf = get_leaf_subrange(this->file,
-			leaf_index);
+	struct ordered_file_range leaf = get_leaf_range(this->file, leaf_index);
 
 	// TODO: plain single FOR?
 	do {
 		uint64_t index;
-		if (subrange_find_last_lt(this->file, leaf, key, &index)) {
+		if (range_find_last_lt(this->file, leaf, key, &index)) {
 			*previous_key_exists = true;
 			*previous_key = this->file.keys[index];
 			return;

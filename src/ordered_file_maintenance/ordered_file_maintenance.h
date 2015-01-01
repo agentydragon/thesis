@@ -38,21 +38,22 @@ struct ordered_file_range {
 };
 
 // TODO: maybe relax requirements to allow easier implementation
-uint64_t subrange_leaf_size(uint64_t capacity);
-void subrange_insert_after(
+uint64_t leaf_block_size(uint64_t capacity);
+void range_insert_after(
 		struct ordered_file file, struct ordered_file_range range,
 		uint64_t inserted_item, uint64_t insert_after);
-void subrange_compact(
+void range_compact(
 		struct ordered_file file, struct ordered_file_range range,
 		struct watched_index watched_index);
-void subrange_spread_evenly(
+void range_spread_evenly(
 		struct ordered_file file, struct ordered_file_range range,
 		struct watched_index watched_index);
-void subrange_describe(
+void range_describe(
 		const struct ordered_file file, struct ordered_file_range range,
 		char* buffer);
 
-struct ordered_file_range get_leaf_subrange(struct ordered_file file, uint64_t index);
+struct ordered_file_range get_leaf_range(
+		struct ordered_file file, uint64_t index);
 
 // Those functions return the touched range.
 struct ordered_file_range ordered_file_insert_after(struct ordered_file* file,

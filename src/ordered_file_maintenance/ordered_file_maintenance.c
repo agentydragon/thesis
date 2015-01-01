@@ -17,7 +17,7 @@ const struct watched_index NO_WATCH = {
 
 static uint64_t adequate_block_size(uint64_t capacity) {
 	uint64_t x = floor_log2(capacity);
-	// Because subranges must meet constraints, we need at least 4 slots.
+	// Because leafs must meet constraints, we need at least 4 slots.
 	if (x < 4) {
 		return 4;
 	} else {
@@ -57,7 +57,7 @@ struct parameters adequate_parameters(uint64_t items) {
 	};
 }
 
-void subrange_describe(struct ordered_file file,
+void range_describe(struct ordered_file file,
 		struct ordered_file_range range, char* buffer) {
 	for (uint64_t i = 0; i < range.size; i++) {
 		if (i % 8 == 0 && i > 0) {
@@ -76,8 +76,8 @@ static uint64_t get_leaf_depth(struct parameters parameters) {
 	return ceil_log2(parameters.capacity / parameters.block_size);
 }
 
-// Shifts all elements of the subrange to the left.
-void subrange_compact(
+// Shifts all elements of the range to the left.
+void range_compact(
 		struct ordered_file file, struct ordered_file_range range,
 		struct watched_index watched_index) {
 	for (uint64_t source = 0, target = 0; source < range.size; source++) {
@@ -97,7 +97,7 @@ void subrange_compact(
 	}
 }
 
-static uint64_t subrange_get_occupied(struct ordered_file file,
+static uint64_t range_get_occupied(struct ordered_file file,
 		struct ordered_file_range range) {
 	uint64_t occupied = 0;
 	// TODO: optimize
@@ -107,22 +107,22 @@ static uint64_t subrange_get_occupied(struct ordered_file file,
 	return occupied;
 }
 
-static bool subrange_is_full(struct ordered_file file,
+static bool range_is_full(struct ordered_file file,
 		struct ordered_file_range range) {
-	return subrange_get_occupied(file, range) == range.size;
+	return range_get_occupied(file, range) == range.size;
 }
 
-static bool subrange_is_empty(struct ordered_file file,
+static bool range_is_empty(struct ordered_file file,
 		struct ordered_file_range range) {
-	return subrange_get_occupied(file, range) == 0;
+	return range_get_occupied(file, range) == 0;
 }
 
-void subrange_insert_first(struct ordered_file file,
+void range_insert_first(struct ordered_file file,
 		struct ordered_file_range range, uint64_t inserted_item) {
-	assert(!subrange_is_full(file, range));
+	assert(!range_is_full(file, range));
 	// TODO: optimize
-	subrange_compact(file, range, NO_WATCH);
-	const uint64_t occupied = subrange_get_occupied(file, range);
+	range_compact(file, range, NO_WATCH);
+	const uint64_t occupied = range_get_occupied(file, range);
 	for (uint64_t i = 0; i < occupied; i++) {
 		const uint64_t to = range.begin + occupied - i,
 				from = range.begin + occupied - i - 1;
@@ -133,17 +133,17 @@ void subrange_insert_first(struct ordered_file file,
 	file.keys[range.begin] = inserted_item;
 }
 
-void subrange_insert_after(struct ordered_file file,
+void range_insert_after(struct ordered_file file,
 		struct ordered_file_range range, uint64_t inserted_item,
 		uint64_t insert_after_index) {
-	assert(!subrange_is_full(file, range) &&
-			!subrange_is_empty(file, range));
-	subrange_compact(file, range, (struct watched_index) {
+	assert(!range_is_full(file, range) &&
+			!range_is_empty(file, range));
+	range_compact(file, range, (struct watched_index) {
 		.index = insert_after_index,
 		.new_location = &insert_after_index
 	});
 
-	const uint64_t occupied = subrange_get_occupied(file, range);
+	const uint64_t occupied = range_get_occupied(file, range);
 	log_info("adding %" PRIu64 " after index %" PRIu64 ", "
 			"occupied=%" PRIu64, inserted_item,
 			insert_after_index, occupied);
@@ -164,7 +164,7 @@ void subrange_insert_after(struct ordered_file file,
 	file.keys[insert_after_index + 1] = inserted_item;
 }
 
-void subrange_spread_evenly(struct ordered_file file,
+void range_spread_evenly(struct ordered_file file,
 		struct ordered_file_range range,
 		struct watched_index watched_index) {
 	uint64_t sublocation = INVALID_INDEX;
@@ -172,8 +172,8 @@ void subrange_spread_evenly(struct ordered_file file,
 		.index = watched_index.index,
 		.new_location = &sublocation
 	};
-	subrange_compact(file, range, subwatch);
-	uint64_t elements = subrange_get_occupied(file, range);
+	range_compact(file, range, subwatch);
+	uint64_t elements = range_get_occupied(file, range);
 
 	// TODO: avoid float arithmetic
 	const float gap_size = ((float) range.size) / ((float) elements);
@@ -244,16 +244,14 @@ static struct ordered_file_range reorganize(struct ordered_file* file,
 				block_offset + block_size <= file->parameters.capacity);
 		assert(file->parameters.capacity % block_size == 0);
 
-		struct ordered_file_range block_subrange = {
+		struct ordered_file_range block = {
 			.begin = block_offset,
 			.size = block_size
 		};
-		const uint64_t occupied = subrange_get_occupied(*file,
-				block_subrange);
+		const uint64_t occupied = range_get_occupied(*file, block);
 		if (density_is_within_threshold(
 				occupied, block_size, depth, leaf_depth)) {
-			subrange_spread_evenly(*file, block_subrange,
-					watched_index);
+			range_spread_evenly(*file, block, watched_index);
 			return (struct ordered_file_range) {
 				.begin = block_offset,
 				.size = block_size
@@ -277,12 +275,13 @@ static struct ordered_file_range reorganize(struct ordered_file* file,
 			"does not meet density bounds. TODO: resize to fit.");
 }
 
-static struct ordered_file_range get_leaf_subrange_for(struct ordered_file file,
+static struct ordered_file_range get_leaf_range_for(struct ordered_file file,
 		uint64_t index) {
-	return get_leaf_subrange(file, index / file.parameters.block_size);
+	return get_leaf_range(file, index / file.parameters.block_size);
 }
 
-struct ordered_file_range get_leaf_subrange(struct ordered_file file, uint64_t leaf_number) {
+struct ordered_file_range get_leaf_range(struct ordered_file file,
+		uint64_t leaf_number) {
 	const uint64_t leaf_size = file.parameters.block_size;
 
 	return (struct ordered_file_range) {
@@ -294,9 +293,9 @@ struct ordered_file_range get_leaf_subrange(struct ordered_file file, uint64_t l
 struct ordered_file_range ordered_file_insert_first(struct ordered_file* file,
 		uint64_t item) {
 	struct ordered_file_range reorg_range = reorganize(file, 0, NO_WATCH);
-	struct ordered_file_range leaf = get_leaf_subrange_for(*file, 0);
-	CHECK(!subrange_is_full(*file, leaf), "reorganization didn't help");
-	subrange_insert_first(*file, leaf, item);
+	struct ordered_file_range leaf = get_leaf_range_for(*file, 0);
+	CHECK(!range_is_full(*file, leaf), "reorganization didn't help");
+	range_insert_first(*file, leaf, item);
 	return reorg_range;
 }
 
@@ -308,12 +307,10 @@ struct ordered_file_range ordered_file_insert_after(struct ordered_file* file,
 				.index = insert_after_index,
 				.new_location = &insert_after_index
 			});
-	struct ordered_file_range leaf_subrange = get_leaf_subrange_for(*file,
+	struct ordered_file_range leaf_range = get_leaf_range_for(*file,
 			insert_after_index);
-	if (subrange_is_full(*file, leaf_subrange)) {
-		log_fatal("reorganization didn't help");
-	}
-	subrange_insert_after(*file, leaf_subrange, item, insert_after_index);
+	CHECK(!range_is_full(*file, leaf_range), "reorganization didn't help");
+	range_insert_after(*file, leaf_range, item, insert_after_index);
 	return reorg_range;
 }
 
