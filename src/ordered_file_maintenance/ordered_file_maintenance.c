@@ -16,7 +16,7 @@ const struct watched_index NO_WATCH = {
 };
 
 struct parameters adequate_parameters(uint64_t items) {
-	if (items <= 4) {
+	if (items < 4) {
 		return (struct parameters) {
 			.capacity = 4,
 			.block_size = 4
@@ -82,6 +82,10 @@ void range_describe(struct ordered_file file,
 }
 
 static uint64_t get_leaf_depth(struct parameters parameters) {
+	if (parameters.capacity == parameters.block_size) {
+		// XXX: hack for special small case
+		return 1;
+	}
 	return ceil_log2(parameters.capacity / parameters.block_size);
 }
 
@@ -254,7 +258,7 @@ bool sparse_enough(uint64_t size, uint64_t capacity,
 bool global_density_within_threshold(uint64_t size, uint64_t capacity) {
 	// Workaround for really small sets.
 	if (size <= 4) {
-		return capacity >= size;
+		return capacity > size;
 	}
 	return density_is_within_threshold(size, capacity, 0, 1);
 }
@@ -313,6 +317,9 @@ static struct ordered_file_range reorganize(struct ordered_file* file,
 	// TODO: interspersed left-right scan
 	while (true) {
 		occupied = range_get_occupied(*file, block);
+		log_info("occupied=%" PRIu64 " size=%" PRIu64 " depth=%" PRIu64
+				" leaf_depth=%" PRIu64, occupied, block.size,
+				depth, leaf_depth);
 		if (density_is_within_threshold(
 				occupied, block.size, depth, leaf_depth)) {
 			log_info("evenly spreading range "
@@ -341,8 +348,10 @@ static struct ordered_file_range reorganize(struct ordered_file* file,
 		depth--;
 	}
 
-	struct ordered_file resized = new_ordered_file(
-			adequate_parameters(occupied));
+	log_info("Changing ordered file parameters");
+	struct parameters new_parameters = adequate_parameters(occupied);
+	// TODO: do nothing if new_parameters == this->parameters.
+	struct ordered_file resized = new_ordered_file(new_parameters);
 	evenly_spread_offline(*file, resized, watched_index);
 	destroy_ordered_file(*file);
 	*file = resized;

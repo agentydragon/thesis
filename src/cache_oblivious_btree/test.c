@@ -19,7 +19,7 @@ static void __attribute__((unused)) dump_cob(struct cob cob) {
 	char buffer[256];
 	uint64_t offset = 0;
 	for (uint64_t i = 0; i < cob.file.parameters.capacity; i++) {
-		if (i % 8 == 0 && i != 0) {
+		if (i % cob.file.parameters.block_size == 0 && i != 0) {
 			offset += sprintf(buffer + offset, "\n");
 		}
 		if (cob.file.occupied[i]) {
@@ -86,28 +86,48 @@ void destroy_file(struct ordered_file file) {
 	uint64_t found_key; \
 	cob_previous_key(cob, key, &found, &found_key); \
 	if (previous_key != NIL) { \
-		if (!found) { \
-			log_fatal("no previous key for %" PRIu64 ", expected " \
-					"%" PRIu64, key, previous_key); \
-		} \
-		assert(previous_key == found_key); \
+		CHECK(found, \
+				"no previous key for %" PRIu64 ", expected " \
+				"%" PRIu64, key, previous_key); \
+		CHECK(previous_key == found_key, \
+				"previous key to %" PRIu64 " should have been " \
+				"%" PRIu64 ", but it is actually %" PRIu64, \
+				key, previous_key, found_key); \
 	} else { \
 		assert(!found); \
 	} \
 } while (0)
 
-void check_key_sequence(struct cob cob,
+#define insert_items(cob,...) do { \
+	const uint64_t items[] = { __VA_ARGS__ }; \
+	for (uint64_t i = 0; i < sizeof(items) / sizeof(*items); i++) { \
+		cob_insert(cob, items[i]); \
+	} \
+} while (0)
+
+#define delete_items(cob,...) do { \
+	const uint64_t items[] = { __VA_ARGS__ }; \
+	for (uint64_t i = 0; i < sizeof(items) / sizeof(*items); i++) { \
+		cob_delete(cob, items[i]); \
+	} \
+} while (0)
+
+void check_key_sequence(const struct cob* cob,
 		const uint64_t* sequence, uint64_t count) {
 	// Check sequence inside.
 	for (uint64_t i = 0; i < count; i++) {
 		if (sequence[i] == NIL) continue;
 
+		bool found;
+		cob_has_key(cob, sequence[i], &found);
+		assert(found);
+
 		for (uint64_t j = i + 1; j < count; j++) {
 			if (sequence[j] == NIL) {
 				continue;
 			} else {
-				assert_previous_key(&cob, sequence[j], sequence[i]);
-				assert_next_key(&cob, sequence[i], sequence[j]);
+				assert_previous_key(cob, sequence[j], sequence[i]);
+				assert_next_key(cob, sequence[i], sequence[j]);
 				break;
 			}
 		}
@@ -116,8 +136,8 @@ void check_key_sequence(struct cob cob,
 	// Check that previous(first) doesn't exist and next(first-1) == first.
 	for (uint64_t i = 0; i < count; i++) {
 		if (sequence[i] != NIL) {
-			assert_previous_key(&cob, sequence[i], NIL);
-			assert_next_key(&cob, sequence[i] - 1, sequence[i]);
+			assert_previous_key(cob, sequence[i], NIL);
+			assert_next_key(cob, sequence[i] - 1, sequence[i]);
 			break;
 		}
 	}
@@ -126,25 +146,33 @@ void check_key_sequence(struct cob cob,
 	for (uint64_t i = 0; i < count; i++) {
 		uint64_t j = count - 1 - i;
 		if (sequence[j] != NIL) {
-			assert_previous_key(&cob, sequence[j] + 1, sequence[j]);
-			assert_next_key(&cob, sequence[j], NIL);
+			assert_previous_key(cob, sequence[j] + 1, sequence[j]);
+			assert_next_key(cob, sequence[j], NIL);
 			break;
 		}
 	}
 }
 
-#define assert_content(cob,...) do { \
+#define assert_content(__cob,...) do { \
+	const struct cob* _cob = __cob; \
 	const uint64_t _expected[] = { __VA_ARGS__ }; \
 	const uint64_t _count = sizeof(_expected) / sizeof(*_expected); \
 	for (uint64_t i = 0; i < _count; i++) { \
 		if (_expected[i] == NIL) { \
-			assert(!cob.file.occupied[i]); \
+			assert(!_cob->file.occupied[i]); \
 		} else { \
-			assert(cob.file.occupied[i]); \
-			assert(cob.file.keys[i] == _expected[i]); \
+			assert(_cob->file.occupied[i]); \
+			assert(_cob->file.keys[i] == _expected[i]); \
 		} \
 	} \
-	check_key_sequence(cob, _expected, _count); \
+	check_key_sequence(_cob, _expected, _count); \
+} while (0)
+
+#define assert_content_low_detail(__cob,...) do { \
+	const struct cob* _cob = __cob; \
+	const uint64_t _expected[] = { __VA_ARGS__ }; \
+	const uint64_t _count = sizeof(_expected) / sizeof(*_expected); \
+	check_key_sequence(_cob, _expected, _count); \
 } while (0)
 
 static void test_simple_delete() {
@@ -163,7 +191,7 @@ static void test_simple_delete() {
 
 	cob_delete(&cob, 10);
 
-	assert_content(cob,
+	assert_content(&cob,
 		NIL, 20, NIL, 30,
 		40, NIL, 50, NIL);
 	assert(cob.veb_minima[0] == 20);
@@ -197,16 +225,16 @@ static void test_complex_delete() {
 		131, 132, 140, 150);
 
 	cob_delete(&cob, 40);
-	assert_content(cob,
-			NIL, 10, NIL, 20,
-			NIL, 30, NIL, 50,
-			NIL, 60, NIL, 70,
-			NIL, 80, NIL, 90,
+	assert_content(&cob,
+		NIL, 10, NIL, 20,
+		NIL, 30, NIL, 50,
+		NIL, 60, NIL, 70,
+		NIL, 80, NIL, 90,
 
-			NIL, 100, NIL, 110,
-			NIL, 120, NIL, 130,
-			NIL, 131, NIL, 132,
-			NIL, 140, NIL, 150);
+		NIL, 100, NIL, 110,
+		NIL, 120, NIL, 130,
+		NIL, 131, NIL, 132,
+		NIL, 140, NIL, 150);
 
 	const uint64_t expected_veb_minima[] = {
 		10, 10, 100, 10, 10, 30, 60, 60,
@@ -230,7 +258,7 @@ static void test_simple_insert() {
 		NIL, NIL, 800, 900);
 
 	cob_insert(&cob, 542);
-	assert_content(cob,
+	assert_content(&cob,
 		100, 200, 300, 400,
 		500, 542, 600, NIL,
 		NIL, NIL, NIL, 700,
@@ -253,7 +281,7 @@ static void test_insert_new_minimum_with_overflow() {
 		NIL, NIL, 800, 900);
 
 	cob_insert(&cob, 42);
-	assert_content(cob,
+	assert_content(&cob,
 		42, 100, 200, NIL,
 		300, NIL, 400, NIL,
 		500, NIL, 600, 700,
@@ -265,10 +293,61 @@ static void test_insert_new_minimum_with_overflow() {
 	destroy_file(cob.file);
 }
 
+// TODO: what about minimum calculation in empty cob_tree?
+
+static void test_comprehensive_resizing() {
+	uint64_t* veb_minima = malloc(sizeof(uint64_t));
+	veb_minima[0] = COB_INFINITY;
+
+	struct cob cob = { .veb_minima = veb_minima };
+	make_file(&cob.file, 4, NIL, NIL, NIL, NIL);
+
+	insert_items(&cob,
+		200, 300, 400, 600, 800, 100, 150, 250, 450, 900, 910, 920,
+		120, 130, 140, 170, 190, 210, 230, 270, 310, 810, 820, 990,
+		135, 137, 148, 149, 660, 670, 666, 142, 147, 550, 560, 775,
+		143, 157, 168, 152, 915, 965, 963, 998, 916, 971, 561, 567);
+	assert_content_low_detail(&cob,
+		100, 120, 130, 135, 137, 140, 142, 143, 147, 148, 149, 150,
+		152, 157, 168, 170, 190, 200, 210, 230, 250, 270, 300, 310,
+		400, 450, 550, 560, 561, 567, 600, 660, 666, 670, 775, 800,
+		810, 820, 900, 910, 915, 916, 920, 963, 965, 971, 990, 998);
+
+	delete_items(&cob,
+		149, 660, 550, 400, 157, 998, 916, 920, 450, 100, 915, 971);
+	assert_content_low_detail(&cob,
+		120, 130, 135, 137, 140, 142, 143, 147, 148, 150, 152, 168,
+		170, 190, 200, 210, 230, 250, 270, 300, 310, 560, 561, 567,
+		600, 666, 670, 775, 800, 810, 820, 900, 910, 963, 965, 990);
+
+	delete_items(&cob,
+		137, 147, 168, 120, 130, 135, 300, 910, 810, 965, 567, 600);
+	assert_content_low_detail(&cob,
+		140, 142, 143, 148, 150, 152, 170, 190, 200, 210, 230, 250,
+		270, 310, 560, 561, 666, 670, 775, 800, 820, 900, 963, 990);
+
+	delete_items(&cob,
+		270, 310, 560, 561, 666, 152, 170, 190, 200, 900, 963, 990);
+	assert_content_low_detail(&cob,
+		140, 142, 143, 148, 150, 210, 230, 250, 670, 775, 800, 820);
+
+	delete_items(&cob, 143, 148, 210, 230, 250, 670, 820, 150);
+	assert_content_low_detail(&cob, 140, 142, 775, 800);
+
+	delete_items(&cob, 142, 775, 800, 140);
+	assert_content_low_detail(&cob);
+
+	assert(cob.veb_minima[0] == COB_INFINITY);
+
+	destroy_file(cob.file);
+	free(cob.veb_minima);
+}
+
 void test_cache_oblivious_btree() {
 	test_simple_delete();
 	test_complex_delete();
 	test_simple_insert();
-	// TODO: overflow in insert
 	test_insert_new_minimum_with_overflow();
+
+	test_comprehensive_resizing();
 }

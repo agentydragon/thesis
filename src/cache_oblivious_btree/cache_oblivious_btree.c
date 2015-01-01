@@ -6,8 +6,6 @@
 #include "../math/math.h"
 #include "../veb_layout/veb_layout.h"
 
-#define INFINITY 0xFFFFFFFFDEADBEEF
-
 static bool parameters_equal(struct parameters x, struct parameters y) {
 	return x.block_size == y.block_size && x.capacity == y.capacity;
 }
@@ -29,7 +27,7 @@ static bool range_find_last_lt(
 		struct ordered_file file, struct ordered_file_range range,
 		uint64_t key, uint64_t *index) {
 	bool found_before = false;
-	uint64_t index_before = INFINITY;
+	uint64_t index_before = COB_INFINITY;
 	for (uint64_t i = 0; i < range.size; i++) {
 		if (file.occupied[range.begin + i]) {
 			if (found_before && file.keys[range.begin + i] >= key) {
@@ -69,7 +67,7 @@ static bool range_find(
 static uint64_t range_get_minimum(struct ordered_file file,
 		struct ordered_file_range range) {
 	// TODO: optimize. should just be the first item!
-	uint64_t minimum = INFINITY;
+	uint64_t minimum = COB_INFINITY;
 	for (uint64_t i = 0; i < range.size; i++) {
 		if (file.occupied[range.begin + i] &&
 				file.keys[range.begin + i] < minimum) {
@@ -77,7 +75,7 @@ static uint64_t range_get_minimum(struct ordered_file file,
 			if (minimum > key) {
 				minimum = key;
 			}
-			assert(minimum < INFINITY);  // sanity check
+			assert(minimum < COB_INFINITY);  // sanity check
 		}
 	}
 	return minimum;
@@ -219,6 +217,13 @@ static void veb_walk(const struct cob* this, uint64_t key,
 	*_leaf_index = leaf_index;
 }
 
+static void entirely_reset_veb(struct cob* this) {
+	this->veb_minima = realloc(this->veb_minima,
+			this->file.parameters.capacity * sizeof(uint64_t));
+	assert(this->veb_minima);
+	cob_recalculate_minima(this, 0);
+}
+
 void cob_insert(struct cob* this, uint64_t key) {
 	// TODO: make this recursive instead
 	uint64_t node_stack[50];
@@ -242,7 +247,7 @@ void cob_insert(struct cob* this, uint64_t key) {
 		cob_recalculate_minima(this, node_stack[node_stack_size - 1 - levels_up]);
 		cob_fix_stack(this, node_stack, node_stack_size - levels_up - 1);
 	} else {
-		log_fatal("TODO: reallocate van emde boas tree");
+		entirely_reset_veb(this);
 	}
 }
 
@@ -276,7 +281,7 @@ void cob_delete(struct cob* this, uint64_t key) {
 		cob_recalculate_minima(this, node_stack[node_stack_size - 1 - levels_up]);
 		cob_fix_stack(this, node_stack, node_stack_size - levels_up - 1);
 	} else {
-		log_fatal("TODO: reallocate van emde boas tree");
+		entirely_reset_veb(this);
 	}
 }
 

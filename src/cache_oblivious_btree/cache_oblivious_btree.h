@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include "../ordered_file_maintenance/ordered_file_maintenance.h"
 
+// TODO: boundary value handling!
+#define COB_INFINITY 0xFFFFFFFFDEADBEEF
+
 // 1) ordered file maintenance over N keys
 //
 // 2) VEB static pointing to maintained ordered file.

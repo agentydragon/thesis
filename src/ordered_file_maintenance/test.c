@@ -350,6 +350,45 @@ static void test_comprehensive_resizing() {
 	destroy_file(file);
 }
 
+static void test_resizing_through_trivial_cases() {
+	struct ordered_file file;
+	make_file(&file, 4,
+			NIL, NIL, NIL, NIL);
+	ordered_file_insert_first(&file, 200);
+	ordered_file_insert_after(&file, 300, 0);
+	ordered_file_insert_after(&file, 400, 1);
+	ordered_file_insert_first(&file, 100);
+	assert_file(file, 100, 200, 300, 400);
+
+	ordered_file_insert_after(&file, 500, 3);
+	assert(file.parameters.block_size == 6);
+	assert(file.parameters.capacity == 6);
+	assert_file(file, 100, 200, 300, 400, 500, NIL);
+
+	ordered_file_insert_after(&file, 250, 1);
+	assert(file.parameters.block_size == 4);
+	assert(file.parameters.capacity == 8);
+	assert_file(file,
+			100, 200, 250, 300,
+			NIL, 400, 500, NIL);
+
+	ordered_file_delete(&file, 6);  // delete 500
+	ordered_file_delete(&file, 7);  // delete 400
+	assert_file(file,
+			NIL, 100, NIL, 200,
+			NIL, 250, NIL, 300);
+
+	ordered_file_delete(&file, 7);  // delete 300
+	ordered_file_delete(&file, 1);  // delete 100
+	ordered_file_delete(&file, 3);  // delete 200
+	assert_file(file, 250, NIL, NIL, NIL);
+
+	ordered_file_delete(&file, 0);  // delete 250
+	assert_file(file, NIL, NIL, NIL, NIL);
+
+	destroy_file(file);
+}
+
 static void test_insert_after() {
 	test_insert_after_two_reorg();
 	test_insert_after_very_dense();
@@ -377,5 +416,6 @@ void test_ordered_file_maintenance() {
 	test_range_spread_evenly();
 	test_insert_after();
 
+	test_resizing_through_trivial_cases();
 	test_comprehensive_resizing();
 }
