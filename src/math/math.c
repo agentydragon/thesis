@@ -3,6 +3,8 @@
 
 #include <inttypes.h>
 
+#define CLZ64(x) (__builtin_clzll(x))
+
 static uint64_t m_exp2(uint64_t x) {
 	return 1ULL << x;
 }
@@ -30,7 +32,8 @@ uint8_t floor_log2(uint64_t x) {
 }
 
 uint64_t hyperfloor(uint64_t x) {
-	return m_exp2(floor_log2(x));
+	// return m_exp2(floor_log2(x));
+	return 1ULL << (sizeof(uint64_t) * 8 - 1 - CLZ64(x));
 }
 
 uint64_t ceil_div(uint64_t a, uint64_t b) {

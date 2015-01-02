@@ -17,13 +17,17 @@ static void test_exact_log2() {
 	assert(floor_log2(256) == 8);
 }
 
-void test_math() {
-	test_floor_log2();
-	test_exact_log2();
-
+static void test_hyperfloor() {
 	assert(hyperfloor(1) == 1);
 	assert(hyperfloor(187) == 128);
 	assert(hyperfloor(67710) == 65536);
+	assert(hyperfloor(0x10000000003124) == 0x10000000000000);
+}
+
+void test_math() {
+	test_floor_log2();
+	test_exact_log2();
+	test_hyperfloor();
 
 	assert(is_pow2(1));
 	assert(is_pow2(4096));
