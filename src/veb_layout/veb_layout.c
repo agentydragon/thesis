@@ -182,11 +182,54 @@ veb_pointer veb_get_right(uint64_t node, uint64_t height) {
 			0, (veb_pointer) { .present = false, .node = 0 }, 0);
 }
 
+// The following method is derived from this original definition:
+//         bool veb_is_leaf(uint64_t node, uint64_t height) {
+//                 const veb_pointer left = veb_get_left(node, height),
+//                                    right = veb_get_right(node, height);
+//                 assert(left.present == right.present);
+//                 return !left.present;
+//         }
 bool veb_is_leaf(uint64_t node, uint64_t height) {
-	const veb_pointer left = veb_get_left(node, height),
-		      right = veb_get_right(node, height);
-	assert(left.present == right.present);
-	return !left.present;
+	uint64_t node_start = 0;
+recursive_call:
+	assert(height > 0);
+	if (height == 1) {
+		return true;
+	} else {
+		uint64_t bottom_height, top_height;
+		split_height(height, &bottom_height, &top_height);
+
+		const uint64_t nodes_in_top_block = m_exp2(top_height) - 1;
+		const uint64_t number_of_bottom_blocks = m_exp2(top_height);
+		const uint64_t nodes_in_bottom_block =
+			m_exp2(bottom_height) - 1;
+
+		if (node < node_start + nodes_in_top_block) {
+			//return veb_get_right_internal(node,
+			//		top_height, node_start,
+			//		(veb_pointer) {
+			//			.present = true,
+			//			.node = node_start + nodes_in_top_block
+			//		}, nodes_in_bottom_block);
+			height = top_height;
+			return false;
+		}
+		node_start += nodes_in_top_block;
+
+		for (uint64_t bottom_block_index = 0;
+				bottom_block_index < number_of_bottom_blocks;
+				bottom_block_index++) {
+			if (node < node_start + nodes_in_bottom_block) {
+				//return veb_get_right_internal(node,
+				//		bottom_height, node_start,
+				//		leaf_source, leaf_stride);
+				height = bottom_height;
+				goto recursive_call;
+			}
+			node_start += nodes_in_bottom_block;
+		}
+		log_fatal("fail");
+	}
 }
 
 static uint64_t must_have(veb_pointer ptr) {
