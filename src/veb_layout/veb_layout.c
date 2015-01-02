@@ -2,7 +2,6 @@
 #include <assert.h>
 #include <inttypes.h>
 #include "../math/math.h"
-//#define NO_LOG_INFO
 #include "../log/log.h"
 
 static uint64_t m_exp2(uint64_t x) {
@@ -52,8 +51,6 @@ void build_veb_layout(uint64_t height,
 		for (uint64_t bottom_block_index = 0;
 				bottom_block_index < number_of_bottom_blocks;
 				bottom_block_index++) {
-			//log_info("-> building leaf %d/%d",
-			//		bottom_block_index + 1, bottom_blocks);
 			build_veb_layout(bottom_height, node_start,
 					set_node, set_node_opaque,
 					leaf_source, leaf_stride);
@@ -160,6 +157,7 @@ recursive_call:
 		}
 		node_start += nodes_in_top_block;
 
+		// TODO: Optimize away this loop.
 		for (uint64_t bottom_block_index = 0;
 				bottom_block_index < number_of_bottom_blocks;
 				bottom_block_index++) {
@@ -216,6 +214,7 @@ recursive_call:
 		}
 		node_start += nodes_in_top_block;
 
+		// TODO: Optimize away this loop.
 		for (uint64_t bottom_block_index = 0;
 				bottom_block_index < number_of_bottom_blocks;
 				bottom_block_index++) {
