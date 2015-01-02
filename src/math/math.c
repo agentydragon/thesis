@@ -1,5 +1,7 @@
 #include "math.h"
-#include <assert.h>
+#include "../log/log.h"
+
+#include <inttypes.h>
 
 static uint64_t m_exp2(uint64_t x) {
 	return 1ULL << x;
@@ -36,6 +38,6 @@ uint64_t ceil_div(uint64_t a, uint64_t b) {
 }
 
 uint8_t exact_log2(uint64_t x) {
-	assert(is_pow2(x));
+	CHECK(is_pow2(x), "Exact log2 of %" PRIu64 " doesn't exist.");
 	return floor_log2(x);
 }

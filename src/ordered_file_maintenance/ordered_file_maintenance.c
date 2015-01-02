@@ -1,5 +1,4 @@
 #include "ordered_file_maintenance.h"
-#include "../log/log.h"
 #include "../math/math.h"
 
 #include <assert.h>
@@ -8,6 +7,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#define NO_LOG_INFO
+#include "../log/log.h"
 
 #define INVALID_INDEX 0xDEADBEEFDEADBEEF
 const struct watched_index NO_WATCH = {
@@ -410,4 +412,24 @@ struct ordered_file_range ordered_file_delete(struct ordered_file* file,
 	CHECK(file->occupied[index], "Deleting empty index %" PRIu64, index);
 	file->occupied[index] = false;
 	return reorganize(file, index, NO_WATCH);
+}
+
+void ordered_file_init(struct ordered_file* file) {
+	// TODO: copy over?
+	// TODO: merge with new_ordered_file
+	file->parameters.capacity = 4;
+	file->parameters.block_size = 4;
+	file->items = calloc(4, sizeof(ordered_file_item));
+	file->occupied = calloc(4, sizeof(bool));
+
+	for (uint8_t i = 0; i < 4; i++) {
+		file->occupied[i] = false;
+	}
+
+	assert(file->items && file->occupied);
+}
+
+void ordered_file_destroy(struct ordered_file file) {
+	free(file.items);
+	free(file.occupied);
 }

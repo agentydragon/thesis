@@ -4,8 +4,7 @@
 #include <stdint.h>
 #include "../ordered_file_maintenance/ordered_file_maintenance.h"
 
-// TODO: boundary value handling!
-#define COB_INFINITY 0xFFFFFFFFDEADBEEF
+#define COB_INFINITY UINT64_MAX
 
 // 1) ordered file maintenance over N keys
 //
@@ -29,14 +28,16 @@ struct cob {
 	uint64_t* veb_minima;
 };
 
+void cob_init(struct cob* this);
+void cob_destroy(struct cob this);
 void cob_insert(struct cob* this, uint64_t key, uint64_t value);
-void cob_delete(struct cob* this, uint64_t key);
+int8_t cob_delete(struct cob* this, uint64_t key);
 void cob_find(const struct cob* this, uint64_t key,
 		bool *found, uint64_t *value);
 void cob_next_key(const struct cob* this, uint64_t key,
 		bool *next_key_exists, uint64_t *next_key);
 void cob_previous_key(const struct cob* this, uint64_t key,
 		bool *previous_key_exists, uint64_t *previous_key);
-uint64_t get_veb_height(const struct cob* this);
+uint64_t get_veb_height(struct cob this);
 
 #endif

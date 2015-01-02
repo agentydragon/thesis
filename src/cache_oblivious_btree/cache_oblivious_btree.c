@@ -2,9 +2,11 @@
 #include <assert.h>
 #include <inttypes.h>
 #include <stdlib.h>
-#include "../log/log.h"
 #include "../math/math.h"
 #include "../veb_layout/veb_layout.h"
+
+#define NO_LOG_INFO
+#include "../log/log.h"
 
 static bool parameters_equal(struct parameters x, struct parameters y) {
 	return x.block_size == y.block_size && x.capacity == y.capacity;
@@ -120,19 +122,19 @@ static struct ordered_file_range insert_sorted_order(struct ordered_file* file,
 	}
 }
 
-static uint64_t leaf_range_count(const struct cob* this) {
-	const struct parameters parameters = this->file.parameters;
+static uint64_t leaf_range_count(struct cob this) {
+	const struct parameters parameters = this.file.parameters;
 	assert(parameters.capacity % parameters.block_size == 0);
 	return parameters.capacity / parameters.block_size;
 }
 
-uint64_t get_veb_height(const struct cob* this) {
+uint64_t get_veb_height(struct cob this) {
 	return exact_log2(leaf_range_count(this)) + 1;
 }
 
 void cob_fix_internal_node(struct cob* this, uint64_t veb_node) {
-	const veb_pointer left = veb_get_left(veb_node, get_veb_height(this));
-	const veb_pointer right = veb_get_right(veb_node, get_veb_height(this));
+	const veb_pointer left = veb_get_left(veb_node, get_veb_height(*this));
+	const veb_pointer right = veb_get_right(veb_node, get_veb_height(*this));
 	assert(left.present && right.present);
 
 	log_info("below %" PRIu64 ": [%" PRIu64 "]=%" PRIu64 ", "
@@ -156,10 +158,10 @@ void cob_fix_stack(struct cob* this, uint64_t* stack, uint64_t stack_size) {
 
 void cob_recalculate_minima(struct cob* this, uint64_t veb_node) {
 	log_info("recalculating everything under %" PRIu64, veb_node);
-	if (veb_is_leaf(veb_node, get_veb_height(this))) {
+	if (veb_is_leaf(veb_node, get_veb_height(*this))) {
 		const uint64_t leaf_number =
 				veb_get_leaf_index_of_leaf(veb_node,
-						get_veb_height(this));
+						get_veb_height(*this));
 		log_info("leaf_number=%" PRIu64, leaf_number);
 		const uint64_t leaf_offset = leaf_number *
 				this->file.parameters.block_size;
@@ -173,9 +175,9 @@ void cob_recalculate_minima(struct cob* this, uint64_t veb_node) {
 				veb_node, this->veb_minima[veb_node]);
 	} else {
 		const veb_pointer left =
-			veb_get_left(veb_node, get_veb_height(this));
+			veb_get_left(veb_node, get_veb_height(*this));
 		const veb_pointer right =
-			veb_get_right(veb_node, get_veb_height(this));
+			veb_get_right(veb_node, get_veb_height(*this));
 		assert(left.present && right.present);
 
 		cob_recalculate_minima(this, left.node);
@@ -197,15 +199,15 @@ static void veb_walk(const struct cob* this, uint64_t key,
 	do {
 		stack[stack_size++] = pointer;
 
-		if (veb_is_leaf(pointer, get_veb_height(this))) {
+		if (veb_is_leaf(pointer, get_veb_height(*this))) {
 			log_info("-> %" PRIu64 " is the leaf we want", pointer);
 			// This is the leaf.
 			break;
 		} else {
 			const veb_pointer left =
-				veb_get_left(pointer, get_veb_height(this));
+				veb_get_left(pointer, get_veb_height(*this));
 			const veb_pointer right =
-				veb_get_right(pointer, get_veb_height(this));
+				veb_get_right(pointer, get_veb_height(*this));
 			log_info("-> %" PRIu64 ": right min = %" PRIu64,
 					pointer, this->veb_minima[right.node]);
 
@@ -232,7 +234,13 @@ static void entirely_reset_veb(struct cob* this) {
 	cob_recalculate_minima(this, 0);
 }
 
+static void validate_key(uint64_t key) {
+	CHECK(key != COB_INFINITY, "Trying to operate on key=COB_INFINITY");
+}
+
 void cob_insert(struct cob* this, uint64_t key, uint64_t value) {
+	validate_key(key);
+
 	// TODO: make this recursive instead
 	uint64_t node_stack[50];
 	uint64_t node_stack_size = 0;
@@ -260,7 +268,9 @@ void cob_insert(struct cob* this, uint64_t key, uint64_t value) {
 	}
 }
 
-void cob_delete(struct cob* this, uint64_t key) {
+int8_t cob_delete(struct cob* this, uint64_t key) {
+	validate_key(key);
+
 	// TODO: make this recursive instead
 	uint64_t node_stack[50];
 	uint64_t node_stack_size = 0;
@@ -276,8 +286,8 @@ void cob_delete(struct cob* this, uint64_t key) {
 			leaf_index);
 	uint64_t index;
 	if (!range_find(this->file, leaf_sr, key, &index)) {
-		log_fatal("deleting nonexistant key %" PRIu64 " "
-				"(leaf index %" PRIu64 ")", key, leaf_index);
+		// Deleting nonexistant key.
+		return 1;
 	}
 	const struct ordered_file_range reorg_range = ordered_file_delete(
 			&this->file, index);
@@ -292,10 +302,13 @@ void cob_delete(struct cob* this, uint64_t key) {
 	} else {
 		entirely_reset_veb(this);
 	}
+	return 0;
 }
 
 void cob_find(const struct cob* this, uint64_t key,
 		bool *found, uint64_t *value) {
+	validate_key(key);
+
 	// TODO: make this recursive instead
 	uint64_t node_stack[50];
 	uint64_t node_stack_size = 0;
@@ -319,6 +332,8 @@ void cob_find(const struct cob* this, uint64_t key,
 
 void cob_next_key(const struct cob* this, uint64_t key,
 		bool *next_key_exists, uint64_t* next_key) {
+	validate_key(key);
+
 	// TODO: make this recursive instead
 	uint64_t node_stack[50];
 	uint64_t node_stack_size = 0;
@@ -329,7 +344,7 @@ void cob_next_key(const struct cob* this, uint64_t key,
 	struct ordered_file_range leaf = get_leaf_range(this->file, leaf_index);
 
 	// TODO: plain single FOR?
-	while (leaf_index < leaf_range_count(this)) {
+	while (leaf_index < leaf_range_count(*this)) {
 		uint64_t index;
 		if (range_find_first_gt(this->file, leaf, key, &index)) {
 			*next_key_exists = true;
@@ -345,6 +360,8 @@ void cob_next_key(const struct cob* this, uint64_t key,
 
 void cob_previous_key(const struct cob* this, uint64_t key,
 		bool *previous_key_exists, uint64_t* previous_key) {
+	validate_key(key);
+
 	// TODO: make this recursive instead
 	uint64_t node_stack[50];
 	uint64_t node_stack_size = 0;
@@ -366,4 +383,15 @@ void cob_previous_key(const struct cob* this, uint64_t key,
 	} while (leaf_index-- > 0);
 
 	*previous_key_exists = false;
+}
+
+void cob_init(struct cob* this) {
+	ordered_file_init(&this->file);
+	this->veb_minima = NULL;
+	entirely_reset_veb(this);
+}
+
+void cob_destroy(struct cob this) {
+	ordered_file_destroy(this.file);
+	free(this.veb_minima);
 }

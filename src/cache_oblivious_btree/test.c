@@ -31,7 +31,7 @@ static void __attribute__((unused)) dump_cob(struct cob cob) {
 	}
 	log_info("items={%s}", buffer);
 	offset = 0;
-	for (uint64_t i = 0; i < (1ULL << get_veb_height(&cob)) - 1; i++) {
+	for (uint64_t i = 0; i < (1ULL << get_veb_height(cob)) - 1; i++) {
 		offset += sprintf(buffer + offset, "%3" PRIu64 " ",
 				cob.veb_minima[i]);
 	}
@@ -77,7 +77,6 @@ static void __attribute__((unused)) dump_cob(struct cob cob) {
 	const uint64_t items[] = { __VA_ARGS__ }; \
 	for (uint64_t i = 0; i < sizeof(items) / sizeof(*items); i++) { \
 		const uint64_t key = items[i], value = value_for_key(items[i]); \
-		log_info("insert key=%" PRIu64 " value=%" PRIu64, key, value); \
 		cob_insert(&cob, key, value); \
 	} \
 } while (0)
@@ -85,7 +84,7 @@ static void __attribute__((unused)) dump_cob(struct cob cob) {
 #define delete_items(cob,...) do { \
 	const uint64_t items[] = { __VA_ARGS__ }; \
 	for (uint64_t i = 0; i < sizeof(items) / sizeof(*items); i++) { \
-		cob_delete(cob, items[i]); \
+		assert(cob_delete(cob, items[i]) == 0); \
 	} \
 } while (0)
 
@@ -166,7 +165,7 @@ static void test_simple_delete() {
 		NIL, 10, 20, 30,
 		40, NIL, 50, NIL);
 
-	cob_delete(&cob, 10);
+	assert(cob_delete(&cob, 10) == 0);
 
 	assert_content(&cob,
 		NIL, 20, NIL, 30,
@@ -201,7 +200,7 @@ static void test_complex_delete() {
 		100, 110, 120, 130,
 		131, 132, 140, 150);
 
-	cob_delete(&cob, 40);
+	assert(cob_delete(&cob, 40) == 0);
 	assert_content(&cob,
 		NIL, 10, NIL, 20,
 		NIL, 30, NIL, 50,

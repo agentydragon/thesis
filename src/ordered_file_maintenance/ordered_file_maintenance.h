@@ -60,8 +60,12 @@ struct ordered_file_range ordered_file_insert_first(struct ordered_file* file,
 struct ordered_file_range ordered_file_delete(struct ordered_file* file,
 		uint64_t index);
 
+void ordered_file_init(struct ordered_file* file);
+void ordered_file_destroy(struct ordered_file file);
+
 bool global_density_within_threshold(uint64_t slots_used, uint64_t capacity);
 bool density_is_within_threshold(uint64_t slots_used, uint64_t slots_available,
 		uint64_t depth, uint64_t structure_height);
+
 
 #endif
