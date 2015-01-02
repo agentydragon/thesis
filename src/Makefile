@@ -1,4 +1,4 @@
-CFLAGS=-g -std=gnu11 -W -Wall -O3 -rdynamic -lm
+CFLAGS=-std=gnu11 -W -Wall -O3 -rdynamic -lm
 CC=gcc
 
 SOURCES= \
@@ -18,10 +18,16 @@ SOURCES= \
 	util/*.c \
 	veb_layout/*.c
 
-all: bin/test bin/performance
+all: bin/test bin/test_profile bin/performance
 
 bin/test: test.c $(SOURCES)
-	$(CC) $(CFLAGS) test.c $(SOURCES) -o $@
+	$(CC) -g $(CFLAGS) test.c $(SOURCES) -o $@
+
+bin/test_profile: test.c $(SOURCES)
+	$(CC) $(CFLAGS) -pg test.c $(SOURCES) -o $@
+
+asm: test.c $(SOURCES)
+	$(CC) $(CFLAGS) -S -fverbose-asm test.c $(SOURCES)
 
 bin/performance: performance.c $(SOURCES)
 	$(CC) $(CFLAGS) performance.c $(SOURCES) -o $@
