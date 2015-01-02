@@ -7,6 +7,7 @@
 // The density of the entire structure is within [0.5;0.75].
 typedef struct {
 	uint64_t key;
+	uint64_t value;
 } ordered_file_item;
 
 struct parameters {

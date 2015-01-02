@@ -11,9 +11,11 @@ void _set_key(struct ordered_file* file, uint64_t i, uint64_t key) {
 	if (key == NIL) {
 		file->occupied[i] = false;
 		file->items[i].key = UNDEF;
+		file->items[i].value = UNDEF;
 	} else {
 		file->occupied[i] = true;
 		file->items[i].key = key;
+		file->items[i].value = value_for_key(key);
 	}
 }
 

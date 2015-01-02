@@ -25,24 +25,25 @@ static bool range_find_first_gt(
 
 static bool range_find_last_lt(
 		struct ordered_file file, struct ordered_file_range range,
-		uint64_t key, uint64_t *index) {
+		uint64_t key, uint64_t *found_index) {
 	bool found_before = false;
 	uint64_t index_before = COB_INFINITY;
 	for (uint64_t i = 0; i < range.size; i++) {
-		if (file.occupied[range.begin + i]) {
-			if (found_before && file.items[range.begin + i].key >= key) {
-				*index = index_before;
+		const uint64_t index = range.begin + i;
+		if (file.occupied[index]) {
+			if (found_before && file.items[index].key >= key) {
+				*found_index = index_before;
 				return true;
 			}
 
-			if (file.items[range.begin + i].key < key) {
+			if (file.items[index].key < key) {
 				found_before = true;
-				index_before = range.begin + i;
+				index_before = index;
 			}
 		}
 	}
 	if (found_before) {
-		*index = index_before;
+		*found_index = index_before;
 		return true;
 	} else {
 		return false;
@@ -51,12 +52,12 @@ static bool range_find_last_lt(
 
 static bool range_find(
 		struct ordered_file file, struct ordered_file_range range,
-		uint64_t key, uint64_t *index) {
+		uint64_t key, uint64_t *found_index) {
 	for (uint64_t i = 0; i < range.size; i++) {
-		if (file.occupied[range.begin + i] &&
-				file.items[range.begin + i].key == key) {
-			if (index != NULL) {
-				*index = range.begin + i;
+		const uint64_t index = range.begin + i;
+		if (file.occupied[index] && file.items[index].key == key) {
+			if (found_index != NULL) {
+				*found_index = index;
 			}
 			return true;
 		}
@@ -69,9 +70,9 @@ static uint64_t range_get_minimum(struct ordered_file file,
 	// TODO: optimize. should just be the first item!
 	uint64_t minimum = COB_INFINITY;
 	for (uint64_t i = 0; i < range.size; i++) {
-		if (file.occupied[range.begin + i] &&
-				file.items[range.begin + i].key < minimum) {
-			const uint64_t key = file.items[range.begin + i].key;
+		const uint64_t index = range.begin + i;
+		if (file.occupied[index] && file.items[index].key < minimum) {
+			const uint64_t key = file.items[index].key;
 			if (minimum > key) {
 				minimum = key;
 			}
@@ -82,18 +83,18 @@ static uint64_t range_get_minimum(struct ordered_file file,
 }
 
 static struct ordered_file_range insert_sorted_order(struct ordered_file* file,
-		struct ordered_file_range range, uint64_t key) {
+		struct ordered_file_range range, uint64_t key, uint64_t value) {
 	bool found_before = false;
 	uint64_t index_before;
 	for (uint64_t i = 0; i < range.size; i++) {
-		if (file->occupied[range.begin + i]) {
-			if (found_before &&
-					file->items[range.begin + i].key > key) {
+		const uint64_t index = range.begin + i;
+		if (file->occupied[index]) {
+			if (found_before && file->items[index].key > key) {
 				// Insert after index_before.
 				break;
 			}
 
-			if (file->items[range.begin + i].key <= key) {
+			if (file->items[index].key <= key) {
 				found_before = true;
 				index_before = i;
 			}
@@ -106,13 +107,15 @@ static struct ordered_file_range insert_sorted_order(struct ordered_file* file,
 				key, insert_after_index);
 		return ordered_file_insert_after(file,
 				(ordered_file_item) {
-					.key = key
+					.key = key,
+					.value = value
 				}, insert_after_index);
 	} else {
 		assert(range.begin == 0);
 		return ordered_file_insert_first(file,
 				(ordered_file_item) {
-					.key = key
+					.key = key,
+					.value = value
 				});
 	}
 }
@@ -229,7 +232,7 @@ static void entirely_reset_veb(struct cob* this) {
 	cob_recalculate_minima(this, 0);
 }
 
-void cob_insert(struct cob* this, uint64_t key) {
+void cob_insert(struct cob* this, uint64_t key, uint64_t value) {
 	// TODO: make this recursive instead
 	uint64_t node_stack[50];
 	uint64_t node_stack_size = 0;
@@ -243,7 +246,7 @@ void cob_insert(struct cob* this, uint64_t key) {
 	// Insert into ordered file.
 	const struct ordered_file_range reorg_range = insert_sorted_order(
 			&this->file, get_leaf_range(this->file, leaf_index),
-			key);
+			key, value);
 
 	if (parameters_equal(this->file.parameters, prior_parameters)) {
 		const uint64_t levels_up = exact_log2(
@@ -291,7 +294,8 @@ void cob_delete(struct cob* this, uint64_t key) {
 	}
 }
 
-void cob_has_key(const struct cob* this, uint64_t key, bool *found) {
+void cob_find(const struct cob* this, uint64_t key,
+		bool *found, uint64_t *value) {
 	// TODO: make this recursive instead
 	uint64_t node_stack[50];
 	uint64_t node_stack_size = 0;
@@ -299,8 +303,18 @@ void cob_has_key(const struct cob* this, uint64_t key, bool *found) {
 	// Walk down vEB layout to find where does the key belong.
 	uint64_t leaf_index;
 	veb_walk(this, key, node_stack, &node_stack_size, &leaf_index);
-	*found = range_find(this->file,
-			get_leaf_range(this->file, leaf_index), key, NULL);
+
+
+	const struct ordered_file_range leaf_range = get_leaf_range(this->file, leaf_index);
+	uint64_t index;
+	if (range_find(this->file, leaf_range, key, &index)) {
+		*found = true;
+		if (value) {
+			*value = this->file.items[index].value;
+		}
+	} else {
+		*found = false;
+	}
 }
 
 void cob_next_key(const struct cob* this, uint64_t key,

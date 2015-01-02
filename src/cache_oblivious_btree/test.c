@@ -72,10 +72,13 @@ static void __attribute__((unused)) dump_cob(struct cob cob) {
 	} \
 } while (0)
 
-#define insert_items(cob,...) do { \
+// TODO: custom value_for_key?
+#define INSERT_ITEMS(...) do { \
 	const uint64_t items[] = { __VA_ARGS__ }; \
 	for (uint64_t i = 0; i < sizeof(items) / sizeof(*items); i++) { \
-		cob_insert(cob, items[i]); \
+		const uint64_t key = items[i], value = value_for_key(items[i]); \
+		log_info("insert key=%" PRIu64 " value=%" PRIu64, key, value); \
+		cob_insert(&cob, key, value); \
 	} \
 } while (0)
 
@@ -93,8 +96,13 @@ void check_key_sequence(const struct cob* cob,
 		if (sequence[i] == NIL) continue;
 
 		bool found;
-		cob_has_key(cob, sequence[i], &found);
+		uint64_t value;
+		cob_find(cob, sequence[i], &found, &value);
 		assert(found);
+		CHECK(value == value_for_key(sequence[i]),
+				"Value for key %" PRIu64 " should be %" PRIu64
+				", but we found %" PRIu64, sequence[i],
+				value_for_key(sequence[i]), value);
 
 		for (uint64_t j = i + 1; j < count; j++) {
 			if (sequence[j] == NIL) {
@@ -226,7 +234,7 @@ static void test_simple_insert() {
 		NIL, NIL, NIL, 700,
 		NIL, NIL, 800, 900);
 
-	cob_insert(&cob, 542);
+	INSERT_ITEMS(542);
 	assert_content(&cob,
 		100, 200, 300, 400,
 		500, 542, 600, NIL,
@@ -249,7 +257,7 @@ static void test_insert_new_minimum_with_overflow() {
 		NIL, NIL, NIL, 700,
 		NIL, NIL, 800, 900);
 
-	cob_insert(&cob, 42);
+	INSERT_ITEMS(42);
 	assert_content(&cob,
 		42, 100, 200, NIL,
 		300, NIL, 400, NIL,
@@ -269,7 +277,7 @@ static void test_comprehensive_resizing() {
 	struct cob cob = { .veb_minima = veb_minima };
 	make_file(&cob.file, 4, NIL, NIL, NIL, NIL);
 
-	insert_items(&cob,
+	INSERT_ITEMS(
 		200, 300, 400, 600, 800, 100, 150, 250, 450, 900, 910, 920,
 		120, 130, 140, 170, 190, 210, 230, 270, 310, 810, 820, 990,
 		135, 137, 148, 149, 660, 670, 666, 142, 147, 550, 560, 775,
@@ -277,7 +285,7 @@ static void test_comprehensive_resizing() {
 
 	// Negative assertion against _found.
 	bool _found;
-	cob_has_key(&cob, 667, &_found);
+	cob_find(&cob, 667, &_found, NULL);
 	assert(!_found);
 
 	assert_content_low_detail(&cob,
