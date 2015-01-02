@@ -4,12 +4,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// Capacity (N) must be a power of two.
-// Leaf range size = closest_pow2_floor(floor(log2(N))).
-//
-// Each leaf range is filled from the left.
-//
 // The density of the entire structure is within [0.5;0.75].
+typedef struct {
+	uint64_t key;
+} ordered_file_item;
 
 struct parameters {
 	uint64_t capacity;
@@ -21,11 +19,9 @@ struct parameters adequate_parameters(uint64_t items);
 struct ordered_file {
 	// TODO: store as bitmap
 	bool* occupied;
-	uint64_t* keys;
+	ordered_file_item* items;
 	struct parameters parameters;
 };
-
-typedef uint64_t ordered_file_pointer;
 
 struct watched_index {
 	uint64_t index;
@@ -41,7 +37,7 @@ struct ordered_file_range {
 uint64_t leaf_block_size(uint64_t capacity);
 void range_insert_after(
 		struct ordered_file file, struct ordered_file_range range,
-		uint64_t inserted_item, uint64_t insert_after);
+		ordered_file_item inserted_item, uint64_t insert_after);
 void range_compact(
 		struct ordered_file file, struct ordered_file_range range,
 		struct watched_index watched_index);
@@ -57,9 +53,9 @@ struct ordered_file_range get_leaf_range(
 
 // Those functions return the touched range.
 struct ordered_file_range ordered_file_insert_after(struct ordered_file* file,
-		uint64_t item, uint64_t insert_after_index);
+		ordered_file_item item, uint64_t insert_after_index);
 struct ordered_file_range ordered_file_insert_first(struct ordered_file* file,
-		uint64_t item);
+		ordered_file_item item);
 struct ordered_file_range ordered_file_delete(struct ordered_file* file,
 		uint64_t index);
 

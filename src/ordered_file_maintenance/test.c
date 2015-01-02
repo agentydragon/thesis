@@ -9,27 +9,27 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define UNDEF 0xDEADBEEF
-#define NIL 0xDEADDEADDEADDEAD
+#include "test_helpers.h"
 
 static void _assert_keys(struct ordered_file file,
 		struct ordered_file_range range,
 		const uint64_t *_expected, uint64_t size) {
 	for (uint64_t i = 0; i < size; i++) {
+		const uint64_t index = range.begin + i;
 		if (_expected[i] == NIL) {
-			CHECK(!file.occupied[range.begin + i],
+			CHECK(!file.occupied[index],
 					"index %" PRIu64 " should be empty, "
 					"but is occupied by %" PRIu64,
-					i, file.keys[range.begin + i]);
+					i, file.items[index].key);
 		} else {
-			CHECK(file.occupied[range.begin + i],
+			CHECK(file.occupied[index],
 					"index %" PRIu64 " should contain "
 					"%" PRIu64 ", but it's empty",
 					i, _expected[i]);
-			CHECK(file.keys[range.begin + i] == _expected[i],
-					"key %" PRIu64 " should be %" PRIu64
+			CHECK(file.items[index].key == _expected[i],
+					"key at %" PRIu64 " should be %" PRIu64
 					", but it is %" PRIu64, i, _expected[i],
-					file.keys[range.begin + i]);
+					file.items[index].key);
 		}
 	}
 }
@@ -50,6 +50,19 @@ static void _assert_keys(struct ordered_file file,
 	_assert_keys(file, range, _expected, size); \
 } while (0)
 
+#define MAKE_FILE(...) struct ordered_file file; make_file(&file, __VA_ARGS__);
+#define INSERT_AFTER(_key,index) do { \
+	ordered_file_insert_after(&file, (ordered_file_item) { \
+		.key = _key \
+	}, index); \
+} while (0)
+#define INSERT_FIRST(_key) do { \
+	ordered_file_insert_first(&file, (ordered_file_item) { \
+		.key = _key \
+	}); \
+} while (0)
+#define ASSERT_FILE(...) assert_file(file, __VA_ARGS__)
+
 // Used for debugging.
 static void __attribute__((unused)) dump_file(struct ordered_file file) {
 	log_info("capacity=%" PRIu64 " block_size=%" PRIu64,
@@ -63,44 +76,42 @@ static void __attribute__((unused)) dump_file(struct ordered_file file) {
 		}
 		if (file.occupied[i]) {
 			offset += sprintf(buffer + offset, "%3" PRIu64 " ",
-					file.keys[i]);
+					file.items[i].key);
 		} else {
 			offset += sprintf(buffer + offset, "--- ");
 		}
 	}
-	log_info("keys={%s}", buffer);
+	log_info("items={%s}", buffer);
 }
 
 static void test_insert_simple() {
-	bool occupied[] = { true, false, false, false, false };
-	uint64_t keys[] = { 100, 0, 0, 0, 0 };
-	struct ordered_file file = {
-		.occupied = occupied,
-		.keys = keys,
-	};
+	MAKE_FILE(5,
+			100, NIL, NIL, NIL, NIL);
 	const struct ordered_file_range range = {
 		.begin = 0,
 		.size = 5
 	};
-	range_insert_after(file, range, 200, 0);
+	range_insert_after(file, range, (ordered_file_item) {
+		.key = 200
+	}, 0);
 
 	assert_keys(file, range, 100, 200, NIL, NIL, NIL);
+	destroy_file(file);
 }
 
 static void test_shift() {
-	bool occupied[] = { true, true, true, false, false };
-	uint64_t keys[] = { 100, 300, 400, 0, 0 };
-	struct ordered_file file = {
-		.occupied = occupied,
-		.keys = keys,
-	};
+	MAKE_FILE(5,
+			100, 300, 400, NIL, NIL);
 	const struct ordered_file_range range = {
 		.begin = 0,
 		.size = 5
 	};
-	range_insert_after(file, range, 200, 0);
+	range_insert_after(file, range, (ordered_file_item) {
+		.key = 200
+	}, 0);
 
 	assert_keys(file, range, 100, 200, 300, 400, NIL);
+	destroy_file(file);
 }
 
 static void test_range_insert_after() {
@@ -109,12 +120,9 @@ static void test_range_insert_after() {
 }
 
 static void test_range_compact() {
-	bool occupied[] = { true, true, false, false, false, false, false, true };
-	uint64_t keys[] = { 10, 20, 0, 0, 0, 0, 0, 30 };
-	struct ordered_file file = {
-		.occupied = occupied,
-		.keys = keys,
-	};
+	MAKE_FILE(4,
+			10, 20, NIL, NIL,
+			NIL, NIL, NIL, 30);
 	const struct ordered_file_range range = {
 		.begin = 0,
 		.size = 8
@@ -128,15 +136,13 @@ static void test_range_compact() {
 	assert(new_location == 2);
 	assert_keys(file, range, 10, 20, 30,
 			NIL, NIL, NIL, NIL);
+	destroy_file(file);
 }
 
 static void test_range_spread_evenly() {
-	bool occupied[] = { true, true, false, false, false, false, false, true };
-	uint64_t keys[] = { 10, 20, 0, 0, 0, 0, 0, 30 };
-	struct ordered_file file = {
-		.occupied = occupied,
-		.keys = keys,
-	};
+	MAKE_FILE(4,
+			10, 20, NIL, NIL,
+			NIL, NIL, NIL, 30);
 	const struct ordered_file_range range = {
 		.begin = 0,
 		.size = 8
@@ -151,38 +157,12 @@ static void test_range_spread_evenly() {
 	assert_keys(file, range,
 			NIL, NIL, 10, NIL,
 			20, NIL, NIL, 30);
-}
-
-#define COUNTOF(x) (sizeof(x) / sizeof(*(x)))
-
-#define make_file(_file,_block_size,...) do { \
-	const uint64_t _values[] = { __VA_ARGS__ }; \
-	const uint64_t _count = COUNTOF(_values); \
-	struct ordered_file* __file = (_file); \
-	__file->occupied = malloc(sizeof(bool) * _count); \
-	__file->keys = malloc(sizeof(uint64_t) * _count); \
-	__file->parameters.capacity = _count; \
-	__file->parameters.block_size = _block_size; \
-	for (uint64_t i = 0; i < _count; i++) { \
-		if (_values[i] == NIL) { \
-			__file->occupied[i] = false; \
-			__file->keys[i] = UNDEF; \
-		} else { \
-			__file->occupied[i] = true; \
-			__file->keys[i] = _values[i]; \
-		} \
-	} \
-} while (0)
-
-static void destroy_file(struct ordered_file file) {
-	free(file.occupied);
-	free(file.keys);
+	destroy_file(file);
 }
 
 static void test_insert_after_two_reorg() {
 	// This rest reorganizes 1 block.
-	struct ordered_file file;
-	make_file(&file, 4,
+	MAKE_FILE(4,
 			100, 200, 300, 400,
 			NIL, NIL, 500, 600,
 			NIL, NIL, 700, 800,
@@ -191,10 +171,9 @@ static void test_insert_after_two_reorg() {
 			NIL, NIL, NIL, NIL,
 			NIL, NIL, 1300, 1400,
 			1500, NIL, 1600, NIL);
-	ordered_file_insert_after(&file, 250, 1);
+	INSERT_AFTER(250, 1);
 
-	dump_file(file);
-	assert_file(file,
+	ASSERT_FILE(
 			// The following block is changed.
 			100, 200, 250, NIL,
 			300, 400, NIL, 500,
@@ -220,9 +199,9 @@ static void test_insert_after_very_dense() {
 			1300, 1400, 1500, 1600,
 			1700, 1800, NIL, 1900,
 			2000, 2100, 2200, 2300);
-	ordered_file_insert_after(&file, 2400, 31);
+	INSERT_AFTER(2400, 31);
 
-	assert_file(file,
+	ASSERT_FILE(
 			// The whole structure is reorged.
 			100, NIL, 200, 300,
 			NIL, 400, 500, 600,
@@ -242,39 +221,39 @@ static void test_comprehensive_resizing() {
 			400, 500, 600, NIL,
 			NIL, 700, 800, 900,
 			1000, 1100, 1200, 1300);
-	ordered_file_insert_after(&file, 1242, 14);
+	INSERT_AFTER(1242, 14);
 
 	// 14/20 = 0.7, within bounds.
 	assert(file.parameters.block_size == 5);
 	assert(file.parameters.capacity == 20);
 
-	assert_file(file,
+	ASSERT_FILE(
 			100, NIL, 200, 300, NIL,
 			400, 500, NIL, 600, 700,
 			NIL, 800, 900, NIL, 1000,
 			1100, 1200, 1242, 1300, NIL);
 
-	ordered_file_insert_after(&file, 942, 12);  // 942 after 900
-	ordered_file_insert_first(&file, 42);
-	ordered_file_insert_first(&file, 15);
+	INSERT_AFTER(942, 12);  // 942 after 900
+	INSERT_FIRST(42);
+	INSERT_FIRST(15);
 
 	// 17/24 = 0.70833.., within bounds.
 	assert(file.parameters.block_size == 6);
 	assert(file.parameters.capacity == 24);
-	assert_file(file,
+	ASSERT_FILE(
 			15, 42, 100, 200, 300, NIL,
 			400, NIL, 500, 600, NIL, 700,
 			800, NIL, 900, 942, NIL, 1000,
 			1100, NIL, 1200, 1242, NIL, 1300);
 
-	ordered_file_insert_after(&file, 17, 0);  // 17 after 15
-	ordered_file_insert_after(&file, 16, 0);  // 16 after 15
-	ordered_file_insert_after(&file, 1142, 19);  // 1142 after 1100
+	INSERT_AFTER(17, 0);  // 17 after 15
+	INSERT_AFTER(16, 0);  // 16 after 15
+	INSERT_AFTER(1142, 19);  // 1142 after 1100
 
 	// 20/32 = 0.625, within bounds.
 	assert(file.parameters.block_size == 4);
 	assert(file.parameters.capacity == 32);
-	assert_file(file,
+	ASSERT_FILE(
 			15, NIL, 16, 17,
 			NIL, 42, NIL, 100,
 			200, NIL, 300, NIL,
@@ -287,7 +266,7 @@ static void test_comprehensive_resizing() {
 	ordered_file_delete(&file, 0);  // deletes 15
 	ordered_file_delete(&file, 30);  // deletes 1300
 	ordered_file_delete(&file, 31);  // deletes 1242
-	assert_file(file,
+	ASSERT_FILE(
 			NIL, 16, NIL, 17,
 			NIL, 42, NIL, 100,
 			200, NIL, 300, NIL,
@@ -304,7 +283,7 @@ static void test_comprehensive_resizing() {
 
 	assert(file.parameters.block_size == 5);
 	assert(file.parameters.capacity == 20);
-	assert_file(file,
+	ASSERT_FILE(
 			16, NIL, 17, 42, NIL,
 			500, 600, NIL, 700, 800,
 			NIL, 900, 942, NIL, 1000,
@@ -312,7 +291,7 @@ static void test_comprehensive_resizing() {
 
 	ordered_file_delete(&file, 5);  // deletes 500
 	ordered_file_delete(&file, 6);  // deletes 600
-	assert_file(file,
+	ASSERT_FILE(
 			NIL, 16, 17, NIL, 42,
 			NIL, 700, NIL, NIL, 800,
 			NIL, 900, 942, NIL, 1000,
@@ -321,7 +300,7 @@ static void test_comprehensive_resizing() {
 	ordered_file_delete(&file, 15);  // deletes 1100
 	ordered_file_delete(&file, 19);  // deletes 1200
 	ordered_file_delete(&file, 9);  // deletes 800
-	assert_file(file,
+	ASSERT_FILE(
 			NIL, 16, NIL, NIL, 17,
 			NIL, 42, NIL, NIL, 700,
 			NIL, 900, NIL, NIL, 942,
@@ -331,21 +310,21 @@ static void test_comprehensive_resizing() {
 
 	assert(file.parameters.block_size == 5);
 	assert(file.parameters.capacity == 10);
-	assert_file(file,
+	ASSERT_FILE(
 			16, 17, NIL, 42, 700,
 			NIL, 900, 942, NIL, 1142);
 
 	ordered_file_delete(&file, 4);  // deletes 700
 	ordered_file_delete(&file, 6);  // deletes 900
 	ordered_file_delete(&file, 1);  // deletes 16
-	assert_file(file,
+	ASSERT_FILE(
 			NIL, 17, NIL, NIL, 42,
 			NIL, 942, NIL, NIL, 1142);
 
 	ordered_file_delete(&file, 1);  // deletes 17
 	assert(file.parameters.block_size == 4);
 	assert(file.parameters.capacity == 4);
-	assert_file(file, 42, 942, NIL, 1142);
+	ASSERT_FILE(42, 942, NIL, 1142);
 
 	destroy_file(file);
 }
@@ -354,37 +333,37 @@ static void test_resizing_through_trivial_cases() {
 	struct ordered_file file;
 	make_file(&file, 4,
 			NIL, NIL, NIL, NIL);
-	ordered_file_insert_first(&file, 200);
-	ordered_file_insert_after(&file, 300, 0);
-	ordered_file_insert_after(&file, 400, 1);
-	ordered_file_insert_first(&file, 100);
-	assert_file(file, 100, 200, 300, 400);
+	INSERT_FIRST(200);
+	INSERT_AFTER(300, 0);
+	INSERT_AFTER(400, 1);
+	INSERT_FIRST(100);
+	ASSERT_FILE(100, 200, 300, 400);
 
-	ordered_file_insert_after(&file, 500, 3);
+	INSERT_AFTER(500, 3);
 	assert(file.parameters.block_size == 6);
 	assert(file.parameters.capacity == 6);
-	assert_file(file, 100, 200, 300, 400, 500, NIL);
+	ASSERT_FILE(100, 200, 300, 400, 500, NIL);
 
-	ordered_file_insert_after(&file, 250, 1);
+	INSERT_AFTER(250, 1);
 	assert(file.parameters.block_size == 4);
 	assert(file.parameters.capacity == 8);
-	assert_file(file,
+	ASSERT_FILE(
 			100, 200, 250, 300,
 			NIL, 400, 500, NIL);
 
 	ordered_file_delete(&file, 6);  // delete 500
 	ordered_file_delete(&file, 7);  // delete 400
-	assert_file(file,
+	ASSERT_FILE(
 			NIL, 100, NIL, 200,
 			NIL, 250, NIL, 300);
 
 	ordered_file_delete(&file, 7);  // delete 300
 	ordered_file_delete(&file, 1);  // delete 100
 	ordered_file_delete(&file, 3);  // delete 200
-	assert_file(file, 250, NIL, NIL, NIL);
+	ASSERT_FILE(250, NIL, NIL, NIL);
 
 	ordered_file_delete(&file, 0);  // delete 250
-	assert_file(file, NIL, NIL, NIL, NIL);
+	ASSERT_FILE(NIL, NIL, NIL, NIL);
 
 	destroy_file(file);
 }

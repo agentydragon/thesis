@@ -74,7 +74,7 @@ void range_describe(struct ordered_file file,
 		}
 		if (file.occupied[range.begin + i]) {
 			buffer += sprintf(buffer, "[%2" PRIu64 "]%4" PRIu64 " ",
-					i, file.keys[range.begin + i]);
+					i, file.items[range.begin + i].key);
 		} else {
 			buffer += sprintf(buffer, "[%2" PRIu64 "]---- ", i);
 		}
@@ -89,6 +89,11 @@ static uint64_t get_leaf_depth(struct parameters parameters) {
 	return ceil_log2(parameters.capacity / parameters.block_size);
 }
 
+static void copy_item(ordered_file_item* to, ordered_file_item from) {
+	// TODO: or maybe two assignments? this should probably be optimizable.
+	memcpy(to, &from, sizeof(ordered_file_item));
+}
+
 // Shifts all elements of the range to the left.
 void range_compact(
 		struct ordered_file file, struct ordered_file_range range,
@@ -100,7 +105,7 @@ void range_compact(
 			while (file.occupied[range.begin + target]) target++;
 			const uint64_t to = range.begin + target;
 			file.occupied[to] = true;
-			file.keys[to] = file.keys[from];
+			copy_item(&file.items[to], file.items[from]);
 			if (from == watched_index.index) {
 				log_info("compact moves %" PRIu64 " to %" PRIu64,
 						watched_index.index, to);
@@ -138,7 +143,8 @@ static bool range_is_empty(struct ordered_file file,
 }
 
 void range_insert_first(struct ordered_file file,
-		struct ordered_file_range range, uint64_t inserted_item) {
+		struct ordered_file_range range,
+		ordered_file_item inserted_item) {
 	assert(!range_is_full(file, range));
 	// TODO: optimize
 	range_compact(file, range, NO_WATCH);
@@ -147,14 +153,14 @@ void range_insert_first(struct ordered_file file,
 		const uint64_t to = range.begin + occupied - i,
 				from = range.begin + occupied - i - 1;
 		file.occupied[to] = file.occupied[from];
-		file.keys[to] = file.keys[from];
+		copy_item(&file.items[to], file.items[from]);
 	}
 	file.occupied[range.begin] = true;
-	file.keys[range.begin] = inserted_item;
+	copy_item(&file.items[range.begin], inserted_item);
 }
 
 void range_insert_after(struct ordered_file file,
-		struct ordered_file_range range, uint64_t inserted_item,
+		struct ordered_file_range range, ordered_file_item inserted_item,
 		uint64_t insert_after_index) {
 	assert(!range_is_full(file, range) &&
 			!range_is_empty(file, range));
@@ -173,7 +179,7 @@ void range_insert_after(struct ordered_file file,
 				from = range.begin + copy_from;
 		log_info("%" PRIu64 " <- %" PRIu64, to, from);
 		file.occupied[to] = file.occupied[from];
-		file.keys[to] = file.keys[from];
+		copy_item(&file.items[to], file.items[from]);
 
 		if (from == insert_after_index) {
 			break;
@@ -181,7 +187,7 @@ void range_insert_after(struct ordered_file file,
 
 		CHECK(copy_from != 0, "we are trying to copy to wrong places");
 	}
-	file.keys[insert_after_index + 1] = inserted_item;
+	copy_item(&file.items[insert_after_index + 1], inserted_item);
 }
 
 static void evenly_spread_offline(struct ordered_file source_file,
@@ -199,7 +205,8 @@ static void evenly_spread_offline(struct ordered_file source_file,
 			const uint64_t target_index = round(
 					element_index * gap_size);
 			target_file.occupied[target_index] = true;
-			target_file.keys[target_index] = source_file.keys[i];
+			copy_item(&target_file.items[target_index],
+					source_file.items[i]);
 			element_index++;
 			if (i == watched_index.index) {
 				*(watched_index.new_location) = target_index;
@@ -226,7 +233,7 @@ void range_spread_evenly(struct ordered_file file,
 
 		const uint64_t from = range.begin + elements - 1 - i,
 				to = range.begin + target_index;
-		file.keys[to] = file.keys[from];
+		copy_item(&file.items[to], file.items[from]);
 		file.occupied[from] = false;
 		file.occupied[to] = true;
 		if (sublocation == from) {
@@ -289,19 +296,19 @@ static struct ordered_file_range get_leaf_range_for(struct ordered_file file,
 	return get_leaf_range(file, index / file.parameters.block_size);
 }
 
-void destroy_ordered_file(struct ordered_file file) {
+static void destroy_ordered_file(struct ordered_file file) {
 	free(file.occupied);
-	free(file.keys);
+	free(file.items);
 }
 
 static struct ordered_file new_ordered_file(struct parameters parameters) {
 	struct ordered_file file = {
 		.occupied = calloc(parameters.capacity, sizeof(bool)),
-		.keys = calloc(parameters.capacity, sizeof(uint64_t)),
+		.items = calloc(parameters.capacity, sizeof(ordered_file_item)),
 		.parameters = parameters
 	};
 	// TODO: NULL-resistance
-	assert(file.occupied && file.keys);
+	assert(file.occupied && file.items);
 	return file;
 }
 
@@ -374,7 +381,7 @@ struct ordered_file_range get_leaf_range(struct ordered_file file,
 }
 
 struct ordered_file_range ordered_file_insert_first(struct ordered_file* file,
-		uint64_t item) {
+		ordered_file_item item) {
 	struct ordered_file_range reorg_range = reorganize(file, 0, NO_WATCH);
 	struct ordered_file_range leaf = get_leaf_range_for(*file, 0);
 	CHECK(!range_is_full(*file, leaf), "reorganization didn't help");
@@ -383,7 +390,7 @@ struct ordered_file_range ordered_file_insert_first(struct ordered_file* file,
 }
 
 struct ordered_file_range ordered_file_insert_after(struct ordered_file* file,
-		uint64_t item, uint64_t insert_after_index) {
+		ordered_file_item item, uint64_t insert_after_index) {
 	struct ordered_file_range reorg_range = reorganize(file,
 			insert_after_index,
 			(struct watched_index) {

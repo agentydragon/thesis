@@ -8,8 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define UNDEF 0xBADF00D
-#define NIL 0xDEADDEADDEADDEAD
+#include "../ordered_file_maintenance/test_helpers.h"
 
 // Used for debugging.
 static void __attribute__((unused)) dump_cob(struct cob cob) {
@@ -23,13 +22,14 @@ static void __attribute__((unused)) dump_cob(struct cob cob) {
 			offset += sprintf(buffer + offset, "\n");
 		}
 		if (cob.file.occupied[i]) {
-			offset += sprintf(buffer + offset, "%3" PRIu64 " ",
-					cob.file.keys[i]);
+			offset += sprintf(buffer + offset,
+					"%3" PRIu64 " ",
+					cob.file.items[i].key);
 		} else {
 			offset += sprintf(buffer + offset, "--- ");
 		}
 	}
-	log_info("keys={%s}", buffer);
+	log_info("items={%s}", buffer);
 	offset = 0;
 	for (uint64_t i = 0; i < (1ULL << get_veb_height(&cob)) - 1; i++) {
 		offset += sprintf(buffer + offset, "%3" PRIu64 " ",
@@ -39,32 +39,6 @@ static void __attribute__((unused)) dump_cob(struct cob cob) {
 }
 
 #define COUNTOF(x) (sizeof(x) / sizeof(*(x)))
-
-#define make_file(_file,_block_size,...) do { \
-	const uint64_t _values[] = { __VA_ARGS__ }; \
-	const uint64_t _count = COUNTOF(_values); \
-	assert(is_pow2(_count)); \
-	struct ordered_file* file = (_file); \
-	file->occupied = malloc(sizeof(bool) * _count); \
-	file->keys = malloc(sizeof(uint64_t) * _count); \
-	\
-	file->parameters.capacity = _count; \
-	file->parameters.block_size = _block_size; \
-	for (uint64_t i = 0; i < _count; i++) { \
-		if (_values[i] == NIL) { \
-			file->occupied[i] = false; \
-			file->keys[i] = UNDEF; \
-		} else { \
-			file->occupied[i] = true; \
-			file->keys[i] = _values[i]; \
-		} \
-	} \
-} while (0)
-
-void destroy_file(struct ordered_file file) {
-	free(file.occupied);
-	free(file.keys);
-}
 
 #define assert_next_key(cob,key,next_key) do { \
 	bool found; \
@@ -158,12 +132,7 @@ void check_key_sequence(const struct cob* cob,
 	const uint64_t _expected[] = { __VA_ARGS__ }; \
 	const uint64_t _count = sizeof(_expected) / sizeof(*_expected); \
 	for (uint64_t i = 0; i < _count; i++) { \
-		if (_expected[i] == NIL) { \
-			assert(!_cob->file.occupied[i]); \
-		} else { \
-			assert(_cob->file.occupied[i]); \
-			assert(_cob->file.keys[i] == _expected[i]); \
-		} \
+		_assert_key(&_cob->file, i, _expected[i]); \
 	} \
 	check_key_sequence(_cob, _expected, _count); \
 } while (0)

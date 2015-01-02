@@ -42,6 +42,5 @@ void run_unit_tests() {
 
 int main(int argc, char** argv) {
 	(void) argc; (void) argv;
-
 	run_unit_tests();
 }

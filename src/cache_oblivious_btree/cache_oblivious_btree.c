@@ -15,7 +15,7 @@ static bool range_find_first_gt(
 		uint64_t key, uint64_t *index) {
 	for (uint64_t i = 0; i < range.size; i++) {
 		const uint64_t j = range.begin + i;
-		if (file.occupied[j] && file.keys[j] > key) {
+		if (file.occupied[j] && file.items[j].key > key) {
 			*index = j;
 			return true;
 		}
@@ -30,12 +30,12 @@ static bool range_find_last_lt(
 	uint64_t index_before = COB_INFINITY;
 	for (uint64_t i = 0; i < range.size; i++) {
 		if (file.occupied[range.begin + i]) {
-			if (found_before && file.keys[range.begin + i] >= key) {
+			if (found_before && file.items[range.begin + i].key >= key) {
 				*index = index_before;
 				return true;
 			}
 
-			if (file.keys[range.begin + i] < key) {
+			if (file.items[range.begin + i].key < key) {
 				found_before = true;
 				index_before = range.begin + i;
 			}
@@ -54,7 +54,7 @@ static bool range_find(
 		uint64_t key, uint64_t *index) {
 	for (uint64_t i = 0; i < range.size; i++) {
 		if (file.occupied[range.begin + i] &&
-				file.keys[range.begin + i] == key) {
+				file.items[range.begin + i].key == key) {
 			if (index != NULL) {
 				*index = range.begin + i;
 			}
@@ -70,8 +70,8 @@ static uint64_t range_get_minimum(struct ordered_file file,
 	uint64_t minimum = COB_INFINITY;
 	for (uint64_t i = 0; i < range.size; i++) {
 		if (file.occupied[range.begin + i] &&
-				file.keys[range.begin + i] < minimum) {
-			const uint64_t key = file.keys[range.begin + i];
+				file.items[range.begin + i].key < minimum) {
+			const uint64_t key = file.items[range.begin + i].key;
 			if (minimum > key) {
 				minimum = key;
 			}
@@ -82,18 +82,18 @@ static uint64_t range_get_minimum(struct ordered_file file,
 }
 
 static struct ordered_file_range insert_sorted_order(struct ordered_file* file,
-		struct ordered_file_range range, uint64_t inserted_item) {
+		struct ordered_file_range range, uint64_t key) {
 	bool found_before = false;
 	uint64_t index_before;
 	for (uint64_t i = 0; i < range.size; i++) {
 		if (file->occupied[range.begin + i]) {
 			if (found_before &&
-					file->keys[range.begin + i] > inserted_item) {
+					file->items[range.begin + i].key > key) {
 				// Insert after index_before.
 				break;
 			}
 
-			if (file->keys[range.begin + i] <= inserted_item) {
+			if (file->items[range.begin + i].key <= key) {
 				found_before = true;
 				index_before = i;
 			}
@@ -102,13 +102,18 @@ static struct ordered_file_range insert_sorted_order(struct ordered_file* file,
 
 	if (found_before) {
 		const uint64_t insert_after_index = range.begin + index_before;
-		log_info("inserting %" PRIu64 " after %" PRIu64,
-				inserted_item, insert_after_index);
+		log_info("inserting %" PRIu64 "=%" PRIu64 " after %" PRIu64,
+				key, insert_after_index);
 		return ordered_file_insert_after(file,
-				inserted_item, insert_after_index);
+				(ordered_file_item) {
+					.key = key
+				}, insert_after_index);
 	} else {
 		assert(range.begin == 0);
-		return ordered_file_insert_first(file, inserted_item);
+		return ordered_file_insert_first(file,
+				(ordered_file_item) {
+					.key = key
+				});
 	}
 }
 
@@ -237,7 +242,8 @@ void cob_insert(struct cob* this, uint64_t key) {
 
 	// Insert into ordered file.
 	const struct ordered_file_range reorg_range = insert_sorted_order(
-			&this->file, get_leaf_range(this->file, leaf_index), key);
+			&this->file, get_leaf_range(this->file, leaf_index),
+			key);
 
 	if (parameters_equal(this->file.parameters, prior_parameters)) {
 		const uint64_t levels_up = exact_log2(
@@ -313,7 +319,7 @@ void cob_next_key(const struct cob* this, uint64_t key,
 		uint64_t index;
 		if (range_find_first_gt(this->file, leaf, key, &index)) {
 			*next_key_exists = true;
-			*next_key = this->file.keys[index];
+			*next_key = this->file.items[index].key;
 			return;
 		}
 		leaf.begin += leaf.size;
@@ -339,7 +345,7 @@ void cob_previous_key(const struct cob* this, uint64_t key,
 		uint64_t index;
 		if (range_find_last_lt(this->file, leaf, key, &index)) {
 			*previous_key_exists = true;
-			*previous_key = this->file.keys[index];
+			*previous_key = this->file.items[index].key;
 			return;
 		}
 		leaf.begin -= leaf.size;
