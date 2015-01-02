@@ -64,11 +64,14 @@ void build_veb_layout(uint64_t height,
 }
 
 // Conceptually derived from build_veb_layout.
-// TODO: change tail-recursion to cycle
+// This function is easier to understand with recursion, but to get better
+// speed, we change it manually to be tail-recursive. The recursive calls
+// are commented out to allow debugging in case of trouble.
 static veb_pointer veb_get_left_internal(uint64_t node,
 		uint64_t height,
 		uint64_t node_start,
 		veb_pointer leaf_source, uint64_t leaf_stride) {
+recursive_call:
 	assert(height > 0);
 	if (height == 1) {
 		return leaf_source;
@@ -83,22 +86,30 @@ static veb_pointer veb_get_left_internal(uint64_t node,
 		const uint64_t leaves_per_bottom_block = m_exp2(bottom_height);
 
 		if (node < node_start + nodes_in_top_block) {
-			return veb_get_left_internal(node,
-					top_height, node_start,
-					(veb_pointer) {
-						.present = true,
-						.node = node_start + nodes_in_top_block
-					}, nodes_in_bottom_block);
+			//return veb_get_left_internal(node,
+			//		top_height, node_start,
+			//		(veb_pointer) {
+			//			.present = true,
+			//			.node = node_start + nodes_in_top_block
+			//		}, nodes_in_bottom_block);
+			height = top_height;
+			leaf_source.present = true;
+			leaf_source.node = node_start + nodes_in_top_block;
+			leaf_stride = nodes_in_bottom_block;
+			goto recursive_call;
 		}
 		node_start += nodes_in_top_block;
 
 		for (uint64_t bottom_block_index = 0;
 				bottom_block_index < number_of_bottom_blocks;
 				bottom_block_index++) {
-			if (node < node_start + nodes_in_bottom_block) {
-				return veb_get_left_internal(node,
-						bottom_height, node_start,
-						leaf_source, leaf_stride);
+			if (node < node_start+ nodes_in_bottom_block) {
+				//return veb_get_left_internal(node,
+				//		bottom_height, node_start,
+				//		leaf_source, leaf_stride);
+				height = bottom_height;
+				node_start = node_start;
+				goto recursive_call;
 			}
 			node_start += nodes_in_bottom_block;
 			leaf_source = veb_pointer_add(leaf_source, leaf_stride * leaves_per_bottom_block);
@@ -113,11 +124,14 @@ veb_pointer veb_get_left(uint64_t node, uint64_t height) {
 }
 
 // Conceptually derived from build_veb_layout.
-// TODO: change tail-recursion to cycle
+// This function is easier to understand with recursion, but to get better
+// speed, we change it manually to be tail-recursive. The recursive calls
+// are commented out to allow debugging in case of trouble.
 static veb_pointer veb_get_right_internal(uint64_t node,
 		uint64_t height,
 		uint64_t node_start,
 		veb_pointer leaf_source, uint64_t leaf_stride) {
+recursive_call:
 	assert(height > 0);
 	if (height == 1) {
 		return veb_pointer_add(leaf_source, leaf_stride);
@@ -132,12 +146,17 @@ static veb_pointer veb_get_right_internal(uint64_t node,
 		const uint64_t leaves_per_bottom_block = m_exp2(bottom_height);
 
 		if (node < node_start + nodes_in_top_block) {
-			return veb_get_right_internal(node,
-					top_height, node_start,
-					(veb_pointer) {
-						.present = true,
-						.node = node_start + nodes_in_top_block
-					}, nodes_in_bottom_block);
+			//return veb_get_right_internal(node,
+			//		top_height, node_start,
+			//		(veb_pointer) {
+			//			.present = true,
+			//			.node = node_start + nodes_in_top_block
+			//		}, nodes_in_bottom_block);
+			height = top_height;
+			leaf_source.present = true;
+			leaf_source.node = node_start + nodes_in_top_block;
+			leaf_stride = nodes_in_bottom_block;
+			goto recursive_call;
 		}
 		node_start += nodes_in_top_block;
 
@@ -145,9 +164,11 @@ static veb_pointer veb_get_right_internal(uint64_t node,
 				bottom_block_index < number_of_bottom_blocks;
 				bottom_block_index++) {
 			if (node < node_start + nodes_in_bottom_block) {
-				return veb_get_right_internal(node,
-						bottom_height, node_start,
-						leaf_source, leaf_stride);
+				//return veb_get_right_internal(node,
+				//		bottom_height, node_start,
+				//		leaf_source, leaf_stride);
+				height = bottom_height;
+				goto recursive_call;
 			}
 			node_start += nodes_in_bottom_block;
 			leaf_source = veb_pointer_add(leaf_source, leaf_stride * leaves_per_bottom_block);
