@@ -158,10 +158,12 @@ void cob_fix_stack(struct cob* this, uint64_t* stack, uint64_t stack_size) {
 
 void cob_recalculate_minima(struct cob* this, uint64_t veb_node) {
 	log_info("recalculating everything under %" PRIu64, veb_node);
-	if (veb_is_leaf(veb_node, get_veb_height(*this))) {
+	// Save veb_height for optimization.
+	const uint64_t veb_height = get_veb_height(*this);
+	if (veb_is_leaf(veb_node, veb_height)) {
 		const uint64_t leaf_number =
 				veb_get_leaf_index_of_leaf(veb_node,
-						get_veb_height(*this));
+						veb_height);
 		log_info("leaf_number=%" PRIu64, leaf_number);
 		const uint64_t leaf_offset = leaf_number *
 				this->file.parameters.block_size;
@@ -174,10 +176,8 @@ void cob_recalculate_minima(struct cob* this, uint64_t veb_node) {
 		log_info("%" PRIu64 " is a leaf. new minimum is %" PRIu64,
 				veb_node, this->veb_minima[veb_node]);
 	} else {
-		const veb_pointer left =
-			veb_get_left(veb_node, get_veb_height(*this));
-		const veb_pointer right =
-			veb_get_right(veb_node, get_veb_height(*this));
+		const veb_pointer left = veb_get_left(veb_node, veb_height);
+		const veb_pointer right = veb_get_right(veb_node, veb_height);
 		assert(left.present && right.present);
 
 		cob_recalculate_minima(this, left.node);
