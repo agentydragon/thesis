@@ -156,11 +156,14 @@ void cob_fix_stack(struct cob* this, uint64_t* stack, uint64_t stack_size) {
 	}
 }
 
-void cob_recalculate_minima(struct cob* this, uint64_t veb_node) {
+// levels_up is passed as an optimization.
+void cob_recalculate_minima(struct cob* this, uint64_t veb_node,
+		uint64_t levels_up) {
 	log_info("recalculating everything under %" PRIu64, veb_node);
 	// Save veb_height for optimization.
 	const uint64_t veb_height = get_veb_height(*this);
-	if (veb_is_leaf(veb_node, veb_height)) {
+	// assert(veb_is_leaf(veb_node, veb_height) == (levels_up == 0));
+	if (levels_up == 0) {
 		const uint64_t leaf_number =
 				veb_get_leaf_index_of_leaf(veb_node,
 						veb_height);
@@ -180,8 +183,8 @@ void cob_recalculate_minima(struct cob* this, uint64_t veb_node) {
 		veb_get_children(veb_node, get_veb_height(*this), &left, &right);
 		assert(left.present && right.present);
 
-		cob_recalculate_minima(this, left.node);
-		cob_recalculate_minima(this, right.node);
+		cob_recalculate_minima(this, left.node, levels_up - 1);
+		cob_recalculate_minima(this, right.node, levels_up - 1);
 
 		cob_fix_internal_node(this, veb_node);
 	}
@@ -231,7 +234,7 @@ static void entirely_reset_veb(struct cob* this) {
 	this->veb_minima = realloc(this->veb_minima,
 			this->file.parameters.capacity * sizeof(uint64_t));
 	assert(this->veb_minima);
-	cob_recalculate_minima(this, 0);
+	cob_recalculate_minima(this, 0, get_veb_height(*this) - 1);
 }
 
 static void validate_key(uint64_t key) {
@@ -261,7 +264,9 @@ void cob_insert(struct cob* this, uint64_t key, uint64_t value) {
 				reorg_range.size / this->file.parameters.block_size);
 
 		// Rebuild reorganized subtree.
-		cob_recalculate_minima(this, node_stack[node_stack_size - 1 - levels_up]);
+		cob_recalculate_minima(this,
+				node_stack[node_stack_size - 1 - levels_up],
+				levels_up);
 		cob_fix_stack(this, node_stack, node_stack_size - levels_up - 1);
 	} else {
 		entirely_reset_veb(this);
@@ -297,7 +302,9 @@ int8_t cob_delete(struct cob* this, uint64_t key) {
 		log_info("levels_up=%" PRIu64);
 
 		// Rebuild reorganized subtree.
-		cob_recalculate_minima(this, node_stack[node_stack_size - 1 - levels_up]);
+		cob_recalculate_minima(this,
+				node_stack[node_stack_size - 1 - levels_up],
+				levels_up);
 		cob_fix_stack(this, node_stack, node_stack_size - levels_up - 1);
 	} else {
 		entirely_reset_veb(this);
