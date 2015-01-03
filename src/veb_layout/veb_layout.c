@@ -62,8 +62,7 @@ void build_veb_layout(uint64_t height,
 
 // Conceptually derived from build_veb_layout.
 // This function is easier to understand with recursion, but to get better
-// speed, we change it manually to be tail-recursive. The recursive calls
-// are commented out to allow debugging in case of trouble.
+// speed, we change it manually to be tail-recursive.
 static veb_pointer veb_get_left_internal(uint64_t node,
 		uint64_t height,
 		uint64_t node_start,
@@ -83,12 +82,6 @@ recursive_call:
 		const uint64_t leaves_per_bottom_block = m_exp2(bottom_height);
 
 		if (node < node_start + nodes_in_top_block) {
-			//return veb_get_left_internal(node,
-			//		top_height, node_start,
-			//		(veb_pointer) {
-			//			.present = true,
-			//			.node = node_start + nodes_in_top_block
-			//		}, nodes_in_bottom_block);
 			height = top_height;
 			leaf_source.present = true;
 			leaf_source.node = node_start + nodes_in_top_block;
@@ -97,21 +90,14 @@ recursive_call:
 		}
 		node_start += nodes_in_top_block;
 
-		for (uint64_t bottom_block_index = 0;
-				bottom_block_index < number_of_bottom_blocks;
-				bottom_block_index++) {
-			if (node < node_start+ nodes_in_bottom_block) {
-				//return veb_get_left_internal(node,
-				//		bottom_height, node_start,
-				//		leaf_source, leaf_stride);
-				height = bottom_height;
-				node_start = node_start;
-				goto recursive_call;
-			}
-			node_start += nodes_in_bottom_block;
-			leaf_source = veb_pointer_add(leaf_source, leaf_stride * leaves_per_bottom_block);
-		}
-		log_fatal("fail");
+		const uint64_t bottom_block_index =
+				(node - node_start) / nodes_in_bottom_block;
+		assert(bottom_block_index < number_of_bottom_blocks);
+		height = bottom_height;
+		node_start += nodes_in_bottom_block * bottom_block_index;
+		leaf_source = veb_pointer_add(leaf_source,
+				leaf_stride * leaves_per_bottom_block * bottom_block_index);
+		goto recursive_call;
 	}
 }
 
@@ -122,8 +108,7 @@ veb_pointer veb_get_left(uint64_t node, uint64_t height) {
 
 // Conceptually derived from build_veb_layout.
 // This function is easier to understand with recursion, but to get better
-// speed, we change it manually to be tail-recursive. The recursive calls
-// are commented out to allow debugging in case of trouble.
+// speed, we change it manually to be tail-recursive.
 static veb_pointer veb_get_right_internal(uint64_t node,
 		uint64_t height,
 		uint64_t node_start,
@@ -143,12 +128,6 @@ recursive_call:
 		const uint64_t leaves_per_bottom_block = m_exp2(bottom_height);
 
 		if (node < node_start + nodes_in_top_block) {
-			//return veb_get_right_internal(node,
-			//		top_height, node_start,
-			//		(veb_pointer) {
-			//			.present = true,
-			//			.node = node_start + nodes_in_top_block
-			//		}, nodes_in_bottom_block);
 			height = top_height;
 			leaf_source.present = true;
 			leaf_source.node = node_start + nodes_in_top_block;
@@ -157,21 +136,14 @@ recursive_call:
 		}
 		node_start += nodes_in_top_block;
 
-		// TODO: Optimize away this loop.
-		for (uint64_t bottom_block_index = 0;
-				bottom_block_index < number_of_bottom_blocks;
-				bottom_block_index++) {
-			if (node < node_start + nodes_in_bottom_block) {
-				//return veb_get_right_internal(node,
-				//		bottom_height, node_start,
-				//		leaf_source, leaf_stride);
-				height = bottom_height;
-				goto recursive_call;
-			}
-			node_start += nodes_in_bottom_block;
-			leaf_source = veb_pointer_add(leaf_source, leaf_stride * leaves_per_bottom_block);
-		}
-		log_fatal("fail");
+		const uint64_t bottom_block_index =
+				(node - node_start) / nodes_in_bottom_block;
+		assert(bottom_block_index < number_of_bottom_blocks);
+		height = bottom_height;
+		node_start += nodes_in_bottom_block * bottom_block_index;
+		leaf_source = veb_pointer_add(leaf_source,
+				leaf_stride * leaves_per_bottom_block * bottom_block_index);
+		goto recursive_call;
 	}
 }
 
