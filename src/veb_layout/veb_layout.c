@@ -162,10 +162,12 @@ uint64_t veb_get_leaf_number(uint64_t leaf_index, uint64_t height) {
 
 // Conceptually derived from build_veb_layout
 uint64_t veb_get_leaf_index_of_leaf(uint64_t node, uint64_t height) {
+	uint64_t offset = 0;
+recursive_call:
 	assert(height > 0);
 	if (height == 1) {
 		assert(node == 0);
-		return 0;
+		return offset;
 	} else {
 		uint64_t bottom_height, top_height;
 		split_height(height, &bottom_height, &top_height);
@@ -180,7 +182,9 @@ uint64_t veb_get_leaf_index_of_leaf(uint64_t node, uint64_t height) {
 		const uint64_t bottom_block_index = (node - nodes_in_top_block) / nodes_in_bottom_block;
 		const uint64_t bottom_block_node = (node - nodes_in_top_block) % nodes_in_bottom_block;
 
-		return bottom_block_index * m_exp2(bottom_height - 1) +
-				veb_get_leaf_index_of_leaf(bottom_block_node, bottom_height);
+		offset += bottom_block_index * m_exp2(bottom_height - 1);
+		node = bottom_block_node;
+		height = bottom_height;
+		goto recursive_call;
 	}
 }
