@@ -9,11 +9,6 @@ static uint64_t m_exp2(uint64_t x) {
 	return 1ULL << x;
 }
 
-bool is_pow2(uint64_t x) {
-	// TODO: optimize
-	return m_exp2(floor_log2(x)) == x;
-}
-
 uint8_t ceil_log2(uint64_t x) {
 	// TODO: optimize
 	if (x == 0) return 0;

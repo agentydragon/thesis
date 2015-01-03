@@ -4,7 +4,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-bool is_pow2(uint64_t x);
+#define CLZ64(x) (__builtin_clzll(x))
+#define CTZ64(x) (__builtin_ctzll(x))
+#define is_pow2(x) (sizeof(uint64_t) * 8 - 1 == CLZ64(x) + CTZ64(x))
+
 uint8_t ceil_log2(uint64_t x);
 uint8_t floor_log2(uint64_t x);
 uint8_t exact_log2(uint64_t x);
