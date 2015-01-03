@@ -220,6 +220,13 @@ static void evenly_spread_offline(struct ordered_file source_file,
 void range_spread_evenly(struct ordered_file file,
 		struct ordered_file_range range,
 		struct watched_index watched_index) {
+	if (range.size == file.parameters.block_size) {
+		// Singular blocks are "automatically evenly spread".
+		if (watched_index.new_location) {
+			*(watched_index.new_location) = watched_index.index;
+		}
+		return;
+	}
 	uint64_t sublocation = INVALID_INDEX;
 	range_compact(file, range, (struct watched_index) {
 		.index = watched_index.index,

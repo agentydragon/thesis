@@ -61,6 +61,7 @@ static void _assert_keys(struct ordered_file file,
 		.key = _key \
 	}); \
 } while (0)
+#define DELETE_AT(index) ordered_file_delete(&file, index)
 #define ASSERT_FILE(...) assert_file(file, __VA_ARGS__)
 
 // Used for debugging.
@@ -263,11 +264,11 @@ static void test_comprehensive_resizing() {
 			1000, 1100, 1142, 1200,
 			NIL, 1242, 1300, NIL);
 
-	ordered_file_delete(&file, 0);  // deletes 15
-	ordered_file_delete(&file, 30);  // deletes 1300
-	ordered_file_delete(&file, 31);  // deletes 1242
+	DELETE_AT(0);  // deletes 15
+	DELETE_AT(30);  // deletes 1300
+	DELETE_AT(29);  // deletes 1242
 	ASSERT_FILE(
-			NIL, 16, NIL, 17,
+			NIL, NIL, 16, 17,
 			NIL, 42, NIL, 100,
 			200, NIL, 300, NIL,
 			400, 500, NIL, 600,
@@ -276,10 +277,10 @@ static void test_comprehensive_resizing() {
 			/* touched => */ NIL, 1000, NIL, 1100,
 			/* touched => */ NIL, 1142, NIL, 1200);
 
-	ordered_file_delete(&file, 7);  // deletes 100
-	ordered_file_delete(&file, 8);  // deletes 200
-	ordered_file_delete(&file, 11);  // deletes 300
-	ordered_file_delete(&file, 10);  // deletes 400
+	DELETE_AT(7);  // deletes 100
+	DELETE_AT(8);  // deletes 200
+	DELETE_AT(10);  // deletes 300
+	DELETE_AT(10);  // deletes 400
 
 	assert(file.parameters.block_size == 5);
 	assert(file.parameters.capacity == 20);
@@ -289,24 +290,24 @@ static void test_comprehensive_resizing() {
 			NIL, 900, 942, NIL, 1000,
 			1100, NIL, 1142, 1200, NIL);
 
-	ordered_file_delete(&file, 5);  // deletes 500
-	ordered_file_delete(&file, 6);  // deletes 600
+	DELETE_AT(5);  // deletes 500
+	DELETE_AT(6);  // deletes 600
 	ASSERT_FILE(
 			NIL, 16, 17, NIL, 42,
 			NIL, 700, NIL, NIL, 800,
 			NIL, 900, 942, NIL, 1000,
 			1100, NIL, 1142, 1200, NIL);
 
-	ordered_file_delete(&file, 15);  // deletes 1100
-	ordered_file_delete(&file, 19);  // deletes 1200
-	ordered_file_delete(&file, 9);  // deletes 800
+	DELETE_AT(15);  // deletes 1100
+	DELETE_AT(18);  // deletes 1200
+	DELETE_AT(9);  // deletes 800
 	ASSERT_FILE(
 			NIL, 16, NIL, NIL, 17,
 			NIL, 42, NIL, NIL, 700,
 			NIL, 900, NIL, NIL, 942,
 			NIL, 1000, NIL, NIL, 1142);
 
-	ordered_file_delete(&file, 16);  // deletes 1000
+	DELETE_AT(16);  // deletes 1000
 
 	assert(file.parameters.block_size == 5);
 	assert(file.parameters.capacity == 10);
@@ -314,14 +315,14 @@ static void test_comprehensive_resizing() {
 			16, 17, NIL, 42, 700,
 			NIL, 900, 942, NIL, 1142);
 
-	ordered_file_delete(&file, 4);  // deletes 700
-	ordered_file_delete(&file, 6);  // deletes 900
-	ordered_file_delete(&file, 1);  // deletes 16
+	DELETE_AT(4);  // deletes 700
+	DELETE_AT(6);  // deletes 900
+	DELETE_AT(1);  // deletes 16
 	ASSERT_FILE(
-			NIL, 17, NIL, NIL, 42,
-			NIL, 942, NIL, NIL, 1142);
+			NIL, NIL, 17, NIL, 42,
+			NIL, NIL, 942, NIL, 1142);
 
-	ordered_file_delete(&file, 1);  // deletes 17
+	DELETE_AT(2);  // deletes 17
 	assert(file.parameters.block_size == 4);
 	assert(file.parameters.capacity == 4);
 	ASSERT_FILE(42, 942, NIL, 1142);
@@ -351,18 +352,18 @@ static void test_resizing_through_trivial_cases() {
 			100, 200, 250, 300,
 			NIL, 400, 500, NIL);
 
-	ordered_file_delete(&file, 6);  // delete 500
-	ordered_file_delete(&file, 7);  // delete 400
+	DELETE_AT(6);  // delete 500
+	DELETE_AT(5);  // delete 400
 	ASSERT_FILE(
 			NIL, 100, NIL, 200,
 			NIL, 250, NIL, 300);
 
-	ordered_file_delete(&file, 7);  // delete 300
-	ordered_file_delete(&file, 1);  // delete 100
-	ordered_file_delete(&file, 3);  // delete 200
+	DELETE_AT(7);  // delete 300
+	DELETE_AT(1);  // delete 100
+	DELETE_AT(3);  // delete 200
 	ASSERT_FILE(250, NIL, NIL, NIL);
 
-	ordered_file_delete(&file, 0);  // delete 250
+	DELETE_AT(0);  // delete 250
 	ASSERT_FILE(NIL, NIL, NIL, NIL);
 
 	destroy_file(file);
