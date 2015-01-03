@@ -5,10 +5,6 @@
 
 #define CLZ64(x) (__builtin_clzll(x))
 
-static uint64_t m_exp2(uint64_t x) {
-	return 1ULL << x;
-}
-
 uint8_t ceil_log2(uint64_t x) {
 	// TODO: optimize
 	if (x == 0) return 0;
@@ -18,17 +14,8 @@ uint8_t ceil_log2(uint64_t x) {
 	return l;
 }
 
-uint8_t floor_log2(uint64_t x) {
-	// TODO: optimize;
-	if (x == 0) return 0;
-	uint64_t pow, exp;
-	for (pow = 1, exp = 0; pow <= x; pow *= 2, ++exp);
-	return exp - 1;
-}
-
 uint64_t hyperfloor(uint64_t x) {
-	// return m_exp2(floor_log2(x));
-	return 1ULL << (sizeof(uint64_t) * 8 - 1 - CLZ64(x));
+	return 1ULL << floor_log2(x);
 }
 
 uint64_t ceil_div(uint64_t a, uint64_t b) {
