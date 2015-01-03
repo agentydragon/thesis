@@ -175,31 +175,17 @@ recursive_call:
 			m_exp2(bottom_height) - 1;
 
 		if (node < node_start + nodes_in_top_block) {
-			//return veb_get_right_internal(node,
-			//		top_height, node_start,
-			//		(veb_pointer) {
-			//			.present = true,
-			//			.node = node_start + nodes_in_top_block
-			//		}, nodes_in_bottom_block);
 			height = top_height;
 			return false;
 		}
 		node_start += nodes_in_top_block;
 
 		// TODO: Optimize away this loop.
-		for (uint64_t bottom_block_index = 0;
-				bottom_block_index < number_of_bottom_blocks;
-				bottom_block_index++) {
-			if (node < node_start + nodes_in_bottom_block) {
-				//return veb_get_right_internal(node,
-				//		bottom_height, node_start,
-				//		leaf_source, leaf_stride);
-				height = bottom_height;
-				goto recursive_call;
-			}
-			node_start += nodes_in_bottom_block;
-		}
-		log_fatal("fail");
+		const uint64_t bottom_block_index = (node - node_start) / nodes_in_bottom_block;
+		assert(bottom_block_index < number_of_bottom_blocks);
+		node_start += nodes_in_bottom_block * bottom_block_index;
+		height = bottom_height;
+		goto recursive_call;
 	}
 }
 
