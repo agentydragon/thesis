@@ -44,20 +44,9 @@ static void set_node(void* _veb_buffer, uint64_t node,
 #define check(index,left_n,right_n) do { \
 	const persisted_node node = NODE_POOL[index]; \
 	assert(node.left == left_n && node.right == right_n); \
-	const veb_pointer left_found = veb_get_left(index, HEIGHT); \
-	const uint64_t left_fn = veb_pointer_to_id(left_found); \
-	if (left_fn != left_n) { \
-		log_fatal("height %" PRIu64 " node %" PRIu64 " should " \
-				"have left %" PRIu64 ", has %" PRIu64, \
-				HEIGHT, index, left_n, left_fn); \
-	} \
-	const veb_pointer right_found = veb_get_right(index, HEIGHT); \
-	const uint64_t right_fn = veb_pointer_to_id(right_found); \
-	if (right_fn != right_n) { \
-		log_fatal("height %" PRIu64 " node %" PRIu64 " should " \
-				"have right %" PRIu64 ", has %" PRIu64, \
-				HEIGHT, index, right_n, right_fn); \
-	} \
+	veb_pointer lx, rx; \
+	veb_get_children(index, HEIGHT, &lx, &rx); \
+	assert(veb_pointer_to_id(lx) == left_n && veb_pointer_to_id(rx) == right_n); \
 } while (0)
 
 static void build_with_height(uint64_t height) {

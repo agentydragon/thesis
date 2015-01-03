@@ -63,14 +63,19 @@ void build_veb_layout(uint64_t height,
 // Conceptually derived from build_veb_layout.
 // This function is easier to understand with recursion, but to get better
 // speed, we change it manually to be tail-recursive.
-static veb_pointer veb_get_left_internal(uint64_t node,
-		uint64_t height,
-		uint64_t node_start,
-		veb_pointer leaf_source, uint64_t leaf_stride) {
+void veb_get_children(uint64_t node, uint64_t height,
+		veb_pointer* left, veb_pointer* right) {
+	uint64_t node_start = 0;
+	veb_pointer leaf_source = (veb_pointer) {
+		.present = false,
+		.node = 0
+	};
+	uint64_t leaf_stride = 0;
 recursive_call:
 	assert(height > 0);
 	if (height == 1) {
-		return leaf_source;
+		*left = leaf_source;
+		*right = veb_pointer_add(leaf_source, leaf_stride);
 	} else {
 		uint64_t bottom_height, top_height;
 		split_height(height, &bottom_height, &top_height);
@@ -101,64 +106,6 @@ recursive_call:
 	}
 }
 
-veb_pointer veb_get_left(uint64_t node, uint64_t height) {
-	return veb_get_left_internal(node, height,
-			0, (veb_pointer) { .present = false, .node = 0 }, 0);
-}
-
-// Conceptually derived from build_veb_layout.
-// This function is easier to understand with recursion, but to get better
-// speed, we change it manually to be tail-recursive.
-static veb_pointer veb_get_right_internal(uint64_t node,
-		uint64_t height,
-		uint64_t node_start,
-		veb_pointer leaf_source, uint64_t leaf_stride) {
-recursive_call:
-	assert(height > 0);
-	if (height == 1) {
-		return veb_pointer_add(leaf_source, leaf_stride);
-	} else {
-		uint64_t bottom_height, top_height;
-		split_height(height, &bottom_height, &top_height);
-
-		const uint64_t nodes_in_top_block = m_exp2(top_height) - 1;
-		const uint64_t number_of_bottom_blocks = m_exp2(top_height);
-		const uint64_t nodes_in_bottom_block =
-			m_exp2(bottom_height) - 1;
-		const uint64_t leaves_per_bottom_block = m_exp2(bottom_height);
-
-		if (node < node_start + nodes_in_top_block) {
-			height = top_height;
-			leaf_source.present = true;
-			leaf_source.node = node_start + nodes_in_top_block;
-			leaf_stride = nodes_in_bottom_block;
-			goto recursive_call;
-		}
-		node_start += nodes_in_top_block;
-
-		const uint64_t bottom_block_index =
-				(node - node_start) / nodes_in_bottom_block;
-		assert(bottom_block_index < number_of_bottom_blocks);
-		height = bottom_height;
-		node_start += nodes_in_bottom_block * bottom_block_index;
-		leaf_source = veb_pointer_add(leaf_source,
-				leaf_stride * leaves_per_bottom_block * bottom_block_index);
-		goto recursive_call;
-	}
-}
-
-veb_pointer veb_get_right(uint64_t node, uint64_t height) {
-	return veb_get_right_internal(node, height,
-			0, (veb_pointer) { .present = false, .node = 0 }, 0);
-}
-
-// The following method is derived from this original definition:
-//         bool veb_is_leaf(uint64_t node, uint64_t height) {
-//                 const veb_pointer left = veb_get_left(node, height),
-//                                    right = veb_get_right(node, height);
-//                 assert(left.present == right.present);
-//                 return !left.present;
-//         }
 bool veb_is_leaf(uint64_t node, uint64_t height) {
 	uint64_t node_start = 0;
 recursive_call:
@@ -200,10 +147,12 @@ uint64_t veb_get_leaf_number(uint64_t leaf_index, uint64_t height) {
 	uint64_t x = leaf_index;
 	uint64_t ptr = 0;  // root
 	while (!veb_is_leaf(ptr, height)) {
+		veb_pointer left, right;
+		veb_get_children(ptr, height, &left, &right);
 		if (x / power == 0) {
-			ptr = must_have(veb_get_left(ptr, height));
+			ptr = must_have(left);
 		} else {
-			ptr = must_have(veb_get_right(ptr, height));
+			ptr = must_have(right);
 		}
 		x %= power;
 		power /= 2;

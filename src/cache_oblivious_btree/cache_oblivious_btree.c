@@ -133,8 +133,8 @@ uint64_t get_veb_height(struct cob this) {
 }
 
 void cob_fix_internal_node(struct cob* this, uint64_t veb_node) {
-	const veb_pointer left = veb_get_left(veb_node, get_veb_height(*this));
-	const veb_pointer right = veb_get_right(veb_node, get_veb_height(*this));
+	veb_pointer left, right;
+	veb_get_children(veb_node, get_veb_height(*this), &left, &right);
 	assert(left.present && right.present);
 
 	log_info("below %" PRIu64 ": [%" PRIu64 "]=%" PRIu64 ", "
@@ -176,8 +176,8 @@ void cob_recalculate_minima(struct cob* this, uint64_t veb_node) {
 		log_info("%" PRIu64 " is a leaf. new minimum is %" PRIu64,
 				veb_node, this->veb_minima[veb_node]);
 	} else {
-		const veb_pointer left = veb_get_left(veb_node, veb_height);
-		const veb_pointer right = veb_get_right(veb_node, veb_height);
+		veb_pointer left, right;
+		veb_get_children(veb_node, get_veb_height(*this), &left, &right);
 		assert(left.present && right.present);
 
 		cob_recalculate_minima(this, left.node);
@@ -204,12 +204,12 @@ static void veb_walk(const struct cob* this, uint64_t key,
 			// This is the leaf.
 			break;
 		} else {
-			const veb_pointer left =
-				veb_get_left(pointer, get_veb_height(*this));
-			const veb_pointer right =
-				veb_get_right(pointer, get_veb_height(*this));
+			veb_pointer left, right;
+			veb_get_children(pointer, get_veb_height(*this),
+					&left, &right);
 			log_info("-> %" PRIu64 ": right min = %" PRIu64,
 					pointer, this->veb_minima[right.node]);
+			CHECK(left.present && right.present, "unexpected leaf");
 
 			if (key >= this->veb_minima[right.node]) {
 				// We want to go right.
