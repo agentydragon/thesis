@@ -106,36 +106,6 @@ recursive_call:
 	}
 }
 
-bool veb_is_leaf(uint64_t node, uint64_t height) {
-	uint64_t node_start = 0;
-recursive_call:
-	assert(height > 0);
-	if (height == 1) {
-		return true;
-	} else {
-		uint64_t bottom_height, top_height;
-		split_height(height, &bottom_height, &top_height);
-
-		const uint64_t nodes_in_top_block = m_exp2(top_height) - 1;
-		const uint64_t number_of_bottom_blocks = m_exp2(top_height);
-		const uint64_t nodes_in_bottom_block =
-			m_exp2(bottom_height) - 1;
-
-		if (node < node_start + nodes_in_top_block) {
-			height = top_height;
-			return false;
-		}
-		node_start += nodes_in_top_block;
-
-		// TODO: Optimize away this loop.
-		const uint64_t bottom_block_index = (node - node_start) / nodes_in_bottom_block;
-		assert(bottom_block_index < number_of_bottom_blocks);
-		node_start += nodes_in_bottom_block * bottom_block_index;
-		height = bottom_height;
-		goto recursive_call;
-	}
-}
-
 static uint64_t must_have(veb_pointer ptr) {
 	assert(ptr.present);
 	return ptr.node;
@@ -146,9 +116,14 @@ uint64_t veb_get_leaf_number(uint64_t leaf_index, uint64_t height) {
 	uint64_t power = m_exp2(height - 2);
 	uint64_t x = leaf_index;
 	uint64_t ptr = 0;  // root
-	while (!veb_is_leaf(ptr, height)) {
+	while (true) {
 		veb_pointer left, right;
 		veb_get_children(ptr, height, &left, &right);
+		assert(left.present == right.present);
+		if (!left.present) {
+			// Arrived at leaf.
+			return ptr;
+		}
 		if (x / power == 0) {
 			ptr = must_have(left);
 		} else {
@@ -157,7 +132,6 @@ uint64_t veb_get_leaf_number(uint64_t leaf_index, uint64_t height) {
 		x %= power;
 		power /= 2;
 	}
-	return ptr;
 }
 
 // Conceptually derived from build_veb_layout

@@ -160,7 +160,17 @@ void cob_recalculate_minima(struct cob* this, uint64_t veb_node) {
 	log_info("recalculating everything under %" PRIu64, veb_node);
 	// Save veb_height for optimization.
 	const uint64_t veb_height = get_veb_height(*this);
-	if (veb_is_leaf(veb_node, veb_height)) {
+	veb_pointer left, right;
+	veb_get_children(veb_node, get_veb_height(*this), &left, &right);
+	assert(left.present == right.present);
+
+	if (left.present) {
+		cob_recalculate_minima(this, left.node);
+		cob_recalculate_minima(this, right.node);
+
+		cob_fix_internal_node(this, veb_node);
+	} else {
+		// It's a leaf.
 		const uint64_t leaf_number =
 				veb_get_leaf_index_of_leaf(veb_node,
 						veb_height);
@@ -175,15 +185,6 @@ void cob_recalculate_minima(struct cob* this, uint64_t veb_node) {
 				});
 		log_info("%" PRIu64 " is a leaf. new minimum is %" PRIu64,
 				veb_node, this->veb_minima[veb_node]);
-	} else {
-		veb_pointer left, right;
-		veb_get_children(veb_node, get_veb_height(*this), &left, &right);
-		assert(left.present && right.present);
-
-		cob_recalculate_minima(this, left.node);
-		cob_recalculate_minima(this, right.node);
-
-		cob_fix_internal_node(this, veb_node);
 	}
 }
 
@@ -199,14 +200,12 @@ static void veb_walk(const struct cob* this, uint64_t key,
 	do {
 		stack[stack_size++] = pointer;
 
-		if (veb_is_leaf(pointer, get_veb_height(*this))) {
-			log_info("-> %" PRIu64 " is the leaf we want", pointer);
-			// This is the leaf.
-			break;
-		} else {
-			veb_pointer left, right;
-			veb_get_children(pointer, get_veb_height(*this),
-					&left, &right);
+		veb_pointer left, right;
+		veb_get_children(pointer, get_veb_height(*this),
+				&left, &right);
+		assert(left.present == right.present);
+		if (left.present) {
+			// It's an internal node.
 			log_info("-> %" PRIu64 ": right min = %" PRIu64,
 					pointer, this->veb_minima[right.node]);
 			CHECK(left.present && right.present, "unexpected leaf");
@@ -220,6 +219,10 @@ static void veb_walk(const struct cob* this, uint64_t key,
 				pointer = left.node;
 				leaf_index = leaf_index << 1;
 			}
+		} else {
+			// Found the leaf.
+			log_info("-> %" PRIu64 " is the leaf we want", pointer);
+			break;
 		}
 	} while (true);
 

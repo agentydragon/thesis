@@ -16,7 +16,6 @@ void build_veb_layout(uint64_t height,
 		void* set_node_opaque,
 		veb_pointer leaf_source, uint64_t leaf_stride);
 
-bool veb_is_leaf(uint64_t node, uint64_t height);
 void veb_get_children(uint64_t node, uint64_t height,
 		veb_pointer* left, veb_pointer* right);
 
