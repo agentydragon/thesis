@@ -2,8 +2,9 @@
 #include "test_hash_large.h"
 #include "../log/log.h"
 
-#include <stdlib.h>
+#include <assert.h>
 #include <inttypes.h> // PRIu64
+#include <stdlib.h>
 
 // sizeof(struct bucket) == 32 => ~ 500 000 000 === ~14 GB pameti
 
@@ -32,8 +33,9 @@ void test_hash_large(const hash_api* api, uint64_t N) {
 		if (i % 100000 == 0) log_info("%" PRIu64, i);
 		const uint64_t key = make_key(i), value = make_value(i);
 		// log_info("%" PRIu64 " => %" PRIu64, key, value);
-		if (hash_insert(table, key, value))
+		if (hash_insert(table, key, value)) {
 			log_fatal("cannot insert");
+		}
 	}
 
 	hash_destroy(&table);
