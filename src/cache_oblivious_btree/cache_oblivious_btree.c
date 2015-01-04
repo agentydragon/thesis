@@ -128,7 +128,7 @@ uint64_t get_veb_height(struct cob this) {
 	return exact_log2(leaf_range_count(this)) + 1;
 }
 
-void cob_fix_internal_node(struct cob* this, uint64_t veb_node) {
+static void cob_fix_internal_node(struct cob* this, uint64_t veb_node) {
 	veb_pointer left, right;
 	veb_get_children(veb_node, get_veb_height(*this), &left, &right);
 	assert(left.present && right.present);
@@ -143,7 +143,8 @@ void cob_fix_internal_node(struct cob* this, uint64_t veb_node) {
 	this->veb_minima[veb_node] = (a < b) ? a : b;
 }
 
-void cob_fix_stack(struct cob* this, uint64_t* stack, uint64_t stack_size) {
+static void cob_fix_stack(struct cob* this,
+		uint64_t* stack, uint64_t stack_size) {
 	log_info("fixing stack of size %" PRIu64, stack_size);
 	for (uint64_t i = 0; i < stack_size; i++) {
 		const uint64_t node = stack[stack_size - 1 - i];
@@ -192,14 +193,14 @@ static void veb_walk(const struct cob* this, uint64_t key,
 	log_info("veb_walking to key %" PRIu64, key);
 	uint64_t stack_size = 0;
 
+	const uint64_t veb_height = get_veb_height(*this);
 	// Walk down vEB layout to find where does the key belong.
 	uint64_t pointer = 0;  // 0 == van Emde Boas root node
 	uint64_t leaf_index = 0;
 	do {
 		stack[stack_size++] = pointer;
 
-		const uint64_t veb_height = get_veb_height(*this);
-		if (veb_is_leaf(pointer, veb_height)) {
+		if (stack_size == veb_height) {
 			log_info("-> %" PRIu64 " is the leaf we want", pointer);
 			// This is the leaf.
 			break;
@@ -295,7 +296,6 @@ int8_t cob_delete(struct cob* this, uint64_t key) {
 	if (parameters_equal(this->file.parameters, prior_parameters)) {
 		const uint64_t levels_up = exact_log2(
 				reorg_range.size / this->file.parameters.block_size);
-		log_info("levels_up=%" PRIu64);
 
 		// Rebuild reorganized subtree.
 		cob_recalculate_minima(this,
@@ -319,7 +319,6 @@ void cob_find(const struct cob* this, uint64_t key,
 	// Walk down vEB layout to find where does the key belong.
 	uint64_t leaf_index;
 	veb_walk(this, key, node_stack, &node_stack_size, &leaf_index);
-
 
 	const struct ordered_file_range leaf_range = get_leaf_range(this->file, leaf_index);
 	uint64_t index;
