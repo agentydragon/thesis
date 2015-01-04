@@ -69,19 +69,15 @@ static bool range_find(
 
 static uint64_t range_get_minimum(struct ordered_file file,
 		struct ordered_file_range range) {
-	// TODO: optimize. should just be the first item!
-	uint64_t minimum = COB_INFINITY;
+	// Since items are stored in ascending order, the first present item
+	// is the minimum.
 	for (uint64_t i = 0; i < range.size; i++) {
 		const uint64_t index = range.begin + i;
-		if (file.occupied[index] && file.items[index].key < minimum) {
-			const uint64_t key = file.items[index].key;
-			if (minimum > key) {
-				minimum = key;
-			}
-			assert(minimum < COB_INFINITY);  // sanity check
+		if (file.occupied[index]) {
+			return file.items[index].key;
 		}
 	}
-	return minimum;
+	return COB_INFINITY;
 }
 
 static struct ordered_file_range insert_sorted_order(struct ordered_file* file,
