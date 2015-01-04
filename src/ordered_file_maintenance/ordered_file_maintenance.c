@@ -319,13 +319,12 @@ static struct ordered_file_range reorganize(struct ordered_file* file,
 		uint64_t index, struct watched_index watched_index) {
 	const uint64_t leaf_depth = get_leaf_depth(file->parameters);
 	uint64_t depth = leaf_depth;
-	uint64_t occupied;
 
 	struct ordered_file_range block = get_leaf_range_for(*file, index);
+	uint64_t occupied = range_get_occupied(*file, block);
 
 	// TODO: interspersed left-right scan
 	while (true) {
-		occupied = range_get_occupied(*file, block);
 		log_info("occupied=%" PRIu64 " size=%" PRIu64 " depth=%" PRIu64
 				" leaf_depth=%" PRIu64, occupied, block.size,
 				depth, leaf_depth);
@@ -348,13 +347,31 @@ static struct ordered_file_range reorganize(struct ordered_file* file,
 					block.begin, block.begin + block.size,
 					occupied, block.size,
 					((double) occupied) / block.size);
+
+			if (block.size == file->parameters.capacity) {
+				break;
+			}
+			depth--;
+
+			if (block.begin % (block.size * 2) != 0) {
+				// Scan backward.
+				for (uint64_t i = 0; i < block.size; i++) {
+					if (file->occupied[block.begin - 1 - i]) {
+						occupied++;
+					}
+				}
+			} else {
+				// Scan forward.
+				for (uint64_t i = 0; i < block.size; i++) {
+					if (file->occupied[block.begin + block.size + i]) {
+						occupied++;
+					}
+				}
+			}
+
+			block.size *= 2;
+			block.begin -= block.begin % block.size;
 		}
-		block = get_block_parent(block);
-		if (block.size == file->parameters.capacity * 2) {
-			break;
-		}
-		assert(range_is_valid(*file, block));
-		depth--;
 	}
 
 	log_info("Changing ordered file parameters");
