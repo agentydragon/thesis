@@ -14,10 +14,6 @@ uint8_t ceil_log2(uint64_t x) {
 	return l;
 }
 
-uint64_t hyperfloor(uint64_t x) {
-	return 1ULL << floor_log2(x);
-}
-
 uint64_t ceil_div(uint64_t a, uint64_t b) {
 	return (a / b) + (a % b > 0) ? 1 : 0;
 }
