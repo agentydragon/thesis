@@ -11,19 +11,19 @@ void log_fatal(const char* format, ...) __attribute__((noreturn));
 } while (0)
 
 #define log_plain(fmt,...) do { \
-	__log_basic("     ", fmt, ##__VA_ARGS__); \
+	__log_basic(" ", fmt, ##__VA_ARGS__); \
 } while (0)
 
 #ifndef NO_LOG_INFO
 #define log_info(fmt,...) do { \
-	__log_basic(" INFO", fmt, ##__VA_ARGS__); \
+	__log_basic("I", fmt, ##__VA_ARGS__); \
 } while (0)
 #else
 #define log_info(...) (void)(0)
 #endif
 
 #define log_error(fmt,...) do { \
-	__log_basic("ERROR", fmt, ##__VA_ARGS__); \
+	__log_basic("E", fmt, ##__VA_ARGS__); \
 } while (0)
 
 #endif
