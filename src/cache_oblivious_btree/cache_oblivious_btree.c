@@ -180,7 +180,7 @@ void cob_recalculate_minima(struct cob* this, uint64_t veb_node,
 				veb_node, this->veb_minima[veb_node]);
 	} else {
 		veb_pointer left, right;
-		veb_get_children(veb_node, get_veb_height(*this), &left, &right);
+		veb_get_children(veb_node, veb_height, &left, &right);
 		assert(left.present && right.present);
 
 		cob_recalculate_minima(this, left.node, levels_up - 1);
@@ -202,14 +202,14 @@ static void veb_walk(const struct cob* this, uint64_t key,
 	do {
 		stack[stack_size++] = pointer;
 
-		if (veb_is_leaf(pointer, get_veb_height(*this))) {
+		const uint64_t veb_height = get_veb_height(*this);
+		if (veb_is_leaf(pointer, veb_height)) {
 			log_info("-> %" PRIu64 " is the leaf we want", pointer);
 			// This is the leaf.
 			break;
 		} else {
 			veb_pointer left, right;
-			veb_get_children(pointer, get_veb_height(*this),
-					&left, &right);
+			veb_get_children(pointer, veb_height, &left, &right);
 			log_info("-> %" PRIu64 ": right min = %" PRIu64,
 					pointer, this->veb_minima[right.node]);
 			CHECK(left.present && right.present, "unexpected leaf");
