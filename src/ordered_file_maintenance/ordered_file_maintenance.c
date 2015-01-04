@@ -284,15 +284,6 @@ static bool range_is_valid(
 			(block.begin + block.size) <= file.parameters.capacity;
 }
 
-static struct ordered_file_range get_block_parent(
-		struct ordered_file_range block) {
-	const uint64_t new_size = block.size * 2;
-	return (struct ordered_file_range) {
-		.begin = block.begin - (block.begin % new_size),
-		.size = new_size
-	};
-}
-
 static struct ordered_file_range get_leaf_range_for(struct ordered_file file,
 		uint64_t index) {
 	return get_leaf_range(file, index / file.parameters.block_size);
@@ -362,8 +353,10 @@ static struct ordered_file_range reorganize(struct ordered_file* file,
 				}
 			} else {
 				// Scan forward.
-				for (uint64_t i = 0; i < block.size; i++) {
-					if (file->occupied[block.begin + block.size + i]) {
+				for (uint64_t i = block.begin;
+						i < block.begin + block.size;
+						i++) {
+					if (file->occupied[i]) {
 						occupied++;
 					}
 				}
@@ -371,6 +364,7 @@ static struct ordered_file_range reorganize(struct ordered_file* file,
 
 			block.size *= 2;
 			block.begin -= block.begin % block.size;
+			assert(range_is_valid(*file, block));
 		}
 	}
 
