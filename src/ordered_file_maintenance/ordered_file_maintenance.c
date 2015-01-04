@@ -353,8 +353,8 @@ static struct ordered_file_range reorganize(struct ordered_file* file,
 				}
 			} else {
 				// Scan forward.
-				for (uint64_t i = block.begin;
-						i < block.begin + block.size;
+				for (uint64_t i = block.begin + block.size;
+						i < block.begin + block.size * 2;
 						i++) {
 					if (file->occupied[i]) {
 						occupied++;
