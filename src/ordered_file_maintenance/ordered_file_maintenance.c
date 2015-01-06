@@ -300,21 +300,6 @@ bool density_is_within_threshold(uint64_t size, uint64_t capacity,
 		sparse_enough(size, capacity, depth, structure_height);
 }
 
-static bool range_is_valid(
-		struct ordered_file file, struct ordered_file_range block) {
-	return block.begin < file.parameters.capacity &&
-			(block.begin + block.size) <= file.parameters.capacity;
-}
-
-static struct ordered_file_range get_block_parent(
-		struct ordered_file_range block) {
-	const uint64_t new_size = block.size * 2;
-	return (struct ordered_file_range) {
-		.begin = block.begin - (block.begin % new_size),
-		.size = new_size
-	};
-}
-
 static struct ordered_file_range get_leaf_range_for(struct ordered_file file,
 		uint64_t index) {
 	return get_leaf_range(file, index / file.parameters.block_size);
@@ -365,8 +350,6 @@ static void range_spread_evenly2(struct ordered_file file,
 
 	uint64_t left_index = left, right_index = right;
 
-	//dump_file(file);
-
 	log_info("=== range_spread_evenly2 size=%" PRIu64 " ==", range.size);
 	while (left_index != right_index) {
 		const uint64_t left_move_at =
@@ -394,45 +377,6 @@ static void range_spread_evenly2(struct ordered_file file,
 	}
 
 	assert(left_index == right_index);
-
-	//dump_file(file);
-	//while (right_index > left_index) {
-	//	const uint64_t left_move_at =
-	//		range.begin + round((left_index - left - 1) * gap_size);
-	//	const uint64_t right_move_at =
-	//		range.begin +
-	//			round((right_index - left - 1) * gap_size);
-
-	//	if (left_move_at <= left_index) {
-	//		log_info("left move: %" PRIu64 " <-- %" PRIu64,
-	//				left_move_at, left_index);
-	//		move_item(file, left_move_at, left_index++,
-	//				watched_index);
-	//	} else if (right_move_at >= right_index) {
-	//		log_info("right move: %" PRIu64 " --> %" PRIu64,
-	//				right_index, right_move_at);
-	//		move_item(file, right_move_at, right_index--,
-	//				watched_index);
-	//	} else {
-	//		log_fatal("no move available");
-	//	}
-	//}
-
-	//for (uint64_t i = 0; i < occupied; i++) {
-	//	uint64_t source = (occupied - 1 - i);
-	//	uint64_t target = range.size - 1 - round(i * gap_size);
-	//	// 0 => 100, 1 => 90, 2 => 80, ...
-
-	//	// Move both to start at start of occupied indexes, wrap around
-	//	// end.
-	//	source = (source + left + 1 - range.begin) % range.size;
-	//	target = (target + left + 1 - range.begin) % range.size;
-
-	//	// Move both to start at file offset.
-	//	source += range.begin;
-	//	target += range.begin;
-
-	//}
 }
 
 static struct ordered_file_range reorganize(struct ordered_file* file,
@@ -502,40 +446,6 @@ static struct ordered_file_range reorganize(struct ordered_file* file,
 		depth--;
 	}
 
-	// TODO: interspersed left-right scan
-	//while (true) {
-	//	occupied = range_get_occupied(*file, block);
-	//	log_info("occupied=%" PRIu64 " size=%" PRIu64 " depth=%" PRIu64
-	//			" leaf_depth=%" PRIu64, occupied, block.size,
-	//			depth, leaf_depth);
-	//	if (density_is_within_threshold(
-	//			occupied, block.size, depth, leaf_depth)) {
-	//		log_info("evenly spreading range "
-	//				"(%" PRIu64 "...%" PRIu64 "): "
-	//				"(%" PRIu64 "/%" PRIu64"=%lf)",
-	//				block.begin, block.begin + block.size,
-	//				occupied, block.size,
-	//				((double) occupied) / block.size);
-	//		range_spread_evenly(*file, block, watched_index);
-	//		return block;
-	//	} else {
-	//		log_info("height=%" PRIu64 ", depth=%" PRIu64 ": "
-	//				"range (%" PRIu64 "...%" PRIu64 ") "
-	//				"not within threshold "
-	//				"(%" PRIu64 "/%" PRIu64"=%lf)",
-	//				leaf_depth, depth,
-	//				block.begin, block.begin + block.size,
-	//				occupied, block.size,
-	//				((double) occupied) / block.size);
-	//	}
-	//	block = get_block_parent(block);
-	//	if (block.size == file->parameters.capacity * 2) {
-	//		break;
-	//	}
-	//	assert(range_is_valid(*file, block));
-	//	depth--;
-	//}
-
 	{
 		const uint64_t occupied = right_pointer - left_pointer;
 		log_info("Changing ordered file parameters");
@@ -553,64 +463,6 @@ static struct ordered_file_range reorganize(struct ordered_file* file,
 		.size = file->parameters.capacity
 	};
 }
-
-// Returns touched range.
-//static struct ordered_file_range reorganize(struct ordered_file* file,
-//		uint64_t index, struct watched_index watched_index) {
-//	const uint64_t leaf_depth = get_leaf_depth(file->parameters);
-//	uint64_t depth = leaf_depth;
-//	uint64_t occupied;
-//
-//	struct ordered_file_range block = get_leaf_range_for(*file, index);
-//
-//	// TODO: interspersed left-right scan
-//	while (true) {
-//		occupied = range_get_occupied(*file, block);
-//		log_info("occupied=%" PRIu64 " size=%" PRIu64 " depth=%" PRIu64
-//				" leaf_depth=%" PRIu64, occupied, block.size,
-//				depth, leaf_depth);
-//		if (density_is_within_threshold(
-//				occupied, block.size, depth, leaf_depth)) {
-//			log_info("evenly spreading range "
-//					"(%" PRIu64 "...%" PRIu64 "): "
-//					"(%" PRIu64 "/%" PRIu64"=%lf)",
-//					block.begin, block.begin + block.size,
-//					occupied, block.size,
-//					((double) occupied) / block.size);
-//			range_spread_evenly(*file, block, watched_index);
-//			return block;
-//		} else {
-//			log_info("height=%" PRIu64 ", depth=%" PRIu64 ": "
-//					"range (%" PRIu64 "...%" PRIu64 ") "
-//					"not within threshold "
-//					"(%" PRIu64 "/%" PRIu64"=%lf)",
-//					leaf_depth, depth,
-//					block.begin, block.begin + block.size,
-//					occupied, block.size,
-//					((double) occupied) / block.size);
-//		}
-//		block = get_block_parent(block);
-//		if (block.size == file->parameters.capacity * 2) {
-//			break;
-//		}
-//		assert(range_is_valid(*file, block));
-//		depth--;
-//	}
-//
-//	log_info("Changing ordered file parameters");
-//	struct parameters new_parameters = adequate_parameters(occupied);
-//	// TODO: do nothing if new_parameters == this->parameters.
-//	struct ordered_file resized = new_ordered_file(new_parameters);
-//	evenly_spread_offline(*file, resized, watched_index);
-//	destroy_ordered_file(*file);
-//	*file = resized;
-//
-//	// Everything was reorged.
-//	return (struct ordered_file_range) {
-//		.begin = 0,
-//		.size = file->parameters.capacity
-//	};
-//}
 
 struct ordered_file_range get_leaf_range(struct ordered_file file,
 		uint64_t leaf_number) {
