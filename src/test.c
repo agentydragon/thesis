@@ -43,7 +43,7 @@ void run_unit_tests() {
 	test_hash_large(&hash_bplustree, 1 << 20);
 
 	// TODO: optimize hash_cobt for better performance
-	test_hash_large(&hash_cobt, 1 << 16);
+	test_hash_large(&hash_cobt, 1 << 18);
 }
 
 int main(int argc, char** argv) {
