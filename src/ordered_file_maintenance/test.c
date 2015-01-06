@@ -11,21 +11,27 @@
 
 #include "test_helpers.h"
 
+static void __attribute__((unused)) dump_file(struct ordered_file file);
+
 static void _assert_keys(struct ordered_file file,
 		struct ordered_file_range range,
 		const uint64_t *_expected, uint64_t size) {
 	for (uint64_t i = 0; i < size; i++) {
 		const uint64_t index = range.begin + i;
 		if (_expected[i] == NIL) {
-			CHECK(!file.occupied[index],
-					"index %" PRIu64 " should be empty, "
+			if (file.occupied[index]) {
+				dump_file(file);
+				log_fatal("index %" PRIu64 " should be empty, "
 					"but is occupied by %" PRIu64,
 					i, file.items[index].key);
+			}
 		} else {
-			CHECK(file.occupied[index],
-					"index %" PRIu64 " should contain "
+			if (!file.occupied[index]) {
+				dump_file(file);
+				log_fatal("index %" PRIu64 " should contain "
 					"%" PRIu64 ", but it's empty",
 					i, _expected[i]);
+			}
 			CHECK(file.items[index].key == _expected[i],
 					"key at %" PRIu64 " should be %" PRIu64
 					", but it is %" PRIu64, i, _expected[i],
@@ -61,6 +67,7 @@ static void _assert_keys(struct ordered_file file,
 		.key = _key \
 	}); \
 } while (0)
+#define DELETE_AT(idx) ordered_file_delete(&file, idx)
 #define ASSERT_FILE(...) assert_file(file, __VA_ARGS__)
 
 // Used for debugging.
@@ -83,6 +90,8 @@ static void __attribute__((unused)) dump_file(struct ordered_file file) {
 	}
 	log_info("items={%s}", buffer);
 }
+
+#define DUMP_FILE() dump_file(file)
 
 static void test_insert_simple() {
 	MAKE_FILE(5,
@@ -175,15 +184,26 @@ static void test_insert_after_two_reorg() {
 
 	ASSERT_FILE(
 			// The following block is changed.
-			100, 200, 250, NIL,
-			300, 400, NIL, 500,
-			NIL, 600, 700, NIL,
-			800, 900, NIL, 1000,
+			100, 200, 250, 300,
+			NIL, 400, 500, NIL,
+			600, NIL, 700, 800,
+			NIL, 900, 1000, NIL,
 			// The following is unchanged.
 			NIL, NIL, 1100, 1200,
 			NIL, NIL, NIL, NIL,
 			NIL, NIL, 1300, 1400,
 			1500, NIL, 1600, NIL);
+	//ASSERT_FILE(
+	//		// The following block is changed.
+	//		100, 200, 250, NIL,
+	//		300, 400, NIL, 500,
+	//		NIL, 600, 700, NIL,
+	//		800, 900, NIL, 1000,
+	//		// The following is unchanged.
+	//		NIL, NIL, 1100, 1200,
+	//		NIL, NIL, NIL, NIL,
+	//		NIL, NIL, 1300, 1400,
+	//		1500, NIL, 1600, NIL);
 	destroy_file(file);
 }
 
@@ -203,14 +223,22 @@ static void test_insert_after_very_dense() {
 
 	ASSERT_FILE(
 			// The whole structure is reorged.
-			100, NIL, 200, 300,
-			NIL, 400, 500, 600,
-			NIL, 700, 800, NIL,
-			900, 1000, 1100, NIL,
-			1200, 1300, 1400, NIL,
-			1500, 1600, NIL, 1700,
-			1800, 1900, NIL, 2000,
+			100, 200, NIL, 300,
+			400, NIL, 500, 600,
+			700, NIL, 800, 900,
+			NIL, 1000, 1100, 1200,
+			NIL, 1300, 1400, 1500,
+			NIL, 1600, 1700, NIL,
+			1800, 1900, 2000, NIL,
 			2100, 2200, 2300, 2400);
+	//		100, NIL, 200, 300,
+	//		NIL, 400, 500, 600,
+	//		NIL, 700, 800, NIL,
+	//		900, 1000, 1100, NIL,
+	//		1200, 1300, 1400, NIL,
+	//		1500, 1600, NIL, 1700,
+	//		1800, 1900, NIL, 2000,
+	//		2100, 2200, 2300, 2400);
 	destroy_file(file);
 }
 
@@ -263,65 +291,59 @@ static void test_comprehensive_resizing() {
 			1000, 1100, 1142, 1200,
 			NIL, 1242, 1300, NIL);
 
-	ordered_file_delete(&file, 0);  // deletes 15
-	ordered_file_delete(&file, 30);  // deletes 1300
-	ordered_file_delete(&file, 31);  // deletes 1242
+	DELETE_AT(0);  // deletes 15
+	DELETE_AT(30);  // deletes 1300
+	DELETE_AT(28);  // deletes 1242
 	ASSERT_FILE(
-			NIL, 16, NIL, 17,
+			16, NIL, 17, NIL,
 			NIL, 42, NIL, 100,
 			200, NIL, 300, NIL,
 			400, 500, NIL, 600,
 			NIL, 700, NIL, 800,
 			900, NIL, 942, NIL,
-			/* touched => */ NIL, 1000, NIL, 1100,
-			/* touched => */ NIL, 1142, NIL, 1200);
+			/* touched => */ 1000, NIL, 1100, NIL,
+			/* touched => */ 1142, NIL, 1200, NIL);
 
-	ordered_file_delete(&file, 7);  // deletes 100
-	ordered_file_delete(&file, 8);  // deletes 200
-	ordered_file_delete(&file, 11);  // deletes 300
-	ordered_file_delete(&file, 10);  // deletes 400
+	DELETE_AT(7);  // deletes 100
+	DELETE_AT(8);  // deletes 200
+	DELETE_AT(8);  // deletes 300
+	DELETE_AT(8);  // deletes 400
+	DELETE_AT(8);  // deletes 500
 
 	assert(file.parameters.block_size == 5);
 	assert(file.parameters.capacity == 20);
 	ASSERT_FILE(
 			16, NIL, 17, 42, NIL,
-			500, 600, NIL, 700, 800,
-			NIL, 900, 942, NIL, 1000,
+			600, NIL, 700, 800, NIL,
+			900, NIL, 942, 1000, NIL,
 			1100, NIL, 1142, 1200, NIL);
 
-	ordered_file_delete(&file, 5);  // deletes 500
-	ordered_file_delete(&file, 6);  // deletes 600
+	DELETE_AT(5);  // deletes 600
+	DELETE_AT(8);  // deletes 800
 	ASSERT_FILE(
-			NIL, 16, 17, NIL, 42,
-			NIL, 700, NIL, NIL, 800,
-			NIL, 900, 942, NIL, 1000,
+			16, NIL, NIL, 17, NIL,
+			42, NIL, NIL, 700, NIL,
+			900, NIL, 942, 1000, NIL,
 			1100, NIL, 1142, 1200, NIL);
 
-	ordered_file_delete(&file, 15);  // deletes 1100
-	ordered_file_delete(&file, 19);  // deletes 1200
-	ordered_file_delete(&file, 9);  // deletes 800
-	ASSERT_FILE(
-			NIL, 16, NIL, NIL, 17,
-			NIL, 42, NIL, NIL, 700,
-			NIL, 900, NIL, NIL, 942,
-			NIL, 1000, NIL, NIL, 1142);
-
-	ordered_file_delete(&file, 16);  // deletes 1000
+	DELETE_AT(15);  // deletes 1100
+	DELETE_AT(18);  // deletes 1200
+	DELETE_AT(10);  // deletes 900
 
 	assert(file.parameters.block_size == 5);
 	assert(file.parameters.capacity == 10);
 	ASSERT_FILE(
 			16, 17, NIL, 42, 700,
-			NIL, 900, 942, NIL, 1142);
+			NIL, 942, 1000, NIL, 1142);
 
-	ordered_file_delete(&file, 4);  // deletes 700
-	ordered_file_delete(&file, 6);  // deletes 900
-	ordered_file_delete(&file, 1);  // deletes 16
+	DELETE_AT(7);  // deletes 1000
+	DELETE_AT(4);  // deletes 700
+	DELETE_AT(0);  // deletes 16
 	ASSERT_FILE(
-			NIL, 17, NIL, NIL, 42,
-			NIL, 942, NIL, NIL, 1142);
+			17, NIL, NIL, 42, NIL,
+			NIL, 942, NIL, 1142, NIL);
 
-	ordered_file_delete(&file, 1);  // deletes 17
+	ordered_file_delete(&file, 0);  // deletes 17
 	assert(file.parameters.block_size == 4);
 	assert(file.parameters.capacity == 4);
 	ASSERT_FILE(42, 942, NIL, 1142);
@@ -351,18 +373,18 @@ static void test_resizing_through_trivial_cases() {
 			100, 200, 250, 300,
 			NIL, 400, 500, NIL);
 
-	ordered_file_delete(&file, 6);  // delete 500
-	ordered_file_delete(&file, 7);  // delete 400
+	DELETE_AT(6);  // delete 500
+	DELETE_AT(4);  // delete 400
 	ASSERT_FILE(
-			NIL, 100, NIL, 200,
-			NIL, 250, NIL, 300);
+			100, NIL, 200, NIL,
+			250, NIL, 300, NIL);
 
-	ordered_file_delete(&file, 7);  // delete 300
-	ordered_file_delete(&file, 1);  // delete 100
-	ordered_file_delete(&file, 3);  // delete 200
+	DELETE_AT(6);  // delete 300
+	DELETE_AT(0);  // delete 100
+	DELETE_AT(0);  // delete 200
 	ASSERT_FILE(250, NIL, NIL, NIL);
 
-	ordered_file_delete(&file, 0);  // delete 250
+	DELETE_AT(0);  // delete 250
 	ASSERT_FILE(NIL, NIL, NIL, NIL);
 
 	destroy_file(file);

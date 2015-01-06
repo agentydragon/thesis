@@ -11,7 +11,7 @@
 #include "../ordered_file_maintenance/test_helpers.h"
 
 // Used for debugging.
-static void __attribute__((unused)) dump_cob(struct cob cob) {
+static void __attribute__((unused)) cob_dump(struct cob cob) {
 	log_info("capacity=%" PRIu64 " block_size=%" PRIu64,
 			cob.file.parameters.capacity,
 			cob.file.parameters.block_size);
@@ -168,7 +168,7 @@ static void test_simple_delete() {
 	assert(cob_delete(&cob, 10) == 0);
 
 	assert_content(&cob,
-		NIL, 20, NIL, 30,
+		20, NIL, 30, NIL,
 		40, NIL, 50, NIL);
 	assert(cob.veb_minima[0] == 20);
 	assert(cob.veb_minima[1] == 20);
@@ -201,16 +201,17 @@ static void test_complex_delete() {
 		131, 132, 140, 150);
 
 	assert(cob_delete(&cob, 40) == 0);
+	cob_dump(cob);
 	assert_content(&cob,
-		NIL, 10, NIL, 20,
-		NIL, 30, NIL, 50,
-		NIL, 60, NIL, 70,
-		NIL, 80, NIL, 90,
+		10, NIL, 20, NIL,
+		30, NIL, 50, NIL,
+		60, NIL, 70, NIL,
+		80, NIL, 90, NIL,
 
-		NIL, 100, NIL, 110,
-		NIL, 120, NIL, 130,
-		NIL, 131, NIL, 132,
-		NIL, 140, NIL, 150);
+		100, NIL, 110, NIL,
+		120, NIL, 130, NIL,
+		131, NIL, 132, NIL,
+		140, NIL, 150, NIL);
 
 	const uint64_t expected_veb_minima[] = {
 		10, 10, 100, 10, 10, 30, 60, 60,
@@ -239,7 +240,6 @@ static void test_simple_insert() {
 		500, 542, 600, NIL,
 		NIL, NIL, NIL, 700,
 		NIL, NIL, 800, 900);
-	dump_cob(cob);
 	destroy_file(cob.file);
 }
 
@@ -257,13 +257,14 @@ static void test_insert_new_minimum_with_overflow() {
 		NIL, NIL, 800, 900);
 
 	INSERT_ITEMS(42);
+	cob_dump(cob);
 	assert_content(&cob,
 		42, 100, 200, NIL,
-		300, NIL, 400, NIL,
-		500, NIL, 600, 700,
-		NIL, 800, NIL, 900);
+		300, 400, NIL, 500,
+		NIL, 600, NIL, 700,
+		800, NIL, 900, NIL);
 	const uint64_t expected_veb_minima[] = {
-		42, 42, 42, 300, 500, 500, 800
+		42, 42, 42, 300, 600, 600, 800
 	};
 	assert(memcmp(expected_veb_minima, cob.veb_minima, sizeof(expected_veb_minima)) == 0);
 	destroy_file(cob.file);

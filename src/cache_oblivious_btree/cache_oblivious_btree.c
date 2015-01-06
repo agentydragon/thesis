@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <inttypes.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "../math/math.h"
 #include "../veb_layout/veb_layout.h"
 

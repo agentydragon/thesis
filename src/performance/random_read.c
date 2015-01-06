@@ -24,11 +24,13 @@ void time_random_reads(const hash_api* api, int size, int reads) {
 	log_info("random_reads: %s, size=%d, reads=%d", api->name, size, reads);
 
 	for (int i = 0; i < size; i++) {
+		if (i % 10000 == 0) log_info("insert %d", i);
 		if (hash_insert(table, make_key(i), make_value(i))) {
 			log_fatal("cannot insert");
 		}
 	}
 
+	log_info("start read");
 	rand_generator generator = { .state = 0 };
 	stopwatch watch = stopwatch_start();
 
