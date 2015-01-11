@@ -6,6 +6,10 @@
 
 #define COB_INFINITY UINT64_MAX
 
+struct {
+	uint64_t total_reorganized_size;
+} COB_COUNTERS;
+
 // 1) ordered file maintenance over N keys
 //
 // 2) VEB static pointing to maintained ordered file.

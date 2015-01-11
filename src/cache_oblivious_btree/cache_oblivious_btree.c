@@ -255,6 +255,7 @@ void cob_insert(struct cob* this, uint64_t key, uint64_t value) {
 	const struct ordered_file_range reorg_range = insert_sorted_order(
 			&this->file, get_leaf_range(this->file, leaf_index),
 			key, value);
+	COB_COUNTERS.total_reorganized_size += reorg_range.size;
 
 	if (parameters_equal(this->file.parameters, prior_parameters)) {
 		const uint64_t levels_up = exact_log2(

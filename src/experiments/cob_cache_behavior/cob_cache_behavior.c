@@ -4,6 +4,9 @@
 #include <inttypes.h>
 #include <math.h>
 
+// COB_COUNTERS
+#include "../../cache_oblivious_btree/cache_oblivious_btree.h"
+
 #include "../../hash/hash.h"
 #include "../../hash_bplustree/hash_bplustree.h"
 #include "../../hash_cobt/hash_cobt.h"
@@ -35,7 +38,7 @@ struct results measure_api(const hash_api* api, uint64_t size) {
 
 	hash* table;
 	if (hash_init(&table, api, NULL)) log_fatal("cannot init hash table");
-	for (int i = 0; i < size; i++) {
+	for (uint64_t i = 0; i < size; i++) {
 		if (hash_insert(table, make_key(i), make_value(i))) {
 			log_fatal("cannot insert");
 		}
@@ -44,7 +47,7 @@ struct results measure_api(const hash_api* api, uint64_t size) {
 	rand_generator generator = { .state = 0 };
 	// Let every read be a hit.
 	// TODO: separate size/reads
-	for (int i = 0; i < size; i++) {
+	for (uint64_t i = 0; i < size; i++) {
 		int k = rand_next(&generator, size);
 		uint64_t value;
 		bool found;
@@ -67,10 +70,12 @@ struct results measure_api(const hash_api* api, uint64_t size) {
 int main(int argc, char** argv) {
 	(void) argc; (void) argv;
 	FILE* output = fopen("experiments/cob_cache_behavior/results.csv", "w");
-	double base = 1.2;
+	double base = 2;
 	double x = 1000;
 
 	while (x < 512 * 1024) {
+		COB_COUNTERS.total_reorganized_size = 0;
+
 		const uint64_t size = round(x);
 		log_info("size=%" PRIu64, size);
 		struct results bplustree = measure_api(&hash_bplustree, size);
@@ -79,11 +84,14 @@ int main(int argc, char** argv) {
 		fprintf(output,
 				"%" PRIu64 "\t"
 				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
-				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64
+				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
+				"%" PRIu64
 				"\n",
 				size,
 				bplustree.cache_misses, bplustree.cache_references, bplustree.time_nsec,
-				cobt.cache_misses, cobt.cache_references, cobt.time_nsec);
+				cobt.cache_misses, cobt.cache_references, cobt.time_nsec,
+				COB_COUNTERS.total_reorganized_size);
+		fflush(output);
 		x *= base;
 	}
 	fclose(output);
