@@ -47,6 +47,9 @@ static void set_node(void* _veb_buffer, uint64_t node,
 	veb_pointer lx, rx; \
 	veb_get_children(index, HEIGHT, &lx, &rx); \
 	assert(veb_pointer_to_id(lx) == left_n && veb_pointer_to_id(rx) == right_n); \
+	\
+	veb_get_children2(index, HEIGHT, &lx, &rx); \
+	assert(veb_pointer_to_id(lx) == left_n && veb_pointer_to_id(rx) == right_n); \
 } while (0)
 
 static void build_with_height(uint64_t height) {
