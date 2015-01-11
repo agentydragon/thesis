@@ -71,39 +71,39 @@ void veb_get_children(uint64_t node, uint64_t height,
 		.node = 0
 	};
 	uint64_t leaf_stride = 0;
-recursive_call:
-	assert(height > 0);
-	if (height == 1) {
-		*left = leaf_source;
-		*right = veb_pointer_add(leaf_source, leaf_stride);
-	} else {
-		uint64_t bottom_height, top_height;
-		split_height(height, &bottom_height, &top_height);
 
-		const uint64_t nodes_in_top_block = m_exp2(top_height) - 1;
-		const uint64_t number_of_bottom_blocks = m_exp2(top_height);
-		const uint64_t nodes_in_bottom_block =
-			m_exp2(bottom_height) - 1;
-		const uint64_t leaves_per_bottom_block = m_exp2(bottom_height);
+	do {
+		assert(height > 0);
+		if (height == 1) {
+			*left = leaf_source;
+			*right = veb_pointer_add(leaf_source, leaf_stride);
+		} else {
+			uint64_t bottom_height, top_height;
+			split_height(height, &bottom_height, &top_height);
 
-		if (node < node_start + nodes_in_top_block) {
-			height = top_height;
-			leaf_source.present = true;
-			leaf_source.node = node_start + nodes_in_top_block;
-			leaf_stride = nodes_in_bottom_block;
-			goto recursive_call;
+			const uint64_t nodes_in_top_block = m_exp2(top_height) - 1;
+			const uint64_t number_of_bottom_blocks = m_exp2(top_height);
+			const uint64_t nodes_in_bottom_block =
+				m_exp2(bottom_height) - 1;
+			const uint64_t leaves_per_bottom_block = m_exp2(bottom_height);
+
+			if (node < node_start + nodes_in_top_block) {
+				height = top_height;
+				leaf_source.present = true;
+				leaf_source.node = node_start + nodes_in_top_block;
+				leaf_stride = nodes_in_bottom_block;
+			} else {
+				node_start += nodes_in_top_block;
+
+				const uint64_t bottom_block_index =
+						(node - node_start) / nodes_in_bottom_block;
+				assert(bottom_block_index < number_of_bottom_blocks);
+				height = bottom_height;
+				node_start += nodes_in_bottom_block * bottom_block_index;
+				leaf_source.node += leaf_stride * leaves_per_bottom_block * bottom_block_index;
+			}
 		}
-		node_start += nodes_in_top_block;
-
-		const uint64_t bottom_block_index =
-				(node - node_start) / nodes_in_bottom_block;
-		assert(bottom_block_index < number_of_bottom_blocks);
-		height = bottom_height;
-		node_start += nodes_in_bottom_block * bottom_block_index;
-		leaf_source = veb_pointer_add(leaf_source,
-				leaf_stride * leaves_per_bottom_block * bottom_block_index);
-		goto recursive_call;
-	}
+	} while (true);
 }
 
 bool veb_is_leaf(uint64_t node, uint64_t height) {
