@@ -12,12 +12,6 @@
 #include "../log/log.h"
 
 /*
-#define INVALID_INDEX 0xDEADBEEFDEADBEEF
-const struct watched_index NO_WATCH = {
-	.index = INVALID_INDEX,
-	.new_location = NULL
-};
-
 void range_describe(ofm file, ofm_range range, char* buffer) {
 	for (uint64_t i = 0; i < range.size; i++) {
 		if (i % 8 == 0 && i > 0) {
@@ -38,37 +32,6 @@ static uint64_t get_leaf_depth(struct parameters parameters) {
 		return 1;
 	}
 	return ceil_log2(parameters.capacity / parameters.block_size);
-}
-
-static void copy_item(ofm_item* to, ofm_item from) {
-	// TODO: or maybe two assignments? this should probably be optimizable.
-	memcpy(to, &from, sizeof(ofm_item));
-}
-
-void range_insert_first(ofm file, ofm_range range, ofm_item inserted_item) {
-	assert(!range_is_full(file, range));
-	// TODO: optimize
-	range_compact(file, range, NO_WATCH);
-	const uint64_t occupied = range_get_occupied(file, range);
-	for (uint64_t i = 0; i < occupied; i++) {
-		const uint64_t to = range.begin + occupied - i,
-				from = range.begin + occupied - i - 1;
-		file.occupied[to] = file.occupied[from];
-		copy_item(&file.items[to], file.items[from]);
-	}
-	file.occupied[range.begin] = true;
-	copy_item(&file.items[range.begin], inserted_item);
-}
-
-static ofm new_ordered_file(struct parameters parameters) {
-	ofm file = {
-		.occupied = calloc(parameters.capacity, sizeof(bool)),
-		.items = calloc(parameters.capacity, sizeof(ofm_item)),
-		.parameters = parameters
-	};
-	// TODO: NULL-resistance
-	assert(file.occupied && file.items);
-	return file;
 }
 */
 
