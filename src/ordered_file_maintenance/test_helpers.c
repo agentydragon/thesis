@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
+/*
 uint64_t value_for_key(uint64_t key) {
 	return (key * 100) + 5;
 }
@@ -33,3 +34,4 @@ void destroy_file(struct ordered_file file) {
 	free(file.occupied);
 	free(file.items);
 }
+*/

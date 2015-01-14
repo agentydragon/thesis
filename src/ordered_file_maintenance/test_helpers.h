@@ -6,13 +6,14 @@
 #define UNDEF 0xDEADBEEF
 
 #include <stdint.h>
-struct ordered_file;
+//struct ordered_file;
 
-void _set_key(struct ordered_file* file, uint64_t i, uint64_t key);
-void destroy_file(struct ordered_file file);
+//void _set_key(struct ordered_file* file, uint64_t i, uint64_t key);
+//void destroy_file(struct ordered_file file);
 
-void _assert_key(const struct ordered_file* file, uint64_t i, uint64_t expected);
+//void _assert_key(const struct ordered_file* file, uint64_t i, uint64_t expected);
 
+/*
 uint64_t value_for_key(uint64_t key);
 
 #define make_file(_file,_block_size,...) do { \
@@ -27,5 +28,6 @@ uint64_t value_for_key(uint64_t key);
 		_set_key(__file, i, _values[i]); \
 	} \
 } while (0)
+*/
 
 #endif

@@ -23,7 +23,7 @@
 struct cob {
 	// vEB-layout nodes
 	// ordered file structure
-	struct ordered_file file;
+	//struct ordered_file file;
 	// contains 2*(ordered file subranges)-1 nodes
 	uint64_t* veb_minima;
 };

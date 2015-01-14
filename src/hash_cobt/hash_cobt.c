@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 
+/*
 static int8_t init(void** _this, void* args_unused) {
 	(void) args_unused;
 
@@ -51,3 +52,4 @@ const hash_api hash_cobt = {
 
 	.name = "hash_cobt"
 };
+*/
