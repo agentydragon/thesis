@@ -36,4 +36,4 @@ bin/performance: performance.c $(SOURCES)
 	$(CC) $(CFLAGS) performance.c $(SOURCES) -o $@
 
 bin/experiments/cob_cache_behavior: experiments/cob_cache_behavior/cob_cache_behavior.c $(SOURCES)
-	$(CC) $(CFLAGS) experiments/cob_cache_behavior/cob_cache_behavior.c $(SOURCES) -o $@
+	$(CC) -g $(CFLAGS) experiments/cob_cache_behavior/cob_cache_behavior.c $(SOURCES) -o $@

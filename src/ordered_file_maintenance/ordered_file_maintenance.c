@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define NO_LOG_INFO
+//#define NO_LOG_INFO
 #include "../log/log.h"
 
 /*
@@ -321,7 +321,17 @@ void ofm_insert_before(ofm* file, ofm_item item,
 	}
 
 	if (ofm_block_full(block) && ofm_is_entire_file(block)) {
-		log_fatal("File full.");
+		bool was_end = (insert_before_index == file->capacity);
+		rebalance(file, (ofm_range) {
+				.begin = 0,
+				.size = file->capacity,
+				.file = file }, NULL, &insert_before_index);
+		if (was_end) insert_before_index = file->capacity;
+		ofm_insert_before(file, item,
+				insert_before_index, saved_at,
+				touched_range);
+		return;
+		//log_fatal("File full.");
 	}
 
 	assert(!ofm_block_full(block));
@@ -342,6 +352,7 @@ void ofm_insert_before(ofm* file, ofm_item item,
 	}
 
 	rebalance(file, block, touched_range, saved_at);
+	//ofm_dump(*file);
 }
 
 // `next_item_at` will hold the position where the next item was moved,
