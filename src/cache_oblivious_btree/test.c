@@ -9,7 +9,6 @@
 #include <string.h>
 
 #include "../veb_layout/veb_layout.h"
-#include "../ordered_file_maintenance/test_helpers.h"
 #include "../test/ordered_hash_blackbox.h"
 
 static void blackbox_init(void** _this) {

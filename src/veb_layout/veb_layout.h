@@ -27,6 +27,4 @@ uint64_t veb_get_leaf_number(uint64_t leaf_index, uint64_t height);
 // returns: number of the leaf (index from left to right amongst leaves)
 uint64_t veb_get_leaf_index_of_leaf(uint64_t node, uint64_t height);
 
-uint64_t veb_get_parent(uint64_t node, uint64_t height);
-
 #endif

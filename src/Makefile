@@ -3,6 +3,7 @@ CC=gcc
 
 
 SOURCES= \
+	cache_oblivious_btree/*.c \
 	stopwatch/*.c measurement/*.c \
 	hash/*.c test_hash/*.c \
 	hash_array/*.c \
@@ -15,10 +16,9 @@ SOURCES= \
 	math/*.c \
 	performance/*.c \
 	rand/*.c rand/test/*.c \
+	test/*.c \
 	util/*.c \
-	veb_layout/*.c \
-	cache_oblivious_btree/*.c \
-	test/*.c
+	veb_layout/*.c
 
 all: bin/test bin/test_profile bin/performance
 

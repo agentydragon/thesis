@@ -9,7 +9,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "test_helpers.h"
+#define COUNTOF(x) (sizeof(x) / sizeof(*(x)))
+#define NIL 0xDEADDEADDEADDEAD
+#define UNDEF 0xDEADBEEF
+
+#include <stdint.h>
 
 /*
 static void _assert_keys(struct ordered_file file,
@@ -64,9 +68,6 @@ static void _assert_keys(struct ordered_file file,
 } while (0)
 #define ASSERT_FILE(...) assert_file(file, __VA_ARGS__)
 
-*/
-
-/*
 static void test_parameter_policy() {
 	for (uint64_t N = 0; N < 100000; N++) {
 		struct parameters parameters = adequate_parameters(N);

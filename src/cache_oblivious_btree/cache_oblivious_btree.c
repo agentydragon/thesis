@@ -110,23 +110,6 @@ uint64_t cobt_range_to_node_id(struct cob this, ofm_range range) {
 	return node;
 }
 
-/*
-static void cob_fix_internal_node(struct cob* this, uint64_t veb_node) {
-	veb_pointer left, right;
-	veb_get_children(veb_node, cobt_get_veb_height(*this), &left, &right);
-	assert(left.present && right.present);
-
-	log_info("below %" PRIu64 ": [%" PRIu64 "]=%" PRIu64 ", "
-			"[%" PRIu64 "]=%" PRIu64,
-			veb_node, left.node, this->veb_minima[left.node],
-			right.node, this->veb_minima[right.node]);
-
-	const uint64_t a = this->veb_minima[left.node],
-		      b = this->veb_minima[right.node];
-	this->veb_minima[veb_node] = (a < b) ? a : b;
-}
-*/
-
 static void fix_below(struct cob* this, ofm_range range_to_fix) {
 	const uint64_t nid = cobt_range_to_node_id(*this, range_to_fix);
 	this->veb_minima[nid] = cobt_range_get_minimum(range_to_fix);
@@ -165,54 +148,7 @@ static void fix_range(struct cob* this, ofm_range range_to_fix) {
 	}
 }
 
-/*
-static void cob_fix_stack(struct cob* this,
-		uint64_t* stack, uint64_t stack_size) {
-	log_info("fixing stack of size %" PRIu64, stack_size);
-	for (uint64_t i = 0; i < stack_size; i++) {
-		const uint64_t node = stack[stack_size - 1 - i];
-		log_info("fixing node %" PRIu64, node);
-		cob_fix_internal_node(this, node);
-	}
-}
-*/
-
-// levels_up is passed as an optimization.
-/*
-void cob_recalculate_minima(struct cob* this, uint64_t veb_node,
-		uint64_t levels_up) {
-	log_info("recalculating everything under %" PRIu64, veb_node);
-	// Save veb_height for optimization.
-	const uint64_t veb_height = cobt_get_veb_height(*this);
-	// assert(veb_is_leaf(veb_node, veb_height) == (levels_up == 0));
-	if (levels_up == 0) {
-		const uint64_t leaf_number =
-				veb_get_leaf_index_of_leaf(veb_node,
-						veb_height);
-		log_info("leaf_number=%" PRIu64, leaf_number);
-		const uint64_t leaf_offset = leaf_number *
-				this->file.block_size;
-
-		this->veb_minima[veb_node] = cobt_range_get_minimum( (ofm_range) {
-					.begin = leaf_offset,
-					.size = this->file.block_size,
-					.file = &this->file
-				});
-		log_info("%" PRIu64 " is a leaf. new minimum is %" PRIu64,
-				veb_node, this->veb_minima[veb_node]);
-	} else {
-		veb_pointer left, right;
-		veb_get_children(veb_node, veb_height, &left, &right);
-		assert(left.present && right.present);
-
-		cob_recalculate_minima(this, left.node, levels_up - 1);
-		cob_recalculate_minima(this, right.node, levels_up - 1);
-
-		cob_fix_internal_node(this, veb_node);
-	}
-}
-*/
-
+// TODO: veb_walk is a relic of the old cobt
 static void veb_walk(const struct cob* this, uint64_t key,
 		uint64_t* stack, uint64_t* _stack_size,
 		uint64_t* _leaf_index) {
@@ -262,7 +198,6 @@ static void entirely_reset_veb(struct cob* this) {
 		.size = this->file.capacity,
 		.file = &this->file
 	});
-	//cob_recalculate_minima(this, 0, cobt_get_veb_height(*this) - 1);
 }
 
 static void validate_key(uint64_t key) {
@@ -292,16 +227,6 @@ void cob_insert(struct cob* this, uint64_t key, uint64_t value) {
 
 	if (parameters_equal(get_params(this->file), prior_parameters)) {
 		fix_range(this, reorg_range);
-		/*
-		const uint64_t levels_up = exact_log2(
-				reorg_range.size / this->file.block_size);
-
-		// Rebuild reorganized subtree.
-		cob_recalculate_minima(this,
-				node_stack[node_stack_size - 1 - levels_up],
-				levels_up);
-		cob_fix_stack(this, node_stack, node_stack_size - levels_up - 1);
-		*/
 	} else {
 		entirely_reset_veb(this);
 	}
@@ -333,16 +258,6 @@ int8_t cob_delete(struct cob* this, uint64_t key) {
 	ofm_delete(&this->file, index, NULL, &reorg_range);
 	if (parameters_equal(get_params(this->file), prior_parameters)) {
 		fix_range(this, reorg_range);
-		/*
-		const uint64_t levels_up = exact_log2(
-				reorg_range.size / this->file.block_size);
-
-		// Rebuild reorganized subtree.
-		cob_recalculate_minima(this,
-				node_stack[node_stack_size - 1 - levels_up],
-				levels_up);
-		cob_fix_stack(this, node_stack, node_stack_size - levels_up - 1);
-		*/
 	} else {
 		entirely_reset_veb(this);
 	}
