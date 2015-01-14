@@ -1,7 +1,6 @@
 CFLAGS=-std=gnu11 -W -Wall -O3 -rdynamic -lm
 CC=gcc
 
-#	cache_oblivious_btree/*.c
 
 SOURCES= \
 	stopwatch/*.c measurement/*.c \
@@ -17,7 +16,8 @@ SOURCES= \
 	performance/*.c \
 	rand/*.c rand/test/*.c \
 	util/*.c \
-	veb_layout/*.c
+	veb_layout/*.c \
+	cache_oblivious_btree/*.c
 
 all: bin/test bin/test_profile bin/performance
 

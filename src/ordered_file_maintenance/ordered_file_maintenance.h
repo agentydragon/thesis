@@ -39,6 +39,8 @@ typedef struct {
 	ofm* file;
 } ofm_range;
 
+ofm_range ofm_get_leaf(ofm* file, uint64_t index);
+
 void ofm_dump(ofm file);
 void ofm_insert_before(ofm* file, ofm_item item, uint64_t insert_before_index,
 		uint64_t *saved_at, ofm_range *touched_range);

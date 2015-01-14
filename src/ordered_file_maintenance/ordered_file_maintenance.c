@@ -144,7 +144,7 @@ struct parameters adequate_parameters(uint64_t items) {
 	};
 }
 
-static ofm_range ofm_get_leaf(ofm* file, uint64_t index) {
+ofm_range ofm_get_leaf(ofm* file, uint64_t index) {
 	return (ofm_range) {
 		.file = file,
 		.begin = index - (index % file->block_size),
@@ -374,7 +374,9 @@ void ofm_insert_before(ofm* file, ofm_item item,
 	assert(!file->occupied[insert_before_index]);
 	file->occupied[insert_before_index] = true;
 	file->items[insert_before_index] = item;
-	*saved_at = insert_before_index;
+	if (saved_at != NULL) {
+		*saved_at = insert_before_index;
+	}
 
 	rebalance(file, block, touched_range, saved_at);
 }
@@ -394,7 +396,9 @@ void ofm_delete(ofm* file, uint64_t index, uint64_t *next_item_at,
 	}
 
 	file->occupied[index] = false;
-	*next_item_at = next_index;
+	if (next_item_at != NULL) {
+		*next_item_at = next_index;
+	}
 	rebalance(file, ofm_get_leaf(file, index), touched_range, next_item_at);
 }
 
