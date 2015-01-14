@@ -17,7 +17,8 @@ SOURCES= \
 	rand/*.c rand/test/*.c \
 	util/*.c \
 	veb_layout/*.c \
-	cache_oblivious_btree/*.c
+	cache_oblivious_btree/*.c \
+	test/*.c
 
 all: bin/test bin/test_profile bin/performance
 

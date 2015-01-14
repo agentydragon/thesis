@@ -10,6 +10,7 @@
 
 #include "../veb_layout/veb_layout.h"
 #include "../ordered_file_maintenance/test_helpers.h"
+#include "../test/ordered_hash_blackbox.h"
 
 static uint64_t value_for_key(uint64_t x) { return x * 4; }
 
@@ -44,55 +45,6 @@ static void __attribute__((unused)) dump_cob(struct cob cob) {
 
 #define COUNTOF(x) (sizeof(x) / sizeof(*(x)))
 
-#define assert_map(cob,key,value) do { \
-	const uint64_t _key = key, _value = value; \
-	bool _found; \
-	uint64_t _found_value; \
-	cob_find(cob, key, &_found, &_found_value); \
-	if (!_found) { \
-		log_fatal("expected to find %" PRIu64 "=%" PRIu64 ", " \
-				"but no such key found", \
-				_key, _value); \
-	} \
-	if (_found_value != value) { \
-		log_fatal("expected to find %" PRIu64 "=%" PRIu64 ", " \
-				"but found %" PRIu64 "=%" PRIu64, \
-				_key, _value, _key, _found_value); \
-	} \
-} while (0)
-
-
-#define assert_next_key(cob,key,next_key) do { \
-	bool found; \
-	uint64_t found_key; \
-	cob_next_key(cob, key, &found, &found_key); \
-	if (next_key != NIL) { \
-		if (!found) { \
-			log_fatal("no next key for %" PRIu64 ", expected " \
-					"%" PRIu64, key, next_key); \
-		} \
-		assert(next_key == found_key); \
-	} else { \
-		assert(!found); \
-	} \
-} while (0)
-
-#define assert_previous_key(cob,key,previous_key) do { \
-	bool found; \
-	uint64_t found_key; \
-	cob_previous_key(cob, key, &found, &found_key); \
-	if (previous_key != NIL) { \
-		CHECK(found, \
-				"no previous key for %" PRIu64 ", expected " \
-				"%" PRIu64, key, previous_key); \
-		CHECK(previous_key == found_key, \
-				"previous key to %" PRIu64 " should have been " \
-				"%" PRIu64 ", but it is actually %" PRIu64, \
-				key, previous_key, found_key); \
-	} else { \
-		assert(!found); \
-	} \
-} while (0)
 
 // TODO: custom value_for_key?
 #define INSERT_ITEMS(...) do { \
@@ -110,6 +62,7 @@ static void __attribute__((unused)) dump_cob(struct cob cob) {
 	} \
 } while (0)
 
+/*
 void check_key_sequence(struct cob* cob,
 		const uint64_t* sequence, uint64_t count) {
 	// Check sequence inside.
@@ -155,6 +108,7 @@ void check_key_sequence(struct cob* cob,
 		}
 	}
 }
+*/
 
 //#define assert_content(__cob,...) do { \
 //	const struct cob* _cob = __cob; \
@@ -166,12 +120,14 @@ void check_key_sequence(struct cob* cob,
 //	check_key_sequence(_cob, _expected, _count); \
 //} while (0)
 
+/*
 #define assert_content_low_detail(__cob,...) do { \
 	struct cob* _cob = __cob; \
 	const uint64_t _expected[] = { __VA_ARGS__ }; \
 	const uint64_t _count = sizeof(_expected) / sizeof(*_expected); \
 	check_key_sequence(_cob, _expected, _count); \
 } while (0)
+*/
 
 //static void test_simple_delete() {
 //	// File block size: 4
@@ -291,6 +247,7 @@ void check_key_sequence(struct cob* cob,
 //	destroy_file(cob.file);
 //}
 
+/*
 static void test_comprehensive_resizing() {
 //	uint64_t* veb_minima = malloc(sizeof(uint64_t));
 //	veb_minima[0] = COB_INFINITY;
@@ -346,8 +303,21 @@ assert(cob.veb_minima[0] == COB_INFINITY);
 
 cob_destroy(cob);
 }
+*/
 
-static void test_cobt_correctness(struct cob* cob) {
+static void blackbox_init(void** _this) {
+	*_this = malloc(sizeof(struct cob));
+	cob_init(*_this);
+}
+
+static void blackbox_destroy(void** _this) {
+	cob_destroy(** (struct cob**) _this);
+	free(*_this);
+	*_this = NULL;
+}
+
+static void blackbox_check(void* _this) {
+	struct cob* cob = _this;
 	for (uint64_t i = 0; i < cob->file.capacity / cob->file.block_size;
 			i++) {
 		const uint64_t leaf_offset = i * cob->file.block_size;
@@ -360,63 +330,20 @@ static void test_cobt_correctness(struct cob* cob) {
 	}
 }
 
-static void check_equivalence(uint64_t N, uint64_t *keys, uint64_t *values, bool *present,
-		struct cob* cob) {
-	test_cobt_correctness(cob);
-
-	// Check that cob state matches our expectation.
-	bool has_previous = false;
-	uint64_t previous;
-	for (uint64_t i = 0; i < N; i++) {
-		if (present[i]) {
-			assert_map(cob, keys[i], values[i]);
-		} else {
-			bool found;
-			cob_find(cob, keys[i], &found, NULL);
-			assert(!found);
-		}
-
-		bool has_next = false;
-		uint64_t next;
-		for (uint64_t j = i + 1; j < N; j++) {
-			if (present[j]) {
-				has_next = true;
-				next = j;
-				break;
-			}
-		}
-
-		if (has_previous) {
-			assert_previous_key(cob, keys[i], keys[previous]);
-		} else {
-			assert_previous_key(cob, keys[i], NIL);
-		}
-
-		if (has_next) {
-			assert_next_key(cob, keys[i], keys[next]);
-		} else {
-			assert_next_key(cob, keys[i], NIL);
-		}
-
-		if (present[i]) { has_previous = true; previous = i; }
-	}
-}
+static ordered_hash_blackbox_spec blackbox_api = {
+	.init = blackbox_init,
+	.destroy = blackbox_destroy,
+	.insert = cob_insert,
+	.remove = cob_delete,
+	.find = cob_find,
+	.next_key = cob_next_key,
+	.previous_key = cob_previous_key,
+	.check = blackbox_check
+};
 
 static void test_fuzz() {
-	srand(0);
-
-	const uint64_t N = 100;
-	uint64_t *keys = calloc(N, sizeof(uint64_t));
-	uint64_t *values = calloc(N, sizeof(uint64_t));
-	bool *present = calloc(N, sizeof(bool));
-
-	// Generate random keys and values.
-	keys[0] = 0;
-	for (uint64_t i = 1; i < N; i++) {
-		keys[i] = keys[i - 1] + rand() % 1000;
-		present[i] = false;
-	}
-
+	test_ordered_hash_blackbox(blackbox_api);
+	/*
 	struct cob cob;
 	cob_init(&cob);
 
@@ -456,6 +383,7 @@ static void test_fuzz() {
 	}
 
 	cob_destroy(cob);
+	*/
 }
 
 void test_cache_oblivious_btree() {
