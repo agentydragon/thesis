@@ -66,8 +66,11 @@ static void check_equivalence(
 			assert_map(api, instance, keys[i], values[i]);
 		} else {
 			bool found;
-			api.find(instance, keys[i], &found, NULL);
-			assert(!found);
+			uint64_t found_value;
+			api.find(instance, keys[i], &found, &found_value);
+			CHECK(!found, "Expected not to find key %" PRIu64 ", "
+					"but it has value %" PRIu64 ".",
+					keys[i], found_value);
 		}
 
 		bool has_next = false;
@@ -87,12 +90,11 @@ static void check_equivalence(
 	}
 }
 
-void test_ordered_hash_blackbox(ordered_hash_blackbox_spec api) {
+static void test_with_maximum_size(ordered_hash_blackbox_spec api, uint64_t N) {
 	void* instance;
 	api.init(&instance);
 
 	srand(0);
-	const uint64_t N = 100;
 	uint64_t *keys = calloc(N, sizeof(uint64_t));
 	uint64_t *values = calloc(N, sizeof(uint64_t));
 	bool *present = calloc(N, sizeof(bool));
@@ -100,21 +102,20 @@ void test_ordered_hash_blackbox(ordered_hash_blackbox_spec api) {
 	// Generate random keys.
 	keys[0] = rand() % 1000;
 	for (uint64_t i = 1; i < N; i++) {
-		keys[i] = keys[i - 1] + rand() % 1000;
+		keys[i] = keys[i - 1] + 1 + rand() % 1000;
 		present[i] = false;
 	}
 
 	uint64_t current_size = 0;
-	const uint64_t max_size = N;
-	for (uint64_t iteration = 0; iteration < 1000; iteration++) {
-		log_info("iteration=%" PRIu64, iteration);
+	for (uint64_t iteration = 0; iteration < 10000; iteration++) {
+		// log_info("iteration=%" PRIu64, iteration);
 
-		if (current_size > 0 && (current_size >= max_size ||
+		if (current_size > 0 && (current_size >= N ||
 					rand() % 3 == 0)) {
 			// Find a random key and delete it.
 			for (uint64_t i = 0; ; i = (i + 1) % N) {
 				if (present[i] && rand() % current_size == 0) {
-					log_info("delete %" PRIu64, keys[i]);
+					// log_info("delete %" PRIu64, keys[i]);
 					api.remove(instance, keys[i]);
 					present[i] = false;
 					--current_size;
@@ -127,7 +128,7 @@ void test_ordered_hash_blackbox(ordered_hash_blackbox_spec api) {
 				if (!present[i] && rand() % (N - current_size) == 0) {
 					values[i] = rand();
 					api.insert(instance, keys[i],values[i]);
-					log_info("add %" PRIu64 "=%" PRIu64, keys[i], values[i]);
+					// log_info("add %" PRIu64 "=%" PRIu64, keys[i], values[i]);
 					present[i] = true;
 					++current_size;
 					break;
@@ -146,4 +147,10 @@ void test_ordered_hash_blackbox(ordered_hash_blackbox_spec api) {
 	free(keys);
 	free(values);
 	free(present);
+}
+
+void test_ordered_hash_blackbox(ordered_hash_blackbox_spec api) {
+	test_with_maximum_size(api, 10);
+	test_with_maximum_size(api, 100);
+	test_with_maximum_size(api, 1000);
 }
