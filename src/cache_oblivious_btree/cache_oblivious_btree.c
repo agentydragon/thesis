@@ -22,6 +22,8 @@ static bool parameters_equal(struct parameters x, struct parameters y) {
 }
 
 static bool range_find(ofm_range range, uint64_t key, uint64_t *found_index) {
+	log_info("looking for %" PRIu64 " in [%" PRIu64 "+%" PRIu64 "]",
+			key, range.begin, range.size);
 	for (uint64_t i = 0; i < range.size; i++) {
 		const uint64_t index = range.begin + i;
 		if (range.file->occupied[index] &&
@@ -35,7 +37,7 @@ static bool range_find(ofm_range range, uint64_t key, uint64_t *found_index) {
 	return false;
 }
 
-static uint64_t range_get_minimum(ofm_range range) {
+uint64_t cobt_range_get_minimum(ofm_range range) {
 	// Since items are stored in ascending order, the first present item
 	// is the minimum.
 	for (uint64_t i = 0; i < range.size; i++) {
@@ -61,8 +63,8 @@ static ofm_range insert_sorted_order(ofm_range range, uint64_t key,
 
 	ofm_range touched_range;
 	if (found_after) {
-		//log_info("inserting %" PRIu64 "=%" PRIu64 " after %" PRIu64,
-		//		key, insert_after_index);
+		log_info("inserting %" PRIu64 "=%" PRIu64 " before %" PRIu64,
+				key, value, index_after);
 		ofm_insert_before(range.file,
 				(ofm_item) { .key = key, .value = value },
 				index_after, NULL, &touched_range);
@@ -79,13 +81,39 @@ static uint64_t leaf_range_count(struct cob this) {
 	return this.file.capacity / this.file.block_size;
 }
 
-uint64_t get_veb_height(struct cob this) {
+uint64_t cobt_get_veb_height(struct cob this) {
 	return exact_log2(leaf_range_count(this)) + 1;
 }
 
+uint64_t cobt_range_to_node_id(struct cob this, ofm_range range) {
+	// TODO: optimize
+	ofm_range whole = (ofm_range) {
+		.begin = 0, .size = this.file.capacity
+	};
+	uint64_t node = 0;
+	while (whole.begin != range.begin || whole.size != range.size) {
+		// Is range on the left half?
+		veb_pointer left, right;
+		veb_get_children(node, cobt_get_veb_height(this),
+				&left, &right);
+		assert(left.present && right.present);
+		if (range.begin < whole.begin + (whole.size / 2)) {
+			// left
+			node = left.node;
+		} else {
+			// right
+			node = right.node;
+			whole.begin += whole.size / 2;
+		}
+		whole.size /= 2;
+	}
+	return node;
+}
+
+/*
 static void cob_fix_internal_node(struct cob* this, uint64_t veb_node) {
 	veb_pointer left, right;
-	veb_get_children(veb_node, get_veb_height(*this), &left, &right);
+	veb_get_children(veb_node, cobt_get_veb_height(*this), &left, &right);
 	assert(left.present && right.present);
 
 	log_info("below %" PRIu64 ": [%" PRIu64 "]=%" PRIu64 ", "
@@ -97,7 +125,47 @@ static void cob_fix_internal_node(struct cob* this, uint64_t veb_node) {
 		      b = this->veb_minima[right.node];
 	this->veb_minima[veb_node] = (a < b) ? a : b;
 }
+*/
 
+static void fix_below(struct cob* this, ofm_range range_to_fix) {
+	const uint64_t nid = cobt_range_to_node_id(*this, range_to_fix);
+	this->veb_minima[nid] = cobt_range_get_minimum(range_to_fix);
+	if (range_to_fix.size > this->file.block_size) {
+		const ofm_range left = (ofm_range) {
+			.begin = range_to_fix.begin,
+			.size = range_to_fix.size / 2,
+			.file = range_to_fix.file
+		};
+		const ofm_range right = (ofm_range) {
+			.begin = range_to_fix.begin + range_to_fix.size / 2,
+			.size = range_to_fix.size / 2,
+			.file = range_to_fix.file
+		};
+		fix_below(this, left);
+		fix_below(this, right);
+	}
+}
+
+static void fix_range(struct cob* this, ofm_range range_to_fix) {
+	// Fix all below first.
+	fix_below(this, range_to_fix);
+	while (!ofm_is_entire_file(range_to_fix)) {
+		const uint64_t parent_nid = cobt_range_to_node_id(
+				*this, ofm_block_parent(range_to_fix));
+		veb_pointer left, right;
+		veb_get_children(parent_nid, cobt_get_veb_height(*this),
+				&left, &right);
+		assert(left.present && right.present);
+		if (this->veb_minima[left.node] < this->veb_minima[right.node]) {
+			this->veb_minima[parent_nid] = this->veb_minima[left.node];
+		} else {
+			this->veb_minima[parent_nid] = this->veb_minima[right.node];
+		}
+		range_to_fix = ofm_block_parent(range_to_fix);
+	}
+}
+
+/*
 static void cob_fix_stack(struct cob* this,
 		uint64_t* stack, uint64_t stack_size) {
 	log_info("fixing stack of size %" PRIu64, stack_size);
@@ -107,13 +175,15 @@ static void cob_fix_stack(struct cob* this,
 		cob_fix_internal_node(this, node);
 	}
 }
+*/
 
 // levels_up is passed as an optimization.
+/*
 void cob_recalculate_minima(struct cob* this, uint64_t veb_node,
 		uint64_t levels_up) {
 	log_info("recalculating everything under %" PRIu64, veb_node);
 	// Save veb_height for optimization.
-	const uint64_t veb_height = get_veb_height(*this);
+	const uint64_t veb_height = cobt_get_veb_height(*this);
 	// assert(veb_is_leaf(veb_node, veb_height) == (levels_up == 0));
 	if (levels_up == 0) {
 		const uint64_t leaf_number =
@@ -123,7 +193,7 @@ void cob_recalculate_minima(struct cob* this, uint64_t veb_node,
 		const uint64_t leaf_offset = leaf_number *
 				this->file.block_size;
 
-		this->veb_minima[veb_node] = range_get_minimum( (ofm_range) {
+		this->veb_minima[veb_node] = cobt_range_get_minimum( (ofm_range) {
 					.begin = leaf_offset,
 					.size = this->file.block_size,
 					.file = &this->file
@@ -141,6 +211,7 @@ void cob_recalculate_minima(struct cob* this, uint64_t veb_node,
 		cob_fix_internal_node(this, veb_node);
 	}
 }
+*/
 
 static void veb_walk(const struct cob* this, uint64_t key,
 		uint64_t* stack, uint64_t* _stack_size,
@@ -148,7 +219,7 @@ static void veb_walk(const struct cob* this, uint64_t key,
 	log_info("veb_walking to key %" PRIu64, key);
 	uint64_t stack_size = 0;
 
-	const uint64_t veb_height = get_veb_height(*this);
+	const uint64_t veb_height = cobt_get_veb_height(*this);
 	// Walk down vEB layout to find where does the key belong.
 	uint64_t pointer = 0;  // 0 == van Emde Boas root node
 	uint64_t leaf_index = 0;
@@ -186,7 +257,12 @@ static void entirely_reset_veb(struct cob* this) {
 	this->veb_minima = realloc(this->veb_minima,
 			this->file.capacity * sizeof(uint64_t));
 	assert(this->veb_minima);
-	cob_recalculate_minima(this, 0, get_veb_height(*this) - 1);
+	fix_range(this, (ofm_range) {
+		.begin = 0,
+		.size = this->file.capacity,
+		.file = &this->file
+	});
+	//cob_recalculate_minima(this, 0, cobt_get_veb_height(*this) - 1);
 }
 
 static void validate_key(uint64_t key) {
@@ -211,8 +287,12 @@ void cob_insert(struct cob* this, uint64_t key, uint64_t value) {
 			ofm_get_leaf(&this->file,
 					leaf_index * this->file.block_size),
 			key, value);
+	log_info("reorged range [%" PRIu64 "+%" PRIu64 "]",
+			reorg_range.begin, reorg_range.size);
 
 	if (parameters_equal(get_params(this->file), prior_parameters)) {
+		fix_range(this, reorg_range);
+		/*
 		const uint64_t levels_up = exact_log2(
 				reorg_range.size / this->file.block_size);
 
@@ -221,9 +301,11 @@ void cob_insert(struct cob* this, uint64_t key, uint64_t value) {
 				node_stack[node_stack_size - 1 - levels_up],
 				levels_up);
 		cob_fix_stack(this, node_stack, node_stack_size - levels_up - 1);
+		*/
 	} else {
 		entirely_reset_veb(this);
 	}
+
 }
 
 int8_t cob_delete(struct cob* this, uint64_t key) {
@@ -240,7 +322,8 @@ int8_t cob_delete(struct cob* this, uint64_t key) {
 	const struct parameters prior_parameters = get_params(this->file);
 
 	// Delete from ordered file.
-	ofm_range leaf_sr = ofm_get_leaf(&this->file, leaf_index * this->file.block_size);
+	ofm_range leaf_sr = ofm_get_leaf(&this->file, leaf_index *
+			this->file.block_size);
 	uint64_t index;
 	if (!range_find(leaf_sr, key, &index)) {
 		// Deleting nonexistant key.
@@ -249,6 +332,8 @@ int8_t cob_delete(struct cob* this, uint64_t key) {
 	ofm_range reorg_range;
 	ofm_delete(&this->file, index, NULL, &reorg_range);
 	if (parameters_equal(get_params(this->file), prior_parameters)) {
+		fix_range(this, reorg_range);
+		/*
 		const uint64_t levels_up = exact_log2(
 				reorg_range.size / this->file.block_size);
 
@@ -257,6 +342,7 @@ int8_t cob_delete(struct cob* this, uint64_t key) {
 				node_stack[node_stack_size - 1 - levels_up],
 				levels_up);
 		cob_fix_stack(this, node_stack, node_stack_size - levels_up - 1);
+		*/
 	} else {
 		entirely_reset_veb(this);
 	}

@@ -159,13 +159,13 @@ static bool ofm_block_full(ofm_range block) {
 	return true;
 }
 
-static ofm_range ofm_block_parent(ofm_range block) {
+ofm_range ofm_block_parent(ofm_range block) {
 	block.size *= 2;
 	block.begin -= block.begin % block.size;
 	return block;
 }
 
-static bool ofm_is_entire_file(ofm_range block) {
+bool ofm_is_entire_file(ofm_range block) {
 	return block.begin == 0 && block.size == block.file->capacity;
 }
 
@@ -183,8 +183,8 @@ static void ofm_move(ofm file, uint64_t to, uint64_t from, uint64_t *watch) {
 }
 
 static void ofm_compact_left(ofm_range block, uint64_t *watch) {
-	log_info("compact_left(%" PRIu64 "+%" PRIu64 ")",
-			block.begin, block.size);
+	// log_info("compact_left(%" PRIu64 "+%" PRIu64 ")",
+	// 		block.begin, block.size);
 	uint64_t to = block.begin;
 	for (uint64_t i = 0; i < block.size; i++) {
 		uint64_t from = block.begin + i;
@@ -210,7 +210,7 @@ static void ofm_compact_right(ofm_range block, uint64_t *watch) {
 		}
 	}
 	// ofm_dump(*block.file);
-	log_info("/ compact_right");
+	// log_info("/ compact_right");
 }
 
 static uint64_t ofm_count_occupied(ofm_range block) {
@@ -224,10 +224,10 @@ static uint64_t ofm_count_occupied(ofm_range block) {
 }
 
 static void ofm_spread(ofm_range block, uint64_t *watch) {
-	log_info("spread");
+	// log_info("spread");
 	ofm_compact_right(block, watch);
 	uint64_t occupied = ofm_count_occupied(block);
-	log_info("occupied=%" PRIu64, occupied);
+	// log_info("occupied=%" PRIu64, occupied);
 	if (occupied > 0) {
 		double gap = ((double) block.size) / occupied;
 		for (uint64_t i = 0; i < occupied; i++) {
@@ -252,10 +252,10 @@ static bool ofm_block_within_threshold(ofm_range block) {
 		((double) block_depth / leaf_depth) / 4;
 	const double density = ((double) ofm_count_occupied(block)) /
 		block.size;
-	log_info("bs=%" PRIu64 " leaf_size=%" PRIu64 " d=%lf "
-			"min_d=%lf max_d=%lf", block.size,
-			block.file->block_size, density, min_density,
-			max_density);
+	// log_info("bs=%" PRIu64 " leaf_size=%" PRIu64 " d=%lf "
+	// 		"min_d=%lf max_d=%lf", block.size,
+	// 		block.file->block_size, density, min_density,
+	// 		max_density);
 	return min_density <= density && density <= max_density;
 }
 
@@ -269,13 +269,13 @@ static void rebalance(ofm* file, ofm_range start_block,
 	}
 
 	if (ofm_is_entire_file(range)) {
-		log_info("entire file out of balance");
+		// log_info("entire file out of balance");
 		struct parameters parameters = adequate_parameters(
 				ofm_count_occupied(range));
 
 		if (parameters.capacity == file->capacity &&
 				parameters.block_size == file->block_size) {
-			log_info("ignoring, parameters are deemed adequate.");
+			// log_info("ignoring, parameters are deemed adequate.");
 		} else {
 			ofm new_file = {
 				.occupied = calloc(parameters.capacity, sizeof(bool)),
@@ -304,9 +304,9 @@ static void rebalance(ofm* file, ofm_range start_block,
 				.size = file->capacity,
 				.file = file,
 			};
-			log_info("resized, new capacity=%" PRIu64 " "
-					"occupied=%" PRIu64, file->capacity,
-					ofm_count_occupied(whole_file));
+			// log_info("resized, new capacity=%" PRIu64 " "
+			// 		"occupied=%" PRIu64, file->capacity,
+			// 		ofm_count_occupied(whole_file));
 			range = whole_file;
 			assert(ofm_block_within_threshold(range));
 		}
@@ -324,7 +324,7 @@ static void rebalance(ofm* file, ofm_range start_block,
 // Moves every item in the block, starting with index `step_start`,
 // one slot to the right.
 void ofm_step_right(ofm_range block, uint64_t step_start) {
-	log_info("step_right");
+	// log_info("step_right");
 	// There needs to be some free space at the end.
 	for (uint64_t i = block.begin + block.size - 1; i > step_start; i--) {
 		assert(!block.file->occupied[i]);
@@ -335,9 +335,9 @@ void ofm_step_right(ofm_range block, uint64_t step_start) {
 void ofm_insert_before(ofm* file, ofm_item item,
 		uint64_t insert_before_index, uint64_t *saved_at,
 		ofm_range *touched_range) {
-	log_info("insert_before(%" PRIu64 "=%" PRIu64 ", "
-			"before_index=%" PRIu64 ")", item.key, item.value,
-			insert_before_index);
+	// log_info("insert_before(%" PRIu64 "=%" PRIu64 ", "
+	// 		"before_index=%" PRIu64 ")", item.key, item.value,
+	// 		insert_before_index);
 	assert(insert_before_index <= file->capacity);
 
 	ofm_range block;

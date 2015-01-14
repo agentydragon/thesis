@@ -38,6 +38,7 @@ void cob_next_key(struct cob* this, uint64_t key,
 		bool *next_key_exists, uint64_t *next_key);
 void cob_previous_key(struct cob* this, uint64_t key,
 		bool *previous_key_exists, uint64_t *previous_key);
-uint64_t get_veb_height(struct cob this);
+uint64_t cobt_get_veb_height(struct cob this);
+uint64_t cobt_range_get_minimum(ofm_range range);
 
 #endif

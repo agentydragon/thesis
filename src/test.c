@@ -9,7 +9,7 @@
 #include "test_hash/test_hash.h"
 #include "test_hash/test_hash_large.h"
 
-//#include "cache_oblivious_btree/test.h"
+#include "cache_oblivious_btree/test.h"
 #include "hash_hashtable/test/test.h"
 #include "hash_bplustree/test/test.h"
 #include "observation/test/test.h"
@@ -27,7 +27,7 @@ void run_unit_tests() {
 	test_rand();
 	test_veb_layout();
 	test_ordered_file_maintenance();
-	//test_cache_oblivious_btree();
+	test_cache_oblivious_btree();
 
 	test_hash_hashtable();
 	test_hash_bplustree();

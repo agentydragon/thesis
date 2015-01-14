@@ -49,4 +49,7 @@ void ofm_delete(ofm* file, uint64_t index, uint64_t *next_item_at,
 void ofm_init(ofm* file);
 void ofm_destroy(ofm file);
 
+bool ofm_is_entire_file(ofm_range block);
+ofm_range ofm_block_parent(ofm_range block);
+
 #endif

@@ -8,11 +8,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../veb_layout/veb_layout.h"
 #include "../ordered_file_maintenance/test_helpers.h"
 
 static uint64_t value_for_key(uint64_t x) { return x * 4; }
 
 // Used for debugging.
+/*
 static void __attribute__((unused)) dump_cob(struct cob cob) {
 	log_info("capacity=%" PRIu64 " block_size=%" PRIu64,
 			cob.file.capacity, cob.file.block_size);
@@ -38,8 +40,27 @@ static void __attribute__((unused)) dump_cob(struct cob cob) {
 	}
 	log_info("veb_minima=%s", buffer);
 }
+*/
 
 #define COUNTOF(x) (sizeof(x) / sizeof(*(x)))
+
+#define assert_map(cob,key,value) do { \
+	const uint64_t _key = key, _value = value; \
+	bool _found; \
+	uint64_t _found_value; \
+	cob_find(cob, key, &_found, &_found_value); \
+	if (!_found) { \
+		log_fatal("expected to find %" PRIu64 "=%" PRIu64 ", " \
+				"but no such key found", \
+				_key, _value); \
+	} \
+	if (_found_value != value) { \
+		log_fatal("expected to find %" PRIu64 "=%" PRIu64 ", " \
+				"but found %" PRIu64 "=%" PRIu64, \
+				_key, _value, _key, _found_value); \
+	} \
+} while (0)
+
 
 #define assert_next_key(cob,key,next_key) do { \
 	bool found; \
@@ -276,52 +297,163 @@ static void test_comprehensive_resizing() {
 
 //	struct cob cob = { .veb_minima = veb_minima };
 //	make_file(&cob.file, 4, NIL, NIL, NIL, NIL);
+struct cob cob;
+cob_init(&cob);
+
+INSERT_ITEMS(
+	200, 300, 400, 600, 800, 100, 150, 250, 450, 900, 910, 920,
+	120, 130, 140, 170, 190, 210, 230, 270, 310, 810, 820, 990,
+	135, 137, 148, 149, 660, 670, 666, 142, 147, 550, 560, 775,
+	143, 157, 168, 152, 915, 965, 963, 998, 916, 971, 561, 567);
+
+// Negative assertion against _found.
+bool _found;
+cob_find(&cob, 667, &_found, NULL);
+assert(!_found);
+
+assert_content_low_detail(&cob,
+	100, 120, 130, 135, 137, 140, 142, 143, 147, 148, 149, 150,
+	152, 157, 168, 170, 190, 200, 210, 230, 250, 270, 300, 310,
+	400, 450, 550, 560, 561, 567, 600, 660, 666, 670, 775, 800,
+	810, 820, 900, 910, 915, 916, 920, 963, 965, 971, 990, 998);
+
+delete_items(&cob,
+	149, 660, 550, 400, 157, 998, 916, 920, 450, 100, 915, 971);
+assert_content_low_detail(&cob,
+	120, 130, 135, 137, 140, 142, 143, 147, 148, 150, 152, 168,
+	170, 190, 200, 210, 230, 250, 270, 300, 310, 560, 561, 567,
+	600, 666, 670, 775, 800, 810, 820, 900, 910, 963, 965, 990);
+
+delete_items(&cob,
+	137, 147, 168, 120, 130, 135, 300, 910, 810, 965, 567, 600);
+assert_content_low_detail(&cob,
+	140, 142, 143, 148, 150, 152, 170, 190, 200, 210, 230, 250,
+	270, 310, 560, 561, 666, 670, 775, 800, 820, 900, 963, 990);
+
+delete_items(&cob,
+	270, 310, 560, 561, 666, 152, 170, 190, 200, 900, 963, 990);
+assert_content_low_detail(&cob,
+	140, 142, 143, 148, 150, 210, 230, 250, 670, 775, 800, 820);
+
+delete_items(&cob, 143, 148, 210, 230, 250, 670, 820, 150);
+assert_content_low_detail(&cob, 140, 142, 775, 800);
+
+delete_items(&cob, 142, 775, 800, 140);
+assert_content_low_detail(&cob);
+
+// Check minimum calculation in empty tree.
+assert(cob.veb_minima[0] == COB_INFINITY);
+
+cob_destroy(cob);
+}
+
+static void test_cobt_correctness(struct cob* cob) {
+	for (uint64_t i = 0; i < cob->file.capacity / cob->file.block_size;
+			i++) {
+		const uint64_t leaf_offset = i * cob->file.block_size;
+		const uint64_t node = veb_get_leaf_number(i, cobt_get_veb_height(*cob));
+		assert(cob->veb_minima[node] == cobt_range_get_minimum((ofm_range) {
+				.begin = leaf_offset,
+				.size = cob->file.block_size,
+				.file = &cob->file
+		}));
+	}
+}
+
+static void check_equivalence(uint64_t N, uint64_t *keys, uint64_t *values, bool *present,
+		struct cob* cob) {
+	test_cobt_correctness(cob);
+
+	// Check that cob state matches our expectation.
+	bool has_previous = false;
+	uint64_t previous;
+	for (uint64_t i = 0; i < N; i++) {
+		if (present[i]) {
+			assert_map(cob, keys[i], values[i]);
+		} else {
+			bool found;
+			cob_find(cob, keys[i], &found, NULL);
+			assert(!found);
+		}
+
+		bool has_next = false;
+		uint64_t next;
+		for (uint64_t j = i + 1; j < N; j++) {
+			if (present[j]) {
+				has_next = true;
+				next = j;
+				break;
+			}
+		}
+
+		if (has_previous) {
+			assert_previous_key(cob, keys[i], keys[previous]);
+		} else {
+			assert_previous_key(cob, keys[i], NIL);
+		}
+
+		if (has_next) {
+			assert_next_key(cob, keys[i], keys[next]);
+		} else {
+			assert_next_key(cob, keys[i], NIL);
+		}
+
+		if (present[i]) { has_previous = true; previous = i; }
+	}
+}
+
+static void test_fuzz() {
+	srand(0);
+
+	const uint64_t N = 100;
+	uint64_t *keys = calloc(N, sizeof(uint64_t));
+	uint64_t *values = calloc(N, sizeof(uint64_t));
+	bool *present = calloc(N, sizeof(bool));
+
+	// Generate random keys and values.
+	keys[0] = 0;
+	for (uint64_t i = 1; i < N; i++) {
+		keys[i] = keys[i - 1] + rand() % 1000;
+		present[i] = false;
+	}
+
 	struct cob cob;
 	cob_init(&cob);
 
-	INSERT_ITEMS(
-		200, 300, 400, 600, 800, 100, 150, 250, 450, 900, 910, 920,
-		120, 130, 140, 170, 190, 210, 230, 270, 310, 810, 820, 990,
-		135, 137, 148, 149, 660, 670, 666, 142, 147, 550, 560, 775,
-		143, 157, 168, 152, 915, 965, 963, 998, 916, 971, 561, 567);
+	uint64_t current_size = 0;
+	const uint64_t max_size = N;
+	for (uint64_t iteration = 0; iteration < 1000; iteration++) {
+		log_info("iteration=%" PRIu64, iteration);
 
-	// Negative assertion against _found.
-	bool _found;
-	cob_find(&cob, 667, &_found, NULL);
-	assert(!_found);
+		if (current_size > 0 && (current_size >= max_size ||
+					rand() % 3 == 0)) {
+			// Find a random key and delete it.
+			for (uint64_t i = 0; ; i = (i + 1) % N) {
+				if (present[i] && rand() % current_size == 0) {
+					log_info("delete %" PRIu64, keys[i]);
+					cob_delete(&cob, keys[i]);
+					present[i] = false;
+					--current_size;
+					break;
+				}
+			}
+		} else {
+			// Add a random key.
+			for (uint64_t i = 0; ; i = (i + 1) % N) {
+				if (!present[i] && rand() % (N - current_size) == 0) {
+					values[i] = rand();
+					cob_insert(&cob, keys[i], values[i]);
+					log_info("add %" PRIu64 "=%" PRIu64, keys[i], values[i]);
+					present[i] = true;
+					++current_size;
+					break;
+				}
+			}
+		}
+		ofm_dump(cob.file);
 
-	assert_content_low_detail(&cob,
-		100, 120, 130, 135, 137, 140, 142, 143, 147, 148, 149, 150,
-		152, 157, 168, 170, 190, 200, 210, 230, 250, 270, 300, 310,
-		400, 450, 550, 560, 561, 567, 600, 660, 666, 670, 775, 800,
-		810, 820, 900, 910, 915, 916, 920, 963, 965, 971, 990, 998);
-
-	delete_items(&cob,
-		149, 660, 550, 400, 157, 998, 916, 920, 450, 100, 915, 971);
-	assert_content_low_detail(&cob,
-		120, 130, 135, 137, 140, 142, 143, 147, 148, 150, 152, 168,
-		170, 190, 200, 210, 230, 250, 270, 300, 310, 560, 561, 567,
-		600, 666, 670, 775, 800, 810, 820, 900, 910, 963, 965, 990);
-
-	delete_items(&cob,
-		137, 147, 168, 120, 130, 135, 300, 910, 810, 965, 567, 600);
-	assert_content_low_detail(&cob,
-		140, 142, 143, 148, 150, 152, 170, 190, 200, 210, 230, 250,
-		270, 310, 560, 561, 666, 670, 775, 800, 820, 900, 963, 990);
-
-	delete_items(&cob,
-		270, 310, 560, 561, 666, 152, 170, 190, 200, 900, 963, 990);
-	assert_content_low_detail(&cob,
-		140, 142, 143, 148, 150, 210, 230, 250, 670, 775, 800, 820);
-
-	delete_items(&cob, 143, 148, 210, 230, 250, 670, 820, 150);
-	assert_content_low_detail(&cob, 140, 142, 775, 800);
-
-	delete_items(&cob, 142, 775, 800, 140);
-	assert_content_low_detail(&cob);
-
-	// Check minimum calculation in empty tree.
-	assert(cob.veb_minima[0] == COB_INFINITY);
+		check_equivalence(N, keys, values, present, &cob);
+	}
 
 	cob_destroy(cob);
 }
@@ -332,5 +464,6 @@ void test_cache_oblivious_btree() {
 	//test_simple_insert();
 	//test_insert_new_minimum_with_overflow();
 
-	test_comprehensive_resizing();
+	//test_comprehensive_resizing();
+	test_fuzz();
 }
