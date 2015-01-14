@@ -2,6 +2,7 @@
 CFLAGS=-std=gnu11 -W -Wall -O3 -rdynamic -lm
 CC=gcc
 
+
 SOURCES= \
 	cache_oblivious_btree/*.c \
 	stopwatch/*.c measurement/*.c \
@@ -16,6 +17,7 @@ SOURCES= \
 	math/*.c \
 	performance/*.c \
 	rand/*.c rand/test/*.c \
+	test/*.c \
 	util/*.c \
 	veb_layout/*.c
 

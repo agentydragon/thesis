@@ -19,6 +19,8 @@ void build_veb_layout(uint64_t height,
 bool veb_is_leaf(uint64_t node, uint64_t height);
 void veb_get_children(uint64_t node, uint64_t height,
 		veb_pointer* left, veb_pointer* right);
+void veb_get_children2(uint64_t node, uint64_t height,
+		veb_pointer* left, veb_pointer* right);
 
 // TODO: maybe this one is useless?
 uint64_t veb_get_leaf_number(uint64_t leaf_index, uint64_t height);

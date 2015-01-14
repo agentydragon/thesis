@@ -6,6 +6,7 @@
 #include <inttypes.h>
 #include <string.h>
 #include "../log/log.h"
+#include "../stopwatch/stopwatch.h"
 
 const uint64_t NOTHING = 0xDEADBEEF;
 
@@ -48,6 +49,9 @@ static void set_node(void* _veb_buffer, uint64_t node,
 	veb_get_children(index, HEIGHT, &lx, &rx); \
 	assert(veb_pointer_to_id(lx) == left_n && veb_pointer_to_id(rx) == right_n); \
 } while (0)
+
+//	veb_get_children2(index, HEIGHT, &lx, &rx);
+//	assert(veb_pointer_to_id(lx) == left_n && veb_pointer_to_id(rx) == right_n);
 
 static void build_with_height(uint64_t height) {
 	build_veb_layout(height, 0, set_node, NODE_POOL,
@@ -136,10 +140,55 @@ static void test_5() {
 	check(30, NOTHING, NOTHING); check_leaf_number(15, 30);
 }
 
+/*
+void test_get_children_performance() {
+	log_info("compilance test");
+	for (uint64_t height = 1; height < 22; height++) {
+		for (uint64_t i = 0; i < (1 << (height - 1)); i++) {
+			veb_pointer left, right;
+			veb_get_children(i, height, &left, &right);
+
+			veb_pointer left2, right2;
+			veb_get_children2(i, height, &left2, &right2);
+
+			assert(veb_pointer_to_id(left) == veb_pointer_to_id(left2) &&
+				veb_pointer_to_id(right) == veb_pointer_to_id(right2));
+		}
+	}
+
+	log_info("get_children");
+	stopwatch t = stopwatch_start();
+	for (uint64_t n = 0; n < 100; n++) {
+		for (uint64_t height = 1; height < 22; height++) {
+			for (uint64_t i = 0; i < (1 << (height - 1)); i++) {
+				veb_pointer left, right;
+				veb_get_children(i, height, &left, &right);
+			}
+		}
+	}
+	log_info("took %" PRIu64 " us", stopwatch_read_us(t));
+
+	log_info("get_children2");
+	t = stopwatch_start();
+	for (uint64_t n = 0; n < 100; n++) {
+		for (uint64_t height = 1; height < 22; height++) {
+			for (uint64_t i = 0; i < (1 << (height - 1)); i++) {
+				veb_pointer left, right;
+				veb_get_children2(i, height, &left, &right);
+			}
+		}
+	}
+	log_info("took %" PRIu64 " us", stopwatch_read_us(t));
+	exit(0);
+}
+*/
+
 void test_veb_layout() {
 	test_1();
 	test_2();
 	test_3();
 	test_4();
 	test_5();
+
+	// test_get_children_performance();
 }

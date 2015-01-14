@@ -4,68 +4,52 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define NULL_INDEX 0xDEADBEEFDEADBEEF
+
+struct {
+	uint64_t reorganized_size;
+} OFM_COUNTERS;
+
 // The density of the entire structure is within [0.5;0.75].
 typedef struct {
 	uint64_t key;
 	uint64_t value;
-} ordered_file_item;
+} ofm_item;
 
-struct parameters {
-	uint64_t capacity;
-	uint64_t block_size;
-};
+// struct parameters {
+// 	uint64_t capacity;
+// 	uint64_t block_size;
+// };
 
-struct parameters adequate_parameters(uint64_t items);
+//struct parameters adequate_parameters(uint64_t items);
 
-struct ordered_file {
+typedef struct {
 	// TODO: store as bitmap
 	bool* occupied;
-	ordered_file_item* items;
-	struct parameters parameters;
-};
+	ofm_item* items;
+	//struct parameters parameters;
+	uint64_t capacity;
+	uint64_t block_size;
+} ofm;
 
-struct watched_index {
-	uint64_t index;
-	uint64_t* new_location;
-};
-
-struct ordered_file_range {
+typedef struct {
 	uint64_t begin;
 	uint64_t size;
-};
 
-// TODO: maybe relax requirements to allow easier implementation
-uint64_t leaf_block_size(uint64_t capacity);
-void range_insert_after(
-		struct ordered_file file, struct ordered_file_range range,
-		ordered_file_item inserted_item, uint64_t insert_after);
-void range_compact(
-		struct ordered_file file, struct ordered_file_range range,
-		struct watched_index watched_index);
-void range_spread_evenly(
-		struct ordered_file file, struct ordered_file_range range,
-		struct watched_index watched_index);
-void range_describe(
-		const struct ordered_file file, struct ordered_file_range range,
-		char* buffer);
+	ofm* file;
+} ofm_range;
 
-struct ordered_file_range get_leaf_range(
-		struct ordered_file file, uint64_t index);
+ofm_range ofm_get_leaf(ofm* file, uint64_t index);
 
-// Those functions return the touched range.
-struct ordered_file_range ordered_file_insert_after(struct ordered_file* file,
-		ordered_file_item item, uint64_t insert_after_index);
-struct ordered_file_range ordered_file_insert_first(struct ordered_file* file,
-		ordered_file_item item);
-struct ordered_file_range ordered_file_delete(struct ordered_file* file,
-		uint64_t index);
+void ofm_dump(ofm file);
+void ofm_insert_before(ofm* file, ofm_item item, uint64_t insert_before_index,
+		uint64_t *saved_at, ofm_range *touched_range);
+void ofm_delete(ofm* file, uint64_t index, uint64_t *next_item_at,
+		ofm_range *touched_range);
+void ofm_init(ofm* file);
+void ofm_destroy(ofm file);
 
-void ordered_file_init(struct ordered_file* file);
-void ordered_file_destroy(struct ordered_file file);
-
-bool global_density_within_threshold(uint64_t slots_used, uint64_t capacity);
-bool density_is_within_threshold(uint64_t slots_used, uint64_t slots_available,
-		uint64_t depth, uint64_t structure_height);
-
+bool ofm_is_entire_file(ofm_range block);
+ofm_range ofm_block_parent(ofm_range block);
 
 #endif
