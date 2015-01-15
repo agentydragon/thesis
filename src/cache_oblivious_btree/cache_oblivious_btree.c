@@ -184,10 +184,7 @@ static void fix_range(struct cob* this, ofm_range range_to_fix) {
 	}, 0);
 }
 
-// TODO: veb_walk is a relic of the old cobt
-static void veb_walk(const struct cob* this, uint64_t key,
-		uint64_t* stack, uint64_t* _stack_size,
-		uint64_t* _leaf_index) {
+static uint64_t veb_walk(const struct cob* this, uint64_t key) {
 	log_info("veb_walking to key %" PRIu64, key);
 	uint64_t stack_size = 0;
 
@@ -196,7 +193,7 @@ static void veb_walk(const struct cob* this, uint64_t key,
 	uint64_t pointer = 0;  // 0 == van Emde Boas root node
 	uint64_t leaf_index = 0;
 	do {
-		stack[stack_size++] = pointer;
+		stack_size++;
 
 		if (stack_size == veb_height) {
 			log_info("-> %" PRIu64 " is the leaf we want", pointer);
@@ -221,8 +218,7 @@ static void veb_walk(const struct cob* this, uint64_t key,
 		}
 	} while (true);
 
-	*_stack_size = stack_size;
-	*_leaf_index = leaf_index;
+	return leaf_index;
 }
 
 static void entirely_reset_veb(struct cob* this) {
@@ -244,13 +240,8 @@ static void validate_key(uint64_t key) {
 void cob_insert(struct cob* this, uint64_t key, uint64_t value) {
 	validate_key(key);
 
-	// TODO: make this recursive instead
-	uint64_t node_stack[50];
-	uint64_t node_stack_size = 0;
-
 	// Walk down vEB layout to find where does the key belong.
-	uint64_t leaf_index;
-	veb_walk(this, key, node_stack, &node_stack_size, &leaf_index);
+	const uint64_t leaf_index = veb_walk(this, key);
 
 	const struct parameters prior_parameters = get_params(this->file);
 
@@ -274,13 +265,8 @@ void cob_insert(struct cob* this, uint64_t key, uint64_t value) {
 int8_t cob_delete(struct cob* this, uint64_t key) {
 	validate_key(key);
 
-	// TODO: make this recursive instead
-	uint64_t node_stack[50];
-	uint64_t node_stack_size = 0;
-
 	// Walk down vEB layout to find where does the key belong.
-	uint64_t leaf_index;
-	veb_walk(this, key, node_stack, &node_stack_size, &leaf_index);
+	const uint64_t leaf_index = veb_walk(this, key);
 
 	const struct parameters prior_parameters = get_params(this->file);
 
@@ -305,13 +291,8 @@ int8_t cob_delete(struct cob* this, uint64_t key) {
 void cob_find(struct cob* this, uint64_t key, bool *found, uint64_t *value) {
 	validate_key(key);
 
-	// TODO: make this recursive instead
-	uint64_t node_stack[50];
-	uint64_t node_stack_size = 0;
-
 	// Walk down vEB layout to find where does the key belong.
-	uint64_t leaf_index;
-	veb_walk(this, key, node_stack, &node_stack_size, &leaf_index);
+	const uint64_t leaf_index = veb_walk(this, key);
 
 	const ofm_range leaf_range = ofm_get_leaf(&this->file,
 			leaf_index * this->file.block_size);
@@ -330,13 +311,8 @@ void cob_next_key(struct cob* this, uint64_t key,
 		bool *next_key_exists, uint64_t* next_key) {
 	validate_key(key);
 
-	// TODO: make this recursive instead
-	uint64_t node_stack[50];
-	uint64_t node_stack_size = 0;
-
 	// Walk down vEB layout to find where does the key belong.
-	uint64_t leaf_index;
-	veb_walk(this, key, node_stack, &node_stack_size, &leaf_index);
+	const uint64_t leaf_index = veb_walk(this, key);
 
 	// TODO: plain single FOR?
 	// TODO: pointers for faster lookup? binsearch?
@@ -355,13 +331,8 @@ void cob_previous_key(struct cob* this, uint64_t key,
 		bool *previous_key_exists, uint64_t* previous_key) {
 	validate_key(key);
 
-	// TODO: make this recursive instead
-	uint64_t node_stack[50];
-	uint64_t node_stack_size = 0;
-
 	// Walk down vEB layout to find where does the key belong.
-	uint64_t leaf_index;
-	veb_walk(this, key, node_stack, &node_stack_size, &leaf_index);
+	const uint64_t leaf_index = veb_walk(this, key);
 	ofm_range leaf = ofm_get_leaf(&this->file, leaf_index * this->file.block_size);
 
 	// TODO: plain single FOR?
