@@ -25,15 +25,18 @@ static uint64_t make_value(uint64_t i) {
 	return toycrypt(i, 0xFEDCBA9876543210LL);
 }
 
-struct results {
+struct metrics {
 	uint64_t cache_misses;
 	uint64_t cache_references;
 	uint64_t time_nsec;
 };
 
+struct results {
+	struct metrics combined, just_find;
+};
+
 struct results measure_api(const hash_api* api, uint64_t size) {
 	struct measurement measurement = measurement_begin();
-
 	stopwatch watch = stopwatch_start();
 
 	hash* table;
@@ -43,6 +46,9 @@ struct results measure_api(const hash_api* api, uint64_t size) {
 			log_fatal("cannot insert");
 		}
 	}
+
+	struct measurement measurement_just_find = measurement_begin();
+	stopwatch watch_just_find = stopwatch_start();
 
 	rand_generator generator = { .state = 0 };
 	// Let every read be a hit.
@@ -55,14 +61,22 @@ struct results measure_api(const hash_api* api, uint64_t size) {
 		assert(found && value == make_value(k));
 	}
 
-	struct measurement_results results = measurement_end(measurement);
+	struct measurement_results results_combined = measurement_end(measurement),
+				   results_just_find = measurement_end(measurement_just_find);
 
 	hash_destroy(&table);
 
 	struct results tr = {
-		.cache_misses = results.cache_misses,
-		.cache_references = results.cache_references,
-		.time_nsec = stopwatch_read_ns(watch)
+		.combined = {
+			.cache_misses = results_combined.cache_misses,
+			.cache_references = results_combined.cache_references,
+			.time_nsec = stopwatch_read_ns(watch)
+		},
+		.just_find = {
+			.cache_misses = results_just_find.cache_misses,
+			.cache_references = results_just_find.cache_references,
+			.time_nsec = stopwatch_read_ns(watch_just_find)
+		},
 	};
 	return tr;
 }
@@ -70,10 +84,12 @@ struct results measure_api(const hash_api* api, uint64_t size) {
 int main(int argc, char** argv) {
 	(void) argc; (void) argv;
 	FILE* output = fopen("experiments/cob_cache_behavior/results.csv", "w");
+	//double base = 1.2;
 	double base = 2;
-	double x = 1000;
+	double x = 10;
 
-	while (x < 512 * 1024) {
+	//while (x < 128 * 1024 * 1024) {
+	while (x < 32 * 1024 * 1024) {
 		COB_COUNTERS.total_reorganized_size = 0;
 
 		const uint64_t size = round(x);
@@ -85,11 +101,15 @@ int main(int argc, char** argv) {
 				"%" PRIu64 "\t"
 				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
 				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
+				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
+				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
 				"%" PRIu64
 				"\n",
 				size,
-				bplustree.cache_misses, bplustree.cache_references, bplustree.time_nsec,
-				cobt.cache_misses, cobt.cache_references, cobt.time_nsec,
+				bplustree.combined.cache_misses, bplustree.combined.cache_references, bplustree.combined.time_nsec,
+				cobt.combined.cache_misses, cobt.combined.cache_references, cobt.combined.time_nsec,
+				bplustree.just_find.cache_misses, bplustree.just_find.cache_references, bplustree.just_find.time_nsec,
+				cobt.just_find.cache_misses, cobt.just_find.cache_references, cobt.just_find.time_nsec,
 				COB_COUNTERS.total_reorganized_size);
 		fflush(output);
 		x *= base;

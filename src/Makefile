@@ -36,4 +36,10 @@ bin/performance: performance.c $(SOURCES)
 	$(CC) $(CFLAGS) performance.c $(SOURCES) -o $@
 
 bin/experiments/cob_cache_behavior: experiments/cob_cache_behavior/cob_cache_behavior.c $(SOURCES)
-	$(CC) -g $(CFLAGS) experiments/cob_cache_behavior/cob_cache_behavior.c $(SOURCES) -o $@
+	$(CC) $(CFLAGS) -pg experiments/cob_cache_behavior/cob_cache_behavior.c $(SOURCES) -o $@
+
+bin/experiments/cob_cache_behavior_profile: experiments/cob_cache_behavior/cob_cache_behavior.c $(SOURCES)
+	$(CC) $(CFLAGS) experiments/cob_cache_behavior/cob_cache_behavior.c $(SOURCES) -o $@
+
+bin/experiments/veb_performance: experiments/veb_performance/veb_performance.c $(SOURCES)
+	$(CC) $(CFLAGS) -pg experiments/veb_performance/veb_performance.c $(SOURCES) -o $@
