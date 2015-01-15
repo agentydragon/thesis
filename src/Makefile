@@ -21,8 +21,6 @@ SOURCES= \
 	util/*.c \
 	veb_layout/*.c
 
-all: bin/test bin/test_profile bin/performance
-
 bin/test: test.c $(SOURCES)
 	$(CC) -g $(CFLAGS) test.c $(SOURCES) -o $@
 
