@@ -4,9 +4,7 @@
 #include "../math/math.h"
 #include "../log/log.h"
 
-static uint64_t m_exp2(uint64_t x) {
-	return 1ULL << x;
-}
+#define EXP2(x) (1ULL << (x))
 
 static void split_height(uint64_t height, uint64_t* bottom, uint64_t* top) {
 	*bottom = hyperfloor(height - 1);
@@ -34,11 +32,10 @@ void build_veb_layout(uint64_t height,
 		uint64_t bottom_height, top_height;
 		split_height(height, &bottom_height, &top_height);
 
-		const uint64_t nodes_in_top_block = m_exp2(top_height) - 1;
-		const uint64_t number_of_bottom_blocks = m_exp2(top_height);
-		const uint64_t nodes_in_bottom_block =
-			m_exp2(bottom_height) - 1;
-		const uint64_t leaves_per_bottom_block = m_exp2(bottom_height);
+		const uint64_t nodes_in_top_block = EXP2(top_height) - 1;
+		const uint64_t number_of_bottom_blocks = EXP2(top_height);
+		const uint64_t nodes_in_bottom_block = EXP2(bottom_height) - 1;
+		const uint64_t leaves_per_bottom_block = EXP2(bottom_height);
 
 		build_veb_layout(top_height, node_start,
 				set_node, set_node_opaque,
@@ -169,8 +166,8 @@ void veb_get_children(uint64_t node, uint64_t height,
 			}
 		}
 
-		const uint64_t nodes_in_top_block = m_exp2(top_height) - 1;
-		const uint64_t nodes_in_bottom_block = m_exp2(bottom_height) - 1;
+		const uint64_t nodes_in_top_block = EXP2(top_height) - 1;
+		const uint64_t nodes_in_bottom_block = EXP2(bottom_height) - 1;
 
 		if (node < nodes_in_top_block) {
 			height = top_height;
@@ -212,11 +209,10 @@ static void __attribute__((unused)) veb_get_children_UNCACHED(uint64_t node, uin
 		uint64_t bottom_height, top_height;
 		split_height(height, &bottom_height, &top_height);
 
-		const uint64_t nodes_in_top_block = m_exp2(top_height) - 1;
-		const uint64_t nodes_in_bottom_block =
-			m_exp2(bottom_height) - 1;
-		const uint64_t leaves_per_bottom_block = m_exp2(bottom_height);
-		const uint64_t number_of_bottom_blocks = m_exp2(top_height);
+		const uint64_t nodes_in_top_block = EXP2(top_height) - 1;
+		const uint64_t nodes_in_bottom_block = EXP2(bottom_height) - 1;
+		const uint64_t leaves_per_bottom_block = EXP2(bottom_height);
+		const uint64_t number_of_bottom_blocks = EXP2(top_height);
 
 		if (node < node_start + nodes_in_top_block) {
 			height = top_height;
@@ -248,10 +244,9 @@ recursive_call:
 		uint64_t bottom_height, top_height;
 		split_height(height, &bottom_height, &top_height);
 
-		const uint64_t nodes_in_top_block = m_exp2(top_height) - 1;
-		const uint64_t number_of_bottom_blocks = m_exp2(top_height);
-		const uint64_t nodes_in_bottom_block =
-			m_exp2(bottom_height) - 1;
+		const uint64_t nodes_in_top_block = EXP2(top_height) - 1;
+		const uint64_t number_of_bottom_blocks = EXP2(top_height);
+		const uint64_t nodes_in_bottom_block = EXP2(bottom_height) - 1;
 
 		if (node < node_start + nodes_in_top_block) {
 			height = top_height;
@@ -275,7 +270,7 @@ static uint64_t must_have(veb_pointer ptr) {
 
 uint64_t veb_get_leaf_number(uint64_t leaf_index, uint64_t height) {
 	// TODO: probably can be optimized
-	uint64_t power = m_exp2(height - 2);
+	uint64_t power = EXP2(height - 2);
 	uint64_t x = leaf_index;
 	uint64_t ptr = 0;  // root
 	while (!veb_is_leaf(ptr, height)) {
@@ -304,9 +299,8 @@ recursive_call:
 		uint64_t bottom_height, top_height;
 		split_height(height, &bottom_height, &top_height);
 
-		const uint64_t nodes_in_top_block = m_exp2(top_height) - 1;
-		const uint64_t nodes_in_bottom_block =
-			m_exp2(bottom_height) - 1;
+		const uint64_t nodes_in_top_block = EXP2(top_height) - 1;
+		const uint64_t nodes_in_bottom_block = EXP2(bottom_height) - 1;
 
 		// If we ever go up, it's not a leaf anymore.
 		assert(node >= nodes_in_top_block);
@@ -314,9 +308,85 @@ recursive_call:
 		const uint64_t bottom_block_index = (node - nodes_in_top_block) / nodes_in_bottom_block;
 		const uint64_t bottom_block_node = (node - nodes_in_top_block) % nodes_in_bottom_block;
 
-		offset += bottom_block_index * m_exp2(bottom_height - 1);
+		offset += bottom_block_index << (bottom_height - 1);
 		node = bottom_block_node;
 		height = bottom_height;
 		goto recursive_call;
 	}
+}
+
+static void veb_drilldown(uint64_t node, uint64_t height,
+		struct drilldown_scratchpad* scratchpad) {
+	while (true) {
+		struct drilldown_block* current = &scratchpad->stack[scratchpad->level];
+		if (current->max_node <= node || current->min_node > node) {
+			--scratchpad->level;
+		} else {
+			break;
+		}
+	}
+
+	while (true) {
+		struct drilldown_block* current = &scratchpad->stack[scratchpad->level];
+
+		if (current->max_node == current->min_node + 1) {
+			// We are in the node now.
+			break;
+		}
+		assert(node >= current->min_node && node < current->max_node);
+		uint64_t bottom_height, top_height;
+		split_height(current->height, &bottom_height, &top_height);
+
+		const uint64_t nodes_in_top_block = EXP2(top_height) - 1;
+		const uint64_t nodes_in_bottom_block = EXP2(bottom_height) - 1;
+		const uint64_t leaves_per_bottom_block = EXP2(bottom_height);
+		const uint64_t number_of_bottom_blocks = EXP2(top_height);
+
+		struct drilldown_block* next = &scratchpad->stack[scratchpad->level + 1];
+		if (node < current->min_node + nodes_in_top_block) {
+			next->min_node = current->min_node;
+			next->max_node = current->min_node + nodes_in_top_block;
+			next->leaf_source.present = true;
+			next->leaf_source.node = current->min_node + nodes_in_top_block;
+			next->leaf_stride = nodes_in_bottom_block;
+			next->height = top_height;
+		} else {
+			const uint64_t bottom_block_index =
+					(node - current->min_node - nodes_in_top_block) / nodes_in_bottom_block;
+			assert(bottom_block_index < number_of_bottom_blocks);
+			next->min_node = current->min_node + nodes_in_top_block +
+				bottom_block_index * nodes_in_bottom_block;
+			next->max_node = current->min_node + nodes_in_top_block +
+				(bottom_block_index + 1) * nodes_in_bottom_block;
+			next->leaf_source.present = current->leaf_source.present;
+			next->leaf_source.node = current->leaf_source.node +
+				current->leaf_stride * leaves_per_bottom_block * bottom_block_index;
+			next->leaf_stride = current->leaf_stride;
+			next->height = bottom_height;
+		}
+
+		++scratchpad->level;
+	}
+}
+
+void veb_drilldown_start(uint64_t height, struct drilldown_scratchpad* scratchpad) {
+	scratchpad->level = 0;
+
+	struct drilldown_block* current = &scratchpad->stack[0];
+	current->min_node = 0;
+	current->max_node = EXP2(height) - 1;
+	current->leaf_source.present = false;
+	current->leaf_source.node = 0;
+	current->leaf_stride = 0;
+	current->height = height;
+}
+
+void veb_drilldown_get_children(uint64_t node, uint64_t height,
+		veb_pointer* left, veb_pointer* right,
+		struct drilldown_scratchpad* scratchpad) {
+	veb_drilldown(node, height, scratchpad);
+	*left = scratchpad->stack[scratchpad->level].leaf_source;
+	*right = veb_pointer_add(
+			scratchpad->stack[scratchpad->level].leaf_source,
+			scratchpad->stack[scratchpad->level].leaf_stride);
 }

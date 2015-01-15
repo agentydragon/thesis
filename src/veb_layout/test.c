@@ -140,48 +140,60 @@ static void test_5() {
 	check(30, NOTHING, NOTHING); check_leaf_number(15, 30);
 }
 
-/*
-void test_get_children_performance() {
-	log_info("compilance test");
-	for (uint64_t height = 1; height < 22; height++) {
-		for (uint64_t i = 0; i < (1 << (height - 1)); i++) {
-			veb_pointer left, right;
-			veb_get_children(i, height, &left, &right);
-
-			veb_pointer left2, right2;
-			veb_get_children2(i, height, &left2, &right2);
-
-			assert(veb_pointer_to_id(left) == veb_pointer_to_id(left2) &&
-				veb_pointer_to_id(right) == veb_pointer_to_id(right2));
-		}
+static void dump_vebp(veb_pointer ptr) {
+	if (!ptr.present) {
+		log_info("not-present");
+	} else {
+		log_info("present=%" PRIu64, ptr.node);
 	}
-
-	log_info("get_children");
-	stopwatch t = stopwatch_start();
-	for (uint64_t n = 0; n < 100; n++) {
-		for (uint64_t height = 1; height < 22; height++) {
-			for (uint64_t i = 0; i < (1 << (height - 1)); i++) {
-				veb_pointer left, right;
-				veb_get_children(i, height, &left, &right);
-			}
-		}
-	}
-	log_info("took %" PRIu64 " us", stopwatch_read_us(t));
-
-	log_info("get_children2");
-	t = stopwatch_start();
-	for (uint64_t n = 0; n < 100; n++) {
-		for (uint64_t height = 1; height < 22; height++) {
-			for (uint64_t i = 0; i < (1 << (height - 1)); i++) {
-				veb_pointer left, right;
-				veb_get_children2(i, height, &left, &right);
-			}
-		}
-	}
-	log_info("took %" PRIu64 " us", stopwatch_read_us(t));
-	exit(0);
 }
-*/
+
+static bool same_ptr(veb_pointer x, veb_pointer y) {
+	if (x.present) {
+		return y.present && x.node == y.node;
+	} else {
+		return !y.present;
+	}
+}
+
+static void test_drilldown_of_height(uint8_t height) {
+	struct drilldown_scratchpad scratchpad;
+	veb_drilldown_start(height, &scratchpad);
+
+	// In-VEB-order drilldown
+	for (uint64_t i = 0; i < (1 << height) - 1; i++) {
+		veb_pointer got_left, got_right;
+		veb_pointer exp_left, exp_right;
+		veb_drilldown_get_children(i, height, &got_left, &got_right,
+				&scratchpad);
+		veb_get_children(i, height, &exp_left, &exp_right);
+
+		assert(same_ptr(got_left, exp_left));
+		assert(same_ptr(got_right, exp_right));
+	}
+
+	// Random drilldown
+	for (uint64_t i = 0; i < 1000; i++) {
+		veb_pointer got_left, got_right;
+
+		uint64_t node = rand() % ((1 << height) - 1);
+
+		veb_pointer exp_left, exp_right;
+		veb_drilldown_get_children(node, height, &got_left, &got_right,
+				&scratchpad);
+		veb_get_children(node, height, &exp_left, &exp_right);
+
+		assert(same_ptr(got_left, exp_left));
+		assert(same_ptr(got_right, exp_right));
+	}
+}
+
+static void test_drilldown_compliance() {
+	for (uint8_t height = 1; height < 15; height++) {
+		test_drilldown_of_height(height);
+	}
+	log_info("drilldown is compliant");
+}
 
 void test_veb_layout() {
 	test_1();
@@ -189,6 +201,8 @@ void test_veb_layout() {
 	test_3();
 	test_4();
 	test_5();
+
+	test_drilldown_compliance();
 
 	// test_get_children_performance();
 }

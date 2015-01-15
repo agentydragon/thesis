@@ -42,6 +42,7 @@ struct metrics measure_random_for(uint64_t height, uint64_t N) {
 }
 
 struct metrics measure_drilldown_for(uint64_t height, uint64_t N) {
+	srand(0);
 	bool* random_decisions = calloc(N * height, sizeof(bool));
 	for (uint64_t i = 0; i < N * height; i++) {
 		random_decisions[i] = rand() % 2;
@@ -74,9 +75,46 @@ struct metrics measure_drilldown_for(uint64_t height, uint64_t N) {
 	return tr;
 }
 
-int main(int argc, char** argv) {
-	(void) argc; (void) argv;
+struct metrics measure_smart_drilldown_for(uint64_t height, uint64_t N) {
+	srand(0);
+	bool* random_decisions = calloc(N * height, sizeof(bool));
+	for (uint64_t i = 0; i < N * height; i++) {
+		random_decisions[i] = rand() % 2;
+	}
 
+	struct measurement measurement = measurement_begin();
+	stopwatch watch = stopwatch_start();
+
+	for (uint64_t i = 0; i < N; i++) {
+		struct drilldown_scratchpad scratchpad;
+		veb_drilldown_start(height, &scratchpad);
+
+		uint64_t node = 0;
+		for (uint64_t j = 1; j < height; j++) {
+			veb_pointer left, right;
+			veb_drilldown_get_children(node,
+					height, &left, &right, &scratchpad);
+		//	veb_get_children(node, height, &left, &right);
+
+			assert(left.present && right.present);
+			if (random_decisions[i * height + j]) {
+				node = left.node;
+			} else {
+				node = right.node;
+			}
+		}
+	}
+
+	struct measurement_results results = measurement_end(measurement);
+	struct metrics tr = {
+		.cache_misses = results.cache_misses,
+		.cache_references = results.cache_references,
+		.time_nsec = stopwatch_read_ns(watch)
+	};
+	return tr;
+}
+
+void process_random_accesses() {
 	log_info("measuring accesses to random nodes (i.e. leaf-biased)");
 	FILE* output = fopen("experiments/veb_performance/results-random.csv", "w");
 
@@ -95,9 +133,13 @@ int main(int argc, char** argv) {
 	}
 
 	fclose(output);
+}
 
+void process_drilldowns() {
 	log_info("measuring drilldowns");
-	output = fopen("experiments/veb_performance/results-drilldown.csv", "w");
+	FILE* output = fopen("experiments/veb_performance/results-drilldown.csv", "w");
+
+	const uint64_t N = 500000;
 
 	for (uint64_t height = 1; height < 50; height++) {
 		struct metrics results = measure_drilldown_for(height, N);
@@ -112,6 +154,35 @@ int main(int argc, char** argv) {
 	}
 
 	fclose(output);
+}
+
+void process_smart_drilldowns() {
+	log_info("measuring smart drilldowns");
+	FILE* output = fopen("experiments/veb_performance/results-smart-drilldown.csv", "w");
+
+	const uint64_t N = 500000;
+
+	for (uint64_t height = 1; height < 50; height++) {
+		struct metrics results = measure_smart_drilldown_for(height, N);
+
+		fprintf(output,
+				"%" PRIu64 "\t%" PRIu64 "\t"
+				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
+				"\n",
+				height, N,
+				results.cache_misses, results.cache_references, results.time_nsec);
+		fflush(output);
+	}
+
+	fclose(output);
+}
+
+int main(int argc, char** argv) {
+	(void) argc; (void) argv;
+
+	process_random_accesses();
+	process_drilldowns();
+	process_smart_drilldowns();
 
 	return 0;
 }

@@ -29,4 +29,24 @@ uint64_t veb_get_leaf_number(uint64_t leaf_index, uint64_t height);
 // returns: number of the leaf (index from left to right amongst leaves)
 uint64_t veb_get_leaf_index_of_leaf(uint64_t node, uint64_t height);
 
+struct drilldown_block {
+	uint64_t min_node;
+	uint64_t max_node;
+	veb_pointer leaf_source;
+	uint64_t leaf_stride;
+	uint8_t height;
+};
+
+struct drilldown_scratchpad {
+	struct drilldown_block stack[50];
+	uint8_t level;
+};
+
+// Drilldown coroutine.
+void veb_drilldown_start(uint64_t height,
+		struct drilldown_scratchpad* scratchpad);
+void veb_drilldown_get_children(uint64_t node, uint64_t height,
+		veb_pointer* left, veb_pointer* right,
+		struct drilldown_scratchpad* scratchpad);
+
 #endif
