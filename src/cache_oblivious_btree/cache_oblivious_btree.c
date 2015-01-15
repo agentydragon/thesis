@@ -139,10 +139,15 @@ static void fix_range(struct cob* this, ofm_range range_to_fix) {
 		veb_get_children(parent_nid, cobt_get_veb_height(*this),
 				&left, &right);
 		assert(left.present && right.present);
+		const uint64_t old_min = this->veb_minima[parent_nid];
 		if (this->veb_minima[left.node] < this->veb_minima[right.node]) {
 			this->veb_minima[parent_nid] = this->veb_minima[left.node];
 		} else {
 			this->veb_minima[parent_nid] = this->veb_minima[right.node];
+		}
+		if (this->veb_minima[parent_nid] == old_min) {
+			// Early abort. (Most of the time 1 fix is enough.)
+			break;
 		}
 		range_to_fix = ofm_block_parent(range_to_fix);
 	}
