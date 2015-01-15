@@ -60,28 +60,49 @@ void build_veb_layout(uint64_t height,
 	}
 }
 
+/* possible change:
+#define CACHED_TYPE uint16_t
+#define CACHE_SIZE 65536
+#define CACHE_PTR_TYPE uint16_t
+*/
+
+#define CACHED_TYPE uint8_t
+#define CACHE_SIZE 512
+#define CACHE_PTR_TYPE uint8_t
+
+#define CACHED_TYPE_BITS (8 * sizeof(CACHED_TYPE))
+#define CACHE_CHILD_BIT (1 << (CACHED_TYPE_BITS - 1))
+#define C(x) ((x) | CACHE_CHILD_BIT)
+#define ISC(x) ((x) & CACHE_CHILD_BIT)
+#define UNC(x) ((x) & (~CACHE_CHILD_BIT))
+
+#define MAX_CACHED_NODE_INDEX CACHE_CHILD_BIT
+
 // TODO: wrap in struct
-#define C(x) ((x) | 128)
-#define ISC(x) ((x) & 128)
-static uint8_t max_cached_height = 0;
-static uint8_t cache_starts[256];
-static const uint64_t CACHE_SIZE = 512;
-static uint8_t cache[512];
+static CACHE_PTR_TYPE max_cached_height = 0;
+static CACHE_PTR_TYPE cache_starts[256];
+static CACHED_TYPE cache[CACHE_SIZE];
 static bool should_build_cache = true;
 
 void veb_build_cache() {
 	should_build_cache = false;
 	uint64_t offset = 0;
-	for (uint8_t height = 1; ; height++) {
+	for (uint64_t height = 1; ; height++) {
 		cache_starts[height] = offset;
-		for (uint8_t i = 0; i < (1 << height) - 1; i++) {
-			uint8_t left, right;
+		for (uint64_t i = 0; i < (1 << height) - 1; i++) {
+			uint64_t left, right;
 			veb_pointer l, r;
 			veb_get_children(i, height, &l, &r);
+
 			if (!l.present) {
-				left = C(veb_get_leaf_index_of_leaf(i, height) * 2);
-				right = C(veb_get_leaf_index_of_leaf(i, height) * 2 + 1);
+				uint64_t leaf_number = veb_get_leaf_index_of_leaf(i, height) * 2;
+				assert(leaf_number + 1 < MAX_CACHED_NODE_INDEX);
+
+				left = C(leaf_number);
+				right = C(leaf_number + 1);
 			} else {
+				assert(l.node < MAX_CACHED_NODE_INDEX &&
+						r.node < MAX_CACHED_NODE_INDEX);
 				left = l.node;
 				right = r.node;
 
@@ -101,6 +122,8 @@ void veb_build_cache() {
 						"cache is full", height);
 				goto done;
 			}
+
+			assert(li < CACHE_SIZE && ri < CACHE_SIZE);
 			cache[li] = left;
 			cache[ri] = right;
 		}
@@ -129,13 +152,13 @@ void veb_get_children(uint64_t node, uint64_t height,
 	uint8_t top_height = height - bottom_height;
 	while (height > 1) {
 		if (height <= max_cached_height) {
-			const uint8_t c_start = cache_starts[height];
-			const uint8_t LC = cache[c_start + node * 2];
-			const uint8_t RC = cache[c_start + node * 2 + 1];
+			const uint64_t c_start = cache_starts[height];
+			const uint64_t LC = cache[c_start + node * 2];
+			const uint64_t RC = cache[c_start + node * 2 + 1];
 
 			if (ISC(LC)) {
-				*left = veb_pointer_add(leaf_source, leaf_stride * (LC - 128));
-				*right = veb_pointer_add(leaf_source, leaf_stride * (RC - 128));
+				*left = veb_pointer_add(leaf_source, leaf_stride * (UNC(LC)));
+				*right = veb_pointer_add(leaf_source, leaf_stride * (UNC(RC)));
 				return;
 			} else {
 				left->present = true;
