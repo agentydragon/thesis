@@ -29,7 +29,7 @@ static bool range_find(ofm_range range, uint64_t key, uint64_t *found_index) {
 	for (uint64_t i = 0; i < range.size; i++) {
 		const uint64_t index = range.begin + i;
 		if (range.file->occupied[index] &&
-				range.file->items[index].key == key) {
+				range.file->keys[index] == key) {
 			if (found_index != NULL) {
 				*found_index = index;
 			}
@@ -47,8 +47,8 @@ uint64_t cobt_range_get_minimum(ofm_range range) {
 		if (range.file->occupied[index]) {
 			log_info("minimum [%" PRIu64 "+%" PRIu64 "]=%" PRIu64,
 					range.begin, range.size,
-					range.file->items[index].key);
-			return range.file->items[index].key;
+					range.file->keys[index]);
+			return range.file->keys[index];
 		}
 	}
 	log_info("minimum [%" PRIu64 "+%" PRIu64 "]=infty",
@@ -61,7 +61,7 @@ static ofm_range insert_sorted_order(ofm_range range, uint64_t key,
 	bool found_after = false;
 	uint64_t index_after;
 	for (uint64_t i = range.begin; i < range.file->capacity; i++) {
-		if (range.file->occupied[i] && range.file->items[i].key > key) {
+		if (range.file->occupied[i] && range.file->keys[i] > key) {
 			found_after = true;
 			index_after = i;
 			break;
@@ -300,7 +300,7 @@ void cob_find(struct cob* this, uint64_t key, bool *found, uint64_t *value) {
 	if (range_find(leaf_range, key, &index)) {
 		*found = true;
 		if (value) {
-			*value = this->file.items[index].value;
+			*value = this->file.values[index];
 		}
 	} else {
 		*found = false;
@@ -318,9 +318,9 @@ void cob_next_key(struct cob* this, uint64_t key,
 	// TODO: pointers for faster lookup? binsearch?
 	for (uint64_t i = leaf_index * this->file.block_size;
 			i < this->file.capacity; i++) {
-		if (this->file.occupied[i] && this->file.items[i].key > key) {
+		if (this->file.occupied[i] && this->file.keys[i] > key) {
 			*next_key_exists = true;
-			*next_key = this->file.items[i].key;
+			*next_key = this->file.keys[i];
 			return;
 		}
 	}
@@ -340,9 +340,9 @@ void cob_previous_key(struct cob* this, uint64_t key,
 	for (uint64_t i = 0; i < leaf.begin + leaf.size; i++) {
 		uint64_t idx = leaf.begin + leaf.size - 1 - i;
 		if (this->file.occupied[idx] &&
-				this->file.items[idx].key < key) {
+				this->file.keys[idx] < key) {
 			*previous_key_exists = true;
-			*previous_key = this->file.items[idx].key;
+			*previous_key = this->file.keys[idx];
 			return;
 		}
 	}

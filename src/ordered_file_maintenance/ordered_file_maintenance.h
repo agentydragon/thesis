@@ -26,7 +26,11 @@ typedef struct {
 typedef struct {
 	// TODO: store as bitmap
 	bool* occupied;
-	ofm_item* items;
+
+	uint64_t *keys;
+	uint64_t *values;
+
+	// ofm_item* items;
 	//struct parameters parameters;
 	uint64_t capacity;
 	uint64_t block_size;

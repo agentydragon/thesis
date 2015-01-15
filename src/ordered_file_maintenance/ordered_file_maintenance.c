@@ -46,7 +46,7 @@ void ofm_dump(ofm file) {
 		}
 		if (file.occupied[i]) {
 			z += sprintf(buffer + z, "%4" PRIu64 " ",
-					file.items[i].key);
+					file.keys[i]);
 		} else {
 			z += sprintf(buffer + z, ".... ");
 		}
@@ -139,7 +139,8 @@ static void ofm_move(ofm file, uint64_t to, uint64_t from, uint64_t *watch) {
 		*watch = to;
 	}
 	if (file.occupied[from]) {
-		file.items[to] = file.items[from];
+		file.keys[to] = file.keys[from];
+		file.values[to] = file.values[from];
 		file.occupied[from] = false;
 		file.occupied[to] = true;
 	}
@@ -242,7 +243,8 @@ static void rebalance(ofm* file, ofm_range start_block,
 		} else {
 			ofm new_file = {
 				.occupied = calloc(parameters.capacity, sizeof(bool)),
-				.items = calloc(parameters.capacity, sizeof(ofm_item)),
+				.keys = calloc(parameters.capacity, sizeof(uint64_t)),
+				.values = calloc(parameters.capacity, sizeof(uint64_t)),
 				.block_size = parameters.block_size,
 				.capacity = parameters.capacity
 			};
@@ -255,7 +257,8 @@ static void rebalance(ofm* file, ofm_range start_block,
 						*watch = j;
 					}
 					new_file.occupied[j] = true;
-					new_file.items[j] = file->items[i];
+					new_file.keys[j] = file->keys[i];
+					new_file.values[j] = file->values[i];
 					j++;
 				}
 			}
@@ -346,7 +349,8 @@ void ofm_insert_before(ofm* file, ofm_item item,
 	}
 	assert(!file->occupied[insert_before_index]);
 	file->occupied[insert_before_index] = true;
-	file->items[insert_before_index] = item;
+	file->keys[insert_before_index] = item.key;
+	file->values[insert_before_index] = item.value;
 	if (saved_at != NULL) {
 		*saved_at = insert_before_index;
 	}
@@ -381,17 +385,19 @@ void ofm_init(ofm* file) {
 	// TODO: merge with new_ordered_file
 	file->capacity = 4;
 	file->block_size = 4;
-	file->items = calloc(4, sizeof(ofm_item));
+	file->keys = calloc(4, sizeof(uint64_t));
+	file->values = calloc(4, sizeof(uint64_t));
 	file->occupied = calloc(4, sizeof(bool));
 
 	for (uint8_t i = 0; i < 4; i++) {
 		file->occupied[i] = false;
 	}
 
-	assert(file->items && file->occupied);
+	assert(file->keys && file->values && file->occupied);
 }
 
 void ofm_destroy(ofm file) {
-	free(file.items);
+	free(file.keys);
+	free(file.values);
 	free(file.occupied);
 }
