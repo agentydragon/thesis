@@ -2,6 +2,8 @@
 #include <assert.h>
 #include <inttypes.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include "../math/math.h"
 #include "../veb_layout/veb_layout.h"
 
@@ -43,9 +45,14 @@ uint64_t cobt_range_get_minimum(ofm_range range) {
 	for (uint64_t i = 0; i < range.size; i++) {
 		const uint64_t index = range.begin + i;
 		if (range.file->occupied[index]) {
+			log_info("minimum [%" PRIu64 "+%" PRIu64 "]=%" PRIu64,
+					range.begin, range.size,
+					range.file->items[index].key);
 			return range.file->items[index].key;
 		}
 	}
+	log_info("minimum [%" PRIu64 "+%" PRIu64 "]=infty",
+			range.begin, range.size);
 	return COB_INFINITY;
 }
 
@@ -85,72 +92,96 @@ uint64_t cobt_get_veb_height(struct cob this) {
 	return exact_log2(leaf_range_count(this)) + 1;
 }
 
-uint64_t cobt_range_to_node_id(struct cob this, ofm_range range) {
-	// TODO: optimize
-	ofm_range whole = (ofm_range) {
-		.begin = 0, .size = this.file.capacity
-	};
-	uint64_t node = 0;
-	while (whole.begin != range.begin || whole.size != range.size) {
-		// Is range on the left half?
-		veb_pointer left, right;
-		veb_get_children(node, cobt_get_veb_height(this),
-				&left, &right);
-		assert(left.present && right.present);
-		if (range.begin < whole.begin + (whole.size / 2)) {
-			// left
-			node = left.node;
-		} else {
-			// right
-			node = right.node;
-			whole.begin += whole.size / 2;
-		}
-		whole.size /= 2;
-	}
-	return node;
+uint64_t cob_veb_node_count(struct cob _this) {
+	return (1 << cobt_get_veb_height(_this)) - 1;
 }
 
-static void fix_below(struct cob* this, ofm_range range_to_fix) {
-	const uint64_t nid = cobt_range_to_node_id(*this, range_to_fix);
-	this->veb_minima[nid] = cobt_range_get_minimum(range_to_fix);
-	if (range_to_fix.size > this->file.block_size) {
-		const ofm_range left = (ofm_range) {
-			.begin = range_to_fix.begin,
-			.size = range_to_fix.size / 2,
-			.file = range_to_fix.file
-		};
-		const ofm_range right = (ofm_range) {
-			.begin = range_to_fix.begin + range_to_fix.size / 2,
-			.size = range_to_fix.size / 2,
-			.file = range_to_fix.file
-		};
-		fix_below(this, left);
-		fix_below(this, right);
+void cob_dump(struct cob _this) {
+	char buffer[1024];
+	uint64_t offset = 0;
+	strcpy(buffer, "");
+	for (uint64_t i = 0; i < cob_veb_node_count(_this); i++) {
+		offset += sprintf(buffer + offset,
+				"%4" PRIu64 " ", _this.veb_minima[i]);
+	}
+	log_info("veb_minima:\n%s", buffer);
+	ofm_dump(_this.file);
+}
+
+static void fix_range_recursive(struct cob* this, ofm_range range_to_fix,
+		ofm_range current_range, uint64_t current_nid) {
+	log_info("to_fix=[%" PRIu64 "+%" PRIu64 "] current_range=[%" PRIu64 "+%" PRIu64 "] current_nid=%" PRIu64
+			" bs=%" PRIu64,
+			range_to_fix.begin, range_to_fix.size,
+			current_range.begin, current_range.size, current_nid,
+			this->file.block_size);
+	if (current_range.size > range_to_fix.size) {
+		log_info("partially dirty");
+		veb_pointer left, right;
+		const uint64_t veb_height = cobt_get_veb_height(*this);
+		veb_get_children(current_nid, veb_height, &left, &right);
+		CHECK(left.present && right.present, "unexpected leaf");
+		if (range_to_fix.begin <
+				current_range.begin + current_range.size / 2) {
+			fix_range_recursive(this, range_to_fix, (ofm_range) {
+				.begin = current_range.begin,
+				.size = current_range.size / 2,
+				.file = &this->file
+			}, left.node);
+			if (this->veb_minima[left.node] < this->veb_minima[current_nid]) {
+				this->veb_minima[current_nid] = this->veb_minima[left.node];
+			}
+		} else {
+			fix_range_recursive(this, range_to_fix, (ofm_range) {
+				.begin = current_range.begin + current_range.size / 2,
+				.size = current_range.size / 2,
+				.file = &this->file
+			}, right.node);
+			if (this->veb_minima[right.node] < this->veb_minima[current_nid]) {
+				this->veb_minima[current_nid] = this->veb_minima[right.node];
+			}
+		}
+		log_info("=> %" PRIu64 " fixed to %" PRIu64,
+				current_nid, this->veb_minima[current_nid]);
+	} else if (current_range.size > this->file.block_size) {
+		log_info("completely dirty");
+		veb_pointer left, right;
+		const uint64_t veb_height = cobt_get_veb_height(*this);
+		veb_get_children(current_nid, veb_height, &left, &right);
+		CHECK(left.present && right.present, "unexpected leaf");
+		fix_range_recursive(this, range_to_fix, (ofm_range) {
+			.begin = current_range.begin,
+			.size = current_range.size / 2,
+			.file = &this->file
+		}, left.node);
+
+		fix_range_recursive(this, range_to_fix, (ofm_range) {
+			.begin = current_range.begin + current_range.size / 2,
+			.size = current_range.size / 2,
+			.file = &this->file
+		}, right.node);
+
+		this->veb_minima[current_nid] = COB_INFINITY;
+		if (this->veb_minima[left.node] < this->veb_minima[current_nid]) {
+			this->veb_minima[current_nid] = this->veb_minima[left.node];
+		}
+
+		if (this->veb_minima[right.node] < this->veb_minima[current_nid]) {
+			this->veb_minima[current_nid] = this->veb_minima[right.node];
+		}
+		log_info("=> %" PRIu64 " fixed to %" PRIu64,
+				current_nid, this->veb_minima[current_nid]);
+	} else {
+		this->veb_minima[current_nid] = cobt_range_get_minimum(current_range);
+		log_info("=> %" PRIu64 " fixed to %" PRIu64,
+				current_nid, this->veb_minima[current_nid]);
 	}
 }
 
 static void fix_range(struct cob* this, ofm_range range_to_fix) {
-	// Fix all below first.
-	fix_below(this, range_to_fix);
-	while (!ofm_is_entire_file(range_to_fix)) {
-		const uint64_t parent_nid = cobt_range_to_node_id(
-				*this, ofm_block_parent(range_to_fix));
-		veb_pointer left, right;
-		veb_get_children(parent_nid, cobt_get_veb_height(*this),
-				&left, &right);
-		assert(left.present && right.present);
-		const uint64_t old_min = this->veb_minima[parent_nid];
-		if (this->veb_minima[left.node] < this->veb_minima[right.node]) {
-			this->veb_minima[parent_nid] = this->veb_minima[left.node];
-		} else {
-			this->veb_minima[parent_nid] = this->veb_minima[right.node];
-		}
-		if (this->veb_minima[parent_nid] == old_min) {
-			// Early abort. (Most of the time 1 fix is enough.)
-			break;
-		}
-		range_to_fix = ofm_block_parent(range_to_fix);
-	}
+	fix_range_recursive(this, range_to_fix, (ofm_range) {
+		.begin = 0, .size = this->file.capacity, .file = &this->file
+	}, 0);
 }
 
 // TODO: veb_walk is a relic of the old cobt
@@ -195,8 +226,9 @@ static void veb_walk(const struct cob* this, uint64_t key,
 }
 
 static void entirely_reset_veb(struct cob* this) {
+	// TODO: this realloc is probably wrong
 	this->veb_minima = realloc(this->veb_minima,
-			this->file.capacity * sizeof(uint64_t));
+			cob_veb_node_count(*this) * sizeof(uint64_t));
 	assert(this->veb_minima);
 	fix_range(this, (ofm_range) {
 		.begin = 0,

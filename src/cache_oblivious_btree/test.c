@@ -24,6 +24,7 @@ static void blackbox_destroy(void** _this) {
 
 static void blackbox_check(void* _this) {
 	struct cob* cob = _this;
+	// cob_dump(*cob);
 	for (uint64_t i = 0; i < cob->file.capacity / cob->file.block_size;
 			i++) {
 		const uint64_t leaf_offset = i * cob->file.block_size;
@@ -39,11 +40,11 @@ static void blackbox_check(void* _this) {
 static ordered_hash_blackbox_spec blackbox_api = {
 	.init = blackbox_init,
 	.destroy = blackbox_destroy,
-	.insert = cob_insert,
-	.remove = cob_delete,
-	.find = cob_find,
-	.next_key = cob_next_key,
-	.previous_key = cob_previous_key,
+	.insert = (void(*)(void*, uint64_t, uint64_t)) cob_insert,
+	.remove = (void(*)(void*, uint64_t)) cob_delete,
+	.find = (void(*)(void*, uint64_t, bool*, uint64_t*)) cob_find,
+	.next_key = (void(*)(void*, uint64_t, bool*, uint64_t*)) cob_next_key,
+	.previous_key = (void(*)(void*, uint64_t, bool*, uint64_t*)) cob_previous_key,
 	.check = blackbox_check
 };
 
