@@ -117,9 +117,9 @@ static void fix_range_recursive(struct cob* this, ofm_range range_to_fix,
 			this->file.block_size);
 	if (current_range.size > range_to_fix.size) {
 		log_info("partially dirty");
-		veb_pointer left, right;
 		const uint64_t veb_height = cobt_get_veb_height(*this);
-		veb_get_children(current_nid, veb_height, &left, &right);
+		const veb_children children = veb_get_children(current_nid, veb_height);
+		const veb_pointer left = children.left, right = children.right;
 		CHECK(left.present && right.present, "unexpected leaf");
 		if (range_to_fix.begin <
 				current_range.begin + current_range.size / 2) {
@@ -145,9 +145,9 @@ static void fix_range_recursive(struct cob* this, ofm_range range_to_fix,
 				current_nid, this->veb_minima[current_nid]);
 	} else if (current_range.size > this->file.block_size) {
 		log_info("completely dirty");
-		veb_pointer left, right;
 		const uint64_t veb_height = cobt_get_veb_height(*this);
-		veb_get_children(current_nid, veb_height, &left, &right);
+		const veb_children children = veb_get_children(current_nid, veb_height);
+		const veb_pointer left = children.left, right = children.right;
 		CHECK(left.present && right.present, "unexpected leaf");
 		fix_range_recursive(this, range_to_fix, (ofm_range) {
 			.begin = current_range.begin,
@@ -200,8 +200,8 @@ static uint64_t veb_walk(const struct cob* this, uint64_t key) {
 			// This is the leaf.
 			break;
 		} else {
-			veb_pointer left, right;
-			veb_get_children(pointer, veb_height, &left, &right);
+			const veb_children children = veb_get_children(pointer, veb_height);
+			const veb_pointer left = children.left, right = children.right;
 			log_info("-> %" PRIu64 ": right min = %" PRIu64,
 					pointer, this->veb_minima[right.node]);
 			CHECK(left.present && right.present, "unexpected leaf");

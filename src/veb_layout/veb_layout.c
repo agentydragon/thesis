@@ -91,8 +91,8 @@ void veb_build_cache() {
 		cache_starts[height] = offset;
 		for (uint64_t i = 0; i < (1 << height) - 1; i++) {
 			uint64_t left, right;
-			veb_pointer l, r;
-			veb_get_children(i, height, &l, &r);
+			veb_children children = veb_get_children(i, height);
+			veb_pointer l = children.left, r = children.right;
 
 			if (!l.present) {
 				uint64_t leaf_number = veb_get_leaf_index_of_leaf(i, height) * 2;
@@ -134,8 +134,7 @@ done:
 	log_info("VEB cache built for heights 1..%" PRIu64, max_cached_height);
 }
 
-void veb_get_children(uint64_t node, uint64_t height,
-		veb_pointer* left, veb_pointer* right) {
+veb_children veb_get_children(uint64_t node, uint64_t height) {
 	// Build cache if it's dead.
 	if (should_build_cache) {
 		veb_build_cache();
@@ -157,15 +156,21 @@ void veb_get_children(uint64_t node, uint64_t height,
 			const uint64_t RC = cache[c_start + node * 2 + 1];
 
 			if (ISC(LC)) {
-				*left = veb_pointer_add(leaf_source, leaf_stride * UNC(LC));
-				*right = veb_pointer_add(leaf_source, leaf_stride * UNC(RC));
-				return;
+				return (veb_children) {
+					.left = veb_pointer_add(leaf_source, leaf_stride * UNC(LC)),
+					.right = veb_pointer_add(leaf_source, leaf_stride * UNC(RC))
+				};
 			} else {
-				left->present = true;
-				left->node = node_start + LC;
-				right->present = true;
-				right->node = node_start + RC;
-				return;
+				return (veb_children) {
+					.left = {
+						.present = true,
+						.node = node_start + LC
+					},
+					.right = {
+						.present = true,
+						.node = node_start + RC
+					}
+				};
 			}
 		}
 
@@ -192,8 +197,10 @@ void veb_get_children(uint64_t node, uint64_t height,
 			top_height = bottom_height;
 		}
 	}
-	*left = leaf_source;
-	*right = veb_pointer_add(leaf_source, leaf_stride);
+	return (veb_children) {
+		.left = leaf_source,
+		.right = veb_pointer_add(leaf_source, leaf_stride)
+	};
 }
 
 // Conceptually derived from build_veb_layout.
@@ -279,12 +286,11 @@ uint64_t veb_get_leaf_number(uint64_t leaf_index, uint64_t height) {
 	uint64_t x = leaf_index;
 	uint64_t ptr = 0;  // root
 	while (!veb_is_leaf(ptr, height)) {
-		veb_pointer left, right;
-		veb_get_children(ptr, height, &left, &right);
+		veb_children children = veb_get_children(ptr, height);
 		if (x / power == 0) {
-			ptr = must_have(left);
+			ptr = must_have(children.left);
 		} else {
-			ptr = must_have(right);
+			ptr = must_have(children.right);
 		}
 		x %= power;
 		power /= 2;

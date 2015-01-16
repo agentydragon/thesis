@@ -9,9 +9,12 @@ typedef struct veb_pointer {
 	uint64_t node;
 } veb_pointer;
 
+typedef struct veb_children {
+	veb_pointer left, right;
+} veb_children;
+
 // Primary API
-void veb_get_children(uint64_t node, uint64_t height,
-		veb_pointer* left, veb_pointer* right);
+veb_children veb_get_children(uint64_t node, uint64_t height);
 
 // Used only internally to build cache.
 // node: leaf node index in van Emde Boas order
