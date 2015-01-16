@@ -5,8 +5,8 @@
 #include <stdint.h>
 
 typedef struct veb_pointer {
-	bool present;
 	uint64_t node;
+	bool present;
 } veb_pointer;
 
 void build_veb_layout(uint64_t height,
@@ -32,14 +32,15 @@ uint64_t veb_get_leaf_index_of_leaf(uint64_t node, uint64_t height);
 struct drilldown_block {
 	uint64_t min_node;
 	uint64_t max_node;
-	veb_pointer leaf_source;
 	uint64_t leaf_stride;
+	veb_pointer leaf_source;
 	uint8_t height;
 };
 
 struct drilldown_scratchpad {
-	struct drilldown_block stack[50];
-	uint8_t level;
+	// 10^9 should be OK
+	struct drilldown_block stack[30];
+	struct drilldown_block* current;
 };
 
 // Drilldown coroutine.

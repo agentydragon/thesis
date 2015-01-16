@@ -24,8 +24,6 @@ static bool parameters_equal(struct parameters x, struct parameters y) {
 }
 
 static bool range_find(ofm_range range, uint64_t key, uint64_t *found_index) {
-	log_info("looking for %" PRIu64 " in [%" PRIu64 "+%" PRIu64 "]",
-			key, range.begin, range.size);
 	for (uint64_t i = 0; i < range.size; i++) {
 		const uint64_t index = range.begin + i;
 		if (range.file->occupied[index] &&
@@ -192,6 +190,9 @@ static uint64_t veb_walk(const struct cob* this, uint64_t key) {
 	// Walk down vEB layout to find where does the key belong.
 	uint64_t pointer = 0;  // 0 == van Emde Boas root node
 	uint64_t leaf_index = 0;
+
+	struct drilldown_scratchpad scratchpad;
+	veb_drilldown_start(veb_height, &scratchpad);
 	do {
 		stack_size++;
 
@@ -201,7 +202,9 @@ static uint64_t veb_walk(const struct cob* this, uint64_t key) {
 			break;
 		} else {
 			veb_pointer left, right;
-			veb_get_children(pointer, veb_height, &left, &right);
+			//veb_get_children(pointer, veb_height, &left, &right);
+			veb_drilldown_get_children(pointer, veb_height,
+					&left, &right, &scratchpad);
 			log_info("-> %" PRIu64 ": right min = %" PRIu64,
 					pointer, this->veb_minima[right.node]);
 			CHECK(left.present && right.present, "unexpected leaf");
