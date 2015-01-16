@@ -4,10 +4,15 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct veb_pointer {
-	bool present;
-	uint64_t node;
-} veb_pointer;
+typedef uint64_t veb_pointer;
+
+#define VP_NO_NODE 0xFFFFFFFFFFFFFFFFULL
+#define VP_PRESENT(x) ((x) != VP_NO_NODE)
+#define VP_ADD(x,offset) (VP_PRESENT(x) ? ((x) + (offset)) : VP_NO_NODE)
+
+// Alternate bit-fiddling:
+// #define VP_NO_NODE 0x8000000000000000ULL
+// #define VP_PRESENT(x) (!((x) & VP_NO_NODE))
 
 typedef struct veb_children {
 	veb_pointer left, right;

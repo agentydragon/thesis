@@ -13,13 +13,6 @@ static void split_height(uint64_t height, uint64_t* bottom, uint64_t* top) {
 	*top = height - *bottom;
 }
 
-static veb_pointer veb_pointer_add(veb_pointer base, uint64_t shift) {
-	return (veb_pointer) {
-		.present = base.present,
-		.node = base.node + shift
-	};
-}
-
 void build_veb_layout(uint64_t height,
 		uint64_t node_start,
 		void (*set_node)(void* opaque,
@@ -29,7 +22,7 @@ void build_veb_layout(uint64_t height,
 	assert(height > 0);
 	if (height == 1) {
 		set_node(set_node_opaque, node_start, leaf_source,
-				veb_pointer_add(leaf_source, leaf_stride));
+				VP_ADD(leaf_source, leaf_stride));
 	} else {
 		uint64_t bottom_height, top_height;
 		split_height(height, &bottom_height, &top_height);
@@ -42,10 +35,8 @@ void build_veb_layout(uint64_t height,
 
 		build_veb_layout(top_height, node_start,
 				set_node, set_node_opaque,
-				(veb_pointer) {
-					.present = true,
-					.node = node_start + nodes_in_top_block
-				}, nodes_in_bottom_block);
+				node_start + nodes_in_top_block,
+				nodes_in_bottom_block);
 		node_start += nodes_in_top_block;
 
 		for (uint64_t bottom_block_index = 0;
@@ -55,7 +46,7 @@ void build_veb_layout(uint64_t height,
 					set_node, set_node_opaque,
 					leaf_source, leaf_stride);
 			node_start += nodes_in_bottom_block;
-			leaf_source = veb_pointer_add(leaf_source, leaf_stride * leaves_per_bottom_block);
+			leaf_source = VP_ADD(leaf_source, leaf_stride * leaves_per_bottom_block);
 		}
 	}
 }
@@ -91,22 +82,22 @@ void veb_build_cache() {
 		cache_starts[height] = offset;
 		for (uint64_t i = 0; i < (1 << height) - 1; i++) {
 			uint64_t left, right;
-			veb_children children = veb_get_children(i, height);
-			veb_pointer l = children.left, r = children.right;
+			const veb_children children = veb_get_children(i, height);
+			const veb_pointer l = children.left, r = children.right;
 
-			if (!l.present) {
+			if (!VP_PRESENT(l)) {
 				uint64_t leaf_number = veb_get_leaf_index_of_leaf(i, height) * 2;
 				assert(leaf_number + 1 < MAX_CACHED_NODE_INDEX);
 
 				left = C(leaf_number);
 				right = C(leaf_number + 1);
 			} else {
-				assert(l.node < MAX_CACHED_NODE_INDEX &&
-						r.node < MAX_CACHED_NODE_INDEX);
-				left = l.node;
-				right = r.node;
+				assert(l< MAX_CACHED_NODE_INDEX &&
+						r < MAX_CACHED_NODE_INDEX);
+				left = l;
+				right = r;
 
-				if (ISC(l.node) || ISC(r.node)) {
+				if (ISC(l) || ISC(r)) {
 					log_info("cannot cache height %" PRIu64 ", "
 							"too many nodes");
 					goto done;
@@ -141,10 +132,7 @@ veb_children veb_get_children(uint64_t node, uint64_t height) {
 	}
 
 	uint64_t node_start = 0;
-	veb_pointer leaf_source = (veb_pointer) {
-		.present = false,
-		.node = 0
-	};
+	veb_pointer leaf_source = VP_NO_NODE;
 	uint64_t leaf_stride = 0;
 
 	uint8_t bottom_height = hyperfloor(height - 1);
@@ -157,19 +145,13 @@ veb_children veb_get_children(uint64_t node, uint64_t height) {
 
 			if (ISC(LC)) {
 				return (veb_children) {
-					.left = veb_pointer_add(leaf_source, leaf_stride * UNC(LC)),
-					.right = veb_pointer_add(leaf_source, leaf_stride * UNC(RC))
+					.left = VP_ADD(leaf_source, leaf_stride * UNC(LC)),
+					.right = VP_ADD(leaf_source, leaf_stride * UNC(RC))
 				};
 			} else {
 				return (veb_children) {
-					.left = {
-						.present = true,
-						.node = node_start + LC
-					},
-					.right = {
-						.present = true,
-						.node = node_start + RC
-					}
+					.left = node_start + LC,
+					.right = node_start + RC
 				};
 			}
 		}
@@ -179,8 +161,7 @@ veb_children veb_get_children(uint64_t node, uint64_t height) {
 
 		if (node < nodes_in_top_block) {
 			height = top_height;
-			leaf_source.present = true;
-			leaf_source.node = node_start + nodes_in_top_block;
+			leaf_source = node_start + nodes_in_top_block;
 			leaf_stride = nodes_in_bottom_block;
 
 			bottom_height = hyperfloor(height - 1);
@@ -190,7 +171,8 @@ veb_children veb_get_children(uint64_t node, uint64_t height) {
 			const uint64_t bottom_block_index = node / nodes_in_bottom_block;
 			node_start += nodes_in_top_block + node - (node % nodes_in_bottom_block);
 			node %= nodes_in_bottom_block;
-			leaf_source.node += (leaf_stride * bottom_block_index) << bottom_height;
+			leaf_source = VP_ADD(leaf_source,
+					(leaf_stride * bottom_block_index) << bottom_height);
 
 			height = bottom_height;
 			bottom_height >>= 1;
@@ -199,7 +181,7 @@ veb_children veb_get_children(uint64_t node, uint64_t height) {
 	}
 	return (veb_children) {
 		.left = leaf_source,
-		.right = veb_pointer_add(leaf_source, leaf_stride)
+		.right = VP_ADD(leaf_source, leaf_stride)
 	};
 }
 
@@ -209,10 +191,7 @@ veb_children veb_get_children(uint64_t node, uint64_t height) {
 static void __attribute__((unused)) veb_get_children_UNCACHED(uint64_t node, uint64_t height,
 		veb_pointer* left, veb_pointer* right) {
 	uint64_t node_start = 0;
-	veb_pointer leaf_source = (veb_pointer) {
-		.present = false,
-		.node = 0
-	};
+	veb_pointer leaf_source = VP_NO_NODE;
 	uint64_t leaf_stride = 0;
 
 	while (height > 1) {
@@ -227,8 +206,7 @@ static void __attribute__((unused)) veb_get_children_UNCACHED(uint64_t node, uin
 
 		if (node < node_start + nodes_in_top_block) {
 			height = top_height;
-			leaf_source.present = true;
-			leaf_source.node = node_start + nodes_in_top_block;
+			leaf_source = node_start + nodes_in_top_block;
 			leaf_stride = nodes_in_bottom_block;
 		} else {
 			node_start += nodes_in_top_block;
@@ -238,11 +216,12 @@ static void __attribute__((unused)) veb_get_children_UNCACHED(uint64_t node, uin
 			assert(bottom_block_index < number_of_bottom_blocks);
 			height = bottom_height;
 			node_start += nodes_in_bottom_block * bottom_block_index;
-			leaf_source.node += leaf_stride * leaves_per_bottom_block * bottom_block_index;
+			leaf_source = VP_ADD(leaf_source,
+					leaf_stride * leaves_per_bottom_block * bottom_block_index);
 		}
 	}
 	*left = leaf_source;
-	*right = veb_pointer_add(leaf_source, leaf_stride);
+	*right = VP_ADD(leaf_source, leaf_stride);
 }
 
 bool veb_is_leaf(uint64_t node, uint64_t height) {
@@ -276,8 +255,8 @@ recursive_call:
 }
 
 static uint64_t must_have(veb_pointer ptr) {
-	assert(ptr.present);
-	return ptr.node;
+	assert(VP_PRESENT(ptr));
+	return ptr;
 }
 
 uint64_t veb_get_leaf_number(uint64_t leaf_index, uint64_t height) {

@@ -8,7 +8,8 @@
 #include "../log/log.h"
 #include "../stopwatch/stopwatch.h"
 
-const uint64_t NOTHING = 0xDEADBEEF;
+// const uint64_t NOTHING = 0xDEADBEEF;
+const uint64_t NOTHING = VP_NO_NODE;
 
 typedef struct {
 	uint64_t left, right;
@@ -17,19 +18,11 @@ typedef struct {
 static persisted_node NODE_POOL[256];
 uint64_t HEIGHT;
 
-static uint64_t veb_pointer_to_id(veb_pointer ptr) {
-	if (ptr.present) {
-		return ptr.node;
-	} else {
-		return NOTHING;
-	}
-}
-
 static void set_node(void* _veb_buffer, uint64_t node,
 		veb_pointer left, veb_pointer right) {
 	persisted_node* pool = _veb_buffer;
-	pool[node].left = veb_pointer_to_id(left);
-	pool[node].right = veb_pointer_to_id(right);
+	pool[node].left = left;
+	pool[node].right = right;
 }
 
 #define check_nonleaf(veb_index) do { \
@@ -46,12 +39,12 @@ static void set_node(void* _veb_buffer, uint64_t node,
 	const persisted_node node = NODE_POOL[index]; \
 	assert(node.left == left_n && node.right == right_n); \
 	veb_children children = veb_get_children(index, HEIGHT); \
-	assert(veb_pointer_to_id(children.left) == left_n && veb_pointer_to_id(children.right) == right_n); \
+	assert(children.left == left_n && children.right == right_n); \
 } while (0)
 
 static void build_with_height(uint64_t height) {
 	build_veb_layout(height, 0, set_node, NODE_POOL,
-			(veb_pointer) { .present = false }, 0);
+			VP_NO_NODE, 0);
 }
 
 static void test_1() {

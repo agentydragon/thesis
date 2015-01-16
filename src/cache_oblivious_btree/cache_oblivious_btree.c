@@ -120,25 +120,25 @@ static void fix_range_recursive(struct cob* this, ofm_range range_to_fix,
 		const uint64_t veb_height = cobt_get_veb_height(*this);
 		const veb_children children = veb_get_children(current_nid, veb_height);
 		const veb_pointer left = children.left, right = children.right;
-		CHECK(left.present && right.present, "unexpected leaf");
+		CHECK(VP_PRESENT(left) && VP_PRESENT(right), "unexpected leaf");
 		if (range_to_fix.begin <
 				current_range.begin + current_range.size / 2) {
 			fix_range_recursive(this, range_to_fix, (ofm_range) {
 				.begin = current_range.begin,
 				.size = current_range.size / 2,
 				.file = &this->file
-			}, left.node);
-			if (this->veb_minima[left.node] < this->veb_minima[current_nid]) {
-				this->veb_minima[current_nid] = this->veb_minima[left.node];
+			}, left);
+			if (this->veb_minima[left] < this->veb_minima[current_nid]) {
+				this->veb_minima[current_nid] = this->veb_minima[left];
 			}
 		} else {
 			fix_range_recursive(this, range_to_fix, (ofm_range) {
 				.begin = current_range.begin + current_range.size / 2,
 				.size = current_range.size / 2,
 				.file = &this->file
-			}, right.node);
-			if (this->veb_minima[right.node] < this->veb_minima[current_nid]) {
-				this->veb_minima[current_nid] = this->veb_minima[right.node];
+			}, right);
+			if (this->veb_minima[right] < this->veb_minima[current_nid]) {
+				this->veb_minima[current_nid] = this->veb_minima[right];
 			}
 		}
 		log_info("=> %" PRIu64 " fixed to %" PRIu64,
@@ -148,26 +148,26 @@ static void fix_range_recursive(struct cob* this, ofm_range range_to_fix,
 		const uint64_t veb_height = cobt_get_veb_height(*this);
 		const veb_children children = veb_get_children(current_nid, veb_height);
 		const veb_pointer left = children.left, right = children.right;
-		CHECK(left.present && right.present, "unexpected leaf");
+		CHECK(VP_PRESENT(left) && VP_PRESENT(right), "unexpected leaf");
 		fix_range_recursive(this, range_to_fix, (ofm_range) {
 			.begin = current_range.begin,
 			.size = current_range.size / 2,
 			.file = &this->file
-		}, left.node);
+		}, left);
 
 		fix_range_recursive(this, range_to_fix, (ofm_range) {
 			.begin = current_range.begin + current_range.size / 2,
 			.size = current_range.size / 2,
 			.file = &this->file
-		}, right.node);
+		}, right);
 
 		this->veb_minima[current_nid] = COB_INFINITY;
-		if (this->veb_minima[left.node] < this->veb_minima[current_nid]) {
-			this->veb_minima[current_nid] = this->veb_minima[left.node];
+		if (this->veb_minima[left] < this->veb_minima[current_nid]) {
+			this->veb_minima[current_nid] = this->veb_minima[left];
 		}
 
-		if (this->veb_minima[right.node] < this->veb_minima[current_nid]) {
-			this->veb_minima[current_nid] = this->veb_minima[right.node];
+		if (this->veb_minima[right] < this->veb_minima[current_nid]) {
+			this->veb_minima[current_nid] = this->veb_minima[right];
 		}
 		log_info("=> %" PRIu64 " fixed to %" PRIu64,
 				current_nid, this->veb_minima[current_nid]);
@@ -203,16 +203,16 @@ static uint64_t veb_walk(const struct cob* this, uint64_t key) {
 			const veb_children children = veb_get_children(pointer, veb_height);
 			const veb_pointer left = children.left, right = children.right;
 			log_info("-> %" PRIu64 ": right min = %" PRIu64,
-					pointer, this->veb_minima[right.node]);
-			CHECK(left.present && right.present, "unexpected leaf");
+					pointer, this->veb_minima[right]);
+			CHECK(VP_PRESENT(left) && VP_PRESENT(right), "unexpected leaf");
 
-			if (key >= this->veb_minima[right.node]) {
+			if (key >= this->veb_minima[right]) {
 				// We want to go right.
-				pointer = right.node;
+				pointer = right;
 				leaf_index = (leaf_index << 1) + 1;
 			} else {
 				// We want to go left.
-				pointer = left.node;
+				pointer = left;
 				leaf_index = leaf_index << 1;
 			}
 		}
