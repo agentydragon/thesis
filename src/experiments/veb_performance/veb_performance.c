@@ -28,8 +28,8 @@ struct metrics measure_random_for(uint64_t height, uint64_t N) {
 	stopwatch watch = stopwatch_start();
 
 	for (uint64_t i = 0; i < N; i++) {
-		veb_pointer left, right;
-		veb_get_children(indices[i], height, &left, &right);
+		veb_children children = veb_get_children(indices[i], height);
+		// TODO: make cache dirty?
 	}
 
 	struct measurement_results results = measurement_end(measurement);
@@ -53,14 +53,13 @@ struct metrics measure_drilldown_for(uint64_t height, uint64_t N) {
 	for (uint64_t i = 0; i < N; i++) {
 		uint64_t node = 0;
 		for (uint64_t j = 1; j < height; j++) {
-			veb_pointer left, right;
-			veb_get_children(node, height, &left, &right);
+			veb_children children = veb_get_children(node, height);
 
-			assert(left.present && right.present);
+			assert(VP_PRESENT(children.left) && VP_PRESENT(children.right));
 			if (random_decisions[i * height + j]) {
-				node = left.node;
+				node = children.left;
 			} else {
-				node = right.node;
+				node = children.right;
 			}
 		}
 	}
