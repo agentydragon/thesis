@@ -1,7 +1,12 @@
 set term png
+set grid
 set output "graph1.png"
 set logscale x
 set key outside below
+set y2tics
+set ylabel 'cache misses'
+set y2label 'ns'
+set xrange [100:]
 plot \
 	"results.csv" u 1:($2/$1) w lines title 'Cache misses per element (B-tree)', \
 	"results.csv" u 1:($5/$1) w lines title 'Cache misses per element (COB-tree)', \
@@ -26,5 +31,7 @@ plot \
 	"results.csv" u 1:($13/$1) axes x1y2 w lines title 'Time per element (COB-tree)'
 
 set output "graph3.png"
+set noylabel
+set noy2label
 plot \
 	"results.csv" u 1:($14/$1) w lines title 'Total reorganized elements / N'
