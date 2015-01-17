@@ -157,8 +157,8 @@ void veb_get_children(uint64_t node, uint64_t height,
 			const uint64_t RC = cache[c_start + node * 2 + 1];
 
 			if (ISC(LC)) {
-				*left = veb_pointer_add(leaf_source, leaf_stride * (UNC(LC)));
-				*right = veb_pointer_add(leaf_source, leaf_stride * (UNC(RC)));
+				*left = veb_pointer_add(leaf_source, leaf_stride * UNC(LC));
+				*right = veb_pointer_add(leaf_source, leaf_stride * UNC(RC));
 				return;
 			} else {
 				left->present = true;
