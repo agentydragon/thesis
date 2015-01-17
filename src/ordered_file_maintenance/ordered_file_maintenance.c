@@ -99,7 +99,7 @@ struct parameters adequate_parameters(uint64_t items) {
 	}
 
 	uint64_t block_size = multiplier;
-	while (block_size * 2 <= floor_log2(capacity)) block_size *= 2;
+	while (block_size * 2 <= floor_log2_64(capacity)) block_size *= 2;
 
 	return (struct parameters) {
 		.capacity = capacity,

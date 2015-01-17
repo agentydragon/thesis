@@ -21,12 +21,14 @@ typedef struct veb_children {
 } veb_children;
 
 // Primary API
-veb_children veb_get_children(uint64_t node, uint64_t height);
+veb_children veb_get_children(uint64_t node, uint8_t height);
+
+uint64_t bfs_to_veb_recur(uint64_t bfs, uint8_t height);
 
 // Used only internally to build cache.
 // node: leaf node index in van Emde Boas order
 // returns: number of the leaf (index from left to right amongst leaves)
-uint64_t veb_get_leaf_index_of_leaf(uint64_t node, uint64_t height);
+uint64_t veb_get_leaf_index_of_leaf(uint64_t node, uint8_t height);
 
 // Used only in testing.
 void build_veb_layout(uint64_t height,
@@ -37,5 +39,7 @@ void build_veb_layout(uint64_t height,
 		veb_pointer leaf_source, uint64_t leaf_stride);
 bool veb_is_leaf(uint64_t node, uint64_t height);
 uint64_t veb_get_leaf_number(uint64_t leaf_index, uint64_t height);
+
+uint64_t ilog2(uint64_t f);
 
 #endif

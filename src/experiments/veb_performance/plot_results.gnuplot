@@ -17,3 +17,9 @@ plot \
 	"" u 1:($4/$2) w lines title 'Cache references per root-leaf drilldown', \
 	"" u 1:($5/$2) axes x1y2 w lines title 'Time per root-leaf drilldown' linewidth 2
 
+set output "graph-bfs-drilldown.png"
+plot \
+	"results-bfs-drilldown.csv" u 1:($3/$2) w lines title 'Cache misses per root-leaf drilldown (BFS)', \
+	"" u 1:($4/$2) w lines title 'Cache references per root-leaf drilldown (BFS)', \
+	"" u 1:($5/$2) axes x1y2 w lines title 'Time per root-leaf drilldown (BFS)' linewidth 2
+
