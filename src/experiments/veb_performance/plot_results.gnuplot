@@ -1,5 +1,6 @@
 set term png
 set output "graph-random.png"
+set grid
 # set logscale x
 set key outside below
 set xlabel 'Van Emde Boas tree height'
