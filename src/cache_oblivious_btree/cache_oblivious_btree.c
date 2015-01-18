@@ -188,6 +188,9 @@ static uint64_t veb_walk(const struct cob* this, uint64_t key) {
 	log_info("veb_walking to key %" PRIu64, key);
 	uint64_t stack_size = 0;
 
+	struct drilldown_track track;
+	drilldown_begin(&track);
+
 	const uint64_t veb_height = cobt_get_veb_height(*this);
 	// Walk down vEB layout to find where does the key belong.
 	uint64_t pointer = 0;  // 0 == van Emde Boas root node
@@ -200,21 +203,30 @@ static uint64_t veb_walk(const struct cob* this, uint64_t key) {
 			// This is the leaf.
 			break;
 		} else {
-			veb_pointer left, right;
-			veb_get_children(pointer, veb_height, &left, &right);
-			log_info("-> %" PRIu64 ": right min = %" PRIu64,
-					pointer, this->veb_minima[right.node]);
-			CHECK(left.present && right.present, "unexpected leaf");
-
-			if (key >= this->veb_minima[right.node]) {
+			//veb_pointer left, right;
+			//veb_get_children(pointer, veb_height, &left, &right);
+			//log_info("-> %" PRIu64 ": right min = %" PRIu64,
+			//		pointer, this->veb_minima[right.node]);
+			//CHECK(left.present && right.present, "unexpected leaf");
+			drilldown_go_right(this->level_data, &track);
+			if (key >= this->veb_minima[track.pos[track.depth]]) {
 				// We want to go right.
-				pointer = right.node;
 				leaf_index = (leaf_index << 1) + 1;
 			} else {
-				// We want to go left.
-				pointer = left.node;
+				drilldown_go_up(&track);
+				drilldown_go_left(this->level_data, &track);
 				leaf_index = leaf_index << 1;
 			}
+
+			//if (key >= this->veb_minima[right.node]) {
+			//	// We want to go right.
+			//	pointer = right.node;
+			//	leaf_index = (leaf_index << 1) + 1;
+			//} else {
+			//	// We want to go left.
+			//	pointer = left.node;
+			//	leaf_index = leaf_index << 1;
+			//}
 		}
 	} while (true);
 
@@ -225,7 +237,12 @@ static void entirely_reset_veb(struct cob* this) {
 	// TODO: this realloc is probably wrong
 	this->veb_minima = realloc(this->veb_minima,
 			cob_veb_node_count(*this) * sizeof(uint64_t));
-	assert(this->veb_minima);
+	this->level_data = realloc(this->level_data,
+			cobt_get_veb_height(*this) * sizeof(struct level_data));
+
+	assert(this->veb_minima && this->level_data);
+
+	veb_prepare(cobt_get_veb_height(*this), this->level_data);
 	fix_range(this, (ofm_range) {
 		.begin = 0,
 		.size = this->file.capacity,
@@ -352,6 +369,7 @@ void cob_previous_key(struct cob* this, uint64_t key,
 void cob_init(struct cob* this) {
 	ofm_init(&this->file);
 	this->veb_minima = NULL;
+	this->level_data = NULL;
 	entirely_reset_veb(this);
 }
 

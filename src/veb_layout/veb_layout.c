@@ -364,6 +364,15 @@ void drilldown_begin(struct drilldown_track* track) {
 	track->bfs = 0;
 }
 
+void drilldown_go_up(struct drilldown_track* track) {
+	track->depth--;
+	if (track->bfs % 2) {
+		track->bfs = (track->bfs - 3) >> 1ULL;
+	} else {
+		track->bfs = (track->bfs - 2) >> 1ULL;
+	}
+}
+
 static void add_level(struct level_data* ld, struct drilldown_track* track) {
 	++track->depth;
 //	log_info("going to BFS=%" PRIu64 ".", track->bfs);

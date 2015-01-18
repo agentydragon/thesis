@@ -44,5 +44,6 @@ struct drilldown_track {
 void drilldown_begin(struct drilldown_track* track);
 void drilldown_go_left(struct level_data* ld, struct drilldown_track* track);
 void drilldown_go_right(struct level_data* ld, struct drilldown_track* track);
+void drilldown_go_up(struct drilldown_track* track);
 
 #endif

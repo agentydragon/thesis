@@ -30,6 +30,8 @@ struct cob {
 	ofm file;
 	// contains 2*(ordered file subranges)-1 nodes
 	uint64_t* veb_minima;
+
+	struct level_data* level_data;
 };
 
 void cob_init(struct cob* this);
