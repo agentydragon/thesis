@@ -16,3 +16,9 @@ plot \
 	"" u 1:($4/$2) w lines title 'Cache references per root-leaf drilldown', \
 	"" u 1:($5/$2) axes x1y2 w lines title 'Time per root-leaf drilldown' linewidth 2
 
+set output "graph-hyperdrilldown.png"
+plot \
+	"results-hyperdrilldown.csv" u 1:($3/$2) w lines title 'Cache misses per root-leaf hyperdrilldown', \
+	"" u 1:($4/$2) w lines title 'Cache references per root-leaf hyperdrilldown', \
+	"" u 1:($5/$2) axes x1y2 w lines title 'Time per root-leaf hyperdrilldown' linewidth 2
+

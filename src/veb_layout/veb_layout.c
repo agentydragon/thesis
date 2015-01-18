@@ -320,3 +320,73 @@ recursive_call:
 		goto recursive_call;
 	}
 }
+
+struct level_data veb_get_level_data(uint64_t height, uint64_t level) {
+	// log_info("finding level %" PRIu64 " in height=%" PRIu64,
+	// 		level, height);
+	assert(level > 0);
+	uint64_t bottom_height, top_height;
+	split_height(height, &bottom_height, &top_height);
+	// log_info("height %" PRIu64 " => top=%" PRIu64 " bottom=%" PRIu64,
+	// 		height, top_height, bottom_height);
+
+	if (level < top_height) {
+		return veb_get_level_data(top_height, level);
+	} else if (level == top_height) {
+		return (struct level_data) {
+			.top_size = (1ULL << top_height) - 1,
+			.bottom_size = (1ULL << bottom_height) - 1,
+			.top_depth = 0
+		};
+	} else {
+		struct level_data r = veb_get_level_data(bottom_height,
+				level - top_height);
+		return (struct level_data) {
+			.top_size = r.top_size,
+			.bottom_size = r.bottom_size,
+			.top_depth = r.top_depth + top_height
+		};
+	}
+}
+
+void veb_prepare(uint64_t height, struct level_data* levels) {
+	if (height >= 2) {
+		for (uint64_t depth = 1; depth < height; depth++) {
+			levels[depth] = veb_get_level_data(height, depth);
+//			log_info("");
+		}
+	}
+}
+
+void drilldown_begin(struct drilldown_track* track) {
+	track->pos[0] = 0;
+	track->depth = 0;
+	track->bfs = 0;
+}
+
+static void add_level(struct level_data* ld, struct drilldown_track* track) {
+	++track->depth;
+//	log_info("going to BFS=%" PRIu64 ".", track->bfs);
+//	log_info("level data for level=%" PRIu64 ": top_size=%" PRIu64
+//			" bottom_size=%" PRIu64 " top_depth=%" PRIu64,
+//			track->depth,
+//			ld[track->depth].top_size, ld[track->depth].bottom_size,
+//			ld[track->depth].top_depth);
+//	log_info("root of my top tree is at depth %" PRIu64, ld[track->depth].top_depth);
+//	log_info("that means node %" PRIu64, track->pos[ld[track->depth].top_depth]);
+//	log_info("I am bottom tree number %" PRIu64, (track->bfs + 1) & ld[track->depth].top_size);
+	// TODO: shift and minus, not multiply; also, logs
+	track->pos[track->depth] = track->pos[ld[track->depth].top_depth] +
+		ld[track->depth].top_size +
+		((track->bfs + 1) & ld[track->depth].top_size) * ld[track->depth].bottom_size;
+}
+
+void drilldown_go_left(struct level_data* ld, struct drilldown_track* track) {
+	track->bfs = (track->bfs << 1ULL) + 1;
+	add_level(ld, track);
+}
+
+void drilldown_go_right(struct level_data* ld, struct drilldown_track* track) {
+	track->bfs = (track->bfs << 1ULL) + 2;
+	add_level(ld, track);
+}

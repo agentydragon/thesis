@@ -137,10 +137,132 @@ static void test_5() {
 	check(30, NOTHING, NOTHING); check_leaf_number(15, 30);
 }
 
+void test_hyperdrill_level_data() {
+	struct level_data r;
+	// 0 = forbidden (root) level
+	r = veb_get_level_data(2, 1);
+	assert(r.top_size == 1 && r.bottom_size == 1 && r.top_depth == 0);
+
+	// 0 = forbidden (root) level
+	r = veb_get_level_data(3, 1);
+	assert(r.top_size == 1 && r.bottom_size == 3 && r.top_depth == 0);
+	r = veb_get_level_data(3, 2);
+	assert(r.top_size == 1 && r.bottom_size == 1 && r.top_depth == 1);
+
+	// 0 = forbidden (root) level
+	//
+	// 0
+	// 1 1
+	// ===
+	// 2 2 2 2
+	// 3 3 3 3 3 3 3 3
+	r = veb_get_level_data(4, 1);
+	assert(r.top_size == 1 && r.bottom_size == 1 && r.top_depth == 0);
+	r = veb_get_level_data(4, 2);
+	assert(r.top_size == 3 && r.bottom_size == 3 && r.top_depth == 0);
+	r = veb_get_level_data(4, 3);
+	assert(r.top_size == 1 && r.bottom_size == 1 && r.top_depth == 2);
+
+	//   0
+	//   ===
+	//   ===
+	//   1 1
+	//   2 2 2 2
+	//   ===============
+	//   3 3 3 3 3 3 3 3
+	//   4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+	//
+	// 0 = forbidden (root) level
+	r = veb_get_level_data(5, 1);
+	assert(r.top_size == 1 && r.bottom_size == 15 && r.top_depth == 0);
+	r = veb_get_level_data(5, 2);
+	assert(r.top_size == 1 && r.bottom_size == 1 && r.top_depth == 1);
+	r = veb_get_level_data(5, 3);
+	assert(r.top_size == 3 && r.bottom_size == 3 && r.top_depth == 1);
+	r = veb_get_level_data(5, 4);
+	assert(r.top_size == 1 && r.bottom_size == 1 && r.top_depth == 3);
+}
+
+void test_hyperdrill_1() {
+	struct drilldown_track track;
+	struct level_data levels[5 + 1];
+	veb_prepare(5, levels);
+
+	drilldown_begin(&track);
+	assert(track.depth == 0 && track.pos[track.depth] == 0 && track.bfs == 0);
+
+	drilldown_go_right(levels, &track);
+	log_info("track.pos[track.depth]=%" PRIu64 " track.bfs=%" PRIu64,
+			track.pos[track.depth], track.bfs);
+	assert(track.depth == 1 && track.pos[track.depth] == 16 && track.bfs == 2);
+
+	drilldown_go_left(levels, &track);
+	log_info("track.pos[track.depth]=%" PRIu64 " track.bfs=%" PRIu64,
+			track.pos[track.depth], track.bfs);
+	assert(track.depth == 2 && track.pos[track.depth] == 17 && track.bfs == 5);
+
+	drilldown_go_right(levels, &track);
+	log_info("track.pos[track.depth]=%" PRIu64 " track.bfs=%" PRIu64,
+			track.pos[track.depth], track.bfs);
+	assert(track.depth == 3 && track.pos[track.depth] == 22 && track.bfs == 12);
+
+	drilldown_go_left(levels, &track);
+	log_info("track.pos[track.depth]=%" PRIu64 " track.bfs=%" PRIu64,
+			track.pos[track.depth], track.bfs);
+	assert(track.depth == 4 && track.pos[track.depth] == 23 && track.bfs == 25);
+
+	log_info("hyperdrill OK");
+}
+
+void test_hyperdrill_integration() {
+	struct drilldown_track track;
+	struct level_data levels[50 + 1];
+
+	for (uint64_t iteration = 0; iteration < 10000; iteration++) {
+		// log_info("==== iteration %" PRIu64 " ====", iteration);
+		uint64_t height = rand() % 50 + 1;
+		veb_prepare(height, levels);
+
+		drilldown_begin(&track);
+		uint64_t reference_node = 0;
+
+		// log_info("height %" PRIu64, height);
+
+		for (uint64_t h = 0; h < height; h++) {
+			// log_info("reference=%" PRIu64 " track=%" PRIu64,
+			// 		reference_node, track.pos[track.depth]);
+			assert(reference_node == track.pos[track.depth]);
+			if (h < height - 1) {
+				veb_pointer left, right;
+				veb_get_children(reference_node, height, &left, &right);
+
+				if (rand() % 2 == 0) {
+					// log_info("go left");
+					drilldown_go_left(levels, &track);
+					reference_node = left.node;
+				} else {
+					// log_info("go right");
+					drilldown_go_right(levels, &track);
+					reference_node = right.node;
+				}
+			}
+		}
+	}
+	log_info("hyperdrill integration OK");
+}
+
+void test_hyperdrill() {
+	test_hyperdrill_level_data();
+	test_hyperdrill_1();
+	test_hyperdrill_integration();
+}
+
 void test_veb_layout() {
 	test_1();
 	test_2();
 	test_3();
 	test_4();
 	test_5();
+
+	test_hyperdrill();
 }

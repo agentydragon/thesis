@@ -28,4 +28,21 @@ void build_veb_layout(uint64_t height,
 bool veb_is_leaf(uint64_t node, uint64_t height);
 uint64_t veb_get_leaf_number(uint64_t leaf_index, uint64_t height);
 
+struct level_data {
+	uint64_t top_size;
+	uint64_t bottom_size;
+	uint64_t top_depth;
+};
+struct level_data veb_get_level_data(uint64_t height, uint64_t level);
+void veb_prepare(uint64_t height, struct level_data* levels);
+
+struct drilldown_track {
+	uint64_t pos[50];  /* maybe dynamic alloc? */
+	uint8_t depth;  /* pos[depth] = veb position */
+	uint64_t bfs;
+};
+void drilldown_begin(struct drilldown_track* track);
+void drilldown_go_left(struct level_data* ld, struct drilldown_track* track);
+void drilldown_go_right(struct level_data* ld, struct drilldown_track* track);
+
 #endif
