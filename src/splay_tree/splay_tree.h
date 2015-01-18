@@ -31,4 +31,6 @@ void splay_tree_init(splay_tree** this);
 void splay_tree_destroy(splay_tree** this);
 void splay_up(splay_tree* tree, splay_tree_key key);
 
+// TODO: delete, get previous, get next
+
 #endif
