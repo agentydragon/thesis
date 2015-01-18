@@ -75,25 +75,29 @@ static CACHE_PTR_TYPE cache_starts[256];
 static CACHED_TYPE cache[CACHE_SIZE];
 static bool should_build_cache = true;
 
-static inline uint64_t fls(uint64_t f) {
+static inline uint8_t fls(uint64_t f) {
+	/*
 	uint64_t order;
+	uint64_t fx = f;
 	for (order = 0; f; f >>= 1, order++) ;
+	log_info("%" PRIu64 "=> order=%" PRIu8 " fl2=%" PRIu8,
+			fx, order, floor_log2_64(fx) + 1);
+	assert(floor_log2_64(fx) + 1 == order);
 	return order;
+	*/
+	return floor_log2_64(f) + 1;
 }
 
-uint64_t ilog2(uint64_t f) {
+static uint8_t ilog2(uint64_t f) {
 	return fls(f) - 1;
+	//return floor_log2_64(f) - 1;
 }
 
-static inline uint64_t hyperceil(uint64_t f) {
+static inline uint8_t hyperceil(uint64_t f) {
 	return 1 << fls(f-1);
 }
 
 uint64_t bfs_to_veb_recur(uint64_t bfs_number, uint8_t height) {
-//	int top_height, bottom_height;
-//	int depth;
-//	int subtree_depth, subtree_root, num_subtrees;
-//	int toptree_size, subtree_size;
 	uint8_t top_height, bottom_height;
 	uint8_t depth;
 	uint8_t subtree_depth;

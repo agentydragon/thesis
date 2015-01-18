@@ -40,6 +40,6 @@ void build_veb_layout(uint64_t height,
 bool veb_is_leaf(uint64_t node, uint64_t height);
 uint64_t veb_get_leaf_number(uint64_t leaf_index, uint64_t height);
 
-uint64_t ilog2(uint64_t f);
+//uint8_t ilog2(uint64_t f);
 
 #endif
