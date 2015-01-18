@@ -1,0 +1,72 @@
+\chapter{Cache-oblivious B-trees}
+
+\section{Cache-aware B-trees}
+% TODO: usual => good? best?
+In the external memory model, the usual way of storing sorted dictionaries
+is using a B-tree. A B-tree is a generalization of balanced binary search
+trees, in which nodes keep up to $b$ key-value pairs in sorted order.
+An inner node of a binary search tree with key $X$ contains two pointers
+pointing to children with keys $< X$ and $\geq X$. The B-tree generalizes
+this by having an inner node with $K_1,\ldots K_k$ keeping $k+1$ pointers
+to children with keys $< K_1$, $K_1\cdots K_2-1$, \dots, $> K_k$.
+
+The process of finding a key-value pair in a B-tree starts at the root node
+and walks down the tree using a generalization of binary search. Insertions
+similarly first find the right place to put the new key-value pair, and
+then walk back up the tree. If an overfull node (with more than $b$ keys)
+is encountered, it is split to two nodes of $b/2$ keys and a pointer to
+the new node is inserted into the parent. Deletions employ a similar procedure,
+merging underfull nodes (with less than $b/2$ keys) with their siblings.
+
+Thus, updates to the B-tree keep the number of keys within all nodes between
+$b/2$ and $b$, so the depth of the tree is kept between $\log_b N$ and
+$\log_{b/2} N$. The \textsc{Insert}, \textsc{Delete} and
+\textsc{Find} operations therefore run in $\Theta(\log_b N)$ time.
+The \textsc{FindNext} and \textsc{FindPrevious} also run in $\Theta(\log_b N)$ time,
+but if they are invoked after a previous \textsc{Find}, we can keep a pointer
+to the leaf containing the key and accordingly adjust it to find the next
+or previous key, which runs in $\O(1)$ amortized time.
+Thus, B-trees also allow scanning a contigous range of keys of size $n$
+in $\Theta(\log_b N + n)$ time.
+
+If we choose the parameter $b$ to be $\Theta(B)$, we obtain a bound of
+$\Theta(1+\log_B N)$ block transfers for all operations, which can
+be easily shown to be optimal in the comparison model.
+A contigous range of $n$ keys can be
+read using $\Theta(\log_B N+n/B)$ block transfers.
+Thus, the B-tree has optimal performance in the comparison model
+if the block size is known.
+
+The \textit{cache-oblivious B-tree} introduced by \cite{demaine00}
+is a data structure which gives similar bounds in a cache-oblivious
+setting.
+
+TODO: high-level popis
+TODO: indirection and merge/splits
+
+\section{The Van Emde Boas layout}
+One of the building blocks of the cache-oblivious B-tree is the Van Emde Boas
+layout of full binary trees (named after the Van Emde Boas priority queue,
+which uses similar ideas). Storing the keys of the nodes of a full binary tree
+in the Van Emde Boas order lets us read the sequence of keys
+from the root to any leaf using $\Theta(1+\log_B N)$ block transfers, which
+matches the \textsc{Find} cost of B-trees without the need to know $B$ beforehand.
+
+The Van Emde Boas layout is defined recursively. To find the Van Emde Boas layout
+of a full binary tree of height $h$, we split the tree to bottom subtrees
+of height $\lFloor h-1 \rFloor$ and one top subtree of height $h - \lFloor h-1 \rFloor$.
+The subtrees are recursively aligned in the Van Emde Boas layout and then laid
+out - first the top tree, then the bottom trees in BFS order. The Van Emde Boas
+layout of a one-node tree is trivial.
+
+TODO: image of the layout for several heights
+
+\begin{theorem}
+In a tree stored in the Van Emde Boas layout, reading the sequence of nodes
+on any root-leaf path costs $\Theta(1+\log_B N)$ memory transfers.
+TODO: maybe assume large enough cache
+\end{theorem}
+
+\begin{proof}
+TODO
+\end{proof}
