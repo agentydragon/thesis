@@ -109,79 +109,77 @@ void cob_dump(struct cob _this) {
 }
 
 static void fix_range_recursive(struct cob* this, ofm_range range_to_fix,
-		ofm_range current_range, uint64_t current_nid) {
-	log_info("to_fix=[%" PRIu64 "+%" PRIu64 "] current_range=[%" PRIu64 "+%" PRIu64 "] current_nid=%" PRIu64
+		ofm_range current_range, struct drilldown_track* track) {
+	log_info("to_fix=[%" PRIu64 "+%" PRIu64 "] current_range=[%" PRIu64 "+%" PRIu64 "] "
 			" bs=%" PRIu64,
 			range_to_fix.begin, range_to_fix.size,
-			current_range.begin, current_range.size, current_nid,
+			current_range.begin, current_range.size,
 			this->file.block_size);
+	const uint64_t current_nid = track->pos[track->depth];
 	if (current_range.size > range_to_fix.size) {
 		log_info("partially dirty");
-		veb_pointer left, right;
-		const uint64_t veb_height = cobt_get_veb_height(*this);
-		veb_get_children(current_nid, veb_height, &left, &right);
-		CHECK(left.present && right.present, "unexpected leaf");
 		if (range_to_fix.begin <
 				current_range.begin + current_range.size / 2) {
+			drilldown_go_left(this->level_data, track);
 			fix_range_recursive(this, range_to_fix, (ofm_range) {
 				.begin = current_range.begin,
 				.size = current_range.size / 2,
 				.file = &this->file
-			}, left.node);
-			if (this->veb_minima[left.node] < this->veb_minima[current_nid]) {
-				this->veb_minima[current_nid] = this->veb_minima[left.node];
+			}, track);
+			if (this->veb_minima[track->pos[track->depth]] < this->veb_minima[current_nid]) {
+				this->veb_minima[current_nid] = this->veb_minima[track->pos[track->depth]];
 			}
+			drilldown_go_up(track);
 		} else {
+			drilldown_go_right(this->level_data, track);
 			fix_range_recursive(this, range_to_fix, (ofm_range) {
 				.begin = current_range.begin + current_range.size / 2,
 				.size = current_range.size / 2,
 				.file = &this->file
-			}, right.node);
-			if (this->veb_minima[right.node] < this->veb_minima[current_nid]) {
-				this->veb_minima[current_nid] = this->veb_minima[right.node];
+			}, track);
+			if (this->veb_minima[track->pos[track->depth]] < this->veb_minima[current_nid]) {
+				this->veb_minima[current_nid] = this->veb_minima[track->pos[track->depth]];
 			}
+			drilldown_go_up(track);
 		}
-		log_info("=> %" PRIu64 " fixed to %" PRIu64,
-				current_nid, this->veb_minima[current_nid]);
 	} else if (current_range.size > this->file.block_size) {
 		log_info("completely dirty");
-		veb_pointer left, right;
-		const uint64_t veb_height = cobt_get_veb_height(*this);
-		veb_get_children(current_nid, veb_height, &left, &right);
-		CHECK(left.present && right.present, "unexpected leaf");
+		this->veb_minima[current_nid] = COB_INFINITY;
+		drilldown_go_left(this->level_data, track);
 		fix_range_recursive(this, range_to_fix, (ofm_range) {
 			.begin = current_range.begin,
 			.size = current_range.size / 2,
 			.file = &this->file
-		}, left.node);
+		}, track);
+		if (this->veb_minima[track->pos[track->depth]] < this->veb_minima[current_nid]) {
+			this->veb_minima[current_nid] = this->veb_minima[track->pos[track->depth]];
+		}
+		drilldown_go_up(track);
 
+		drilldown_go_right(this->level_data, track);
 		fix_range_recursive(this, range_to_fix, (ofm_range) {
 			.begin = current_range.begin + current_range.size / 2,
 			.size = current_range.size / 2,
 			.file = &this->file
-		}, right.node);
-
-		this->veb_minima[current_nid] = COB_INFINITY;
-		if (this->veb_minima[left.node] < this->veb_minima[current_nid]) {
-			this->veb_minima[current_nid] = this->veb_minima[left.node];
+		}, track);
+		if (this->veb_minima[track->pos[track->depth]] < this->veb_minima[current_nid]) {
+			this->veb_minima[current_nid] = this->veb_minima[track->pos[track->depth]];
 		}
+		drilldown_go_up(track);
 
-		if (this->veb_minima[right.node] < this->veb_minima[current_nid]) {
-			this->veb_minima[current_nid] = this->veb_minima[right.node];
-		}
-		log_info("=> %" PRIu64 " fixed to %" PRIu64,
-				current_nid, this->veb_minima[current_nid]);
 	} else {
 		this->veb_minima[current_nid] = cobt_range_get_minimum(current_range);
-		log_info("=> %" PRIu64 " fixed to %" PRIu64,
-				current_nid, this->veb_minima[current_nid]);
 	}
+	log_info("=> %" PRIu64 " fixed to %" PRIu64,
+			current_nid, this->veb_minima[current_nid]);
 }
 
 static void fix_range(struct cob* this, ofm_range range_to_fix) {
+	struct drilldown_track track;
+	drilldown_begin(&track);
 	fix_range_recursive(this, range_to_fix, (ofm_range) {
 		.begin = 0, .size = this->file.capacity, .file = &this->file
-	}, 0);
+	}, &track);
 }
 
 static uint64_t veb_walk(const struct cob* this, uint64_t key) {
@@ -193,7 +191,6 @@ static uint64_t veb_walk(const struct cob* this, uint64_t key) {
 
 	const uint64_t veb_height = cobt_get_veb_height(*this);
 	// Walk down vEB layout to find where does the key belong.
-	uint64_t pointer = 0;  // 0 == van Emde Boas root node
 	uint64_t leaf_index = 0;
 	do {
 		stack_size++;
