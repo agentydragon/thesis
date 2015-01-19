@@ -147,7 +147,8 @@ layout of a one-node tree is trivial.
 \end{tikzpicture}
 
 \caption{The Van Emde Boas layout of a full binary tree of height 5.
-Recursive applications of the layout are marked by rectangular borders.}
+Boxes mark recursive applications of the construction. The indices within
+every box are contiguous.}
 \label{fig:veb_layout_5}
 \end{figure}
 
@@ -177,11 +178,119 @@ different than $h_i$, but the height of this tree is always $\leq h_i$.
 
 Because the $2^{h_i}-1$ nodes of any $i$-th-iteration bottom tree are stored
 in a contiguous array, every $i$-th-iteration bottom tree (or top tree)
-can be read using $\O(1)$ block transfers.
-
-Therefore, there are $\O(1)$ block transfers for every $i$-th-iteration bottom
-or top tree on the path from the root to any leaf, so traversing the path
+can be read using $\O(1)$ block transfers. Since every root-to-leaf path
+is composed of $\Theta(\log_B N)$ such subtrees, traversing the path
 takes $\Theta(1+\log_B N)$ block transfers (the added $\O(1)$ covers
 the $B\geq N$ case).
-
 \end{proof}
+
+The Van Emde Boas layout thus makes a fine data structure for querying static
+data, but we need to combine it with another data structure to allow updates.
+
+\subsection{Efficient implementation concerns}
+A useful property of the Van Emde Boas layout is that it is fully specified
+by the height of the tree, so storing a full binary tree in this layout does
+not require keeping pointers -- the positions of left and right children
+of a node can be calculated when they are needed. We refer to this property
+of the layout as allowing \textit{implicit pointers}.
+
+We will only use the Van Emde Boas order to walk from the root node to a leaf.
+Given the \textit{Van Emde Boas ID} of a node,
+we can easily calculate the Van Emde Boas IDs of its children by
+a recursive procedure. This procedure either returns \textit{internal} node
+pointers, referencing actual nodes of the tree, or it returns \textit{external}
+indexes, which represent virtual nodes below the leaves, counted from left
+to right.
+
+TODO: figure?
+TODO: check
+\begin{algorithmic}
+\Function {GetChildren} {$n$: node Van Emde Boas ID, $h$: tree height}
+	\If {$h = 1$ and $n = 0$} \Return{external (0,1)} \EndIf
+
+	\State {$h_\downarrow \gets \lhfloor h-1 \rhfloor$} \Comment{Calculate
+top and bottom heights}
+	\State {$h_\uparrow \gets h-h_\downarrow$} 
+	\State {$N_\uparrow, N_\downarrow \gets 2^{h_\uparrow}-1,
+	2^{h_\downarrow}-1$} \Comment{Calculate top and bottom tree sizes}
+
+	\If {$n <  N_\uparrow$}
+		\State $\ell, r \gets$ \Call{GetChildren}{$n$,$h_\uparrow$}
+		\If {$\ell$ and $r$ are internal}
+			\State \Return{internal ($\ell$,$r$)}
+		\Else\Comment{$\ell$ and $r$ they point to bottom tree roots}
+			\State \Return{internal
+				($N_\uparrow+\ell\cdot N_\downarrow$,
+				$N_\uparrow+r\cdot N_\downarrow$)
+			}
+		\EndIf
+	\Else
+		\State {$i \gets (n-N_\uparrow) \div N_\downarrow$}
+			\Comment{The node $n$ lies within the $i$-th bottom tree.}
+		\State {$b \gets N_\uparrow + i\cdot N_\downarrow$}
+			\Comment{$b$ is the root of the $i$-th bottom tree.}
+		\State $\ell,r\gets$ \Call{GetChildren}{$n-b$, $h_\downarrow$}
+		\If {$\ell$ and $r$ are internal}
+			\State \Return{internal ($\ell+b$, $r+b$)}
+		\Else
+			\State {$e \gets 2^{h_\downarrow}$} \Comment{Adjust
+				indices by $e$ external nodes per bottom
+				tree.}
+			\State \Return{external ($\ell+i\cdot e$, $r+i\cdot e$)}
+		\EndIf
+	\EndIf
+\EndFunction
+\end{algorithmic}
+
+The cost of this procedure in the cache-oblivious model is $\O(1)$, because
+it can be implemented using constant memory (by modifying the recursion into
+a loop). Unfortunately, on a real computer, this is not quite the case --
+every call of this procedure performs $\Theta(\log\log N)$ instructions and
+repeating this $\Theta(\log N)$ times between the root and a leaf is slow.
+Indeed, this calculation of implicit pointers can become the performance
+bottleneck of the cache-oblivious B-tree.
+This can be slightly alleviated by caching the results for trees of small
+height.
+
+TODO: graf
+
+TODO: efficient calculation of pointers
+
+\section{Ordered file maintenance}
+In this section we shall describe an auxilliary data structure which stores
+an ordered list of $N$ keys (in the given order) in a contiguous array of
+size $\O(N)$. The operations allowed on this structure are
+\textsc{Insert}(\textit{index},\textit{key}), which inserts a new key before
+or after a given index in the array, and \textsc{Delete}(\textit{index}),
+which deletes an item at a given index.
+We shall allow the array to contain gaps up to a constant maximum size.
+Having constant-size gaps allows scanning a range of $n$ keys using the
+optimal $\Theta(n/B)$ scans.
+
+Updates (\textsc{Insert}s and \textsc{Delete}s) will rewrite a contiguous
+range of size $\Theta(\log^2 N)$ amortized. Thanks to the range being
+contiguous, updates will incur $\Theta(1+\frac{\log^2 N}{B})$ amortized
+block transfers.
+
+The data structure maintains certain density bounds on subranges of the array.
+In particular, the array is divided into \textit{leaf blocks} of size $\O(\log N)$.
+A \textit{virtual full binary tree} is built above those leaf blocks. Every
+node of this binary tree represents the range covering all the leaf blocks below.
+
+The densities in the leaf blocks are kept between \unichar{"00BC} % VULGAR FRACTION ONE QUARTER
+and 1. When a block becomes too sparse or too dense, we walk up the binary
+tree until we find a node that fits our density requirements.
+Those requirements become stricter as we walk up the binary tree.
+In particular, the density of a node of depth $d$ within a tree of height $h$
+is kept between $\frac{1}{2}-\frac{1}{4}\frac{d}{h}$ and $\frac{3}{4}+\frac{1}{4}\frac{d}{h}$.
+When we find a node that is \textit{within bounds}, we uniformly redistribute
+the keys in its range.
+
+We claim that while this while this redistribution may reorganize a range
+of size up to $\O(N)$, the redistribution of a node puts all nodes below it
+well within bounds, so the next redistribution of those nodes will occur
+only after relatively many updates. % TODO: how much is "many"?
+
+TODO: claim, proof
+
+TODO: other approaches?
