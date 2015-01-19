@@ -46,27 +46,142 @@ TODO: indirection and merge/splits
 
 \section{The Van Emde Boas layout}
 One of the building blocks of the cache-oblivious B-tree is the Van Emde Boas
-layout of full binary trees (named after the Van Emde Boas priority queue,
-which uses similar ideas). Storing the keys of the nodes of a full binary tree
-in the Van Emde Boas order lets us read the sequence of keys
-from the root to any leaf using $\Theta(1+\log_B N)$ block transfers, which
-matches the \textsc{Find} cost of B-trees without the need to know $B$ beforehand.
+layout (named after the Van Emde Boas priority queue, which uses similar ideas).
+The Van Emde Boas layout is a way of mapping the nodes of a full binary
+tree of height $h$ to indices $0\ldots 2^h-2$. Other layouts of full binary
+trees include the BFS or DFS order.
+
+The advantage of storing a full binary tree in the Van Emde Boas layout
+is that is lets us read the sequence of keys from the root to any leaf
+using $\Theta(1+\log_B N)$ block transfers, which matches the \textsc{Find}
+cost of B-trees without the need to know $B$ beforehand.
+In contrast, the same operation would cost $\Theta(1+\log N-\log B)$ block
+transfers in the DFS or BFS order.
 
 The Van Emde Boas layout is defined recursively. To find the Van Emde Boas layout
 of a full binary tree of height $h$, we split the tree to bottom subtrees
-of height $\lFloor h-1 \rFloor$ and one top subtree of height $h - \lFloor h-1 \rFloor$.
+of height $\lhfloor h-1 \rhfloor$ and one top subtree of height $h - \lhfloor
+h-1 \rhfloor$.
 The subtrees are recursively aligned in the Van Emde Boas layout and then laid
 out - first the top tree, then the bottom trees in BFS order. The Van Emde Boas
 layout of a one-node tree is trivial.
 
-TODO: image of the layout for several heights
+\begin{figure}
+\centering
+\tikzset{
+  veb_node/.style = {align=center, inner sep=0pt, text centered, circle,
+	  font=\sffamily, draw=black, text width=1.2em},
+  block_l0/.style = {rectangle, draw=black, dashed, inner sep=7pt, draw=gray},
+  block_l1/.style = {rectangle, draw=black, densely dotted, thin, inner sep=3pt, draw=gray},
+  level/.style={level distance=1.7cm}
+}
+	%level/.style={sibling distance = 6cm/#1, level distance = 1.3cm}
+\begin{tikzpicture}[
+	scale=0.7,
+	level 1/.style = {sibling distance=9.6cm},
+	level 2/.style = {sibling distance=4.6cm},
+	level 3/.style = {sibling distance=2.3cm},
+	level 4/.style = {sibling distance=1cm},
+]
+	\node [veb_node] (Node0) {0}
+	child{ node [veb_node] (Node1) {1}
+		child { node [veb_node] (Node2) {2}
+			child { node [veb_node] (Node4) {4}
+				child { node [veb_node] (Node5) {5} }
+				child { node [veb_node] (Node6) {6} }
+			}
+			child { node [veb_node] (Node7) {7}
+				child { node [veb_node] (Node8) {8} }
+				child { node [veb_node] (Node9) {9} }
+			}
+		}
+		child { node [veb_node] (Node3) {3}
+			child { node [veb_node] (Node10) {10}
+				child { node [veb_node] (Node11) {11} }
+				child { node [veb_node] (Node12) {12} }
+			}
+			child { node [veb_node] (Node13) {13}
+				child { node [veb_node] (Node14) {14} }
+				child { node [veb_node] (Node15) {15} }
+			}
+		}
+	}
+	child{ node [veb_node] (Node16) {16}
+		child { node [veb_node] (Node17) {17}
+			child { node [veb_node] (Node19) {19}
+				child { node [veb_node] (Node20) {20} }
+				child { node [veb_node] (Node21) {21} }
+			}
+			child { node [veb_node] (Node22) {22}
+				child { node [veb_node] (Node23) {23} }
+				child { node [veb_node] (Node24) {24} }
+			}
+		}
+		child { node [veb_node] (Node18) {18}
+			child { node [veb_node] (Node25) {25}
+				child { node [veb_node] (Node26) {26} }
+				child { node [veb_node] (Node27) {27} }
+			}
+			child { node [veb_node] (Node28) {28}
+				child { node [veb_node] (Node29) {29} }
+				child { node [veb_node] (Node30) {30} }
+			}
+		}
+	};
+
+	\node [block_l0,fit=(Node0)] (BlockT) {};
+	\node [block_l0,fit=(Node1) (Node5) (Node15)] (BlockB0) {};
+	\node [block_l0,fit=(Node16) (Node20) (Node30)] (BlockB1) {};
+
+	\node [block_l1,fit=(Node1) (Node2) (Node3)] (BlockB0T) {};
+	\node [block_l1,fit=(Node4) (Node5) (Node6)] (BlockB0B0) {};
+	\node [block_l1,fit=(Node7) (Node8) (Node9)] (BlockB0B1) {};
+	\node [block_l1,fit=(Node10) (Node11) (Node12)] (BlockB0B2) {};
+	\node [block_l1,fit=(Node13) (Node14) (Node15)] (BlockB0B3) {};
+
+	\node [block_l1,fit=(Node16) (Node17) (Node18)] (BlockB1T) {};
+	\node [block_l1,fit=(Node19) (Node20) (Node21)] (BlockB1B0) {};
+	\node [block_l1,fit=(Node22) (Node23) (Node24)] (BlockB1B1) {};
+	\node [block_l1,fit=(Node25) (Node26) (Node27)] (BlockB1B2) {};
+	\node [block_l1,fit=(Node28) (Node29) (Node30)] (BlockB1B3) {};
+\end{tikzpicture}
+
+\caption{The Van Emde Boas layout of a full binary tree of height 5.
+Recursive applications of the layout are marked by rectangular borders.}
+\label{fig:veb_layout_5}
+\end{figure}
 
 \begin{theorem}
 In a tree stored in the Van Emde Boas layout, reading the sequence of nodes
-on any root-leaf path costs $\Theta(1+\log_B N)$ memory transfers.
-TODO: maybe assume large enough cache
+on any root-leaf path costs $\Theta(1+\log_B N)$ memory transfers (assuming
+every node fits in one block).
 \end{theorem}
 
 \begin{proof}
-TODO
+Let us examine the recursive applications of the Van Emde Boas construction
+for a height $h=\log (N+1)$ and denote the heights of the bottom trees
+$h_1, h_2, \ldots$. For example, as seen in Figure \ref{fig:veb_layout_5}, for
+$h=5$ we have $h_1=4$, $h_2=2$ and $h_3=1$.
+
+Let us assume that the entire tree doesn't fit in a block of size $B$.
+Because a single node fits in one block, there exists a \textit{level of
+detail} $i$ such that the $2^{h_i}-1$ nodes in the $i$-th-iteration bottom trees
+take up less than $B$ nodes, but bottom trees of the $i-1$-th-iteration bottom
+trees take up at least $B$ nodes.
+
+Since $2^{h_i}-1 < B$ and $2^{h_i-1}-1 \geq B$, it follows that $h_i=\O(\log_B)$.
+By construction, the path of from the root of the tree to any leaf contains
+$\Theta(\log N/h_i)=\Theta(\log_B N)$ bottom trees from the $i$-th iteration.
+The path also contains one top tree containing the root which may have a height
+different than $h_i$, but the height of this tree is always $\leq h_i$.
+
+Because the $2^{h_i}-1$ nodes of any $i$-th-iteration bottom tree are stored
+in a contiguous array, every $i$-th-iteration bottom tree (or top tree)
+can be read using $\O(1)$ block transfers.
+
+Therefore, there are $\O(1)$ block transfers for every $i$-th-iteration bottom
+or top tree on the path from the root to any leaf, so traversing the path
+takes $\Theta(1+\log_B N)$ block transfers (the added $\O(1)$ covers
+the $B\geq N$ case).
+
 \end{proof}

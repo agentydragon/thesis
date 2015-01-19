@@ -31,7 +31,13 @@
 %% Ostatní balíčky
 \usepackage{graphicx}
 \usepackage{amsthm}
-\usepackage{nath}
+\usepackage{tikz}  % must be top
+\usetikzlibrary{calc, shapes, fit}
+
+% package nath incompatible with tikz
+\def\hyperspc{\kern -0.22em}
+\newcommand{\lhfloor}{\lfloor \hyperspc \lfloor}
+\newcommand{\rhfloor}{\rfloor \hyperspc \rfloor}
 
 %% Balíček hyperref, kterým jdou vyrábět klikací odkazy v PDF,
 %% ale hlavně ho používáme k uložení metadat do PDF (včetně obsahu).
@@ -251,6 +257,7 @@ TODO
 %%% Jednotlivé kapitoly práce jsou pro přehlednost uloženy v samostatných souborech
 \include{preface}
 \include{chap1}
+\include{cob}
 
 \include{epilog}
 
