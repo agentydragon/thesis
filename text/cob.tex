@@ -1,7 +1,9 @@
 \chapter{Cache-oblivious B-trees}
+% TODO: assume B > 1
 
 \section{Cache-aware B-trees}
 % TODO: usual => good? best?
+% TODO: reference to B-tree article
 In the external memory model, the usual way of storing sorted dictionaries
 is using a B-tree. A B-tree is a generalization of balanced binary search
 trees, in which nodes keep up to $b$ key-value pairs in sorted order.
@@ -39,31 +41,39 @@ if the block size is known.
 
 The \textit{cache-oblivious B-tree} introduced by \cite{demaine00}
 is a data structure which gives similar bounds in a cache-oblivious
-setting.
+setting -- it takes $\Theta(1+\log_B N)$ block transfers to perform
+a \textsc{Find}, \textsc{FindNext} or \textsc{FindPrevious} and scanning
+a range of $n$ keys also takes $\Theta(1+\log_B N+n/B)$ time.
+Both \textsc{Insert}s and \textsc{Delete}s cost
+$\Theta(1+\frac{\log^2 N}{B}+\log_B N)$ amortized block transfers.
+This matches the performance of B-trees for $B=\Omega(\log N\log\log N)$.
+% TODO: unfortunately not common for internal memory
 
 TODO: high-level popis
 TODO: indirection and merge/splits
 
-\section{The Van Emde Boas layout}
-One of the building blocks of the cache-oblivious B-tree is the Van Emde Boas
-layout (named after the Van Emde Boas priority queue, which uses similar ideas).
-The Van Emde Boas layout is a way of mapping the nodes of a full binary
+% TODO: better solutions - O(log N/B) atd.
+
+\section{The van Emde Boas layout}
+One of the building blocks of the cache-oblivious B-tree is the van Emde Boas
+layout (named after the van Emde Boas priority queue, which uses similar ideas).
+The van Emde Boas layout is a way of mapping the nodes of a full binary
 tree of height $h$ to indices $0\ldots 2^h-2$. Other layouts of full binary
 trees include the BFS or DFS order.
 
-The advantage of storing a full binary tree in the Van Emde Boas layout
+The advantage of storing a full binary tree in the van Emde Boas layout
 is that is lets us read the sequence of keys from the root to any leaf
 using $\Theta(1+\log_B N)$ block transfers, which matches the \textsc{Find}
 cost of B-trees without the need to know $B$ beforehand.
 In contrast, the same operation would cost $\Theta(1+\log N-\log B)$ block
 transfers in the DFS or BFS order.
 
-The Van Emde Boas layout is defined recursively. To find the Van Emde Boas layout
+The van Emde Boas layout is defined recursively. To find the van Emde Boas layout
 of a full binary tree of height $h$, we split the tree to bottom subtrees
 of height $\lhfloor h-1 \rhfloor$ and one top subtree of height $h - \lhfloor
 h-1 \rhfloor$.
-The subtrees are recursively aligned in the Van Emde Boas layout and then laid
-out - first the top tree, then the bottom trees in BFS order. The Van Emde Boas
+The subtrees are recursively aligned in the van Emde Boas layout and then laid
+out - first the top tree, then the bottom trees in BFS order. The van Emde Boas
 layout of a one-node tree is trivial.
 
 \begin{figure}
@@ -145,21 +155,22 @@ layout of a one-node tree is trivial.
 	\node [block_l1,fit=(Node25) (Node26) (Node27)] (BlockB1B2) {};
 	\node [block_l1,fit=(Node28) (Node29) (Node30)] (BlockB1B3) {};
 \end{tikzpicture}
+% TODO: linearized figure, general figure
 
-\caption{The Van Emde Boas layout of a full binary tree of height 5.
+\caption{The van Emde Boas layout of a full binary tree of height 5.
 Boxes mark recursive applications of the construction. The indices within
 every box are contiguous.}
 \label{fig:veb_layout_5}
 \end{figure}
 
 \begin{theorem}
-In a tree stored in the Van Emde Boas layout, reading the sequence of nodes
+In a tree stored in the van Emde Boas layout, reading the sequence of nodes
 on any root-leaf path costs $\Theta(1+\log_B N)$ memory transfers (assuming
 every node fits in one block).
 \end{theorem}
 
 \begin{proof}
-Let us examine the recursive applications of the Van Emde Boas construction
+Let us examine the recursive applications of the van Emde Boas construction
 for a height $h=\log (N+1)$ and denote the heights of the bottom trees
 $h_1, h_2, \ldots$. For example, as seen in Figure \ref{fig:veb_layout_5}, for
 $h=5$ we have $h_1=4$, $h_2=2$ and $h_3=1$.
@@ -184,19 +195,19 @@ takes $\Theta(1+\log_B N)$ block transfers (the added $\O(1)$ covers
 the $B\geq N$ case).
 \end{proof}
 
-The Van Emde Boas layout thus makes a fine data structure for querying static
+The van Emde Boas layout thus makes a fine data structure for querying static
 data, but we need to combine it with another data structure to allow updates.
 
 \subsection{Efficient implementation concerns}
-A useful property of the Van Emde Boas layout is that it is fully specified
+A useful property of the van Emde Boas layout is that it is fully specified
 by the height of the tree, so storing a full binary tree in this layout does
 not require keeping pointers -- the positions of left and right children
 of a node can be calculated when they are needed. We refer to this property
 of the layout as allowing \textit{implicit pointers}.
 
-We will only use the Van Emde Boas order to walk from the root node to a leaf.
-Given the \textit{Van Emde Boas ID} of a node,
-we can easily calculate the Van Emde Boas IDs of its children by
+We will only use the van Emde Boas order to walk from the root node to a leaf.
+Given the \textit{van Emde Boas ID} of a node,
+we can easily calculate the van Emde Boas IDs of its children by
 a recursive procedure. This procedure either returns \textit{internal} node
 pointers, referencing actual nodes of the tree, or it returns \textit{external}
 indexes, which represent virtual nodes below the leaves, counted from left
@@ -205,7 +216,7 @@ to right.
 TODO: figure?
 TODO: check
 \begin{algorithmic}
-\Function {GetChildren} {$n$: node Van Emde Boas ID, $h$: tree height}
+\Function {GetChildren} {$n$: node van Emde Boas ID, $h$: tree height}
 	\If {$h = 1$ and $n = 0$} \Return{external (0,1)} \EndIf
 
 	\State {$h_\downarrow \gets \lhfloor h-1 \rhfloor$} \Comment{Calculate
@@ -256,7 +267,7 @@ TODO: graf
 
 TODO: efficient calculation of pointers
 
-\section{Ordered file maintenance}
+\section{Packed memory array}
 In this section we shall describe an auxilliary data structure which stores
 an ordered list of $N$ keys (in the given order) in a contiguous array of
 size $\O(N)$. The operations allowed on this structure are
@@ -272,25 +283,66 @@ range of size $\Theta(\log^2 N)$ amortized. Thanks to the range being
 contiguous, updates will incur $\Theta(1+\frac{\log^2 N}{B})$ amortized
 block transfers.
 
-The data structure maintains certain density bounds on subranges of the array.
+To properly define the structure, we need to define some terms. The
+\textit{capacity} of a certain range of the array is its size and the
+\textit{density} of a range is the number of items present in the range divided
+by its capacity.
+
+The data structure maintains certain bounds on the densities of subranges of the array.
 In particular, the array is divided into \textit{leaf blocks} of size $\O(\log N)$.
 A \textit{virtual full binary tree} is built above those leaf blocks. Every
 node of this binary tree represents the range covering all the leaf blocks below.
 
 The densities in the leaf blocks are kept between \unichar{"00BC} % VULGAR FRACTION ONE QUARTER
-and 1. When a block becomes too sparse or too dense, we walk up the binary
+and 1. If our update keeps the density of the leaf block, within bounds,
+we rewrite all the $\Theta(\log N)$ items of the leaf block.
+When a block becomes too sparse or too dense, we walk up the binary
 tree until we find a node that fits our density requirements.
 Those requirements become stricter as we walk up the binary tree.
 In particular, the density of a node of depth $d$ within a tree of height $h$
-is kept between $\frac{1}{2}-\frac{1}{4}\frac{d}{h}$ and $\frac{3}{4}+\frac{1}{4}\frac{d}{h}$.
-When we find a node that is \textit{within bounds}, we uniformly redistribute
-the keys in its range.
+is kept between $\frac{1}{2}-\frac{1}{4}\frac{d}{h}$ and $\frac{3}{4}+\frac{1}{4}\frac{d}{h}$
+\footnote{The constants are arbitrary and control the tradeoff
+between memory consumption and time complexity of rebuilding.}.
+When we find a node that is \textit{within threshold}, we uniformly redistribute
+the keys in its range. If no such node exists, we resize the entire structure
+by a constant factor, which lets us amortize the costs of this resizing to
+a multiplicative constant.
 
 We claim that while this while this redistribution may reorganize a range
 of size up to $\O(N)$, the redistribution of a node puts all nodes below it
 well within bounds, so the next redistribution of those nodes will occur
 only after relatively many updates. % TODO: how much is "many"?
 
-TODO: claim, proof
+The search for a node to redistribute is implemented as two interspersed scans,
+one extending the scanned range to the left, one to the right. The
+redistribution can be performed by performing another left-to-right scan to
+shuffle all present items to one side of the array, followed by a last
+right-to-left scan putting items into their final destinations. Thus,
+redistributing a range of $K$ items takes $\Theta(1+K/B)$ block transfers.
+
+TODO: figure of redistribution
+
+\begin{theorem}
+The amortized block-transfer cost of an update of the packed-memory array
+is $\O(1+\frac{\log^2 N}{B})$.
+\end{theorem}
+
+\begin{proof}
+Suppose we need to redistribute some node $X$ of depth $d$ after performing
+an insertion. Since we are redistributing this node, it is within threshold,
+but it has one child $Y$ which is not. Therefore the density of $X$ is at most
+$\frac{3}{4}+\frac{1}{4}\frac{d}{h}$, while the density of $Y$ is more than
+$\frac{3}{4}+\frac{1}{4}\frac{d+1}{h}$. After we redistribute the items within $X$,
+the density of $Y$ will drop by $\frac{1}{h}$. Thus, if we denote the capacity
+of $Y$ as $|Y|$, we will need to insert at least $|Y|/h$ items under $Y$ before
+we need to rebalance $X$ again. Thus, we can charge the redistributed interval
+of size $\O(|X|)$ to the insertions into $Y$, which gives us amortized $\O(\log N)$
+redistribution steps per insertion into $Y$.
+
+Since the node $Y$ has in general $h=\Theta(\log N)$ ancestors, we can amortize
+$\O(\log^2 N)$ redistribution steps per insertion, which is
+$\O(1+\frac{\log^2 N}{B})$ in block transfers. The proof of the deletion
+cost is analogous.
+\end{proof}
 
 TODO: other approaches?
