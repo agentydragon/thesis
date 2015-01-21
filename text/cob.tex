@@ -263,9 +263,45 @@ bottleneck of the cache-oblivious B-tree.
 This can be slightly alleviated by caching the results for trees of small
 height.
 
-TODO: graf
+As described in \cite{brodal01}, at the low cost of precomputing $\O(h)$
+items for every height $h$ of the binary tree, we can perform root-leaf
+traversals which take constant time per traversed level.
 
-TODO: efficient calculation of pointers
+The main observation is if we select a node and perform the van Emde Boas
+recursive construction until the selected node is the root of a bottom tree,
+this recursion will progress in the same manner for every node in the same
+depth $d$.
+
+For every depth $d\in[2;h]$, let us precompute the size $B[d]$ of
+the bottom tree rooted in depth $d$, the size $T[d]$ of the corresponding
+top tree and the depth $D[d]$ of the top tree's root. The data takes $\O(\log
+N)$ memory and it can be computed in $\O(\log N)$ time by an iterative procedure.
+
+While traversing a root-to-leaf path, we shall maintain the current depth
+$d$, the index $i$ of the current node $x$ in BFS order and an array
+$Pos[j]$ of van Emde Boas order indices of nodes passed in every depth $j<d$
+during this traversal.
+
+As the bits of the BFS index $i$ correspond to left and right turns made during
+the traversal, the $\log(T[d]+1)$ least significant bits of $i$ are the
+index of the unique bottom tree rooted by the node $x$. Because $T[d]$ is
+always in the form $2^k-1$, we can find those bits quickly by calculating
+$i \& T[d]$.
+
+Because the current node $x$ is the root of the $(i \& T[d])$-th
+bottom tree of size $B[d]$ after a top tree of size $T[d]$ rooted in
+$Pos[D[d]]$, it follows that the van Emde Boas index of the current node can be
+calculated in $\O(1)$ time as:
+$$Pos[d]=Pos[D[d]] + T[d] + (i \& T[d]) \cdot B[d]$$
+
+Our root-to-leaf traversal starts by setting $i\gets 0, d\gets 0, Pos[0]=0$.
+Navigation to the left or right child of the current node is performed
+by updating the BFS index $i$ (setting it to $2i+1$ or $2i+2$ respectively),
+incrementing the depth $d$ and calculating the new $Pos[d]$.
+We can also return one level higher by reversing the update of $i$ and
+decrementing $d$.
+
+TODO: graf
 
 \section{Packed memory array}
 In this section we shall describe an auxilliary data structure which stores
