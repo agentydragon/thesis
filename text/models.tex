@@ -1,0 +1,60 @@
+\chapter{Choice of models}
+
+The performance of algorithms is usually measured in the RAM
+(\textit{Random Access Memory} or \textit{Machine}) model.
+The ideal RAM machine has an infinite memory divided into constant-size
+cells addressed by integers.
+One instruction fo the RAM machine can compute an arithmetic expression
+based on values of cells and store it into another cell. The expressions
+may involve reading cells, including cells pointed to by another cell.
+The exact operations allowed on the values differs from model to model,
+but a typical set would include the usual C operators (\texttt{+}, \texttt{-},
+\texttt{*}, \texttt{/}, \texttt{\%}, \texttt{\&}, \texttt{|}, \texttt{\^},
+\texttt{~}, \dots).
+A complete set of instructions also requires a conditional jump (based on
+the value of an expression).
+
+We benchmark RAM algorithms by their \textit{time} and \textit{space complexity}.
+The time complexity is the number of executed instructions as a function of
+input size and the space complexity is the maximum cell index accessed during
+execution.
+
+The time and space used by real computer programs is obviously related
+to the predictions made by the RAM model. This relation is, however, not
+as straightforward as commonly assumed.
+
+% TODO: list-array experiment
+
+CPU speeds have been growing slower than speeds of cheap RAM. A fast CPU
+needs to wait several hundred cycles to perform a RAM access. TODO: source "several hundred"
+To alleviate the costs of memory transfers, several levels of caches (usually
+at least L1 and L2) are inserted between the CPU and the main memory.
+The caches are progressively smaller and faster the closer they are to the CPU.
+The difference between speeds of memory levels reaches several orders of magnitude. TODO: source
+
+Larger and slower memories are also faster when accessing data physically
+close to recently accessed data. The hard disk is the most apparent example
+of this behavior -- reading a byte close to the current position of the drive
+head takes very little time compared to reading a random position, which incurs
+a slow disk seek. % TODO: times
+Reading a contiguous range of items is also beneficial for performance.
+
+% TODO: note about B, 1 kB = 1024 B
+Furthermore, every memory may have a different \textit{block size} -- for example,
+while L1 and L2 caches typically have \textit{cache lines} of 64 B, a common
+block size for disk I/O is 4 kB.
+
+TODO: prefetcher
+
+\section{The external memory model}
+TODO: writeup, cite source
+
+\section{Cache-oblivious algorithms}
+Cache-oblivious algorithms are designed for a machine with a cache, but
+the parameters $M$ and $B$ of the cache are not available to the algorithm.
+The algorithm must perform well on all possible values of $M$ and $B$.
+One of the benefits of cache-oblivious algorithms is lack of need for manual
+tuning. Also, on a machine with several cache levels, the number of block transfers
+a cache-oblivious algorithm performs is optimized on every cache boundary.
+
+TODO: basic bounds
