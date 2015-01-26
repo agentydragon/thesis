@@ -23,11 +23,11 @@ typedef struct splay_tree splay_tree;
 
 void splay_tree_find(splay_tree* this,
 		splay_tree_key key, bool *found, splay_tree_value* value);
-void splay_tree_insert(splay_tree* this,
+int8_t splay_tree_insert(splay_tree* this,
 		splay_tree_key key,
 		splay_tree_value value);
 // TODO: scan left, right
-void splay_tree_delete(splay_tree* this, splay_tree_key key);
+int8_t splay_tree_delete(splay_tree* this, splay_tree_key key);
 void splay_tree_init(splay_tree** this);
 void splay_tree_destroy(splay_tree** this);
 // splay_up actually splays up the last node found on the path here.

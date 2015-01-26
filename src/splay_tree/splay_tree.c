@@ -188,51 +188,49 @@ void tree_destroy(struct splay_tree** _tree) {
 	}
 }
 
-static void tree_insert_recursive(uint64_t key, struct splay_tree_node* new_node,
-		struct splay_tree_node* parent) {
-	if (parent->key > new_node->key) {
-		if (parent->left == NULL) {
-			parent->left = new_node;
-		} else {
-			tree_insert_recursive(key, new_node, parent->left);
-		}
-	} else if (parent->key < new_node->key) {
-		if (parent->right == NULL) {
-			parent->right = new_node;
-		} else {
-			tree_insert_recursive(key, new_node, parent->right);
-		}
-	} else {
-		log_fatal("element %" PRIu64 " already exists", key);
-	}
-}
+int8_t splay_tree_insert(struct splay_tree* tree, uint64_t key, uint64_t value) {
+	struct splay_tree_node* new_node = malloc(sizeof(struct splay_tree_node));
+	assert(new_node);
+	*new_node = (struct splay_tree_node) {
+		.key = key, .value = value, .left = NULL, .right = NULL };
 
-static void tree_insert_internal(struct splay_tree* tree, uint64_t key,
-		struct splay_tree_node* new_node) {
 	if (tree->root == NULL) {
 		tree->root = new_node;
 	} else {
-		// TODO(prvak): remove recursion
-		tree_insert_recursive(key, new_node, tree->root);
+		struct splay_tree_node* parent = tree->root;
+		while (true) {
+			if (parent->key > new_node->key) {
+				if (parent->left == NULL) {
+					parent->left = new_node;
+					break;
+				} else {
+					parent = parent->left;
+				}
+			} else if (parent->key < new_node->key) {
+				if (parent->right == NULL) {
+					parent->right = new_node;
+					break;
+				} else {
+					parent = parent->right;
+				}
+			} else {
+				// Element already exists.
+				return 1;
+			}
+		}
 
 		// This will do the splay step.
 		// TODO(prvak): make this better
 		splay_tree_find(tree, key, NULL, NULL);
 	}
-}
-
-void splay_tree_insert(struct splay_tree* tree, uint64_t key, uint64_t value) {
-	struct splay_tree_node* new_node = malloc(sizeof(struct splay_tree_node));
-	assert(new_node);
-	*new_node = (struct splay_tree_node) { .key = key, .value = value, .left = NULL, .right = NULL };
-	tree_insert_internal(tree, key, new_node);
+	return 0;
 }
 
 void splay_tree_find(splay_tree* this, uint64_t key, bool *found,
 		uint64_t *value) {
-	// TODO(prvak)
 	if (this->root == NULL) {
-		log_fatal("!!! fail");
+		*found = false;
+		return;
 	}
 
 	struct splay_tree_node* current_node = this->root;
@@ -266,10 +264,9 @@ static uint8_t count_children(struct splay_tree_node* node) {
 	return (node->left != NULL) + (node->right != NULL);
 }
 
-void splay_tree_delete(splay_tree* this, uint64_t key) {
-	if (this->root) {
-		// TODO(prvak)
-		log_fatal("deleting from empty splay tree");
+int8_t splay_tree_delete(splay_tree* this, uint64_t key) {
+	if (this->root == NULL) {
+		return 1;
 	}
 
 	struct splay_tree_node* parent = NULL;
@@ -293,7 +290,7 @@ void splay_tree_delete(splay_tree* this, uint64_t key) {
 	}
 
 	if (current_node->key != key) {
-		log_fatal("removing nonexistant node from splay tree");
+		return 1;
 	}
 
 	switch (count_children(current_node)) {
@@ -323,14 +320,18 @@ void splay_tree_delete(splay_tree* this, uint64_t key) {
 		} else {
 			assert(child = current_node->right);
 		}
-		if (parent->left == current_node) {
-			parent->left = child;
+		if (parent) {
+			if (parent->left == current_node) {
+				parent->left = child;
+			} else {
+				assert(parent->right == current_node);
+				parent->right = child;
+			}
+			splay_up(this, parent->key);
 		} else {
-			assert(parent->right == current_node);
-			parent->right = child;
+			this->root = child;
 		}
 		free(current_node);
-		splay_up(this, parent->key);
 		break;
 	}
 	case 2: {
@@ -360,4 +361,5 @@ void splay_tree_delete(splay_tree* this, uint64_t key) {
 		log_fatal("son what the fuck are you doing");
 	}
 	}
+	return 0;
 }

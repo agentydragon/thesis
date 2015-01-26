@@ -10,6 +10,7 @@ SOURCES= \
 	hash_hashtable/*.c \
 	hash_hashtable/private/*.c \
 	hash_hashtable/test/*.c \
+	hash_splay/*.c \
 	log/*.c \
 	measurement/*.c \
 	observation/*.c \
