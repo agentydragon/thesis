@@ -192,23 +192,15 @@ void test_hyperdrill_1() {
 	assert(track.depth == 0 && track.pos[track.depth] == 0 && track.bfs == 0);
 
 	drilldown_go_right(levels, &track);
-	log_info("track.pos[track.depth]=%" PRIu64 " track.bfs=%" PRIu64,
-			track.pos[track.depth], track.bfs);
 	assert(track.depth == 1 && track.pos[track.depth] == 16 && track.bfs == 2);
 
 	drilldown_go_left(levels, &track);
-	log_info("track.pos[track.depth]=%" PRIu64 " track.bfs=%" PRIu64,
-			track.pos[track.depth], track.bfs);
 	assert(track.depth == 2 && track.pos[track.depth] == 17 && track.bfs == 5);
 
 	drilldown_go_right(levels, &track);
-	log_info("track.pos[track.depth]=%" PRIu64 " track.bfs=%" PRIu64,
-			track.pos[track.depth], track.bfs);
 	assert(track.depth == 3 && track.pos[track.depth] == 22 && track.bfs == 12);
 
 	drilldown_go_left(levels, &track);
-	log_info("track.pos[track.depth]=%" PRIu64 " track.bfs=%" PRIu64,
-			track.pos[track.depth], track.bfs);
 	assert(track.depth == 4 && track.pos[track.depth] == 23 && track.bfs == 25);
 
 	log_info("hyperdrill OK");
