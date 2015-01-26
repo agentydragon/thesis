@@ -23,6 +23,11 @@ void drilldown_go_left(struct level_data* ld, struct drilldown_track* track);
 void drilldown_go_right(struct level_data* ld, struct drilldown_track* track);
 void drilldown_go_up(struct drilldown_track* track);
 
+// OLD API:
+typedef struct veb_pointer {
+	bool present;
+	uint64_t node;
+} veb_pointer;
 // Used only in testing.
 void build_veb_layout(uint64_t height,
 		uint64_t node_start,
@@ -34,10 +39,6 @@ bool veb_is_leaf(uint64_t node, uint64_t height);
 uint64_t veb_get_leaf_number(uint64_t leaf_index, uint64_t height);
 
 // OLD API:
-typedef struct veb_pointer {
-	bool present;
-	uint64_t node;
-} veb_pointer;
 void veb_get_children(uint64_t node, uint64_t height,
 		veb_pointer* left, veb_pointer* right);
 // Used only internally to build cache.
