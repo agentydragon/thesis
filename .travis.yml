@@ -1,13 +1,14 @@
-# TODO: Remove when https://github.com/travis-ci/travis-ci/issues/1379
-# is resolved.
-before_install:
-        - "sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test"
-        - "sudo apt-get -qq update"
-        - "sudo apt-get -qq install g++-4.9"
-
 language: c
 compiler:
         - gcc
+# We need to install and use a fairly recent GCC version with -std=gnu11.
+# TODO: Remove when https://github.com/travis-ci/travis-ci/issues/1379
+# is resolved.
+before_install:
+        - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+        - sudo apt-get -qq update
+install:
+        - sudo apt-get -qq install g++-4.9
 script:
-        - "gcc -v"
-        - "cd src; make test"
+        - export CC=gcc-4.9
+        - cd src; make test

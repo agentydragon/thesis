@@ -1,6 +1,5 @@
 # -pedantic-errors
 CFLAGS=-std=gnu11 -W -Wall -O3 -rdynamic -lm
-CC=gcc
 
 
 SOURCES= \
