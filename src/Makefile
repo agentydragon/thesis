@@ -48,3 +48,7 @@ bin/experiments/cob_cache_behavior_profile: experiments/cob_cache_behavior/cob_c
 
 bin/experiments/veb_performance: experiments/veb_performance/veb_performance.c $(SOURCES)
 	$(CC) $(CFLAGS) experiments/veb_performance/veb_performance.c $(SOURCES) -o $@
+
+# Continuous integration target
+test: bin/test
+	bin/test
