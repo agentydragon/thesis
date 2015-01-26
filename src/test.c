@@ -1,29 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cache_oblivious_btree/test.h"
 #include "hash_array/hash_array.h"
 #include "hash_bplustree/hash_bplustree.h"
+#include "hash_bplustree/test/test.h"
 #include "hash_cobt/hash_cobt.h"
 #include "hash_hashtable/hash_hashtable.h"
-#include "hash_splay/hash_splay.h"
-
-#include "test_hash/test_hash.h"
-#include "test_hash/test_hash_large.h"
-
-#include "cache_oblivious_btree/test.h"
 #include "hash_hashtable/test/test.h"
-#include "hash_bplustree/test/test.h"
+#include "hash_splay/hash_splay.h"
+#include "log/log.h"
+#include "math/test.h"
 #include "observation/test/test.h"
 #include "ordered_file_maintenance/test.h"
-#include "rand/test/test.h"
-#include "veb_layout/test.h"
-#include "math/test.h"
-
-#include "log/log.h"
-
 #include "performance/random_read.h"
-
+#include "rand/test/test.h"
 #include "splay_tree/test.h"
+#include "test_hash/test_hash_large.h"
+#include "test/hash_blackbox.h"
+#include "veb_layout/test.h"
 
 void run_unit_tests() {
 	test_math();
@@ -36,11 +31,11 @@ void run_unit_tests() {
 	test_hash_bplustree();
 	test_splay_tree();
 
-	test_hash(&hash_array);
-	test_hash(&hash_hashtable);
-	test_hash(&hash_bplustree);
-	test_hash(&hash_cobt);
-	test_hash(&hash_splay);
+	test_hash_blackbox(&hash_array);
+	test_hash_blackbox(&hash_hashtable);
+	test_hash_blackbox(&hash_bplustree);
+	test_hash_blackbox(&hash_cobt);
+	test_hash_blackbox(&hash_splay);
 
 	test_observation(); // Uses hash_array.
 	test_hash_large(&hash_array, 1 << 10);
