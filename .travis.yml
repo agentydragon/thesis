@@ -1,2 +1,4 @@
 language: c
 script: cd src; make test
+compiler:
+        - gcc
