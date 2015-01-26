@@ -127,7 +127,7 @@ static void test_with_maximum_size(ordered_hash_blackbox_spec api, uint64_t N) {
 			for (uint64_t i = 0; ; i = (i + 1) % N) {
 				if (!present[i] && rand() % (N - current_size) == 0) {
 					values[i] = rand();
-					api.insert(instance, keys[i],values[i]);
+					api.insert(instance, keys[i], values[i]);
 					// log_info("add %" PRIu64 "=%" PRIu64, keys[i], values[i]);
 					present[i] = true;
 					++current_size;
@@ -150,6 +150,7 @@ static void test_with_maximum_size(ordered_hash_blackbox_spec api, uint64_t N) {
 }
 
 void test_ordered_hash_blackbox(ordered_hash_blackbox_spec api) {
+	log_info("testing ordered hash blackbox");
 	test_with_maximum_size(api, 10);
 	test_with_maximum_size(api, 100);
 	test_with_maximum_size(api, 1000);

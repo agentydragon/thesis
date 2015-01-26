@@ -83,13 +83,12 @@ static void check_equivalence(hash* instance, uint64_t N,
 		bool key_present;
 		assert(!hash_find(instance, keys[i], &value, &key_present));
 		if (present[i]) {
-			CHECK(!key_present, "expected to find %" PRIu64 "=%" PRIu64 ", "
+			CHECK(key_present, "expected to find %" PRIu64 "=%" PRIu64 ", "
 						"but no such key found",
 						keys[i], values[i]);
 		} else {
 			assert(!key_present);
 		}
-		assert(key_present == present[i]);
 		if (key_present) {
 			assert(value == values[i]);
 		}
@@ -97,6 +96,7 @@ static void check_equivalence(hash* instance, uint64_t N,
 }
 
 static void test_with_maximum_size(const hash_api* api, uint64_t N) {
+	//log_info("===");
 	hash* instance;
 	if (hash_init(&instance, api, NULL)) {
 		log_fatal("cannot init hash table");
