@@ -7,23 +7,23 @@
 
 // TODO: do not malloc
 
-struct pair {
+typedef struct {
 	uint64_t key;
 	uint64_t value;
-};
+} pair;
 
-struct data {
-	struct pair* pairs;
+typedef struct {
+	pair* pairs;
 	uint64_t pair_count;
 	uint64_t pair_capacity;
-};
+} data;
 
 static int8_t init(void** _this, void* args_unused) {
 	(void) args_unused;
 
-	struct data* this = malloc(sizeof(struct data));
+	data* this = malloc(sizeof(data));
 	if (!this) return 1;
-	*this = (struct data) {
+	*this = (data) {
 		.pairs = NULL,
 		.pair_count = 0,
 		.pair_capacity = 0
@@ -34,14 +34,14 @@ static int8_t init(void** _this, void* args_unused) {
 
 static void destroy(void** _this) {
 	if (_this) {
-		struct data* this = *_this;
+		data* this = *_this;
 		free(this->pairs);
 		free(this);
 		*_this = NULL;
 	}
 }
 
-static void _lookup_index(struct data* this, uint64_t key, bool *found, uint64_t *index) {
+static void _lookup_index(data* this, uint64_t key, bool *found, uint64_t *index) {
 	for (uint64_t i = 0; i < this->pair_count; i++) {
 		if (this->pairs[i].key == key) {
 			*found = true;
@@ -53,7 +53,7 @@ static void _lookup_index(struct data* this, uint64_t key, bool *found, uint64_t
 }
 
 static int8_t find(void* _this, uint64_t key, uint64_t *value, bool *found) {
-	struct data* this = _this;
+	data* this = _this;
 	uint64_t index;
 
 	bool pair_found;
@@ -65,16 +65,18 @@ static int8_t find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 }
 
 static int8_t insert(void* _this, uint64_t key, uint64_t value) {
-	struct data* this = _this;
+	data* this = _this;
 
 	bool found;
 	if (find(this, key, NULL, &found)) {
-		log_error("cannot check for duplicity when inserting %ld=%ld", key, value);
+		log_error("cannot check for duplicity when inserting %ld=%ld",
+				key, value);
 		goto err_1;
 	}
 
 	if (found) {
-		log_error("value for key %ld already present when inserting %ld=%ld", key, key, value);
+		log_error("key %ld already present when inserting %ld=%ld",
+				key, key, value);
 		goto err_1;
 	}
 
@@ -86,7 +88,8 @@ static int8_t insert(void* _this, uint64_t key, uint64_t value) {
 			new_capacity = this->pair_capacity * 2;
 		}
 
-		struct pair* new_pairs = realloc(this->pairs, sizeof(struct pair) * new_capacity);
+		pair* new_pairs = realloc(this->pairs,
+				sizeof(pair) * new_capacity);
 		if (!new_pairs) {
 			goto err_1;
 		}
@@ -95,7 +98,7 @@ static int8_t insert(void* _this, uint64_t key, uint64_t value) {
 		this->pair_capacity = new_capacity;
 	}
 
-	this->pairs[this->pair_count++] = (struct pair) {
+	this->pairs[this->pair_count++] = (pair) {
 		.key = key,
 		.value = value
 	};
@@ -106,7 +109,7 @@ err_1:
 }
 
 static int8_t delete(void* _this, uint64_t key) {
-	struct data* this = _this;
+	data* this = _this;
 
 	bool found;
 	uint64_t index;
@@ -116,7 +119,8 @@ static int8_t delete(void* _this, uint64_t key) {
 		// ERROR: no such element
 		return 1;
 	}
-	memmove(&this->pairs[index], &this->pairs[index + 1], sizeof(struct pair) * (this->pair_count - index - 1));
+	memmove(&this->pairs[index], &this->pairs[index + 1],
+			sizeof(pair) * (this->pair_count - index - 1));
 	this->pair_count--;
 
 	return 0;
