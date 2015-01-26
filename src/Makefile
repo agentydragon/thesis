@@ -1,5 +1,5 @@
 # -pedantic-errors
-CFLAGS=-std=gnu11 -W -Wall -O3 -rdynamic -lm -D_GNU_SOURCE
+CFLAGS=-std=c11 -W -Wall -O3 -rdynamic -lm -D_GNU_SOURCE -ISOC11_SOURCE
 
 SOURCES= \
 	cache_oblivious_btree/*.c \
