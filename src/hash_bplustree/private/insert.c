@@ -11,7 +11,10 @@
 #include <inttypes.h>
 
 static node* alloc_node() {
-	node* new_node = aligned_alloc(64, sizeof(node));
+	// Disabled because Precise.
+	// node* new_node = aligned_alloc(64, sizeof(node));
+	node* new_node;
+	assert(posix_memalign((void**) &new_node, 64, sizeof(node)));
 	assert(new_node);
 	return new_node;
 }

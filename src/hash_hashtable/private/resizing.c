@@ -119,10 +119,13 @@ static int8_t resize(hashtable* this, uint64_t new_blocks_size) {
 
 	// Cannot use realloc, because this can both upscale and downscale.
 	hashtable new_this = {
-		.blocks = aligned_alloc(64, sizeof(block) * new_blocks_size),
+		// Disabled because Precise.
+		// .blocks = aligned_alloc(64, sizeof(block) * new_blocks_size),
 		.blocks_size = new_blocks_size,
 		.pair_count = 0
 	};
+	assert(posix_memalign((void**) &new_this.blocks, 64,
+				sizeof(block) * new_blocks_size) == 0);
 
 	log_info("resizing to %" PRIu64, new_this.blocks_size);
 
