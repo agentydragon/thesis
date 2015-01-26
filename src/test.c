@@ -2,9 +2,10 @@
 #include <stdlib.h>
 
 #include "hash_array/hash_array.h"
-#include "hash_hashtable/hash_hashtable.h"
 #include "hash_bplustree/hash_bplustree.h"
 #include "hash_cobt/hash_cobt.h"
+#include "hash_hashtable/hash_hashtable.h"
+#include "hash_splay/hash_splay.h"
 
 #include "test_hash/test_hash.h"
 #include "test_hash/test_hash_large.h"
@@ -22,6 +23,8 @@
 
 #include "performance/random_read.h"
 
+#include "splay_tree/test.h"
+
 void run_unit_tests() {
 	test_math();
 	test_rand();
@@ -31,11 +34,13 @@ void run_unit_tests() {
 
 	test_hash_hashtable();
 	test_hash_bplustree();
+	test_splay_tree();
 
 	test_hash(&hash_array);
 	test_hash(&hash_hashtable);
 	test_hash(&hash_bplustree);
 	test_hash(&hash_cobt);
+	test_hash(&hash_splay);
 
 	test_observation(); // Uses hash_array.
 	test_hash_large(&hash_array, 1 << 10);
@@ -44,6 +49,8 @@ void run_unit_tests() {
 
 	// TODO: optimize hash_cobt for better performance
 	test_hash_large(&hash_cobt, 1 << 20);
+
+	test_hash_large(&hash_splay, 1 << 10);
 }
 
 int main(int argc, char** argv) {
