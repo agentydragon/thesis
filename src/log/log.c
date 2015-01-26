@@ -1,6 +1,6 @@
 #include "log.h"
 
-#define _GNU_SOURCE  /* vasprintf */
+/* Needs _GNU_SOURCE for vasprintf */
 #include <stdio.h>
 
 #include <assert.h>
