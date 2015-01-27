@@ -189,26 +189,22 @@ void tree_destroy(struct splay_tree** _tree) {
 }
 
 int8_t splay_tree_insert(struct splay_tree* tree, uint64_t key, uint64_t value) {
-	struct splay_tree_node* new_node = malloc(sizeof(struct splay_tree_node));
-	assert(new_node);
-	*new_node = (struct splay_tree_node) {
-		.key = key, .value = value, .left = NULL, .right = NULL };
-
+	struct splay_tree_node** target;
 	if (tree->root == NULL) {
-		tree->root = new_node;
+		target = &tree->root;
 	} else {
 		struct splay_tree_node* parent = tree->root;
 		while (true) {
-			if (parent->key > new_node->key) {
+			if (parent->key > key) {
 				if (parent->left == NULL) {
-					parent->left = new_node;
+					target = &parent->left;
 					break;
 				} else {
 					parent = parent->left;
 				}
-			} else if (parent->key < new_node->key) {
+			} else if (parent->key < key) {
 				if (parent->right == NULL) {
-					parent->right = new_node;
+					target = &parent->right;
 					break;
 				} else {
 					parent = parent->right;
@@ -218,11 +214,18 @@ int8_t splay_tree_insert(struct splay_tree* tree, uint64_t key, uint64_t value) 
 				return 1;
 			}
 		}
-
-		// This will do the splay step.
-		// TODO(prvak): make this better
-		splay_tree_find(tree, key, NULL, NULL);
 	}
+
+	struct splay_tree_node* new_node = malloc(
+			sizeof(struct splay_tree_node));
+	assert(new_node);
+	*new_node = (struct splay_tree_node) {
+		.key = key, .value = value, .left = NULL, .right = NULL };
+	*target = new_node;
+
+	// This will do the splay step.
+	// TODO(prvak): make this better
+	splay_tree_find(tree, key, NULL, NULL);
 	return 0;
 }
 
