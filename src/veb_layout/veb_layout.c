@@ -89,7 +89,7 @@ void veb_build_cache() {
 	uint64_t offset = 0;
 	for (uint64_t height = 1; ; height++) {
 		cache_starts[height] = offset;
-		for (uint64_t i = 0; i < (1 << height) - 1; i++) {
+		for (uint64_t i = 0; i < (1ULL << height) - 1ULL; i++) {
 			uint64_t left, right;
 			veb_pointer l, r;
 			veb_get_children(i, height, &l, &r);
@@ -254,7 +254,6 @@ recursive_call:
 			m_exp2(bottom_height) - 1;
 
 		if (node < node_start + nodes_in_top_block) {
-			height = top_height;
 			return false;
 		}
 		node_start += nodes_in_top_block;
