@@ -16,12 +16,9 @@ int8_t hashtable_insert_internal(hashtable* this, uint64_t key, uint64_t value) 
 		return 1;
 	}
 
-	bool free_index_found = false;
-
-	for (uint64_t i = 0, index = key_hash;
-		i < home_block->keys_with_hash || !free_index_found;
-		index = hashtable_next_index(this, index)
-	) {
+	for (uint64_t i = 0, index = key_hash, traversed = 0;
+			traversed < this->blocks_size;
+			index = hashtable_next_index(this, index), traversed++) {
 		block* current_block = &this->blocks[index];
 
 		for (int8_t slot = 0; slot < 3; slot++) {
@@ -37,8 +34,6 @@ int8_t hashtable_insert_internal(hashtable* this, uint64_t key, uint64_t value) 
 					i++;
 				}
 			} else {
-				free_index_found = true;
-
 				current_block->occupied[slot] = true;
 				current_block->keys[slot] = key;
 				current_block->values[slot] = value;
@@ -52,6 +47,7 @@ int8_t hashtable_insert_internal(hashtable* this, uint64_t key, uint64_t value) 
 		}
 	}
 
-	log_error("?!"); // TODO
+	// Went over all blocks...
+	log_error("hashtable is completely full (shouldn't happen)");
 	return 1;
 }
