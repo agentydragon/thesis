@@ -357,7 +357,9 @@ int8_t splay_tree_delete(splay_tree* this, uint64_t key) {
 		free(leftmost_in_right);
 		// TODO: maybe splay the parent of the actually deleted node
 		// instead? TODO: check out the proofs
-		splay_up(this, parent->key);
+		if (parent) {
+			splay_up(this, parent->key);
+		}
 		break;
 	}
 	default: {
