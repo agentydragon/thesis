@@ -52,8 +52,8 @@ static void destroy(void** _this) {
 			destroy_recursive(this->root);
 			free(this);
 		}
+		*_this = NULL;
 	}
-	*_this = NULL;
 }
 
 

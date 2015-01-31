@@ -12,6 +12,9 @@ double histogram_average_i(int* array, int count) {
 		sum += array[i] * i;
 		div += array[i];
 	}
-	assert(div > 0);
-	return (double) sum / (double) div;
+	if (div > 0) {
+		return (double) sum / (double) div;
+	} else {
+		return 0.0;
+	}
 }
