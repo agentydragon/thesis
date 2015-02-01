@@ -174,6 +174,8 @@ void test_hash_blackbox(const hash_api* api) {
 	log_info("performing blackbox test on %s", api->name);
 	has_no_elements_at_first(api);
 	doesnt_delete_at_first(api);
+	// TODO: fails on duplicate inserts
+	// TODO: fails on deleting nonexistant item
 
 	//stores_two_elements(api);
 
