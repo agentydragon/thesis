@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "btree/test.h"
 #include "cache_oblivious_btree/test.h"
 #include "hash_array/hash_array.h"
 #include "hash_bplustree/hash_bplustree.h"
@@ -16,11 +17,15 @@
 #include "performance/random_read.h"
 #include "rand/test/test.h"
 #include "splay_tree/test.h"
-#include "test_hash/test_hash_large.h"
 #include "test/hash_blackbox.h"
+#include "test_hash/test_hash_large.h"
 #include "veb_layout/test.h"
 
 void run_unit_tests() {
+	test_btree();
+	printf("testing done.\n");
+	exit(1);
+
 	test_math();
 	test_rand();
 	test_veb_layout();
