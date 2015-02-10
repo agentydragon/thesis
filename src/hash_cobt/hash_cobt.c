@@ -36,7 +36,6 @@ static int8_t insert(void* _this, uint64_t key, uint64_t value) {
 }
 
 static int8_t delete(void* _this, uint64_t key) {
-	// TODO: error on element not found
 	return cob_delete(_this, key);
 }
 
