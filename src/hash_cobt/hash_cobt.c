@@ -32,8 +32,7 @@ static int8_t find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 }
 
 static int8_t insert(void* _this, uint64_t key, uint64_t value) {
-	cob_insert(_this, key, value);
-	return 0;
+	return cob_insert(_this, key, value);
 }
 
 static int8_t delete(void* _this, uint64_t key) {

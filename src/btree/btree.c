@@ -134,11 +134,15 @@ void insert_pointer(btree_node* node, uint64_t key, btree_node* pointer) {
 	++node->key_count;
 }
 
-void insert_key_value_pair(btree_node* leaf, uint64_t key, uint64_t value) {
+int8_t insert_key_value_pair(btree_node* leaf, uint64_t key, uint64_t value) {
 	assert(leaf->leaf);
 	assert(leaf->key_count < LEAF_MAX_KEYS);
 	uint8_t insert_at = 0xFF;
 	for (uint8_t i = 0; i < leaf->key_count; i++) {
+		if (leaf->keys[i] == key) {
+			// Duplicate keys.
+			return 1;
+		}
 		if (leaf->keys[i] > key) {
 			insert_at = i;
 			break;
@@ -154,6 +158,7 @@ void insert_key_value_pair(btree_node* leaf, uint64_t key, uint64_t value) {
 	leaf->keys[insert_at] = key;
 	leaf->values[insert_at] = value;
 	++leaf->key_count;
+	return 0;
 }
 
 bool remove_from_leaf(btree* tree, btree_node* leaf, uint64_t key) {
@@ -196,7 +201,7 @@ btree_node* advance(const btree_node* node, uint64_t key) {
 	return node->pointers[node->key_count];
 }
 
-void btree_insert(btree* this, uint64_t key, uint64_t value) {
+int8_t btree_insert(btree* this, uint64_t key, uint64_t value) {
 	btree_node* parent = NULL;
 	btree_node* node = this->root;
 
@@ -236,7 +241,7 @@ void btree_insert(btree* this, uint64_t key, uint64_t value) {
 		node = advance(node, key);
 		log_verbose(1, "went to: parent=%p node=%p", parent, node);
 	} while (true);
-	insert_key_value_pair(node, key, value);
+	return insert_key_value_pair(node, key, value);
 }
 
 enum side_preference { LEFT, RIGHT };

@@ -251,7 +251,14 @@ static void validate_key(uint64_t key) {
 	CHECK(key != COB_INFINITY, "Trying to operate on key=COB_INFINITY");
 }
 
-void cob_insert(struct cob* this, uint64_t key, uint64_t value) {
+int8_t cob_insert(struct cob* this, uint64_t key, uint64_t value) {
+	bool exists;
+	cob_find(this, key, &exists, NULL);
+	if (exists) {
+		// Duplicate key;
+		return 1;
+	}
+
 	validate_key(key);
 
 	// Walk down vEB layout to find where does the key belong.
@@ -273,7 +280,7 @@ void cob_insert(struct cob* this, uint64_t key, uint64_t value) {
 	} else {
 		entirely_reset_veb(this);
 	}
-
+	return 0;
 }
 
 int8_t cob_delete(struct cob* this, uint64_t key) {

@@ -31,17 +31,12 @@ static int8_t find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 	return 0;
 }
 
-static int8_t insert(void* _this, uint64_t key, uint64_t value) {
-	btree_insert(_this, key, value);
-	return 0;
-}
-
 const hash_api hash_btree = {
 	.init = init,
 	.destroy = destroy,
 
 	.find = find,
-	.insert = insert,
+	.insert = btree_insert,
 	.delete = btree_delete,
 
 	.dump = NULL,

@@ -170,10 +170,24 @@ static void test_regular(const hash_api* api, uint64_t N) {
 	hash_destroy(&table);
 }
 
+static void fails_on_duplicate_insertion(const hash_api* api) {
+	hash* table;
+	CHECK(!hash_init(&table, api, NULL), "cannot init hash table");
+	insert(table, 10, 20);
+	CHECK(hash_insert(table, 10, 20),
+			"duplicate insertion should fail, but it succeeded");
+
+	has_element(table, 10, 20);
+
+	hash_destroy(&table);
+}
+
 void test_hash_blackbox(const hash_api* api) {
 	log_info("performing blackbox test on %s", api->name);
 	has_no_elements_at_first(api);
 	doesnt_delete_at_first(api);
+	fails_on_duplicate_insertion(api);
+
 	// TODO: fails on duplicate inserts
 	// TODO: fails on deleting nonexistant item
 

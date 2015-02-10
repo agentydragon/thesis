@@ -36,7 +36,7 @@ struct cob {
 
 void cob_init(struct cob* this);
 void cob_destroy(struct cob this);
-void cob_insert(struct cob* this, uint64_t key, uint64_t value);
+int8_t cob_insert(struct cob* this, uint64_t key, uint64_t value);
 int8_t cob_delete(struct cob* this, uint64_t key);
 void cob_find(struct cob* this, uint64_t key,
 		bool *found, uint64_t *value);
