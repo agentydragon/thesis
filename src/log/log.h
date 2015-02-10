@@ -26,4 +26,17 @@ void log_fatal(const char* format, ...) __attribute__((noreturn));
 	__log_basic("ERROR", fmt, ##__VA_ARGS__); \
 } while (0)
 
+#ifndef LOG_VERBOSITY
+#define LOG_VERBOSITY 0
+#endif
+
+#define IF_LOG_VERBOSE(level) if (LOG_VERBOSITY >= level)
+
+// TODO: other header
+#define log_verbose(level,fmt,...) do { \
+	if (LOG_VERBOSITY >= level) { \
+		__log_basic(" INFO", fmt, ##__VA_ARGS__); \
+	} \
+} while (0)
+
 #endif

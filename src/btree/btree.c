@@ -120,9 +120,9 @@ void insert_pointer(btree_node* node, uint64_t key, btree_node* pointer) {
 	if (insert_at == 0xFF) {
 		insert_at = node->key_count;
 	}
-	log_info("inserting at %" PRIu8, insert_at);
+	log_verbose(2, "inserting at %" PRIu8, insert_at);
 	for (uint8_t i = node->key_count; i > insert_at; --i) {
-		log_info("key %" PRIu8 " <- %" PRIu8 " (%" PRIu64 ")",
+		log_verbose(2, "key %" PRIu8 " <- %" PRIu8 " (%" PRIu64 ")",
 				i - 1, i, node->keys[i - 1]);
 		node->keys[i] = node->keys[i - 1];
 	}
@@ -156,9 +156,8 @@ void insert_key_value_pair(btree_node* leaf, uint64_t key, uint64_t value) {
 	++leaf->key_count;
 }
 
-void remove_from_leaf(btree* tree, btree_node* leaf, uint64_t key) {
+bool remove_from_leaf(btree* tree, btree_node* leaf, uint64_t key) {
 	assert(leaf->leaf);
-	assert(leaf->key_count > 0);
 	bool found = false;
 	for (uint8_t i = 0; i < leaf->key_count; i++) {
 		if (!found && leaf->keys[i] == key) {
@@ -169,9 +168,11 @@ void remove_from_leaf(btree* tree, btree_node* leaf, uint64_t key) {
 			leaf->values[i] = leaf->values[i + 1];
 		}
 	}
-	CHECK(found, "Trying to remove key %" PRIu64 " from leaf %p, "
-			"but it's not there.", key, leaf);
+	if (!found) {
+		return false;
+	}
 	--leaf->key_count;
+	return true;
 }
 
 void set_new_root(btree* this, uint64_t middle_key, btree_node* left,
@@ -202,25 +203,27 @@ void btree_insert(btree* this, uint64_t key, uint64_t value) {
 	do {
 		if ((node->leaf && node->key_count == LEAF_MAX_KEYS) ||
 				(!node->leaf && node->key_count == INTERNAL_MAX_KEYS)) {
-			log_info("splitting %p", node);
+			log_verbose(1, "splitting %p", node);
 			// We need to split the node now.
 			btree_node* new_right_sibling =
 					malloc(sizeof(btree_node));
 			uint64_t middle_key;
 			split_node(node, new_right_sibling, &middle_key);
-			log_info("middle key: %" PRIu64, middle_key);
+			log_verbose(1, "middle key: %" PRIu64, middle_key);
 			if (parent == NULL) {
 				set_new_root(this, middle_key, node,
 						new_right_sibling);
-				log_info("setting new root %p", this->root);
-				log_info("I now look like this:");
-				dump_recursive(this->root, 0);
+				IF_LOG_VERBOSE(1) {
+					log_info("setting new root %p", this->root);
+					log_info("I now look like this:");
+					dump_recursive(this->root, 0);
+				}
 			} else {
 				insert_pointer(parent, middle_key,
 						new_right_sibling);
 			}
 			if (key >= middle_key) {
-				log_info("going to right sibling (%p)",
+				log_verbose(1, "going to right sibling (%p)",
 						new_right_sibling);
 				node = new_right_sibling;
 			}
@@ -228,10 +231,10 @@ void btree_insert(btree* this, uint64_t key, uint64_t value) {
 		if (node->leaf) {
 			break;
 		}
-		log_info("now at: parent=%p node=%p", parent, node);
+		log_verbose(1, "now at: parent=%p node=%p", parent, node);
 		parent = node;
 		node = advance(node, key);
-		log_info("went to: parent=%p node=%p", parent, node);
+		log_verbose(1, "went to: parent=%p node=%p", parent, node);
 	} while (true);
 	insert_key_value_pair(node, key, value);
 }
@@ -240,8 +243,10 @@ enum side_preference { LEFT, RIGHT };
 
 void rebalance_leaves(btree_node* parent, btree_node* left, btree_node* right,
 		uint8_t right_index, enum side_preference preference) {
-	dump_now(left, 7);
-	dump_now(right, 7);
+	IF_LOG_VERBOSE(2) {
+		dump_now(left, 0);
+		dump_now(right, 0);
+	}
 
 	assert(left->leaf && right->leaf && !parent->leaf);
 	// TODO: optimize
@@ -287,8 +292,10 @@ void rebalance_leaves(btree_node* parent, btree_node* left, btree_node* right,
 	assert(parent->pointers[right_index] == right);
 	parent->keys[right_index - 1] = right->keys[0];
 
-	dump_now(left, 7);
-	dump_now(right, 7);
+	IF_LOG_VERBOSE(2) {
+		dump_now(left, 0);
+		dump_now(right, 0);
+	}
 }
 
 void rebalance_internal(btree_node* parent, btree_node* left, btree_node* right,
@@ -338,7 +345,7 @@ void rebalance_internal(btree_node* parent, btree_node* left, btree_node* right,
 	for (uint8_t i = 0; i < to_left + 1; i++) {
 		left->pointers[i] = pointers[i];
 	}
-	log_info("setting parent->keys[%" PRIu8 "]=%" PRIu64,
+	log_verbose(1, "setting parent->keys[%" PRIu8 "]=%" PRIu64,
 			right_index - 1, keys[to_left]);
 	parent->keys[right_index - 1] = keys[to_left];
 	for (uint8_t i = 0; i < to_right; i++) {
@@ -380,8 +387,10 @@ void append_leaves(btree_node* target, const btree_node* source) {
 
 void append_internal(btree_node* target, uint64_t appended_key,
 		const btree_node* source) {
-	dump_now(target, 7);
-	dump_now(source, 7);
+	IF_LOG_VERBOSE(2) {
+		dump_now(target, 0);
+		dump_now(source, 0);
+	}
 
 	assert(target->key_count + 1 + source->key_count <= INTERNAL_MAX_KEYS);
 	target->keys[target->key_count] = appended_key;
@@ -395,7 +404,9 @@ void append_internal(btree_node* target, uint64_t appended_key,
 	}
 	target->key_count += source->key_count + 1;
 
-	dump_now(target, 8);
+	IF_LOG_VERBOSE(2) {
+		dump_now(target, 8);
+	}
 }
 
 void remove_ptr_from_node(btree* tree,
@@ -426,18 +437,20 @@ void remove_ptr_from_node(btree* tree,
 	}
 }
 
-void btree_delete(btree* this, uint64_t key) {
+int8_t btree_delete(btree* this, uint64_t key) {
 	btree_node* parent = NULL;
 	btree_node* node = this->root;
 
 	// TODO: maybe something ultraspecial when deleting pivotal nodes?
 	do {
-		log_info("parent:");
-		if (parent) {
-			dump_recursive(parent, 0);
+		IF_LOG_VERBOSE(1) {
+			log_info("parent:");
+			if (parent) {
+				dump_recursive(parent, 0);
+			}
+			log_info("node:");
+			dump_recursive(node, 1);
 		}
-		log_info("node:");
-		dump_recursive(node, 1);
 		if (parent && ((node->leaf && node->key_count == LEAF_MIN_KEYS) ||
 				(!node->leaf && node->key_count == INTERNAL_MIN_KEYS))) {
 			uint8_t right_index;
@@ -460,14 +473,14 @@ void btree_delete(btree* this, uint64_t key) {
 
 				if (left->key_count + right->key_count
 						<= 2 * LEAF_MIN_KEYS) {
-					log_info("concatting leaves");
+					log_verbose(1, "concatting leaves");
 					append_leaves(left, right);
 					node = left;
 					free(right);
 					remove_ptr_from_node(this,
 							parent, right);
 				} else {
-					log_info("leaf rebalance");
+					log_verbose(1, "leaf rebalance");
 					rebalance_leaves(parent, left, right,
 							right_index,
 							preference);
@@ -486,7 +499,7 @@ void btree_delete(btree* this, uint64_t key) {
 
 				if (left->key_count + right->key_count
 						<= 2 * INTERNAL_MIN_KEYS) {
-					log_info("concatting internals");
+					log_verbose(1, "concatting internals");
 					append_internal(left,
 							parent->keys[right_index - 1],
 							right);
@@ -495,7 +508,7 @@ void btree_delete(btree* this, uint64_t key) {
 					remove_ptr_from_node(this,
 							parent, right);
 				} else {
-					log_info("internal rebalance");
+					log_verbose(1, "internal rebalance");
 					rebalance_internal(parent, left, right,
 							right_index,
 							preference);
@@ -508,20 +521,24 @@ void btree_delete(btree* this, uint64_t key) {
 				}
 			}
 
-			log_info("node after transforming:");
-			dump_recursive(node, 0);
+			IF_LOG_VERBOSE(1) {
+				log_info("node after transforming:");
+				dump_recursive(node, 0);
+			}
 		}
 		if (node->leaf) {
 			break;
 		}
-		log_info("now at: parent=%p node=%p", parent, node);
+		log_verbose(1, "now at: parent=%p node=%p", parent, node);
 		parent = node;
 		node = advance(node, key);
-		log_info("went to: parent=%p node=%p", parent, node);
+		log_verbose(1, "went to: parent=%p node=%p", parent, node);
 	} while (true);
 	assert(node->leaf);
 	assert(node == this->root || node->key_count > LEAF_MIN_KEYS);
-	remove_from_leaf(this, node, key);
+	if (!remove_from_leaf(this, node, key)) {
+		return 1;
+	}
 	if (parent && node->key_count == 0) {
 		remove_ptr_from_node(this, parent, node);
 		free(node);
@@ -530,6 +547,7 @@ void btree_delete(btree* this, uint64_t key) {
 			assert(node->key_count >= LEAF_MIN_KEYS);
 		}
 	}
+	return 0;
 }
 
 void btree_find(btree* this, uint64_t key, bool *found, uint64_t *value) {
