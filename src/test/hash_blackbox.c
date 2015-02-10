@@ -36,7 +36,7 @@ static void has_no_element(hash* table, uint64_t key) {
 }
 
 static void insert(hash* table, uint64_t key, uint64_t value) {
-	//log_info("insert(%ld,%ld)", key, value);
+	log_verbose(1, "insert(%ld,%ld)", key, value);
 
 	if (hash_insert(table, key, value)) {
 		log_fatal("cannot insert %ld=%ld to hash", key, value);
@@ -44,7 +44,7 @@ static void insert(hash* table, uint64_t key, uint64_t value) {
 }
 
 static void delete(hash* table, uint64_t key) {
-	//log_info("delete(%ld)", key);
+	log_verbose(1, "delete(%ld)", key);
 
 	if (hash_delete(table, key)) {
 		log_fatal("cannot delete key %ld", key);
