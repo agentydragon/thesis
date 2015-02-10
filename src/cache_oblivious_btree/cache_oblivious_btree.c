@@ -380,4 +380,5 @@ void cob_init(struct cob* this) {
 void cob_destroy(struct cob this) {
 	ofm_destroy(this.file);
 	free(this.veb_minima);
+	free(this.level_data);
 }
