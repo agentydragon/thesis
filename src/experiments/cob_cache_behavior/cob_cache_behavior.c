@@ -8,7 +8,7 @@
 #include "../../cache_oblivious_btree/cache_oblivious_btree.h"
 
 #include "../../hash/hash.h"
-#include "../../hash_bplustree/hash_bplustree.h"
+#include "../../hash_btree/hash_btree.h"
 #include "../../hash_cobt/hash_cobt.h"
 #include "../../performance/random_read.h"
 #include "../../measurement/measurement.h"
@@ -94,7 +94,7 @@ int main(int argc, char** argv) {
 
 		const uint64_t size = round(x);
 		log_info("size=%" PRIu64, size);
-		struct results bplustree = measure_api(&hash_bplustree, size);
+		struct results btree = measure_api(&hash_btree, size);
 		struct results cobt = measure_api(&hash_cobt, size);
 
 		fprintf(output,
@@ -106,9 +106,9 @@ int main(int argc, char** argv) {
 				"%" PRIu64
 				"\n",
 				size,
-				bplustree.combined.cache_misses, bplustree.combined.cache_references, bplustree.combined.time_nsec,
+				btree.combined.cache_misses, btree.combined.cache_references, btree.combined.time_nsec,
 				cobt.combined.cache_misses, cobt.combined.cache_references, cobt.combined.time_nsec,
-				bplustree.just_find.cache_misses, bplustree.just_find.cache_references, bplustree.just_find.time_nsec,
+				btree.just_find.cache_misses, btree.just_find.cache_references, btree.just_find.time_nsec,
 				cobt.just_find.cache_misses, cobt.just_find.cache_references, cobt.just_find.time_nsec,
 				COB_COUNTERS.total_reorganized_size);
 		fflush(output);
