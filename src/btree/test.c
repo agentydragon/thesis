@@ -118,10 +118,58 @@ static void test_inserting() {
 	btree_destroy(&tree);
 }
 
+static void test_deletion() {
+	btree tree;
+	btree_init(&tree);
+	btree_insert(&tree, 10, 100);
+	btree_insert(&tree, 5, 50);
+	btree_insert(&tree, 15, 150);
+	btree_insert(&tree, 14, 140);
+	btree_insert(&tree, 21, 210);
+	btree_insert(&tree, 17, 170);
+	btree_insert(&tree, 3, 30);
+	btree_insert(&tree, 9, 90);
+	btree_insert(&tree, 4, 40);
+	btree_insert(&tree, 1, 10);
+	btree_insert(&tree, 16, 160);
+	btree_insert(&tree, 13, 130);
+	btree_insert(&tree, 20, 200);
+	btree_insert(&tree, 22, 220);
+	btree_insert(&tree, 23, 230);
+	btree_insert(&tree, 28, 280);
+	btree_insert(&tree, 11, 110);
+	btree_insert(&tree, 2, 20);
+	btree_insert(&tree, 6, 60);
+	btree_insert(&tree, 7, 70);
+
+	btree_delete(&tree, 14);
+	btree_delete(&tree, 15);
+	btree_delete(&tree, 1);
+	btree_delete(&tree, 2);
+	btree_delete(&tree, 4);
+	btree_delete(&tree, 5);
+	btree_delete(&tree, 28);
+	btree_delete(&tree, 22);
+	btree_delete(&tree, 16);
+	btree_delete(&tree, 11);
+	btree_delete(&tree, 10);
+	btree_delete(&tree, 6);
+	btree_delete(&tree, 9);
+	btree_delete(&tree, 17);
+	btree_delete(&tree, 13);
+	btree_delete(&tree, 23);
+	btree_delete(&tree, 7);
+	btree_delete(&tree, 20);
+	btree_delete(&tree, 3);
+	btree_delete(&tree, 21);
+	btree_destroy(&tree);
+}
+
 void test_btree() {
 	test_internal_splitting();
 	test_leaf_splitting();
 	test_insert_pointer();
 	test_insert_key_value_pair();
 	test_inserting();
+	test_deletion();
 }

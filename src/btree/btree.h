@@ -11,8 +11,8 @@
 //	=> "free block count tree":
 //		each node contains lower bound on # of free blocks below
 
-#define LEAF_MAX_KEYS 3
-#define LEAF_MIN_KEYS 1  // todo??
+#define LEAF_MAX_KEYS 4
+#define LEAF_MIN_KEYS 2  // todo??
 #define INTERNAL_MAX_KEYS 3
 #define INTERNAL_MIN_KEYS 1
 
@@ -20,11 +20,12 @@
 typedef struct btree_node {
 	bool leaf;
 	uint8_t key_count;
-	uint64_t keys[3];
+	uint64_t keys[4];
 
+	// TODO: compress if leaf
 	union {
 		// FIXME: implicit expectation sizeof(uint64_t) >= sizeof(void*)
-		uint64_t values[3];
+		uint64_t values[4];
 		struct btree_node* pointers[4];
 	};
 } btree_node;
