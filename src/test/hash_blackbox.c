@@ -10,9 +10,6 @@
 static void has_element(hash* table, uint64_t key, uint64_t value) {
 	uint64_t value_found;
 	bool found;
-
-	//log_info("has_element(%ld,%ld)", key, value);
-
 	CHECK(hash_find(table, key, &value_found, &found) == 0,
 			"hash_find for %ld failed", key);
 	CHECK(found, "key %ld not found", key);
@@ -21,41 +18,31 @@ static void has_element(hash* table, uint64_t key, uint64_t value) {
 			key, value, value_found);
 }
 
+static void init(hash** table, const hash_api* api) {
+	CHECK(!hash_init(table, api, NULL), "cannot init hash table");
+}
+
 static void has_no_element(hash* table, uint64_t key) {
-	uint64_t value_found;
 	bool found;
-
-	//log_info("has_no_element(%ld)", key);
-
-	if (hash_find(table, key, &value_found, &found)) {
-		log_fatal("hash_find for %ld failed", key);
-	}
-	if (found) {
-		log_fatal("key %ld found, expected not to find it", key);
-	}
+	CHECK(!hash_find(table, key, NULL, &found),
+		"hash_find for %ld failed", key);
+	CHECK(!found, "key %ld found, expected not to find it", key);
 }
 
 static void insert(hash* table, uint64_t key, uint64_t value) {
 	log_verbose(1, "insert(%ld,%ld)", key, value);
-
-	if (hash_insert(table, key, value)) {
-		log_fatal("cannot insert %ld=%ld to hash", key, value);
-	}
+	CHECK(!hash_insert(table, key, value), "cannot insert %ld=%ld to hash",
+			key, value);
 }
 
 static void delete(hash* table, uint64_t key) {
 	log_verbose(1, "delete(%ld)", key);
-
-	if (hash_delete(table, key)) {
-		log_fatal("cannot delete key %ld", key);
-	}
+	CHECK(!hash_delete(table, key), "cannot delete key %ld", key);
 }
 
 static void has_no_elements_at_first(const hash_api* api) {
 	hash* table;
-	if (hash_init(&table, api, NULL)) {
-		log_fatal("cannot init hash table");
-	}
+	init(&table, api);
 
 	has_no_element(table, 1);
 	has_no_element(table, 2);
@@ -65,9 +52,7 @@ static void has_no_elements_at_first(const hash_api* api) {
 
 static void doesnt_delete_at_first(const hash_api* api) {
 	hash* table;
-	if (hash_init(&table, api, NULL)) {
-		log_fatal("cannot init hash table");
-	}
+	init(&table, api);
 
 	assert(hash_delete(table, 1));
 	assert(hash_delete(table, 2));
@@ -96,11 +81,8 @@ static void check_equivalence(hash* instance, uint64_t N,
 }
 
 static void test_with_maximum_size(const hash_api* api, uint64_t N) {
-	//log_info("===");
 	hash* instance;
-	if (hash_init(&instance, api, NULL)) {
-		log_fatal("cannot init hash table");
-	}
+	init(&instance, api);
 
 	srand(0);
 	uint64_t *keys = calloc(N, sizeof(uint64_t));
@@ -151,7 +133,7 @@ static void test_with_maximum_size(const hash_api* api, uint64_t N) {
 
 static void test_regular(const hash_api* api, uint64_t N) {
 	hash* table;
-	CHECK(hash_init(&table, api, NULL) == 0, "cannot init hash table");
+	init(&table, api);
 
 	log_info("test_regular(%s, %ld)", api->name, N);
 
@@ -172,7 +154,7 @@ static void test_regular(const hash_api* api, uint64_t N) {
 
 static void fails_on_duplicate_insertion(const hash_api* api) {
 	hash* table;
-	CHECK(!hash_init(&table, api, NULL), "cannot init hash table");
+	init(&table, api);
 	insert(table, 10, 20);
 	CHECK(hash_insert(table, 10, 20),
 			"duplicate insertion should fail, but it succeeded");
@@ -187,11 +169,6 @@ void test_hash_blackbox(const hash_api* api) {
 	has_no_elements_at_first(api);
 	doesnt_delete_at_first(api);
 	fails_on_duplicate_insertion(api);
-
-	// TODO: fails on duplicate inserts
-	// TODO: fails on deleting nonexistant item
-
-	//stores_two_elements(api);
 
 	test_regular(api, 10);
 	test_regular(api, 20);
