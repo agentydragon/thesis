@@ -15,12 +15,7 @@ static int8_t init(void** _this, void* args_unused) {
 
 static void destroy(void** _this) {
 	if (_this) {
-		struct splay_tree* this = *_this;
-		if (this) {
-			// TODO(prvak): recursively destroy
-			free(this);
-			*_this = NULL;
-		}
+		splay_tree_destroy((struct splay_tree **) _this);
 	}
 }
 

@@ -179,7 +179,7 @@ static void tree_destroy_recursive(struct splay_tree_node** _node) {
 	}
 }
 
-void tree_destroy(struct splay_tree** _tree) {
+void splay_tree_destroy(struct splay_tree** _tree) {
 	assert(_tree);
 	if (*_tree) {
 		tree_destroy_recursive(&(*_tree)->root);
