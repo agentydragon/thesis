@@ -6,7 +6,6 @@ SOURCES= \
 	btree/*.c \
 	cache_oblivious_btree/*.c \
 	hash_array/*.c \
-	hash_bplustree/*.c hash_bplustree/private/*.c hash_bplustree/test/*.c \
 	hash_btree/*.c \
 	hash_cobt/*.c \
 	hash/*.c test_hash/*.c \
