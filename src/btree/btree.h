@@ -26,7 +26,6 @@ typedef struct btree_node_persisted {
 		} internal;
 
 		struct {
-			uint8_t key_count;
 			uint64_t keys[4];
 			uint64_t values[4];
 		} leaf;

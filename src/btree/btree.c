@@ -9,10 +9,11 @@
 
 // TODO: static_assert's for min-keys/max-keys conditions
 
-//static_assert(sizeof(btree_node_persisted) == 64,
-//		"btree_node_persisted not aligned on cache line");
+static_assert(sizeof(btree_node_persisted) == 64,
+		"btree_node_persisted not aligned on cache line");
 
 // Details of node representation:
+// TODO: document empty slots; TODO: trick to represent SLOT_UNUSED=SLOT_UNUSED
 #define SLOT_UNUSED 0xFFFFFFFFFFFFFFFF
 static btree_node_persisted* new_empty_leaf();
 static btree_node_persisted* new_fork_node(uint64_t middle_key,
@@ -395,9 +396,16 @@ void btree_find(btree* this, uint64_t key, bool *found, uint64_t *value) {
 }
 
 // Details of node representation:
+static void clear_leaf(btree_node_persisted* leaf) {
+	for (uint8_t i = 0; i < LEAF_MAX_KEYS; ++i) {
+		leaf->leaf.keys[i] = SLOT_UNUSED;
+		leaf->leaf.values[i] = SLOT_UNUSED;
+	}
+}
+
 static btree_node_persisted* new_empty_leaf() {
 	btree_node_persisted* new_node = malloc(sizeof(btree_node_persisted));
-	new_node->leaf.key_count = 0;
+	clear_leaf(new_node);
 	return new_node;
 }
 
@@ -489,47 +497,50 @@ static void remove_ptr_from_node(btree_node_persisted* parent,
 
 int8_t insert_key_value_pair(btree_node_persisted* leaf,
 		uint64_t key, uint64_t value) {
-	assert(leaf->leaf.key_count < LEAF_MAX_KEYS);
-	uint8_t insert_at = 0xFF;
-	for (uint8_t i = 0; i < leaf->leaf.key_count; i++) {
-		if (leaf->leaf.keys[i] == key) {
+	assert(get_n_leaf_keys(leaf) < LEAF_MAX_KEYS);
+	uint8_t insert_at;
+	for (insert_at = 0; insert_at < LEAF_MAX_KEYS; insert_at++) {
+		if (leaf->leaf.keys[insert_at] == SLOT_UNUSED &&
+				leaf->leaf.values[insert_at] == SLOT_UNUSED) {
+			break;
+		}
+		if (leaf->leaf.keys[insert_at] == key) {
 			// Duplicate keys.
 			return 1;
 		}
-		if (leaf->leaf.keys[i] > key) {
-			insert_at = i;
+		if (leaf->leaf.keys[insert_at] > key) {
 			break;
 		}
 	}
-	if (insert_at == 0xFF) {
-		insert_at = leaf->leaf.key_count;
-	}
-	for (uint8_t i = leaf->leaf.key_count; i > insert_at; --i) {
+	for (uint8_t i = get_n_leaf_keys(leaf); i > insert_at; --i) {
 		leaf->leaf.keys[i] = leaf->leaf.keys[i - 1];
 		leaf->leaf.values[i] = leaf->leaf.values[i - 1];
 	}
 	leaf->leaf.keys[insert_at] = key;
 	leaf->leaf.values[insert_at] = value;
-	++leaf->leaf.key_count;
 	return 0;
 }
 
 static bool remove_from_leaf(btree_node_persisted* leaf, uint64_t key) {
 	bool found = false;
-	for (uint8_t i = 0; i < leaf->leaf.key_count; i++) {
+	for (uint8_t i = 0; i < LEAF_MAX_KEYS; i++) {
+		if (leaf->leaf.keys[i] == SLOT_UNUSED &&
+				leaf->leaf.values[i] == SLOT_UNUSED) {
+			break;
+		}
 		if (!found && leaf->leaf.keys[i] == key) {
 			found = true;
 		}
-		if (found && i < leaf->leaf.key_count - 1) {
+		if (found && i < LEAF_MAX_KEYS - 1) {
 			leaf->leaf.keys[i] = leaf->leaf.keys[i + 1];
 			leaf->leaf.values[i] = leaf->leaf.values[i + 1];
 		}
 	}
-	if (!found) {
-		return false;
+	if (found) {
+		leaf->leaf.keys[LEAF_MAX_KEYS - 1] = SLOT_UNUSED;
+		leaf->leaf.values[LEAF_MAX_KEYS - 1] = SLOT_UNUSED;
 	}
-	--leaf->leaf.key_count;
-	return true;
+	return found;
 }
 
 static void rebalance_internal(btree_node_persisted* parent,
@@ -590,25 +601,27 @@ static void rebalance_leaves(
 	uint64_t keys[total_keys];
 	uint64_t values[total_keys];
 
-	for (uint8_t i = 0; i < left->leaf.key_count; i++) {
+	const uint8_t left_keys = get_n_leaf_keys(left);
+	const uint8_t right_keys = get_n_leaf_keys(right);
+
+	for (uint8_t i = 0; i < left_keys; i++) {
 		keys[i] = left->leaf.keys[i];
 		values[i] = left->leaf.values[i];
 	}
-	for (uint8_t i = 0; i < right->leaf.key_count; i++) {
-		keys[i + left->leaf.key_count] = right->leaf.keys[i];
-		values[i + left->leaf.key_count] = right->leaf.values[i];
+	for (uint8_t i = 0; i < right_keys; i++) {
+		keys[i + left_keys] = right->leaf.keys[i];
+		values[i + left_keys] = right->leaf.values[i];
 	}
+	clear_leaf(left);
 	for (uint8_t i = 0; i < to_left; i++) {
 		left->leaf.keys[i] = keys[i];
 		left->leaf.values[i] = values[i];
 	}
-	left->leaf.key_count = to_left;
+	clear_leaf(right);
 	for (uint8_t i = 0; i < to_right; i++) {
 		right->leaf.keys[i] = keys[i + to_left];
 		right->leaf.values[i] = values[i + to_left];
 	}
-	right->leaf.key_count = to_right;
-
 	if (right_min_key != NULL) {
 		*right_min_key = right->leaf.keys[0];
 	}
@@ -632,13 +645,19 @@ static void append_internal(btree_node_persisted* target, uint64_t appended_key,
 
 static void append_leaf(btree_node_persisted* target,
 		btree_node_persisted* source) {
-	const uint8_t total_keys = source->leaf.key_count + target->leaf.key_count;
+	const uint8_t total_keys = get_n_leaf_keys(source) + get_n_leaf_keys(target);
 	assert(total_keys >= LEAF_MIN_KEYS && total_keys <= LEAF_MAX_KEYS);
 	rebalance_leaves(target, source, total_keys, 0, NULL);
 }
 
 static uint8_t get_n_leaf_keys(const btree_node_persisted* node) {
-	return node->leaf.key_count;
+	for (uint8_t i = 0; i < LEAF_MAX_KEYS; i++) {
+		if (node->leaf.keys[i] == SLOT_UNUSED &&
+				node->leaf.values[i] == SLOT_UNUSED) {
+			return i;
+		}
+	}
+	return LEAF_MAX_KEYS;
 }
 
 static uint8_t get_n_internal_keys(const btree_node_persisted* node) {
