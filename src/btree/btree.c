@@ -44,7 +44,7 @@ static void find_siblings(btree_node_persisted* node,
 		uint8_t* right_index);
 #define FOR_EACH_INTERNAL_POINTER(persisted_node,code) do { \
 	for (uint8_t _i = 0; _i < get_n_internal_keys(persisted_node) + 1; ++_i) { \
-		btree_node_persisted* const pointer = persisted_node->pointers[_i]; \
+		btree_node_persisted* const pointer = persisted_node->internal.pointers[_i]; \
 		code \
 	} \
 } while (0)
@@ -71,15 +71,15 @@ static btree_node_traversed nt_root(btree* tree) {
 static btree_node_traversed nt_advance(const btree_node_traversed node,
 		uint64_t key) {
 	for (uint8_t i = 0; i < get_n_internal_keys(node.persisted); i++) {
-		if (node.persisted->keys[i] > key) {
+		if (node.persisted->internal.keys[i] > key) {
 			return (btree_node_traversed) {
-				.persisted = node.persisted->pointers[i],
+				.persisted = node.persisted->internal.pointers[i],
 				.levels_above_leaves = node.levels_above_leaves - 1,
 			};
 		}
 	}
 	return (btree_node_traversed) {
-		.persisted = node.persisted->pointers[get_n_internal_keys(node.persisted)],
+		.persisted = node.persisted->internal.pointers[get_n_internal_keys(node.persisted)],
 		.levels_above_leaves = node.levels_above_leaves - 1,
 	};
 }
@@ -134,17 +134,17 @@ static void dump_now(btree_node_traversed node, int depth) {
 			shift += sprintf(buffer + shift,
 					" %" PRIu64 "=%" PRIu64,
 					node.persisted->keys[i],
-					node.persisted->values[i]);
+					node.persisted->leaf.values[i]);
 		}
 	} else {
 		shift += sprintf(buffer + shift, "%p: ", node.persisted);
 		for (uint8_t i = 0; i < get_n_FOO_keys(node.persisted); ++i) {
 			shift += sprintf(buffer + shift, " %p <%" PRIu64 ">",
-					node.persisted->pointers[i],
+					node.persisted->internal.pointers[i],
 					node.persisted->keys[i]);
 		}
 		shift += sprintf(buffer + shift, " %p",
-				node.persisted->pointers[get_n_FOO_keys(node.persisted)]);
+				node.persisted->internal.pointers[get_n_FOO_keys(node.persisted)]);
 	}
 	printf("%s\n", buffer);
 	*/
@@ -229,7 +229,7 @@ static void collapse_if_singleton_root(btree* this,
 		btree_node_persisted* node) {
 	if (node == this->root && get_n_internal_keys(node) == 0) {
 		// Singleton parent.
-		this->root = node->pointers[0];
+		this->root = node->internal.pointers[0];
 		free(node);
 		--this->levels_above_leaves;
 	}
@@ -288,7 +288,7 @@ int8_t btree_delete(btree* this, uint64_t key) {
 							right_index,
 							to_left, to_right);
 					// AKA: node = advance(parent, key);
-					if (key < parent->keys[right_index - 1]) {
+					if (key < parent->internal.keys[right_index - 1]) {
 						node.persisted = left;
 					} else {
 						node.persisted = right;
@@ -302,7 +302,7 @@ int8_t btree_delete(btree* this, uint64_t key) {
 				if (total_keys <= 2 * INTERNAL_MIN_KEYS) {
 					log_verbose(1, "concatting internals");
 					append_internal(left,
-							parent->keys[right_index - 1],
+							parent->internal.keys[right_index - 1],
 							right);
 					node.persisted = left;
 					remove_ptr_from_node(//this,
@@ -319,7 +319,7 @@ int8_t btree_delete(btree* this, uint64_t key) {
 							right_index,
 							to_left, to_right);
 					// AKA: node = advance(parent, key);
-					if (key < parent->keys[right_index - 1]) {
+					if (key < parent->internal.keys[right_index - 1]) {
 						node.persisted = left;
 					} else {
 						node.persisted = right;
@@ -367,9 +367,9 @@ void btree_find(btree* this, uint64_t key, bool *found, uint64_t *value) {
 	}
 
 	for (uint8_t i = 0; i < get_n_leaf_keys(node.persisted); i++) {
-		if (node.persisted->keys[i] == key) {
+		if (node.persisted->leaf.keys[i] == key) {
 			*found = true;
-			*value = node.persisted->values[i];
+			*value = node.persisted->leaf.values[i];
 			return;
 		}
 	}
@@ -387,9 +387,9 @@ static btree_node_persisted* new_fork_node(uint64_t middle_key,
 		btree_node_persisted* left, btree_node_persisted* right) {
 	btree_node_persisted* new_node = malloc(sizeof(btree_node_persisted));
 	new_node->internal.key_count = 1;
-	new_node->keys[0] = middle_key;
-	new_node->pointers[0] = left;
-	new_node->pointers[1] = right;
+	new_node->internal.keys[0] = middle_key;
+	new_node->internal.pointers[0] = left;
+	new_node->internal.pointers[1] = right;
 	return new_node;
 }
 
@@ -402,11 +402,11 @@ void split_leaf(btree_node_persisted* node,
 	new_right_sibling->leaf.key_count = to_right;
 
 	for (uint8_t i = 0; i < to_right; i++) {
-		new_right_sibling->keys[i] = node->keys[i + to_left];
-		new_right_sibling->values[i] = node->values[i + to_left];
+		new_right_sibling->leaf.keys[i] = node->leaf.keys[i + to_left];
+		new_right_sibling->leaf.values[i] = node->leaf.values[i + to_left];
 	}
 
-	*middle_key = new_right_sibling->keys[0];
+	*middle_key = new_right_sibling->leaf.keys[0];
 }
 
 void split_internal(btree_node_persisted* node,
@@ -419,13 +419,13 @@ void split_internal(btree_node_persisted* node,
 	node->internal.key_count = to_left;
 	new_right_sibling->internal.key_count = to_right;
 
-	*middle_key = node->keys[to_left];
+	*middle_key = node->internal.keys[to_left];
 	for (uint8_t i = to_left + 1; i < to_left + 1 + to_right; i++) {
-		new_right_sibling->keys[i - to_left - 1] = node->keys[i];
+		new_right_sibling->internal.keys[i - to_left - 1] = node->internal.keys[i];
 	}
 	for (uint8_t i = 0; i < to_right + 1; i++) {
-		new_right_sibling->pointers[i] =
-			node->pointers[to_left + 1 + i];
+		new_right_sibling->internal.pointers[i] =
+			node->internal.pointers[to_left + 1 + i];
 	}
 }
 
@@ -434,7 +434,7 @@ void insert_pointer(btree_node_persisted* node, uint64_t key,
 	assert(node->internal.key_count < INTERNAL_MAX_KEYS);
 	uint8_t insert_at = 0xFF;
 	for (uint8_t i = 0; i < node->internal.key_count; i++) {
-		if (node->keys[i] > key) {
+		if (node->internal.keys[i] > key) {
 			insert_at = i;
 			break;
 		}
@@ -445,28 +445,28 @@ void insert_pointer(btree_node_persisted* node, uint64_t key,
 	log_verbose(2, "inserting at %" PRIu8, insert_at);
 	for (uint8_t i = node->internal.key_count; i > insert_at; --i) {
 		log_verbose(2, "key %" PRIu8 " <- %" PRIu8 " (%" PRIu64 ")",
-				i - 1, i, node->keys[i - 1]);
-		node->keys[i] = node->keys[i - 1];
+				i - 1, i, node->internal.keys[i - 1]);
+		node->internal.keys[i] = node->internal.keys[i - 1];
 	}
 	for (uint8_t i = node->internal.key_count + 1; i > insert_at + 1; --i) {
-		node->pointers[i] = node->pointers[i - 1];
+		node->internal.pointers[i] = node->internal.pointers[i - 1];
 	}
-	node->keys[insert_at] = key;
-	node->pointers[insert_at + 1] = pointer;
+	node->internal.keys[insert_at] = key;
+	node->internal.pointers[insert_at + 1] = pointer;
 	++node->internal.key_count;
 }
 
 static void remove_ptr_from_node(btree_node_persisted* parent,
 		const btree_node_persisted* remove) {
-	assert(parent->pointers[0] != remove);
+	assert(parent->internal.pointers[0] != remove);
 	bool found = false;
 	for (uint8_t i = 1; i < parent->internal.key_count + 1; ++i) {
-		if (!found && parent->pointers[i] == remove) {
+		if (!found && parent->internal.pointers[i] == remove) {
 			found = true;
 		}
 		if (found && i < parent->internal.key_count) {
-			parent->keys[i - 1] = parent->keys[i];
-			parent->pointers[i] = parent->pointers[i + 1];
+			parent->internal.keys[i - 1] = parent->internal.keys[i];
+			parent->internal.pointers[i] = parent->internal.pointers[i + 1];
 		}
 	}
 	assert(found);
@@ -478,11 +478,11 @@ int8_t insert_key_value_pair(btree_node_persisted* leaf,
 	assert(leaf->leaf.key_count < LEAF_MAX_KEYS);
 	uint8_t insert_at = 0xFF;
 	for (uint8_t i = 0; i < leaf->leaf.key_count; i++) {
-		if (leaf->keys[i] == key) {
+		if (leaf->leaf.keys[i] == key) {
 			// Duplicate keys.
 			return 1;
 		}
-		if (leaf->keys[i] > key) {
+		if (leaf->leaf.keys[i] > key) {
 			insert_at = i;
 			break;
 		}
@@ -491,11 +491,11 @@ int8_t insert_key_value_pair(btree_node_persisted* leaf,
 		insert_at = leaf->leaf.key_count;
 	}
 	for (uint8_t i = leaf->leaf.key_count; i > insert_at; --i) {
-		leaf->keys[i] = leaf->keys[i - 1];
-		leaf->values[i] = leaf->values[i - 1];
+		leaf->leaf.keys[i] = leaf->leaf.keys[i - 1];
+		leaf->leaf.values[i] = leaf->leaf.values[i - 1];
 	}
-	leaf->keys[insert_at] = key;
-	leaf->values[insert_at] = value;
+	leaf->leaf.keys[insert_at] = key;
+	leaf->leaf.values[insert_at] = value;
 	++leaf->leaf.key_count;
 	return 0;
 }
@@ -503,12 +503,12 @@ int8_t insert_key_value_pair(btree_node_persisted* leaf,
 static bool remove_from_leaf(btree_node_persisted* leaf, uint64_t key) {
 	bool found = false;
 	for (uint8_t i = 0; i < leaf->leaf.key_count; i++) {
-		if (!found && leaf->keys[i] == key) {
+		if (!found && leaf->leaf.keys[i] == key) {
 			found = true;
 		}
 		if (found && i < leaf->leaf.key_count - 1) {
-			leaf->keys[i] = leaf->keys[i + 1];
-			leaf->values[i] = leaf->values[i + 1];
+			leaf->leaf.keys[i] = leaf->leaf.keys[i + 1];
+			leaf->leaf.values[i] = leaf->leaf.values[i + 1];
 		}
 	}
 	if (!found) {
@@ -533,35 +533,35 @@ static void rebalance_internal(btree_node_persisted* parent,
 	btree_node_persisted* pointers[total_keys + 2];
 
 	for (uint8_t i = 0; i < left->internal.key_count; i++) {
-		keys[i] = left->keys[i];
+		keys[i] = left->internal.keys[i];
 	}
-	keys[left->internal.key_count] = parent->keys[right_index - 1];
+	keys[left->internal.key_count] = parent->internal.keys[right_index - 1];
 	for (uint8_t i = 0; i < right->internal.key_count; i++) {
-		keys[left->internal.key_count + 1 + i] = right->keys[i];
+		keys[left->internal.key_count + 1 + i] = right->internal.keys[i];
 	}
 
 	for (uint8_t i = 0; i < left->internal.key_count + 1; i++) {
-		pointers[i] = left->pointers[i];
+		pointers[i] = left->internal.pointers[i];
 	}
 	for (uint8_t i = 0; i < right->internal.key_count + 1; i++) {
-		pointers[left->internal.key_count + 1 + i] = right->pointers[i];
+		pointers[left->internal.key_count + 1 + i] = right->internal.pointers[i];
 	}
 
 	left->internal.key_count = to_left;
 	for (uint8_t i = 0; i < to_left; i++) {
-		left->keys[i] = keys[i];
+		left->internal.keys[i] = keys[i];
 	}
 	for (uint8_t i = 0; i < to_left + 1; i++) {
-		left->pointers[i] = pointers[i];
+		left->internal.pointers[i] = pointers[i];
 	}
 	log_verbose(1, "setting parent->keys[%" PRIu8 "]=%" PRIu64,
 			right_index - 1, keys[to_left]);
-	parent->keys[right_index - 1] = keys[to_left];
+	parent->internal.keys[right_index - 1] = keys[to_left];
 	for (uint8_t i = 0; i < to_right; i++) {
-		right->keys[i] = keys[to_left + 1 + i];
+		right->internal.keys[i] = keys[to_left + 1 + i];
 	}
 	for (uint8_t i = 0; i < to_right + 1; i++) {
-		right->pointers[i] = pointers[to_left + 1 + i];
+		right->internal.pointers[i] = pointers[to_left + 1 + i];
 	}
 	right->internal.key_count = to_right;
 }
@@ -580,40 +580,41 @@ static void rebalance_leaves(btree_node_persisted* parent,
 	uint64_t values[total_keys];
 
 	for (uint8_t i = 0; i < left->leaf.key_count; i++) {
-		keys[i] = left->keys[i];
-		values[i] = left->values[i];
+		keys[i] = left->leaf.keys[i];
+		values[i] = left->leaf.values[i];
 	}
 	for (uint8_t i = 0; i < right->leaf.key_count; i++) {
-		keys[i + left->leaf.key_count] = right->keys[i];
-		values[i + left->leaf.key_count] = right->values[i];
+		keys[i + left->leaf.key_count] = right->leaf.keys[i];
+		values[i + left->leaf.key_count] = right->leaf.values[i];
 	}
 	for (uint8_t i = 0; i < to_left; i++) {
-		left->keys[i] = keys[i];
-		left->values[i] = values[i];
+		left->leaf.keys[i] = keys[i];
+		left->leaf.values[i] = values[i];
 	}
 	left->leaf.key_count = to_left;
 	for (uint8_t i = 0; i < to_right; i++) {
-		right->keys[i] = keys[i + to_left];
-		right->values[i] = values[i + to_left];
+		right->leaf.keys[i] = keys[i + to_left];
+		right->leaf.values[i] = values[i + to_left];
 	}
 	right->leaf.key_count = to_right;
 
-	assert(parent->pointers[right_index - 1] == left);
-	assert(parent->pointers[right_index] == right);
-	parent->keys[right_index - 1] = right->keys[0];
+	assert(parent->internal.pointers[right_index - 1] == left);
+	assert(parent->internal.pointers[right_index] == right);
+	parent->internal.keys[right_index - 1] = right->leaf.keys[0];
 }
 
 static void append_internal(btree_node_persisted* target, uint64_t appended_key,
 		const btree_node_persisted* source) {
 	assert(target->internal.key_count + 1 + source->internal.key_count <= INTERNAL_MAX_KEYS);
-	target->keys[target->internal.key_count] = appended_key;
+	target->internal.keys[target->internal.key_count] = appended_key;
 	for (uint8_t i = 0; i < source->internal.key_count; ++i) {
 		assert(target->internal.key_count + 1 + i < INTERNAL_MAX_KEYS);
-		target->keys[target->internal.key_count + 1 + i] = source->keys[i];
+		target->internal.keys[target->internal.key_count + 1 + i] =
+				source->internal.keys[i];
 	}
 	for (uint8_t i = 0; i < source->internal.key_count + 1; ++i) {
-		target->pointers[target->internal.key_count + 1 + i] =
-				source->pointers[i];
+		target->internal.pointers[target->internal.key_count + 1 + i] =
+				source->internal.pointers[i];
 	}
 	target->internal.key_count += source->internal.key_count + 1;
 }
@@ -621,8 +622,8 @@ static void append_internal(btree_node_persisted* target, uint64_t appended_key,
 static void append_leaf(btree_node_persisted* target,
 		const btree_node_persisted* source) {
 	for (uint8_t i = 0; i < source->leaf.key_count; ++i) {
-		target->keys[i + target->leaf.key_count] = source->keys[i];
-		target->values[i + target->leaf.key_count] = source->values[i];
+		target->leaf.keys[i + target->leaf.key_count] = source->leaf.keys[i];
+		target->leaf.values[i + target->leaf.key_count] = source->leaf.values[i];
 	}
 	target->leaf.key_count += source->leaf.key_count;
 }
@@ -639,14 +640,14 @@ static void find_siblings(btree_node_persisted* node,
 		btree_node_persisted* parent,
 		btree_node_persisted** left, btree_node_persisted** right,
 		uint8_t* right_index) {
-	if (parent->pointers[0] == node) {
+	if (parent->internal.pointers[0] == node) {
 		*left = node;
 		*right_index = 1;
-		*right = parent->pointers[1];
+		*right = parent->internal.pointers[1];
 	} else {
 		for (uint8_t i = 1; i < get_n_internal_keys(parent) + 1; ++i) {
-			if (parent->pointers[i] == node) {
-				*left = parent->pointers[i - 1];
+			if (parent->internal.pointers[i] == node) {
+				*left = parent->internal.pointers[i - 1];
 				*right_index = i;
 				*right = node;
 				return;

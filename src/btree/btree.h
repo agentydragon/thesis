@@ -21,17 +21,15 @@ typedef struct btree_node_persisted {
 	union {
 		struct {
 			uint8_t key_count;
+			uint64_t keys[3];
+			struct btree_node_persisted* pointers[4];
 		} internal;
 
 		struct {
 			uint8_t key_count;
+			uint64_t keys[4];
+			uint64_t values[4];
 		} leaf;
-	};
-
-	uint64_t keys[4];
-	union {
-		struct btree_node_persisted* pointers[4];
-		uint64_t values[4];
 	};
 
 	/*
