@@ -18,7 +18,6 @@
 
 // TODO: leaf can hold 4 keys
 typedef struct btree_node_persisted {
-	bool leaf;
 	uint8_t key_count;
 	uint64_t keys[4];
 
@@ -31,7 +30,7 @@ typedef struct btree_node_persisted {
 } btree_node_persisted;
 
 typedef struct {
-	uint8_t height;  // height 0 == just root
+	uint8_t levels_above_leaves;  // levels_above_leaves 0 == just root
 	btree_node_persisted* root;
 } btree;
 
