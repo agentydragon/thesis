@@ -9,10 +9,6 @@
 
 // TODO: static_assert's for min-keys/max-keys conditions
 
-typedef struct {
-	btree_node_persisted* persisted;
-} btree_node_traversed;
-
 // Details of node representation:
 btree_node_persisted* new_empty_leaf();
 btree_node_persisted* new_fork_node(uint64_t middle_key,
@@ -51,9 +47,38 @@ void find_siblings(btree_node_persisted* node, btree_node_persisted* parent,
 	} \
 } while (0)
 
-
 // B-tree "meta-algorithm":
 enum side_preference { LEFT, RIGHT };
+
+typedef struct {
+	btree_node_persisted* persisted;
+} btree_node_traversed;
+
+static bool nt_is_leaf(btree_node_traversed node) {
+	return node.persisted->leaf;
+}
+
+static btree_node_traversed nt_root(btree* tree) {
+	return (btree_node_traversed) {
+		.persisted = tree->root
+	};
+}
+
+btree_node_traversed TRAVERSE(btree_node_persisted* p) {
+	return (btree_node_traversed) {
+		.persisted = p
+	};
+}
+
+static btree_node_traversed nt_advance(const btree_node_traversed node,
+		uint64_t key) {
+	for (uint8_t i = 0; i < get_n_keys(node.persisted); i++) {
+		if (node.persisted->keys[i] > key) {
+			return TRAVERSE(node.persisted->pointers[i]);
+		}
+	}
+	return TRAVERSE(node.persisted->pointers[get_n_keys(node.persisted)]);
+}
 
 static void split_keys_with_preference(uint8_t total,
 		enum side_preference preference,
@@ -73,14 +98,8 @@ void btree_init(btree* this) {
 	this->root = new_empty_leaf();
 }
 
-btree_node_traversed TRAVERSE(btree_node_persisted* p) {
-	return (btree_node_traversed) {
-		.persisted = p
-	};
-}
-
 static void destroy_recursive(btree_node_traversed node) {
-	if (!node.persisted->leaf) {
+	if (!nt_is_leaf(node)) {
 		FOR_EACH_INTERNAL_POINTER(*node.persisted, {
 			destroy_recursive(TRAVERSE(pointer));
 		});
@@ -89,7 +108,7 @@ static void destroy_recursive(btree_node_traversed node) {
 }
 
 void btree_destroy(btree* tree) {
-	destroy_recursive(TRAVERSE(tree->root));
+	destroy_recursive(nt_root(tree));
 	tree->root = NULL;
 }
 
@@ -125,7 +144,7 @@ static void dump_now(btree_node_traversed node, int depth) {
 
 static void dump_recursive(btree_node_traversed node, int depth) {
 	dump_now(node, depth);
-	if (!node.persisted->leaf) {
+	if (!nt_is_leaf(node)) {
 		FOR_EACH_INTERNAL_POINTER(*node.persisted, {
 			dump_recursive(TRAVERSE(pointer), depth + 1);
 		});
@@ -133,7 +152,7 @@ static void dump_recursive(btree_node_traversed node, int depth) {
 }
 
 void btree_dump(btree* this) {
-	dump_recursive(TRAVERSE(this->root), 0);
+	dump_recursive(nt_root(this), 0);
 }
 
 static void set_new_root(btree* this, uint64_t middle_key,
@@ -141,29 +160,19 @@ static void set_new_root(btree* this, uint64_t middle_key,
 	this->root = new_fork_node(middle_key, left, right);
 }
 
-static btree_node_traversed advance(const btree_node_traversed node,
-		uint64_t key) {
-	for (uint8_t i = 0; i < get_n_keys(node.persisted); i++) {
-		if (node.persisted->keys[i] > key) {
-			return TRAVERSE(node.persisted->pointers[i]);
-		}
-	}
-	return TRAVERSE(node.persisted->pointers[get_n_keys(node.persisted)]);
-}
-
 int8_t btree_insert(btree* this, uint64_t key, uint64_t value) {
 	btree_node_persisted* parent = NULL;
-	btree_node_traversed node = TRAVERSE(this->root);
+	btree_node_traversed node = nt_root(this);
 
 	do {
-		if ((node.persisted->leaf && get_n_keys(node.persisted) == LEAF_MAX_KEYS) ||
-				(!node.persisted->leaf && get_n_keys(node.persisted) == INTERNAL_MAX_KEYS)) {
+		if ((nt_is_leaf(node) && get_n_keys(node.persisted) == LEAF_MAX_KEYS) ||
+				(!nt_is_leaf(node) && get_n_keys(node.persisted) == INTERNAL_MAX_KEYS)) {
 			log_verbose(1, "splitting %p", node);
 			// We need to split the node now.
 			btree_node_persisted* new_right_sibling =
 					malloc(sizeof(btree_node_persisted));
 			uint64_t middle_key;
-			if (node.persisted->leaf) {
+			if (nt_is_leaf(node)) {
 				split_leaf(node.persisted, new_right_sibling,
 						&middle_key);
 			} else {
@@ -189,13 +198,13 @@ int8_t btree_insert(btree* this, uint64_t key, uint64_t value) {
 				node = TRAVERSE(new_right_sibling);
 			}
 		}
-		if (node.persisted->leaf) {
+		if (nt_is_leaf(node)) {
 			break;
 		}
 		log_verbose(1, "now at: parent=%p node=%p",
 				parent, node.persisted);
 		parent = node.persisted;
-		node = advance(node, key);
+		node = nt_advance(node, key);
 		log_verbose(1, "went to: parent=%p node=%p",
 				parent, node.persisted);
 	} while (true);
@@ -213,7 +222,7 @@ static void collapse_if_singleton_root(btree* this,
 
 int8_t btree_delete(btree* this, uint64_t key) {
 	btree_node_persisted* parent = NULL;
-	btree_node_traversed node = TRAVERSE(this->root);
+	btree_node_traversed node = nt_root(this);
 
 	// TODO: maybe something ultraspecial when deleting pivotal nodes?
 	do {
@@ -225,8 +234,8 @@ int8_t btree_delete(btree* this, uint64_t key) {
 			log_info("node:");
 			dump_recursive(node, 1);
 		}
-		if (parent && ((node.persisted->leaf && get_n_keys(node.persisted) == LEAF_MIN_KEYS) ||
-				(!node.persisted->leaf && get_n_keys(node.persisted) == INTERNAL_MIN_KEYS))) {
+		if (parent && ((nt_is_leaf(node) && get_n_keys(node.persisted) == LEAF_MIN_KEYS) ||
+				(!nt_is_leaf(node) && get_n_keys(node.persisted) == INTERNAL_MIN_KEYS))) {
 			uint8_t right_index;
 			btree_node_persisted *left, *right;
 			find_siblings(node.persisted, parent, &left, &right,
@@ -239,8 +248,7 @@ int8_t btree_delete(btree* this, uint64_t key) {
 				preference = RIGHT;
 			}
 
-			assert(left->leaf == right->leaf);
-			if (left->leaf) {
+			if (nt_is_leaf(node)) {
 				assert(left->key_count + right->key_count >=
 						LEAF_MIN_KEYS);
 				assert(left->key_count + right->key_count <=
@@ -314,17 +322,16 @@ int8_t btree_delete(btree* this, uint64_t key) {
 				dump_recursive(node, 0);
 			}
 		}
-		if (node.persisted->leaf) {
+		if (nt_is_leaf(node)) {
 			break;
 		}
 		log_verbose(1, "now at: parent=%p node=%p",
 				parent, node.persisted);
 		parent = node.persisted;
-		node = advance(node, key);
+		node = nt_advance(node, key);
 		log_verbose(1, "went to: parent=%p node=%p",
 				parent, node.persisted);
 	} while (true);
-	assert(node.persisted->leaf);
 	assert(node.persisted == this->root ||
 			get_n_keys(node.persisted) > LEAF_MIN_KEYS);
 	if (!remove_from_leaf(node.persisted, key)) {
@@ -343,10 +350,10 @@ int8_t btree_delete(btree* this, uint64_t key) {
 }
 
 void btree_find(btree* this, uint64_t key, bool *found, uint64_t *value) {
-	btree_node_traversed node = TRAVERSE(this->root);
+	btree_node_traversed node = nt_root(this);
 
-	while (!node.persisted->leaf) {
-		node = advance(node, key);
+	while (!nt_is_leaf(node)) {
+		node = nt_advance(node, key);
 	}
 
 	for (uint8_t i = 0; i < get_n_keys(node.persisted); i++) {
