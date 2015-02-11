@@ -31,18 +31,6 @@ typedef struct btree_node_persisted {
 			uint64_t values[4];
 		} leaf;
 	};
-
-	/*
-	uint8_t key_count;
-	uint64_t keys[4];
-
-	// TODO: compress if leaf
-	union {
-		// FIXME: implicit expectation sizeof(uint64_t) >= sizeof(void*)
-		uint64_t values[4];
-		struct btree_node_persisted* pointers[4];
-	};
-	*/
 } btree_node_persisted;
 
 typedef struct {

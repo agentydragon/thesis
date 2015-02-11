@@ -9,6 +9,9 @@
 
 // TODO: static_assert's for min-keys/max-keys conditions
 
+//static_assert(sizeof(btree_node_persisted) == 64,
+//		"btree_node_persisted not aligned on cache line");
+
 // Details of node representation:
 static btree_node_persisted* new_empty_leaf();
 static btree_node_persisted* new_fork_node(uint64_t middle_key,
@@ -28,14 +31,14 @@ static void rebalance_internal(btree_node_persisted* parent,
 		btree_node_persisted* left, btree_node_persisted* right,
 		const uint8_t right_index,
 		const uint8_t to_left, const uint8_t to_right);
-static void rebalance_leaves(btree_node_persisted* parent,
+static void rebalance_leaves(
 		btree_node_persisted* left, btree_node_persisted* right,
-		const uint8_t right_index,
-		const uint8_t to_left, const uint8_t to_right);
+		const uint8_t to_left, const uint8_t to_right,
+		uint64_t* right_min_key);
 static void append_internal(btree_node_persisted* target, uint64_t appended_key,
 		const btree_node_persisted* source);
 static void append_leaf(btree_node_persisted* target,
-		const btree_node_persisted* source);
+		btree_node_persisted* source);
 static uint8_t get_n_leaf_keys(const btree_node_persisted* node);
 static uint8_t get_n_internal_keys(const btree_node_persisted* node);
 static void find_siblings(btree_node_persisted* node,
@@ -182,13 +185,14 @@ int8_t btree_insert(btree* this, uint64_t key, uint64_t value) {
 				(!nt_is_leaf(node) && get_n_internal_keys(node.persisted) == INTERNAL_MAX_KEYS)) {
 			log_verbose(1, "splitting %p", node);
 			// We need to split the node now.
-			btree_node_persisted* new_right_sibling =
-					malloc(sizeof(btree_node_persisted));
+			btree_node_persisted* new_right_sibling;
 			uint64_t middle_key;
 			if (nt_is_leaf(node)) {
+				new_right_sibling = new_empty_leaf();
 				split_leaf(node.persisted, new_right_sibling,
 						&middle_key);
 			} else {
+				new_right_sibling = malloc(sizeof(btree_node_persisted));
 				split_internal(node.persisted,
 						new_right_sibling, &middle_key);
 			}
@@ -273,8 +277,7 @@ int8_t btree_delete(btree* this, uint64_t key) {
 					log_verbose(1, "concatting leaves");
 					append_leaf(left, right);
 					node.persisted = left;
-					remove_ptr_from_node(//this,
-							parent, right);
+					remove_ptr_from_node(parent, right);
 					free(right);
 					collapse_if_singleton_root(
 							this, parent);
@@ -284,9 +287,20 @@ int8_t btree_delete(btree* this, uint64_t key) {
 					split_keys_with_preference(total_keys,
 							preference,
 							&to_left, &to_right);
-					rebalance_leaves(parent, left, right,
-							right_index,
-							to_left, to_right);
+
+					uint64_t right_min_key;
+					assert(to_left >= LEAF_MIN_KEYS &&
+							to_right >= LEAF_MIN_KEYS &&
+							to_left <= LEAF_MAX_KEYS &&
+							to_right <= LEAF_MAX_KEYS);
+					rebalance_leaves(left, right,
+							to_left, to_right,
+							&right_min_key);
+
+					//assert(parent->internal.pointers[right_index - 1] == left);
+					//assert(parent->internal.pointers[right_index] == right);
+					parent->internal.keys[right_index - 1] = right_min_key;
+
 					// AKA: node = advance(parent, key);
 					if (key < parent->internal.keys[right_index - 1]) {
 						node.persisted = left;
@@ -305,8 +319,7 @@ int8_t btree_delete(btree* this, uint64_t key) {
 							parent->internal.keys[right_index - 1],
 							right);
 					node.persisted = left;
-					remove_ptr_from_node(//this,
-							parent, right);
+					remove_ptr_from_node(parent, right);
 					collapse_if_singleton_root(
 							this, parent);
 				} else {
@@ -348,7 +361,7 @@ int8_t btree_delete(btree* this, uint64_t key) {
 		return 1;
 	}
 	if (parent && get_n_leaf_keys(node.persisted) == 0) {
-		remove_ptr_from_node(/*this, */parent, node.persisted);
+		remove_ptr_from_node(parent, node.persisted);
 		free(node.persisted);
 		collapse_if_singleton_root(this, parent);
 	} else {
@@ -395,18 +408,13 @@ static btree_node_persisted* new_fork_node(uint64_t middle_key,
 
 void split_leaf(btree_node_persisted* node,
 		btree_node_persisted* new_right_sibling, uint64_t *middle_key) {
+	assert(new_right_sibling->leaf.key_count == 0);
+
 	const uint8_t to_left = node->leaf.key_count / 2;
 	const uint8_t to_right = node->leaf.key_count - to_left;
-
-	node->leaf.key_count = to_left;
-	new_right_sibling->leaf.key_count = to_right;
-
-	for (uint8_t i = 0; i < to_right; i++) {
-		new_right_sibling->leaf.keys[i] = node->leaf.keys[i + to_left];
-		new_right_sibling->leaf.values[i] = node->leaf.values[i + to_left];
-	}
-
-	*middle_key = new_right_sibling->leaf.keys[0];
+	assert(to_left >= LEAF_MIN_KEYS && to_right >= LEAF_MIN_KEYS &&
+			to_left <= LEAF_MAX_KEYS && to_right <= LEAF_MAX_KEYS);
+	rebalance_leaves(node, new_right_sibling, to_left, to_right, middle_key);
 }
 
 void split_internal(btree_node_persisted* node,
@@ -566,15 +574,12 @@ static void rebalance_internal(btree_node_persisted* parent,
 	right->internal.key_count = to_right;
 }
 
-static void rebalance_leaves(btree_node_persisted* parent,
+static void rebalance_leaves(
 		btree_node_persisted* left, btree_node_persisted* right,
-		const uint8_t right_index,
-		const uint8_t to_left, const uint8_t to_right) {
+		const uint8_t to_left, const uint8_t to_right,
+		uint64_t* right_min_key) {
 	// TODO: optimize
 	const uint8_t total_keys = left->leaf.key_count + right->leaf.key_count;
-
-	assert(to_left >= LEAF_MIN_KEYS && to_right >= LEAF_MIN_KEYS &&
-			to_left <= LEAF_MAX_KEYS && to_right <= LEAF_MAX_KEYS);
 
 	uint64_t keys[total_keys];
 	uint64_t values[total_keys];
@@ -598,9 +603,9 @@ static void rebalance_leaves(btree_node_persisted* parent,
 	}
 	right->leaf.key_count = to_right;
 
-	assert(parent->internal.pointers[right_index - 1] == left);
-	assert(parent->internal.pointers[right_index] == right);
-	parent->internal.keys[right_index - 1] = right->leaf.keys[0];
+	if (right_min_key != NULL) {
+		*right_min_key = right->leaf.keys[0];
+	}
 }
 
 static void append_internal(btree_node_persisted* target, uint64_t appended_key,
@@ -620,12 +625,10 @@ static void append_internal(btree_node_persisted* target, uint64_t appended_key,
 }
 
 static void append_leaf(btree_node_persisted* target,
-		const btree_node_persisted* source) {
-	for (uint8_t i = 0; i < source->leaf.key_count; ++i) {
-		target->leaf.keys[i + target->leaf.key_count] = source->leaf.keys[i];
-		target->leaf.values[i + target->leaf.key_count] = source->leaf.values[i];
-	}
-	target->leaf.key_count += source->leaf.key_count;
+		btree_node_persisted* source) {
+	const uint8_t total_keys = source->leaf.key_count + target->leaf.key_count;
+	assert(total_keys >= LEAF_MIN_KEYS && total_keys <= LEAF_MAX_KEYS);
+	rebalance_leaves(target, source, total_keys, 0, NULL);
 }
 
 static uint8_t get_n_leaf_keys(const btree_node_persisted* node) {

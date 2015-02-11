@@ -34,27 +34,31 @@ static void test_internal_splitting() {
 static void test_leaf_splitting() {
 	btree_node_persisted node = {
 		.leaf = {
-			.key_count = 3,
-			.keys = { 10, 20, 30 },
-			.values = { 111, 222, 333 }
+			.key_count = 4,
+			.keys = { 10, 20, 30, 40 },
+			.values = { 111, 222, 333, 444 }
 		}
 	};
-	btree_node_persisted new_right_sibling;
+	btree_node_persisted new_right_sibling = {
+		.leaf = { .key_count = 0 }
+	};
 	uint64_t middle;
 
 	split_leaf(&node, &new_right_sibling, &middle);
 
-	assert(node.leaf.key_count == 1);
+	assert(node.leaf.key_count == 2);
 	assert(node.leaf.keys[0] == 10);
 	assert(node.leaf.values[0] == 111);
+	assert(node.leaf.keys[1] == 20);
+	assert(node.leaf.values[1] == 222);
 
-	assert(middle == 20);
+	assert(middle == 30);
 
 	assert(new_right_sibling.leaf.key_count == 2);
-	assert(new_right_sibling.leaf.keys[0] == 20 &&
-			new_right_sibling.leaf.keys[1] == 30);
-	assert(new_right_sibling.leaf.values[0] == 222 &&
-			new_right_sibling.leaf.values[1] == 333);
+	assert(new_right_sibling.leaf.keys[0] == 30 &&
+			new_right_sibling.leaf.keys[1] == 40);
+	assert(new_right_sibling.leaf.values[0] == 333 &&
+			new_right_sibling.leaf.values[1] == 444);
 	log_info("leaf splitting ok");
 }
 
