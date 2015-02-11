@@ -18,6 +18,23 @@
 
 // TODO: leaf can hold 4 keys
 typedef struct btree_node_persisted {
+	union {
+		struct {
+			uint8_t key_count;
+		} internal;
+
+		struct {
+			uint8_t key_count;
+		} leaf;
+	};
+
+	uint64_t keys[4];
+	union {
+		struct btree_node_persisted* pointers[4];
+		uint64_t values[4];
+	};
+
+	/*
 	uint8_t key_count;
 	uint64_t keys[4];
 
@@ -27,6 +44,7 @@ typedef struct btree_node_persisted {
 		uint64_t values[4];
 		struct btree_node_persisted* pointers[4];
 	};
+	*/
 } btree_node_persisted;
 
 typedef struct {

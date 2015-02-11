@@ -7,7 +7,9 @@
 
 static void test_internal_splitting() {
 	btree_node_persisted node = {
-		.key_count = 3,
+		.internal = {
+			.key_count = 3,
+		},
 		.keys = { 100, 200, 300 },
 		.pointers = { MOCK(50), MOCK(150), MOCK(250), MOCK(350) }
 	};
@@ -16,13 +18,13 @@ static void test_internal_splitting() {
 
 	split_internal(&node, &new_right_sibling, &middle);
 
-	assert(node.key_count == 1);
+	assert(node.internal.key_count == 1);
 	assert(node.keys[0] == 100);
 	assert(node.pointers[0] == MOCK(50) && node.pointers[1] == MOCK(150));
 
 	assert(middle == 200);
 
-	assert(new_right_sibling.key_count == 1);
+	assert(new_right_sibling.internal.key_count == 1);
 	assert(new_right_sibling.keys[0] == 300);
 	assert(new_right_sibling.pointers[0] == MOCK(250) &&
 			new_right_sibling.pointers[1] == MOCK(350));
@@ -31,7 +33,9 @@ static void test_internal_splitting() {
 
 static void test_leaf_splitting() {
 	btree_node_persisted node = {
-		.key_count = 3,
+		.leaf = {
+			.key_count = 3,
+		},
 		.keys = { 10, 20, 30 },
 		.values = { 111, 222, 333 }
 	};
@@ -40,13 +44,13 @@ static void test_leaf_splitting() {
 
 	split_leaf(&node, &new_right_sibling, &middle);
 
-	assert(node.key_count == 1);
+	assert(node.leaf.key_count == 1);
 	assert(node.keys[0] == 10);
 	assert(node.values[0] == 111);
 
 	assert(middle == 20);
 
-	assert(new_right_sibling.key_count == 2);
+	assert(new_right_sibling.leaf.key_count == 2);
 	assert(new_right_sibling.keys[0] == 20 &&
 			new_right_sibling.keys[1] == 30);
 	assert(new_right_sibling.values[0] == 222 &&
@@ -56,12 +60,14 @@ static void test_leaf_splitting() {
 
 static void test_insert_pointer() {
 	btree_node_persisted node = {
-		.key_count = 2,
+		.internal = {
+			.key_count = 2,
+		},
 		.keys = { 100, 300 },
 		.pointers = { MOCK(50), MOCK(150), MOCK(350) }
 	};
 	insert_pointer(&node, 200, MOCK(250));
-	assert(node.key_count == 3);
+	assert(node.internal.key_count == 3);
 	assert(node.keys[0] = 100 && node.keys[1] == 200 &&
 			node.keys[2] == 300);
 	assert(node.pointers[0] == MOCK(50) && node.pointers[1] == MOCK(150) &&
@@ -71,12 +77,14 @@ static void test_insert_pointer() {
 
 static void test_insert_key_value_pair() {
 	btree_node_persisted node = {
-		.key_count = 2,
+		.leaf = {
+			.key_count = 2,
+		},
 		.keys = { 100, 300 },
 		.values = { 11, 33 }
 	};
 	insert_key_value_pair(&node, 200, 22);
-	assert(node.key_count == 3);
+	assert(node.leaf.key_count == 3);
 	assert(node.keys[0] = 100 && node.keys[1] == 200 &&
 			node.keys[2] == 300);
 	assert(node.values[0] == 11 && node.values[1] == 22 &&
