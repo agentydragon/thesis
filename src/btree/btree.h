@@ -16,7 +16,6 @@
 #define INTERNAL_MAX_KEYS 3
 #define INTERNAL_MIN_KEYS 1
 
-// TODO: leaf can hold 4 keys
 typedef struct btree_node_persisted {
 	union {
 		struct {
