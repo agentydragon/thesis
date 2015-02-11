@@ -13,6 +13,7 @@
 //		"btree_node_persisted not aligned on cache line");
 
 // Details of node representation:
+#define SLOT_UNUSED 0xFFFFFFFFFFFFFFFF
 static btree_node_persisted* new_empty_leaf();
 static btree_node_persisted* new_fork_node(uint64_t middle_key,
 		btree_node_persisted* left, btree_node_persisted* right);
@@ -177,6 +178,10 @@ static void set_new_root(btree* this, uint64_t middle_key,
 }
 
 int8_t btree_insert(btree* this, uint64_t key, uint64_t value) {
+	if (key == SLOT_UNUSED && value == SLOT_UNUSED) {
+		log_fatal("Attempted to insert reserved value.");
+	}
+
 	btree_node_persisted* parent = NULL;
 	btree_node_traversed node = nt_root(this);
 
@@ -408,10 +413,11 @@ static btree_node_persisted* new_fork_node(uint64_t middle_key,
 
 void split_leaf(btree_node_persisted* node,
 		btree_node_persisted* new_right_sibling, uint64_t *middle_key) {
-	assert(new_right_sibling->leaf.key_count == 0);
+	assert(get_n_leaf_keys(new_right_sibling) == 0);
 
-	const uint8_t to_left = node->leaf.key_count / 2;
-	const uint8_t to_right = node->leaf.key_count - to_left;
+	const uint8_t total_keys = get_n_leaf_keys(node);
+	const uint8_t to_left = total_keys / 2;
+	const uint8_t to_right = total_keys - to_left;
 	assert(to_left >= LEAF_MIN_KEYS && to_right >= LEAF_MIN_KEYS &&
 			to_left <= LEAF_MAX_KEYS && to_right <= LEAF_MAX_KEYS);
 	rebalance_leaves(node, new_right_sibling, to_left, to_right, middle_key);
@@ -579,7 +585,7 @@ static void rebalance_leaves(
 		const uint8_t to_left, const uint8_t to_right,
 		uint64_t* right_min_key) {
 	// TODO: optimize
-	const uint8_t total_keys = left->leaf.key_count + right->leaf.key_count;
+	const uint8_t total_keys = get_n_leaf_keys(left) + get_n_leaf_keys(right);
 
 	uint64_t keys[total_keys];
 	uint64_t values[total_keys];
