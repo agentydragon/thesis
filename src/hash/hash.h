@@ -34,7 +34,4 @@ int8_t hash_delete(hash*, uint64_t key);
 
 void hash_dump(hash*);
 
-// Derived calls. TODO: allow optional implementation
-int8_t hash_update(hash*, uint64_t key, uint64_t new_value);
-
 #endif
