@@ -1,0 +1,162 @@
+env = Environment()
+env.Append(CFLAGS='-std=c11')
+env.Append(CFLAGS='-D_GNU_SOURCE')
+env.Append(LINKFLAGS='-lm -lrt')
+
+env.Library(
+    'lib/log',
+    [
+	'log/log.c',
+    ],
+)
+
+env.Library(
+    'lib/hash',
+    [
+	'hash/hash.c',
+    ],
+)
+
+env.Library(
+    'lib/toycrypt',
+    [
+	'test_hash/toycrypt.c',
+    ],
+)
+
+env.Library(
+    'lib/measurement',
+    [
+	'measurement/measurement.c',
+    ],
+    LIBS=[
+	'log'
+    ],
+    LIBPATH='lib',
+)
+
+env.Library(
+    'lib/hash_hashtable',
+    [
+	'hash_hashtable/hash_hashtable.c',
+	'hash_hashtable/private/delete.c',
+	'hash_hashtable/private/dump.c',
+	'hash_hashtable/private/find.c',
+	'hash_hashtable/private/hash.c',
+	'hash_hashtable/private/insertion.c',
+	'hash_hashtable/private/resizing.c',
+	'hash_hashtable/private/traversal.c',
+    ],
+)
+
+env.Library(
+    'lib/mmath',
+    [
+	'math/math.c',
+    ],
+)
+
+env.Library(
+    'lib/mrand',
+    [
+	'rand/rand.c',
+    ],
+)
+
+env.Library(
+    'lib/hash_btree',
+    [
+	'btree/btree.c',
+	'hash_btree/hash_btree.c',
+    ],
+    LIBS=[
+	'log',
+    ],
+    LIBPATH='lib',
+)
+
+env.Library(
+    'lib/hash_cobt',
+    [
+	'cache_oblivious_btree/cache_oblivious_btree.c',
+	'hash_cobt/hash_cobt.c',
+	'ordered_file_maintenance/ordered_file_maintenance.c',
+	'veb_layout/veb_layout.c',
+    ],
+    LIBS=[
+	'log',
+	'mmath',
+    ],
+    LIBPATH='lib',
+)
+
+env.Library(
+    'lib/hash_splay',
+    [
+	'hash_splay/hash_splay.c',
+	'splay_tree/splay_tree.c',
+    ],
+    LIBS=[
+	'log',
+    ],
+    LIBPATH='lib',
+)
+
+env.Program(
+    'bin/test',
+    [
+	'btree/test.c',
+	'cache_oblivious_btree/test.c',
+	'hash_array/hash_array.c',
+	'hash_hashtable/test/delete.c',
+	'hash_hashtable/test/find.c',
+	'hash_hashtable/test/helper.c',
+	'hash_hashtable/test/test.c',
+	'math/test.c',
+	'observation/observation.c',
+	'observation/test/test.c',
+	'ordered_file_maintenance/test.c',
+	'rand/test/test.c',
+	'splay_tree/test.c',
+        'test.c',
+	'test/hash_blackbox.c',
+	'test_hash/test_hash_large.c',
+	'test/ordered_hash_blackbox.c',
+	'util/average.c',
+	'veb_layout/test.c',
+    ],
+    LIBS=[
+	'hash',
+        'hash_hashtable',
+	'hash_cobt',
+	'hash_btree',
+	'hash_splay',
+	'toycrypt',
+	'mmath',
+	'mrand',
+	'log',
+    ],
+    LIBPATH='lib',
+)
+
+env.Program(
+    'bin/experiments/cob_cache_behavior',
+    [
+        'experiments/cob_cache_behavior/cob_cache_behavior.c',
+	'stopwatch/stopwatch.c',
+    ],
+# TODO: Ja ale nemam primou dependenci na nekterych tehle vecech...
+# To je hloupe :(
+    LIBS=[
+        'hash',
+        'hash_hashtable',
+	'hash_cobt',
+	'hash_btree',
+	'mrand',
+	'toycrypt',
+	'measurement',
+	'log',
+	'mmath',
+    ],
+    LIBPATH='lib',
+)
