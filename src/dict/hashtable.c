@@ -1,12 +1,4 @@
-#include "hash_hashtable/hash_hashtable.h"
-#include "hash_hashtable/private/data.h"
-#include "hash_hashtable/private/dump.h"
-#include "hash_hashtable/private/hash.h"
-#include "hash_hashtable/private/traversal.h"
-#include "hash_hashtable/private/resizing.h"
-#include "hash_hashtable/private/insertion.h"
-#include "hash_hashtable/private/find.h"
-#include "hash_hashtable/private/delete.h"
+#include "dict/hashtable.h"
 
 #include <assert.h>
 #include <inttypes.h>
@@ -16,6 +8,15 @@
 #define NO_LOG_INFO
 
 #include "log/log.h"
+
+#include "hash_hashtable/private/data.h"
+#include "hash_hashtable/private/dump.h"
+#include "hash_hashtable/private/hash.h"
+#include "hash_hashtable/private/traversal.h"
+#include "hash_hashtable/private/resizing.h"
+#include "hash_hashtable/private/insertion.h"
+#include "hash_hashtable/private/find.h"
+#include "hash_hashtable/private/delete.h"
 
 /*
 static void check_invariants(struct hashtable_data* this) {
@@ -95,7 +96,7 @@ static int8_t delete(void* _this, uint64_t key) {
 	return hashtable_delete(this, key);
 }
 
-const hash_api hash_hashtable = {
+const dict_api dict_hashtable = {
 	.init = init,
 	.destroy = destroy,
 
@@ -105,5 +106,5 @@ const hash_api hash_hashtable = {
 
 	.dump = hashtable_dump,
 
-	.name = "hash_hashtable"
+	.name = "dict_hashtable"
 };

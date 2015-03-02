@@ -1,8 +1,8 @@
 #ifndef TEST_HASH_LARGE_H
 #define TEST_HASH_LARGE_H
 
-#include "hash/hash.h"
+#include "dict/dict.h"
 
-void test_hash_large(const hash_api* api, uint64_t N);
+void test_dict_large(const dict_api* api, uint64_t N);
 
 #endif

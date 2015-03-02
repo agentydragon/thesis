@@ -1,4 +1,4 @@
-#include "hash_array/hash_array.h"
+#include "dict/array.h"
 
 #include "log/log.h"
 
@@ -126,7 +126,7 @@ static int8_t delete(void* _this, uint64_t key) {
 	return 0;
 }
 
-const hash_api hash_array = {
+const dict_api dict_array = {
 	.init = init,
 	.destroy = destroy,
 
@@ -134,5 +134,5 @@ const hash_api hash_array = {
 	.find = find,
 	.delete = delete,
 
-	.name = "hash_array"
+	.name = "dict_array"
 };

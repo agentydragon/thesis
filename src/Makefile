@@ -5,12 +5,9 @@ LIBS=-lm -lrt
 SOURCES= \
 	btree/*.c \
 	cache_oblivious_btree/*.c \
-	hash_array/*.c \
-	hash_btree/*.c \
-	hash_cobt/*.c \
-	hash/*.c test_hash/*.c \
-	hash_hashtable/*.c hash_hashtable/private/*.c hash_hashtable/test/*.c \
-	hash_splay/*.c \
+	test_hash/*.c \
+	hash_hashtable/private/*.c hash_hashtable/test/*.c \
+	dict/*.c \
 	log/*.c \
 	math/*.c \
 	observation/*.c observation/test/*.c \

@@ -1,7 +1,7 @@
 #ifndef OBSERVATION_H
 #define OBSERVATION_H
 
-#include "hash/hash.h"
+#include "dict/dict.h"
 
 struct observed_operation {
 	enum { OP_FIND, OP_INSERT, OP_DELETE } operation;
@@ -27,9 +27,9 @@ typedef struct observation observation;
 int8_t observation_init(observation**);
 void observation_destroy(observation**);
 
-// TODO: maybe observation_tap_destructive(observation*, hash** tap_to_tapped)?
-int8_t observation_tap(observation*, hash* to_tap, hash** tapped);
-int8_t observation_replay(observation*, hash* replay_on);
+// TODO: maybe observation_tap_destructive(observation*, dict** tap_to_tapped)?
+int8_t observation_tap(observation*, dict* to_tap, dict** tapped);
+int8_t observation_replay(observation*, dict* replay_on);
 
 /*
 int8_t observation_load(observation*, const char* filename);

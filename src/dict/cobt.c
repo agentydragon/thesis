@@ -1,4 +1,4 @@
-#include "hash_cobt/hash_cobt.h"
+#include "dict/cobt.h"
 
 #include "log/log.h"
 #include "cache_oblivious_btree/cache_oblivious_btree.h"
@@ -39,7 +39,7 @@ static int8_t delete(void* _this, uint64_t key) {
 	return cob_delete(_this, key);
 }
 
-const hash_api hash_cobt = {
+const dict_api dict_cobt = {
 	.init = init,
 	.destroy = destroy,
 
@@ -47,5 +47,5 @@ const hash_api hash_cobt = {
 	.find = find,
 	.delete = delete,
 
-	.name = "hash_cobt"
+	.name = "dict_cobt"
 };

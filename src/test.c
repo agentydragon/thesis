@@ -3,12 +3,12 @@
 
 #include "btree/test.h"
 #include "cache_oblivious_btree/test.h"
-#include "hash_array/hash_array.h"
-#include "hash_btree/hash_btree.h"
-#include "hash_cobt/hash_cobt.h"
-#include "hash_hashtable/hash_hashtable.h"
+#include "dict/array.h"
+#include "dict/btree.h"
+#include "dict/cobt.h"
+#include "dict/splay.h"
+#include "dict/hashtable.h"
 #include "hash_hashtable/test/test.h"
-#include "hash_splay/hash_splay.h"
 #include "log/log.h"
 #include "math/test.h"
 #include "observation/test/test.h"
@@ -33,18 +33,18 @@ void run_unit_tests() {
 	test_hash_hashtable();
 	test_splay_tree();
 
-	test_hash_blackbox(&hash_array);
-	test_hash_blackbox(&hash_btree);
-	test_hash_blackbox(&hash_cobt);
-	test_hash_blackbox(&hash_hashtable);
-	test_hash_blackbox(&hash_splay);
+	test_dict_blackbox(&dict_array);
+	test_dict_blackbox(&dict_btree);
+	test_dict_blackbox(&dict_cobt);
+	test_dict_blackbox(&dict_hashtable);
+	test_dict_blackbox(&dict_splay);
 
-	test_hash_large(&hash_array, 1 << 10);
-	test_hash_large(&hash_btree, 1 << 20);
-	// TODO: optimize hash_cobt for better performance
-	test_hash_large(&hash_cobt, 1 << 20);
-	test_hash_large(&hash_hashtable, 1 << 20);
-	test_hash_large(&hash_splay, 1 << 10);
+	test_dict_large(&dict_array, 1 << 10);
+	test_dict_large(&dict_btree, 1 << 20);
+	// TODO: optimize dict_cobt for better performance
+	test_dict_large(&dict_cobt, 1 << 20);
+	test_dict_large(&dict_hashtable, 1 << 20);
+	test_dict_large(&dict_splay, 1 << 10);
 }
 
 int main(int argc, char** argv) {

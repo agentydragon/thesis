@@ -2,7 +2,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 
-#include "hash/hash.h"
+#include "dict/dict.h"
 #include "log/log.h"
 #include "measurement/measurement.h"
 #include "rand/rand.h"
@@ -17,14 +17,14 @@ static uint64_t make_value(uint64_t i) {
 	return toycrypt(i, 0xFEDCBA9876543210LL);
 }
 
-void time_random_reads(const hash_api* api, int size, int reads) {
-	hash* table;
-	if (hash_init(&table, api, NULL)) log_fatal("cannot init hash table");
+void time_random_reads(const dict_api* api, int size, int reads) {
+	dict* table;
+	if (dict_init(&table, api, NULL)) log_fatal("cannot init dict");
 
 	log_info("random_reads: %s, size=%d, reads=%d", api->name, size, reads);
 
 	for (int i = 0; i < size; i++) {
-		if (hash_insert(table, make_key(i), make_value(i))) {
+		if (dict_insert(table, make_key(i), make_value(i))) {
 			log_fatal("cannot insert");
 		}
 	}
@@ -41,14 +41,14 @@ void time_random_reads(const hash_api* api, int size, int reads) {
 			int k = rand_next(&generator, size);
 			uint64_t value;
 			bool found;
-			assert(!hash_find(table, make_key(k), &value, &found));
+			assert(!dict_find(table, make_key(k), &value, &found));
 			assert(found && value == make_value(k));
 		}
 
 		results = measurement_end(measurement);
 	}
 
-	// hash_dump(table);
+	// dict_dump(table);
 
 	uint64_t duration_ns = stopwatch_read_ns(watch);
 
@@ -61,7 +61,7 @@ void time_random_reads(const hash_api* api, int size, int reads) {
 			results.cache_references, results.cache_misses,
 			((double) results.cache_misses) / reads);
 
-	//hash_dump(table);
+	//dict_dump(table);
 
-	hash_destroy(&table);
+	dict_destroy(&table);
 }

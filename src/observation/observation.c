@@ -67,24 +67,24 @@ static int8_t observation_push(observation* this, struct observed_operation obse
 
 struct tapped_init_args {
 	observation* recorded_observation;
-	hash* hash_to_tap;
+	dict* dict_to_tap;
 };
 
-struct tapped_hash {
+struct tapped_dict {
 	observation* recorded_observation;
-	hash* hash_to_tap;
+	dict* dict_to_tap;
 };
 
 static int8_t tapped_init(void** _this, void* _args) {
 	struct tapped_init_args* args = _args;
-	struct tapped_hash* this = malloc(sizeof(struct tapped_hash));
+	struct tapped_dict* this = malloc(sizeof(struct tapped_dict));
 	if (!this) {
-		log_error("cannot allocate tapped hash");
+		log_error("cannot allocate tapped dict");
 		return 1;
 	}
-	*this = (struct tapped_hash) {
+	*this = (struct tapped_dict) {
 		.recorded_observation = args->recorded_observation,
-		.hash_to_tap = args->hash_to_tap
+		.dict_to_tap = args->dict_to_tap
 	};
 	*_this = this;
 	return 0;
@@ -92,17 +92,17 @@ static int8_t tapped_init(void** _this, void* _args) {
 
 static void tapped_destroy(void** _this) {
 	if (_this) {
-		struct tapped_hash *this = *_this;
+		struct tapped_dict *this = *_this;
 		free(this);
 		*_this = NULL;
 	}
 }
 
 static int8_t tapped_find(void* _this, uint64_t key, uint64_t *value, bool *found) {
-	struct tapped_hash *this = _this;
+	struct tapped_dict *this = _this;
 
-	if (hash_find(this->hash_to_tap, key, value, found)) {
-		log_error("tapped hash_find failed");
+	if (dict_find(this->dict_to_tap, key, value, found)) {
+		log_error("tapped dict_find failed");
 		return 1;
 	}
 
@@ -110,17 +110,17 @@ static int8_t tapped_find(void* _this, uint64_t key, uint64_t *value, bool *foun
 		.operation = OP_FIND,
 		.find = { .key = key }
 	})) {
-		log_fatal("cannot push hash_find observation");
+		log_fatal("cannot push dict_find observation");
 		return 1;
 	}
 	return 0;
 }
 
 static int8_t tapped_insert(void* _this, uint64_t key, uint64_t value) {
-	struct tapped_hash *this = _this;
+	struct tapped_dict *this = _this;
 
-	if (hash_insert(this->hash_to_tap, key, value)) {
-		log_error("tapped hash_insert failed");
+	if (dict_insert(this->dict_to_tap, key, value)) {
+		log_error("tapped dict_insert failed");
 		return 1;
 	}
 
@@ -128,17 +128,17 @@ static int8_t tapped_insert(void* _this, uint64_t key, uint64_t value) {
 		.operation = OP_INSERT,
 		.insert = { .key = key, .value = value }
 	})) {
-		log_fatal("cannot push hash_insert observation");
+		log_fatal("cannot push dict_insert observation");
 		return 1;
 	}
 	return 0;
 }
 
 static int8_t tapped_delete(void* _this, uint64_t key) {
-	struct tapped_hash *this = _this;
+	struct tapped_dict *this = _this;
 
-	if (hash_delete(this->hash_to_tap, key)) {
-		log_error("tapped hash_delete failed");
+	if (dict_delete(this->dict_to_tap, key)) {
+		log_error("tapped dict_delete failed");
 		return 1;
 	}
 
@@ -146,13 +146,13 @@ static int8_t tapped_delete(void* _this, uint64_t key) {
 		.operation = OP_DELETE,
 		.delete = { .key = key }
 	})) {
-		log_fatal("cannot push hash_delete observation");
+		log_fatal("cannot push dict_delete observation");
 		return 1;
 	}
 	return 0;
 }
 
-hash_api tapped_hash_api = {
+dict_api tapped_dict_api = {
 	.init = tapped_init,
 	.destroy = tapped_destroy,
 
@@ -160,31 +160,31 @@ hash_api tapped_hash_api = {
 	.insert = tapped_insert,
 	.delete = tapped_delete,
 
-	.name = "tapped_hash"
+	.name = "tapped_dict"
 };
 
-int8_t observation_tap(observation* this, hash* to_tap, hash** tapped) {
-	return hash_init(tapped, &tapped_hash_api, & (struct tapped_init_args) {
+int8_t observation_tap(observation* this, dict* to_tap, dict** tapped) {
+	return dict_init(tapped, &tapped_dict_api, & (struct tapped_init_args) {
 		.recorded_observation = this,
-		.hash_to_tap = to_tap
+		.dict_to_tap = to_tap
 	});
 }
 
-static int8_t replay_operation(struct observed_operation operation, hash* replay_on) {
+static int8_t replay_operation(struct observed_operation operation, dict* replay_on) {
 	switch (operation.operation) {
 		case OP_FIND:
-			return hash_find(replay_on, operation.find.key, NULL, NULL);
+			return dict_find(replay_on, operation.find.key, NULL, NULL);
 		case OP_INSERT:
-			return hash_insert(replay_on, operation.insert.key, operation.insert.value);
+			return dict_insert(replay_on, operation.insert.key, operation.insert.value);
 		case OP_DELETE:
-			return hash_delete(replay_on, operation.delete.key);
+			return dict_delete(replay_on, operation.delete.key);
 		default:
 			log_fatal("unknown operation type %d", operation.operation);
 			return 1;
 	}
 }
 
-int8_t observation_replay(observation* this, hash* replay_on) {
+int8_t observation_replay(observation* this, dict* replay_on) {
 	for (uint64_t i = 0; i < this->size; i++) {
 		if (replay_operation(this->operations[i], replay_on)) {
 			log_fatal("failed to replay operation %" PRIu64 " of %" PRIu64, i, this->size);

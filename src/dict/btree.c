@@ -1,4 +1,4 @@
-#include "hash_btree/hash_btree.h"
+#include "dict/btree.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -32,7 +32,7 @@ static int8_t find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 	return 0;
 }
 
-const hash_api hash_btree = {
+const dict_api dict_btree = {
 	.init = init,
 	.destroy = destroy,
 
@@ -41,5 +41,5 @@ const hash_api hash_btree = {
 	.delete = btree_delete,
 
 	.dump = NULL,
-	.name = "hash_btree"
+	.name = "dict_btree"
 };

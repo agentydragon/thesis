@@ -1,4 +1,4 @@
-#include "hash_splay/hash_splay.h"
+#include "dict/splay.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -36,7 +36,9 @@ static int8_t delete(void* _this, uint64_t key) {
 	return splay_tree_delete(_this, key);
 }
 
-const hash_api hash_splay = {
+// TODO: find next, find previous
+
+const dict_api dict_splay = {
 	.init = init,
 	.destroy = destroy,
 
@@ -44,5 +46,5 @@ const hash_api hash_splay = {
 	.find = find,
 	.delete = delete,
 
-	.name = "hash_splay"
+	.name = "dict_splay"
 };

@@ -3,52 +3,52 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "hash_array/hash_array.h"
+#include "dict/array.h"
 #include "log/log.h"
 #include "observation/observation.h"
 
 static void run_events(observation* observation) {
-	hash* example;
+	dict* example;
 	// TODO: use an actual test mock that doesn't do anything?
-	if (hash_init(&example, &hash_array, NULL))
-		log_fatal("cannot init test example hash");
+	if (dict_init(&example, &dict_array, NULL))
+		log_fatal("cannot init test example dict");
 
-	hash* tapped_hash;
-	observation_tap(observation, example, &tapped_hash);
+	dict* tapped_dict;
+	observation_tap(observation, example, &tapped_dict);
 
-	assert(!hash_find(tapped_hash, 1, NULL, NULL));
-	assert(!hash_find(tapped_hash, 2, NULL, NULL));
-	assert(!hash_insert(tapped_hash, 1, 100));
-	assert(!hash_insert(tapped_hash, 2, 250));
-	assert(!hash_find(tapped_hash, 2, NULL, NULL));
-	assert(!hash_delete(tapped_hash, 2));
-	assert(!hash_insert(tapped_hash, 2, 200));
-	assert(!hash_find(tapped_hash, 2, NULL, NULL));
-	assert(!hash_insert(tapped_hash, 3, 300));
-	assert(!hash_delete(tapped_hash, 3));
+	assert(!dict_find(tapped_dict, 1, NULL, NULL));
+	assert(!dict_find(tapped_dict, 2, NULL, NULL));
+	assert(!dict_insert(tapped_dict, 1, 100));
+	assert(!dict_insert(tapped_dict, 2, 250));
+	assert(!dict_find(tapped_dict, 2, NULL, NULL));
+	assert(!dict_delete(tapped_dict, 2));
+	assert(!dict_insert(tapped_dict, 2, 200));
+	assert(!dict_find(tapped_dict, 2, NULL, NULL));
+	assert(!dict_insert(tapped_dict, 3, 300));
+	assert(!dict_delete(tapped_dict, 3));
 
-	hash_destroy(&tapped_hash);
-	hash_destroy(&example);
+	dict_destroy(&tapped_dict);
+	dict_destroy(&example);
 }
 
 static void replay_events(observation* observation) {
-	hash* replay_on;
+	dict* replay_on;
 	// TODO: use message expectations instead?
-	if (hash_init(&replay_on, &hash_array, NULL))
-		log_fatal("cannot init test replay hash");
+	if (dict_init(&replay_on, &dict_array, NULL))
+		log_fatal("cannot init test replay dict");
 
 	observation_replay(observation, replay_on);
 
 	uint64_t value;
 	bool found;
-	assert(!hash_find(replay_on, 1, &value, &found));
+	assert(!dict_find(replay_on, 1, &value, &found));
 	assert(found && value == 100);
-	assert(!hash_find(replay_on, 2, &value, &found));
+	assert(!dict_find(replay_on, 2, &value, &found));
 	assert(found && value == 200);
-	assert(!hash_find(replay_on, 3, &value, &found));
+	assert(!dict_find(replay_on, 3, &value, &found));
 	assert(!found);
 
-	hash_destroy(&replay_on);
+	dict_destroy(&replay_on);
 }
 
 static void it_delegates() {

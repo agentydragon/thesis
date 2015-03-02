@@ -8,66 +8,66 @@
 #include "log/log.h"
 #include "stopwatch/stopwatch.h"
 
-static void has_element(hash* table, uint64_t key, uint64_t value) {
+static void has_element(dict* table, uint64_t key, uint64_t value) {
 	uint64_t value_found;
 	bool found;
-	CHECK(hash_find(table, key, &value_found, &found) == 0,
-			"hash_find for %ld failed", key);
+	CHECK(dict_find(table, key, &value_found, &found) == 0,
+			"dict_find for %ld failed", key);
 	CHECK(found, "key %ld not found", key);
 	CHECK(value_found == value,
 			"value for key %ld is %ld, not %ld",
 			key, value, value_found);
 }
 
-static void init(hash** table, const hash_api* api) {
-	CHECK(!hash_init(table, api, NULL), "cannot init hash table");
+static void init(dict** table, const dict_api* api) {
+	CHECK(!dict_init(table, api, NULL), "cannot init dict");
 }
 
-static void has_no_element(hash* table, uint64_t key) {
+static void has_no_element(dict* table, uint64_t key) {
 	bool found;
-	CHECK(!hash_find(table, key, NULL, &found),
-		"hash_find for %ld failed", key);
+	CHECK(!dict_find(table, key, NULL, &found),
+		"dict_find for %ld failed", key);
 	CHECK(!found, "key %ld found, expected not to find it", key);
 }
 
-static void insert(hash* table, uint64_t key, uint64_t value) {
+static void insert(dict* table, uint64_t key, uint64_t value) {
 	log_verbose(1, "insert(%ld,%ld)", key, value);
-	CHECK(!hash_insert(table, key, value), "cannot insert %ld=%ld to hash",
+	CHECK(!dict_insert(table, key, value), "cannot insert %ld=%ld to dict",
 			key, value);
 }
 
-static void delete(hash* table, uint64_t key) {
+static void delete(dict* table, uint64_t key) {
 	log_verbose(1, "delete(%ld)", key);
-	CHECK(!hash_delete(table, key), "cannot delete key %ld", key);
+	CHECK(!dict_delete(table, key), "cannot delete key %ld", key);
 }
 
-static void has_no_elements_at_first(const hash_api* api) {
-	hash* table;
+static void has_no_elements_at_first(const dict_api* api) {
+	dict* table;
 	init(&table, api);
 
 	has_no_element(table, 1);
 	has_no_element(table, 2);
 
-	hash_destroy(&table);
+	dict_destroy(&table);
 }
 
-static void doesnt_delete_at_first(const hash_api* api) {
-	hash* table;
+static void doesnt_delete_at_first(const dict_api* api) {
+	dict* table;
 	init(&table, api);
 
-	assert(hash_delete(table, 1));
-	assert(hash_delete(table, 2));
+	assert(dict_delete(table, 1));
+	assert(dict_delete(table, 2));
 
-	hash_destroy(&table);
+	dict_destroy(&table);
 }
 
-static void check_equivalence(hash* instance, uint64_t N,
+static void check_equivalence(dict* instance, uint64_t N,
 		uint64_t* keys, uint64_t* values, bool* present) {
 	// TODO: randomize test order?
 	for (uint64_t i = 0; i < N; i++) {
 		uint64_t value;
 		bool key_present;
-		assert(!hash_find(instance, keys[i], &value, &key_present));
+		assert(!dict_find(instance, keys[i], &value, &key_present));
 		if (present[i]) {
 			CHECK(key_present, "expected to find %" PRIu64 "=%" PRIu64 ", "
 						"but no such key found",
@@ -81,8 +81,8 @@ static void check_equivalence(hash* instance, uint64_t N,
 	}
 }
 
-static void test_with_maximum_size(const hash_api* api, uint64_t N) {
-	hash* instance;
+static void test_with_maximum_size(const dict_api* api, uint64_t N) {
+	dict* instance;
 	init(&instance, api);
 
 	srand(0);
@@ -125,15 +125,15 @@ static void test_with_maximum_size(const hash_api* api, uint64_t N) {
 		check_equivalence(instance, N, keys, values, present);
 	}
 
-	hash_destroy(&instance);
+	dict_destroy(&instance);
 
 	free(keys);
 	free(values);
 	free(present);
 }
 
-static void test_regular(const hash_api* api, uint64_t N) {
-	hash* table;
+static void test_regular(const dict_api* api, uint64_t N) {
+	dict* table;
 	init(&table, api);
 
 	log_info("test_regular(%s, %ld)", api->name, N);
@@ -150,22 +150,22 @@ static void test_regular(const hash_api* api, uint64_t N) {
 		}
 	}
 
-	hash_destroy(&table);
+	dict_destroy(&table);
 }
 
-static void fails_on_duplicate_insertion(const hash_api* api) {
-	hash* table;
+static void fails_on_duplicate_insertion(const dict_api* api) {
+	dict* table;
 	init(&table, api);
 	insert(table, 10, 20);
-	CHECK(hash_insert(table, 10, 20),
+	CHECK(dict_insert(table, 10, 20),
 			"duplicate insertion should fail, but it succeeded");
 
 	has_element(table, 10, 20);
 
-	hash_destroy(&table);
+	dict_destroy(&table);
 }
 
-void test_hash_blackbox(const hash_api* api) {
+void test_dict_blackbox(const dict_api* api) {
 	log_info("performing blackbox test on %s", api->name);
 	has_no_elements_at_first(api);
 	doesnt_delete_at_first(api);

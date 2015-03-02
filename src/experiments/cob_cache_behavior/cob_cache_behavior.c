@@ -5,9 +5,9 @@
 #include <math.h>
 
 #include "cache_oblivious_btree/cache_oblivious_btree.h"
-#include "hash_btree/hash_btree.h"
-#include "hash_cobt/hash_cobt.h"
-#include "hash/hash.h"
+#include "dict/btree.h"
+#include "dict/cobt.h"
+#include "dict/dict.h"
 #include "log/log.h"
 #include "measurement/measurement.h"
 #include "performance/random_read.h"
@@ -32,14 +32,14 @@ struct results {
 	struct metrics combined, just_find;
 };
 
-struct results measure_api(const hash_api* api, uint64_t size) {
+struct results measure_api(const dict_api* api, uint64_t size) {
 	struct measurement measurement = measurement_begin();
 	stopwatch watch = stopwatch_start();
 
-	hash* table;
-	if (hash_init(&table, api, NULL)) log_fatal("cannot init hash table");
+	dict* table;
+	if (dict_init(&table, api, NULL)) log_fatal("cannot init dict");
 	for (uint64_t i = 0; i < size; i++) {
-		if (hash_insert(table, make_key(i), make_value(i))) {
+		if (dict_insert(table, make_key(i), make_value(i))) {
 			log_fatal("cannot insert");
 		}
 	}
@@ -54,14 +54,14 @@ struct results measure_api(const hash_api* api, uint64_t size) {
 		int k = rand_next(&generator, size);
 		uint64_t value;
 		bool found;
-		assert(!hash_find(table, make_key(k), &value, &found));
+		assert(!dict_find(table, make_key(k), &value, &found));
 		assert(found && value == make_value(k));
 	}
 
 	struct measurement_results results_combined = measurement_end(measurement),
 				   results_just_find = measurement_end(measurement_just_find);
 
-	hash_destroy(&table);
+	dict_destroy(&table);
 
 	struct results tr = {
 		.combined = {
@@ -91,8 +91,8 @@ int main(int argc, char** argv) {
 
 		const uint64_t size = round(x);
 		log_info("size=%" PRIu64, size);
-		struct results btree = measure_api(&hash_btree, size);
-		struct results cobt = measure_api(&hash_cobt, size);
+		struct results btree = measure_api(&dict_btree, size);
+		struct results cobt = measure_api(&dict_cobt, size);
 
 		fprintf(output,
 				"%" PRIu64 "\t"
