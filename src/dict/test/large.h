@@ -1,5 +1,5 @@
-#ifndef TEST_HASH_LARGE_H
-#define TEST_HASH_LARGE_H
+#ifndef DICT_TEST_LARGE_H
+#define DICT_TEST_LARGE_H
 
 #include "dict/dict.h"
 

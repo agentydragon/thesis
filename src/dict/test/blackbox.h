@@ -1,5 +1,5 @@
-#ifndef HASH_BLACKBOX_TEST
-#define HASH_BLACKBOX_TEST
+#ifndef DICT_TEST_BLACKBOX_H
+#define DICT_TEST_BLACKBOX_H
 
 #include "dict/dict.h"
 

@@ -1,4 +1,4 @@
-#include "test/hash_blackbox.h"
+#include "dict/test/blackbox.h"
 
 #include <assert.h>
 #include <inttypes.h>

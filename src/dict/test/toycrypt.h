@@ -1,5 +1,5 @@
-#ifndef TOYCRYPT_H
-#define TOYCRYPT_H
+#ifndef DICT_TEST_TOYCRYPT_H
+#define DICT_TEST_TOYCRYPT_H
 
 #include <stdint.h>
 

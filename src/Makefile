@@ -5,9 +5,9 @@ LIBS=-lm -lrt
 SOURCES= \
 	btree/*.c \
 	cache_oblivious_btree/*.c \
-	test_hash/*.c \
 	hash_hashtable/private/*.c hash_hashtable/test/*.c \
 	dict/*.c \
+	dict/test/*.c \
 	log/*.c \
 	math/*.c \
 	observation/*.c observation/test/*.c \
@@ -16,7 +16,6 @@ SOURCES= \
 	rand/*.c rand/test/*.c \
 	splay_tree/*.c \
 	stopwatch/*.c measurement/*.c \
-	test/*.c \
 	util/*.c \
 	veb_layout/*.c
 

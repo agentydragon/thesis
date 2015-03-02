@@ -7,6 +7,9 @@
 #include "dict/cobt.h"
 #include "dict/splay.h"
 #include "dict/hashtable.h"
+#include "dict/test/large.h"
+#include "dict/test/blackbox.h"
+#include "dict/test/ordered_dict_blackbox.h"
 #include "hash_hashtable/test/test.h"
 #include "log/log.h"
 #include "math/test.h"
@@ -15,9 +18,6 @@
 #include "performance/random_read.h"
 #include "rand/test/test.h"
 #include "splay_tree/test.h"
-#include "test/hash_blackbox.h"
-#include "test/ordered_dict_blackbox.h"
-#include "test_hash/test_hash_large.h"
 #include "veb_layout/test.h"
 
 void run_unit_tests() {

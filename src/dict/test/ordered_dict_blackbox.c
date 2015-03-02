@@ -1,4 +1,4 @@
-#include "test/ordered_dict_blackbox.h"
+#include "dict/test/ordered_dict_blackbox.h"
 
 #include <assert.h>
 #include <inttypes.h>

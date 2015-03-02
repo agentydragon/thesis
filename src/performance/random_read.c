@@ -7,7 +7,7 @@
 #include "measurement/measurement.h"
 #include "rand/rand.h"
 #include "stopwatch/stopwatch.h"
-#include "test_hash/toycrypt.h"
+#include "dict/test/toycrypt.h"
 
 static uint64_t make_key(uint64_t i) {
 	return toycrypt(i, 0x0123456789ABCDEFLL);

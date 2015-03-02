@@ -1,4 +1,4 @@
-#include "toycrypt.h"
+#include "dict/test/toycrypt.h"
 
 static uint32_t oneway_fn(uint32_t a, uint64_t b) {
 	// A variant of the FNV hashing function.
