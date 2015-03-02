@@ -59,6 +59,12 @@ void dict_dump(dict* this) {
 	}
 }
 
+void dict_check(dict* this) {
+	if (this->api->check) {
+		this->api->check(this->opaque);
+	}
+}
+
 int8_t dict_next(dict* this, uint64_t key, uint64_t *next_key, bool *found) {
 	if (this->api->next) {
 		return this->api->next(this->opaque, key, next_key, found);

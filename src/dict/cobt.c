@@ -39,6 +39,20 @@ static int8_t delete(void* _this, uint64_t key) {
 	return cob_delete(_this, key);
 }
 
+static void check(void* _this) {
+	return cob_check(_this);
+}
+
+static int8_t next(void* _this, uint64_t key, uint64_t *next_key, bool *found) {
+	cob_next_key(_this, key, found, next_key);
+	return 0;
+}
+
+static int8_t prev(void* _this, uint64_t key, uint64_t *prev_key, bool *found) {
+	cob_previous_key(_this, key, found, prev_key);
+	return 0;
+}
+
 const dict_api dict_cobt = {
 	.init = init,
 	.destroy = destroy,
@@ -46,6 +60,11 @@ const dict_api dict_cobt = {
 	.insert = insert,
 	.find = find,
 	.delete = delete,
+
+	.check = check,
+
+	.next = next,
+	.prev = prev,
 
 	.name = "dict_cobt"
 };

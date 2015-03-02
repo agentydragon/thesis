@@ -384,3 +384,16 @@ void cob_destroy(struct cob this) {
 	free(this.veb_minima);
 	free(this.level_data);
 }
+
+void cob_check(struct cob* cob) {
+	for (uint64_t i = 0; i < cob->file.capacity / cob->file.block_size;
+			i++) {
+		const uint64_t leaf_offset = i * cob->file.block_size;
+		const uint64_t node = veb_get_leaf_number(i, cobt_get_veb_height(*cob));
+		assert(cob->veb_minima[node] == cobt_range_get_minimum((ofm_range) {
+				.begin = leaf_offset,
+				.size = cob->file.block_size,
+				.file = &cob->file
+		}));
+	}
+}

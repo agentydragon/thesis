@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "btree/test.h"
-#include "cache_oblivious_btree/test.h"
 #include "dict/array.h"
 #include "dict/btree.h"
 #include "dict/cobt.h"
@@ -17,6 +16,7 @@
 #include "rand/test/test.h"
 #include "splay_tree/test.h"
 #include "test/hash_blackbox.h"
+#include "test/ordered_dict_blackbox.h"
 #include "test_hash/test_hash_large.h"
 #include "veb_layout/test.h"
 
@@ -27,7 +27,6 @@ void run_unit_tests() {
 	test_rand();
 	test_veb_layout();
 	test_ordered_file_maintenance();
-	test_cache_oblivious_btree();
 	test_observation(); // Uses hash_array.
 
 	test_hash_hashtable();
@@ -38,6 +37,8 @@ void run_unit_tests() {
 	test_dict_blackbox(&dict_cobt);
 	test_dict_blackbox(&dict_hashtable);
 	test_dict_blackbox(&dict_splay);
+
+	test_ordered_dict_blackbox(&dict_cobt);
 
 	test_dict_large(&dict_array, 1 << 10);
 	test_dict_large(&dict_btree, 1 << 20);

@@ -22,6 +22,7 @@ typedef struct {
 
 	// Optional
 	void (*dump)(void*);
+	void (*check)(void*);
 } dict_api;
 
 int8_t dict_init(dict**, const dict_api* api, void* args);
@@ -35,5 +36,6 @@ int8_t dict_next(dict*, uint64_t key, uint64_t *next_key, bool *found);
 int8_t dict_prev(dict*, uint64_t key, uint64_t *prev_key, bool *found);
 
 void dict_dump(dict*);
+void dict_check(dict*);
 
 #endif

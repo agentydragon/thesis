@@ -48,5 +48,6 @@ uint64_t cobt_get_veb_height(struct cob this);
 uint64_t cobt_range_get_minimum(ofm_range range);
 void cob_dump(struct cob _this);
 uint64_t cob_veb_node_count(struct cob _this);
+void cob_check(struct cob* this);
 
 #endif
