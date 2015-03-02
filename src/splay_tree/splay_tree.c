@@ -1,8 +1,10 @@
-#include "splay_tree.h"
-#include <stdlib.h>
+#include "splay_tree/splay_tree.h"
+
 #include <assert.h>
 #include <stdbool.h>
-#include "../log/log.h"
+#include <stdlib.h>
+
+#include "log/log.h"
 
 #define COUNT_OF(x) ((sizeof(x)) / sizeof(*x))
 // TODO: remove log_fatals

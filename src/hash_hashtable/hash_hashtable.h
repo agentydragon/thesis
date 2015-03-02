@@ -1,7 +1,7 @@
 #ifndef HASH_HASHTABLE_H_INCLUDED
 #define HASH_HASHTABLE_H_INCLUDED
 
-#include "../hash/hash.h"
+#include "hash/hash.h"
 
 // Open addressing hashing.
 //

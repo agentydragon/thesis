@@ -1,5 +1,4 @@
-#include "ordered_file_maintenance.h"
-#include "../math/math.h"
+#include "ordered_file_maintenance/ordered_file_maintenance.h"
 
 #include <assert.h>
 #include <inttypes.h>
@@ -9,7 +8,8 @@
 #include <string.h>
 
 //#define NO_LOG_INFO
-#include "../log/log.h"
+#include "log/log.h"
+#include "math/math.h"
 
 /*
 void range_describe(ofm file, ofm_range range, char* buffer) {

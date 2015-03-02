@@ -1,6 +1,6 @@
-#include "helper.h"
+#include "hash_hashtable/test/helper.h"
 
-#include "../../log/log.h"
+#include "log/log.h"
 
 uint64_t AMEN = 0xFFFFFFFFFFFFFFFF;
 

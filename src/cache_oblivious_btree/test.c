@@ -1,15 +1,16 @@
-#include "test.h"
-#include "cache_oblivious_btree.h"
-#include "../log/log.h"
-#include "../math/math.h"
+#include "cache_oblivious_btree/test.h"
+
 #include <assert.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "../veb_layout/veb_layout.h"
-#include "../test/ordered_hash_blackbox.h"
+#include "cache_oblivious_btree/cache_oblivious_btree.h"
+#include "log/log.h"
+#include "math/math.h"
+#include "test/ordered_hash_blackbox.h"
+#include "veb_layout/veb_layout.h"
 
 static void blackbox_init(void** _this) {
 	*_this = malloc(sizeof(struct cob));

@@ -1,19 +1,19 @@
-#include "test.h"
-#include "ordered_file_maintenance.h"
-#include "../log/log.h"
-#include "../math/math.h"
+#include "ordered_file_maintenance/test.h"
 
 #include <assert.h>
 #include <inttypes.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "log/log.h"
+#include "math/math.h"
+#include "ordered_file_maintenance/ordered_file_maintenance.h"
+
 #define COUNTOF(x) (sizeof(x) / sizeof(*(x)))
 #define NIL 0xDEADDEADDEADDEAD
 #define UNDEF 0xDEADBEEF
-
-#include <stdint.h>
 
 /*
 static void _assert_keys(struct ordered_file file,

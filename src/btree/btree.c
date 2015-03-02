@@ -1,11 +1,11 @@
-#include "btree.h"
+#include "btree/btree.h"
 
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
 
-#include "../log/log.h"
+#include "log/log.h"
 
 // TODO: static_assert's for min-keys/max-keys conditions
 

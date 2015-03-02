@@ -1,11 +1,12 @@
-#include "hash_blackbox.h"
-#include "../log/log.h"
-#include "../stopwatch/stopwatch.h"
+#include "test/hash_blackbox.h"
 
 #include <assert.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "log/log.h"
+#include "stopwatch/stopwatch.h"
 
 static void has_element(hash* table, uint64_t key, uint64_t value) {
 	uint64_t value_found;

@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "../../stopwatch/stopwatch.h"
-#include "../../rand/rand.h"
+#include "stopwatch/stopwatch.h"
+#include "rand/rand.h"
 
 static void clear(uint8_t* memory, const uint64_t size) {
 	rand_generator generator;

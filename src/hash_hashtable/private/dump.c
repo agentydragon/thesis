@@ -1,15 +1,15 @@
-#include "dump.h"
-#include "data.h"
-#include "hash.h"
-#include "traversal.h"
+#include "hash_hashtable/private/dump.h"
+#include "hash_hashtable/private/data.h"
+#include "hash_hashtable/private/hash.h"
+#include "hash_hashtable/private/traversal.h"
 
-#include "../../util/average.h"
-#include "../../log/log.h"
-
-#include <stdio.h>
-#include <inttypes.h>
-#include <string.h>
 #include <assert.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "log/log.h"
+#include "util/average.h"
 
 /*
 static void calculate_bucket_sizes(hashtable* this, int bucket_sizes[100]) {

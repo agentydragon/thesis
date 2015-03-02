@@ -1,10 +1,11 @@
-#include "test.h"
-#include "../rand.h"
-#include "../../log/log.h"
+#include "rand/test/test.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "rand/rand.h"
+#include "log/log.h"
 
 static void distribution_within(int hits, int buckets,
 		int bucket_min, int bucket_max) {

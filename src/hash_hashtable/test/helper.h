@@ -1,7 +1,7 @@
 #ifndef HASH_HASHTABLE_HELPER_H
 #define HASH_HASHTABLE_HELPER_H
 
-#include "../private/data.h"
+#include "hash_hashtable/private/data.h"
 
 #define hash_mock hash_hashtable_test_hash_mock
 #define AMEN HASH_HASHTABLE_TEST_AMEN

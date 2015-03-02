@@ -1,4 +1,4 @@
-#include "log.h"
+#include "log/log.h"
 
 /* Needs _GNU_SOURCE for vasprintf */
 #include <stdio.h>

@@ -1,7 +1,8 @@
-#include "math.h"
-#include "../log/log.h"
+#include "math/math.h"
 
 #include <inttypes.h>
+
+#include "log/log.h"
 
 #define CLZ64(x) (__builtin_clzll(x))
 

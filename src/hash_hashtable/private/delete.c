@@ -1,14 +1,15 @@
-#include "delete.h"
-#include "data.h"
-#include "traversal.h"
-#include "hash.h"
-#include "resizing.h"
+#include "hash_hashtable/private/delete.h"
+
+#include <inttypes.h>
 
 #define NO_LOG_INFO
 
-#include "../../log/log.h"
+#include "log/log.h"
 
-#include <inttypes.h>
+#include "hash_hashtable/private/data.h"
+#include "hash_hashtable/private/hash.h"
+#include "hash_hashtable/private/resizing.h"
+#include "hash_hashtable/private/traversal.h"
 
 int8_t hashtable_delete(hashtable* this, uint64_t key) {
 	log_info("delete(%" PRIx64 ")", key);

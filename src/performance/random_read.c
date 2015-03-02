@@ -1,13 +1,13 @@
-#include "../test_hash/toycrypt.h"
-#include "../log/log.h"
-#include "../hash/hash.h"
-#include "../stopwatch/stopwatch.h"
-#include "../measurement/measurement.h"
-#include "../rand/rand.h"
-
-#include <stdio.h>
-#include <inttypes.h>
 #include <assert.h>
+#include <inttypes.h>
+#include <stdio.h>
+
+#include "hash/hash.h"
+#include "log/log.h"
+#include "measurement/measurement.h"
+#include "rand/rand.h"
+#include "stopwatch/stopwatch.h"
+#include "test_hash/toycrypt.h"
 
 static uint64_t make_key(uint64_t i) {
 	return toycrypt(i, 0x0123456789ABCDEFLL);

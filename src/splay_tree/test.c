@@ -1,19 +1,11 @@
-#include "splay_tree.h"
-#include "test.h"
-#include "../log/log.h"
+#include "splay_tree/test.h"
+
 #include <assert.h>
 
-#define die(...) do { \
-	log_error("DYING"); \
-	log_fatal(__VA_ARGS__); \
-	exit(1); \
-} while (0)
+#include "log/log.h"
+#include "splay_tree/splay_tree.h"
 
 #define MOCK(x) ((struct splay_tree_node*) x)
-
-void assert_is_child(const splay_tree_node* x, const splay_tree_node* parent) {
-	assert(parent->left == x || parent->right == x);
-}
 
 #define assert_node(expect,found_ptr) do { \
 	const splay_tree_node expected = expect; \

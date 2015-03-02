@@ -1,10 +1,11 @@
-#include "find.h"
-#include "helper.h"
-#include "../private/find.h"
-#include "../../log/log.h"
+#include "hash_hashtable/test/find.h"
+#include "hash_hashtable/test/helper.h"
+#include "hash_hashtable/private/find.h"
 
 #include <assert.h>
 #include <stdlib.h>
+
+#include "log/log.h"
 
 static void assert_found(hashtable* this, uint64_t key, uint64_t value) {
 	uint64_t _value;

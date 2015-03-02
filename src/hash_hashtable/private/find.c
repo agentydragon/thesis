@@ -1,14 +1,14 @@
-#include "find.h"
-#include "data.h"
-#include "hash.h"
-#include "traversal.h"
-
-#define NO_LOG_INFO
-
-#include "../../log/log.h"
+#include "hash_hashtable/private/find.h"
+#include "hash_hashtable/private/data.h"
+#include "hash_hashtable/private/hash.h"
+#include "hash_hashtable/private/traversal.h"
 
 #include <string.h>
 #include <inttypes.h>
+
+#define NO_LOG_INFO
+
+#include "log/log.h"
 
 int8_t hashtable_find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 	hashtable* this = _this;

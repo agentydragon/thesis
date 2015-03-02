@@ -1,8 +1,10 @@
-#include "veb_layout.h"
+#include "veb_layout/veb_layout.h"
+
 #include <assert.h>
 #include <inttypes.h>
-#include "../math/math.h"
-#include "../log/log.h"
+
+#include "math/math.h"
+#include "log/log.h"
 
 static uint64_t m_exp2(uint64_t x) {
 	return 1ULL << x;

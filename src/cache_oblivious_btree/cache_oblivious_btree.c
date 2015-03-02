@@ -1,14 +1,16 @@
-#include "cache_oblivious_btree.h"
+#include "cache_oblivious_btree/cache_oblivious_btree.h"
+
 #include <assert.h>
 #include <inttypes.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "../math/math.h"
-#include "../veb_layout/veb_layout.h"
+
+#include "math/math.h"
+#include "veb_layout/veb_layout.h"
 
 #define NO_LOG_INFO
-#include "../log/log.h"
+#include "log/log.h"
 
 struct parameters { uint64_t block_size; uint64_t capacity; };
 

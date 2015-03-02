@@ -1,7 +1,7 @@
-#include "hash_cobt.h"
+#include "hash_cobt/hash_cobt.h"
 
-#include "../log/log.h"
-#include "../cache_oblivious_btree/cache_oblivious_btree.h"
+#include "log/log.h"
+#include "cache_oblivious_btree/cache_oblivious_btree.h"
 
 #include <stdlib.h>
 

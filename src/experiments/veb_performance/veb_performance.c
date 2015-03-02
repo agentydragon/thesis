@@ -1,15 +1,14 @@
 #include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <inttypes.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#include "../../veb_layout/veb_layout.h"
-#include "../../measurement/measurement.h"
-#include "../../stopwatch/stopwatch.h"
-
-#include "../../log/log.h"
-#include "../../rand/rand.h"
+#include "log/log.h"
+#include "measurement/measurement.h"
+#include "rand/rand.h"
+#include "stopwatch/stopwatch.h"
+#include "veb_layout/veb_layout.h"
 
 struct metrics {
 	uint64_t cache_misses;

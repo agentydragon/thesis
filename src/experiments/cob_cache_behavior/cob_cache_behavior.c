@@ -4,18 +4,15 @@
 #include <inttypes.h>
 #include <math.h>
 
-// COB_COUNTERS
-#include "../../cache_oblivious_btree/cache_oblivious_btree.h"
-
-#include "../../hash/hash.h"
-#include "../../hash_btree/hash_btree.h"
-#include "../../hash_cobt/hash_cobt.h"
-#include "../../performance/random_read.h"
-#include "../../measurement/measurement.h"
-#include "../../stopwatch/stopwatch.h"
-
-#include "../../log/log.h"
-#include "../../rand/rand.h"
+#include "cache_oblivious_btree/cache_oblivious_btree.h"
+#include "hash_btree/hash_btree.h"
+#include "hash_cobt/hash_cobt.h"
+#include "hash/hash.h"
+#include "log/log.h"
+#include "measurement/measurement.h"
+#include "performance/random_read.h"
+#include "rand/rand.h"
+#include "stopwatch/stopwatch.h"
 
 static uint64_t make_key(uint64_t i) {
 	return toycrypt(i, 0x0123456789ABCDEFLL);

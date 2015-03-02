@@ -1,8 +1,8 @@
-#include "hash.h"
+#include "hash/hash.h"
 
 #include <stdlib.h>
 
-#include "../log/log.h"
+#include "log/log.h"
 
 struct hash_s {
 	void* opaque;

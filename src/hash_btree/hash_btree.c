@@ -1,8 +1,9 @@
-#include "hash_btree.h"
-#include "../btree/btree.h"
+#include "hash_btree/hash_btree.h"
 
 #include <assert.h>
 #include <stdlib.h>
+
+#include "btree/btree.h"
 
 static int8_t init(void** _this, void* args_unused) {
 	(void) args_unused;

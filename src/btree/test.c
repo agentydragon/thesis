@@ -1,5 +1,5 @@
-#include "btree.h"
-#include "../log/log.h"
+#include "btree/btree.h"
+#include "log/log.h"
 
 #include <assert.h>
 

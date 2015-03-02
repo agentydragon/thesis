@@ -1,6 +1,6 @@
-#include "hash_array.h"
+#include "hash_array/hash_array.h"
 
-#include "../log/log.h"
+#include "log/log.h"
 
 #include <stdlib.h>
 #include <string.h>

@@ -1,10 +1,11 @@
-#include "test.h"
-#include "../observation.h"
-#include "../../hash_array/hash_array.h"
-#include "../../log/log.h"
+#include "observation/test/test.h"
 
-#include <stdlib.h>
 #include <assert.h>
+#include <stdlib.h>
+
+#include "hash_array/hash_array.h"
+#include "log/log.h"
+#include "observation/observation.h"
 
 static void run_events(observation* observation) {
 	hash* example;

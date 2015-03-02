@@ -1,11 +1,11 @@
-#include "insertion.h"
-#include "hash.h"
-#include "traversal.h"
-#include "helper.h"
+#include "hash_hashtable/private/insertion.h"
 
 #include <inttypes.h>
 
-#include "../../log/log.h"
+#include "log/log.h"
+#include "hash_hashtable/private/hash.h"
+#include "hash_hashtable/private/traversal.h"
+#include "hash_hashtable/private/helper.h"
 
 int8_t hashtable_insert_internal(hashtable* this, uint64_t key, uint64_t value) {
 	const uint64_t key_hash = hash_of(this, key);

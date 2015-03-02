@@ -1,21 +1,21 @@
-#include "hash_hashtable.h"
-#include "private/data.h"
-#include "private/dump.h"
-#include "private/hash.h"
-#include "private/traversal.h"
-#include "private/resizing.h"
-#include "private/insertion.h"
-#include "private/find.h"
-#include "private/delete.h"
+#include "hash_hashtable/hash_hashtable.h"
+#include "hash_hashtable/private/data.h"
+#include "hash_hashtable/private/dump.h"
+#include "hash_hashtable/private/hash.h"
+#include "hash_hashtable/private/traversal.h"
+#include "hash_hashtable/private/resizing.h"
+#include "hash_hashtable/private/insertion.h"
+#include "hash_hashtable/private/find.h"
+#include "hash_hashtable/private/delete.h"
+
+#include <assert.h>
+#include <inttypes.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define NO_LOG_INFO
 
-#include "../log/log.h"
-
-#include <stdlib.h>
-#include <string.h>
-#include <inttypes.h>
-#include <assert.h>
+#include "log/log.h"
 
 /*
 static void check_invariants(struct hashtable_data* this) {

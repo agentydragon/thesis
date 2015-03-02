@@ -1,12 +1,12 @@
-#include "delete.h"
-#include "helper.h"
-#include "../private/delete.h"
+#include "hash_hashtable/test/delete.h"
+#include "hash_hashtable/test/helper.h"
+#include "hash_hashtable/private/delete.h"
 
 #include <assert.h>
 #include <string.h>
 #include <inttypes.h>
 
-#include "../../log/log.h"
+#include "log/log.h"
 
 static void assert_block_internal(const char* header, const block* found,
 		const block expected) {

@@ -1,12 +1,14 @@
-#include "test.h"
-#include "veb_layout.h"
+#include "veb_layout/test.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <inttypes.h>
 #include <string.h>
-#include "../log/log.h"
-#include "../stopwatch/stopwatch.h"
+
+#include "log/log.h"
+#include "stopwatch/stopwatch.h"
+#include "veb_layout/veb_layout.h"
 
 const uint64_t NOTHING = 0xDEADBEEF;
 

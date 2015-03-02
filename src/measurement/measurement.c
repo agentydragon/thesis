@@ -1,6 +1,6 @@
-#include "measurement.h"
+#include "measurement/measurement.h"
 
-#include "../log/log.h"
+#include "log/log.h"
 
 #include <stdlib.h>
 #include <stdio.h>

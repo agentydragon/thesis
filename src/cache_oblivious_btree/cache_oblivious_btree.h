@@ -2,7 +2,7 @@
 #define CACHE_OBLIVIOUS_BTREE_H
 
 #include <stdint.h>
-#include "../ordered_file_maintenance/ordered_file_maintenance.h"
+#include "ordered_file_maintenance/ordered_file_maintenance.h"
 
 #define COB_INFINITY UINT64_MAX
 

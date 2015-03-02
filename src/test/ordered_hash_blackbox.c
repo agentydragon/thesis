@@ -1,9 +1,10 @@
-#include "ordered_hash_blackbox.h"
-#include "../log/log.h"
+#include "test/ordered_hash_blackbox.h"
 
 #include <assert.h>
 #include <inttypes.h>
 #include <stdlib.h>
+
+#include "log/log.h"
 
 #define NIL 0xDEADDEADDEADDEAD
 

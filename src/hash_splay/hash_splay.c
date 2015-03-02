@@ -1,8 +1,9 @@
-#include "hash_splay.h"
-#include "../splay_tree/splay_tree.h"
+#include "hash_splay/hash_splay.h"
 
 #include <assert.h>
 #include <stdlib.h>
+
+#include "splay_tree/splay_tree.h"
 
 static int8_t init(void** _this, void* args_unused) {
 	(void) args_unused;

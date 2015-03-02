@@ -1,7 +1,7 @@
 #ifndef OBSERVATION_H
 #define OBSERVATION_H
 
-#include "../hash/hash.h"
+#include "hash/hash.h"
 
 struct observed_operation {
 	enum { OP_FIND, OP_INSERT, OP_DELETE } operation;

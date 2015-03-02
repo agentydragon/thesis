@@ -1,9 +1,10 @@
-#include "observation.h"
-#include "../log/log.h"
+#include "observation/observation.h"
 
 #include <stdlib.h>
 #include <assert.h>
 #include <inttypes.h> // PRIu64
+
+#include "log/log.h"
 
 const uint64_t MIN_CAPACITY = 4;
 

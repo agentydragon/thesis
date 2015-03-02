@@ -1,10 +1,11 @@
-#include "toycrypt.h"
-#include "test_hash_large.h"
-#include "../log/log.h"
+#include "test_hash/test_hash_large.h"
 
 #include <assert.h>
 #include <inttypes.h> // PRIu64
 #include <stdlib.h>
+
+#include "log/log.h"
+#include "test_hash/toycrypt.h"
 
 // sizeof(struct bucket) == 32 => ~ 500 000 000 === ~14 GB pameti
 
