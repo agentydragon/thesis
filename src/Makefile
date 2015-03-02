@@ -5,7 +5,7 @@ LIBS=-lm -lrt
 SOURCES= \
 	btree/*.c \
 	cache_oblivious_btree/*.c \
-	hash_hashtable/private/*.c hash_hashtable/test/*.c \
+	hashtable/private/*.c hashtable/test/*.c \
 	dict/*.c \
 	dict/test/*.c \
 	log/*.c \

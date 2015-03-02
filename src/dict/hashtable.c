@@ -9,14 +9,14 @@
 
 #include "log/log.h"
 
-#include "hash_hashtable/private/data.h"
-#include "hash_hashtable/private/dump.h"
-#include "hash_hashtable/private/hash.h"
-#include "hash_hashtable/private/traversal.h"
-#include "hash_hashtable/private/resizing.h"
-#include "hash_hashtable/private/insertion.h"
-#include "hash_hashtable/private/find.h"
-#include "hash_hashtable/private/delete.h"
+#include "hashtable/private/data.h"
+#include "hashtable/private/dump.h"
+#include "hashtable/private/hash.h"
+#include "hashtable/private/traversal.h"
+#include "hashtable/private/resizing.h"
+#include "hashtable/private/insertion.h"
+#include "hashtable/private/find.h"
+#include "hashtable/private/delete.h"
 
 /*
 static void check_invariants(struct hashtable_data* this) {
@@ -52,7 +52,7 @@ static int8_t init(void** _this, void* args_unused) {
 
 	struct hashtable_data* this = malloc(sizeof(struct hashtable_data));
 	if (!this) {
-		log_error("cannot allocate new hash_hashtable");
+		log_error("cannot allocate new hashtable");
 		return 1;
 	}
 

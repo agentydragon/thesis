@@ -1,13 +1,13 @@
-#include "hash_hashtable/private/dump.h"
-#include "hash_hashtable/private/data.h"
-#include "hash_hashtable/private/hash.h"
-#include "hash_hashtable/private/traversal.h"
+#include "hashtable/private/dump.h"
 
 #include <assert.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 
+#include "hashtable/private/data.h"
+#include "hashtable/private/hash.h"
+#include "hashtable/private/traversal.h"
 #include "log/log.h"
 #include "util/average.h"
 
@@ -24,7 +24,7 @@ static void calculate_bucket_sizes(hashtable* this, int bucket_sizes[100]) {
 void hashtable_dump(void* _this) {
 	hashtable* this = _this;
 
-	log_plain("hash_hashtable table_size=%ld pair_count=%ld",
+	log_plain("hashtable table_size=%ld pair_count=%ld",
 		this->table_size,
 		this->pair_count);
 
@@ -112,7 +112,7 @@ static void dump_distances(hashtable* this) {
 void hashtable_dump(void* _this) {
 	hashtable* this = _this;
 
-	log_plain("hash_hashtable blocks:%ld pair_count:%ld",
+	log_plain("hashtable blocks:%ld pair_count:%ld",
 			this->blocks_size, this->pair_count);
 
 	// dump_blocks(this);

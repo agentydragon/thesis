@@ -1,5 +1,5 @@
-#ifndef HASH_HASHTABLE_PRIVATE_DATA_H
-#define HASH_HASHTABLE_PRIVATE_DATA_H
+#ifndef HASHTABLE_PRIVATE_DATA_H
+#define HASHTABLE_PRIVATE_DATA_H
 
 #include <stdint.h>
 #include <stdbool.h>

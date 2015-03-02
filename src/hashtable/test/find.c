@@ -1,6 +1,6 @@
-#include "hash_hashtable/test/find.h"
-#include "hash_hashtable/test/helper.h"
-#include "hash_hashtable/private/find.h"
+#include "hashtable/test/find.h"
+#include "hashtable/test/helper.h"
+#include "hashtable/private/find.h"
 
 #include <assert.h>
 #include <stdlib.h>

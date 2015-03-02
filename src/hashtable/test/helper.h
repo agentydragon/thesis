@@ -1,10 +1,10 @@
-#ifndef HASH_HASHTABLE_HELPER_H
-#define HASH_HASHTABLE_HELPER_H
+#ifndef HASHTABLE_TEST_HELPER_H
+#define HASHTABLE_TEST_HELPER_H
 
-#include "hash_hashtable/private/data.h"
+#include "hashtable/private/data.h"
 
-#define hash_mock hash_hashtable_test_hash_mock
-#define AMEN HASH_HASHTABLE_TEST_AMEN
+#define hash_mock hashtable_test_hash_mock
+#define AMEN HASHTABLE_TEST_AMEN
 
 typedef struct hashtable_data hashtable;
 typedef struct hashtable_block block;

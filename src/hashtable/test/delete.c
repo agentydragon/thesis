@@ -1,6 +1,6 @@
-#include "hash_hashtable/test/delete.h"
-#include "hash_hashtable/test/helper.h"
-#include "hash_hashtable/private/delete.h"
+#include "hashtable/test/delete.h"
+#include "hashtable/test/helper.h"
+#include "hashtable/private/delete.h"
 
 #include <assert.h>
 #include <string.h>

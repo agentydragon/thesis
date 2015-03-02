@@ -10,7 +10,7 @@
 #include "dict/test/large.h"
 #include "dict/test/blackbox.h"
 #include "dict/test/ordered_dict_blackbox.h"
-#include "hash_hashtable/test/test.h"
+#include "hashtable/test/test.h"
 #include "log/log.h"
 #include "math/test.h"
 #include "observation/test/test.h"
@@ -29,7 +29,7 @@ void run_unit_tests() {
 	test_ordered_file_maintenance();
 	test_observation(); // Uses hash_array.
 
-	test_hash_hashtable();
+	test_hashtable();
 	test_splay_tree();
 
 	test_dict_blackbox(&dict_array);

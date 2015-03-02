@@ -1,4 +1,4 @@
-#include "hash_hashtable/test/helper.h"
+#include "hashtable/test/helper.h"
 
 #include "log/log.h"
 

@@ -1,5 +1,5 @@
-#ifndef HASH_HASHTABLE_PRIVATE_HASH_H
-#define HASH_HASHTABLE_PRIVATE_HASH_H
+#ifndef HASHTABLE_PRIVATE_HASH_H
+#define HASHTABLE_PRIVATE_HASH_H
 
 #include "data.h"
 #include "helper.h"

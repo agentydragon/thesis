@@ -1,4 +1,4 @@
-#include "hash_hashtable/private/delete.h"
+#include "hashtable/private/delete.h"
 
 #include <inttypes.h>
 
@@ -6,10 +6,10 @@
 
 #include "log/log.h"
 
-#include "hash_hashtable/private/data.h"
-#include "hash_hashtable/private/hash.h"
-#include "hash_hashtable/private/resizing.h"
-#include "hash_hashtable/private/traversal.h"
+#include "hashtable/private/data.h"
+#include "hashtable/private/hash.h"
+#include "hashtable/private/resizing.h"
+#include "hashtable/private/traversal.h"
 
 int8_t hashtable_delete(hashtable* this, uint64_t key) {
 	log_info("delete(%" PRIx64 ")", key);

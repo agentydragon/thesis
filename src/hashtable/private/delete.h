@@ -1,5 +1,5 @@
-#ifndef HASH_HASHTABLE_DELETE
-#define HASH_HASHTABLE_DELETE
+#ifndef HASHTABLE_DELETE_H
+#define HASHTABLE_DELETE_H
 
 #include "helper.h"
 #include <stdint.h>

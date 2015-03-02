@@ -1,4 +1,4 @@
-#include "hash_hashtable/private/resizing.h"
+#include "hashtable/private/resizing.h"
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -11,9 +11,9 @@
 #define NO_LOG_INFO
 #include "log/log.h"
 
-#include "hash_hashtable/private/insertion.h"
-#include "hash_hashtable/private/helper.h"
-#include "hash_hashtable/private/data.h"
+#include "hashtable/private/insertion.h"
+#include "hashtable/private/helper.h"
+#include "hashtable/private/data.h"
 
 static const uint64_t MIN_SIZE = 2;
 

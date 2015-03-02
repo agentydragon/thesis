@@ -1,5 +1,5 @@
-#ifndef HASH_HASHTABLE_PRIVATE_HELPER
-#define HASH_HASHTABLE_PRIVATE_HELPER
+#ifndef HASHTABLE_PRIVATE_HELPER
+#define HASHTABLE_PRIVATE_HELPER
 
 struct hashtable_data;
 struct hashtable_block;
