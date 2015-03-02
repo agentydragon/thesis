@@ -36,7 +36,15 @@ static int8_t delete(void* _this, uint64_t key) {
 	return splay_tree_delete(_this, key);
 }
 
-// TODO: find next, find previous
+static int8_t next(void* _this, uint64_t key, uint64_t *next, bool *found) {
+	splay_tree_next_key(_this, key, next, found);
+	return 0;
+}
+
+static int8_t prev(void* _this, uint64_t key, uint64_t *prev, bool *found) {
+	splay_tree_previous_key(_this, key, prev, found);
+	return 0;
+}
 
 const dict_api dict_splay = {
 	.init = init,
@@ -45,6 +53,9 @@ const dict_api dict_splay = {
 	.insert = insert,
 	.find = find,
 	.delete = delete,
+
+	.next = next,
+	.prev = prev,
 
 	.name = "dict_splay"
 };

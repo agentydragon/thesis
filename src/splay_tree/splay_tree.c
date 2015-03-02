@@ -9,11 +9,14 @@
 #define COUNT_OF(x) ((sizeof(x)) / sizeof(*x))
 // TODO: remove log_fatals
 
-#define GLOBAL_STACK_SIZE 1024
-splay_tree_node* global_stack[GLOBAL_STACK_SIZE];
+#define node splay_tree_node
 
-static void zig_zig_left(splay_tree_node* x, splay_tree_node* parent, splay_tree_node* grandparent) {
-	splay_tree_node *a, *b, *c, *d;
+// TODO: rewrite to stop using single global stack
+#define GLOBAL_STACK_SIZE 1024
+node* global_stack[GLOBAL_STACK_SIZE];
+
+static void zig_zig_left(node* x, node* parent, node* grandparent) {
+	node *a, *b, *c, *d;
 	a = x->left;
 	b = x->right;
 	c = parent->right;
@@ -27,8 +30,8 @@ static void zig_zig_left(splay_tree_node* x, splay_tree_node* parent, splay_tree
 	grandparent->right = d;
 }
 
-static void zig_zig_right(splay_tree_node* x, splay_tree_node* parent, splay_tree_node* grandparent) {
-	splay_tree_node *a, *b, *c, *d;
+static void zig_zig_right(node* x, node* parent, node* grandparent) {
+	node *a, *b, *c, *d;
 	a = grandparent->left;
 	b = parent->left;
 	c = x->left;
@@ -42,8 +45,8 @@ static void zig_zig_right(splay_tree_node* x, splay_tree_node* parent, splay_tre
 	grandparent->right = b;
 }
 
-static void zig_zag_left_right(splay_tree_node* x, splay_tree_node* parent, splay_tree_node* grandparent) {
-	splay_tree_node *a, *b, *c, *d;
+static void zig_zag_left_right(node* x, node* parent, node* grandparent) {
+	node *a, *b, *c, *d;
 	a = parent->left;
 	b = x->left;
 	c = x->right;
@@ -57,8 +60,8 @@ static void zig_zag_left_right(splay_tree_node* x, splay_tree_node* parent, spla
 	grandparent->right = d;
 }
 
-static void zig_zag_right_left(splay_tree_node* x, splay_tree_node* parent, splay_tree_node* grandparent) {
-	splay_tree_node *a, *b, *c, *d;
+static void zig_zag_right_left(node* x, node* parent, node* grandparent) {
+	node *a, *b, *c, *d;
 	a = grandparent->left;
 	b = x->left;
 	c = x->right;
@@ -72,8 +75,8 @@ static void zig_zag_right_left(splay_tree_node* x, splay_tree_node* parent, spla
 	parent->right = d;
 }
 
-static void splay_up_internal(splay_tree* this, uint64_t key, splay_tree_node** stack, uint64_t stack_size) {
-	splay_tree_node* current = this->root;
+static void splay_up_internal(splay_tree* this, uint64_t key, node** stack, uint64_t stack_size) {
+	node* current = this->root;
 
 	uint64_t depth = 0;
 
@@ -104,12 +107,12 @@ static void splay_up_internal(splay_tree* this, uint64_t key, splay_tree_node** 
 
 	while (depth > 1) {
 		if (depth == 2) {
-			splay_tree_node *parent = stack[0], *x = stack[1];
+			node *parent = stack[0], *x = stack[1];
 			if (parent->left == x) {
-				splay_tree_node *b = x->right;
+				node *b = x->right;
 				x->right = parent; parent->left = b;
 			} else if (parent->right == x) {
-				splay_tree_node *b = x->left;
+				node *b = x->left;
 				x->left = parent; parent->right = b;
 			} else {
 				log_fatal("child assertion failed");
@@ -118,7 +121,7 @@ static void splay_up_internal(splay_tree* this, uint64_t key, splay_tree_node** 
 			depth--;
 		} else {
 			assert(depth > 2);
-			splay_tree_node *grandparent = stack[depth - 3],
+			node *grandparent = stack[depth - 3],
 					*parent = stack[depth - 2],
 					*x = stack[depth - 1];
 
@@ -164,14 +167,14 @@ void splay_up(splay_tree* this, uint64_t key) {
 	splay_up_internal(this, key, global_stack, GLOBAL_STACK_SIZE);
 }
 
-void tree_init(struct splay_tree** _tree) {
+void splay_tree_init(struct splay_tree** _tree) {
 	struct splay_tree* tree = malloc(sizeof(struct splay_tree));
 	assert(tree);
 	tree->root = NULL;
 	*_tree = tree;
 }
 
-static void tree_destroy_recursive(struct splay_tree_node** _node) {
+static void tree_destroy_recursive(node** _node) {
 	assert(_node);
 	if (*_node) {
 		tree_destroy_recursive(&((*_node)->left));
@@ -191,11 +194,11 @@ void splay_tree_destroy(struct splay_tree** _tree) {
 }
 
 int8_t splay_tree_insert(struct splay_tree* tree, uint64_t key, uint64_t value) {
-	struct splay_tree_node** target;
+	node** target;
 	if (tree->root == NULL) {
 		target = &tree->root;
 	} else {
-		struct splay_tree_node* parent = tree->root;
+		node* parent = tree->root;
 		while (true) {
 			if (parent->key > key) {
 				if (parent->left == NULL) {
@@ -218,10 +221,9 @@ int8_t splay_tree_insert(struct splay_tree* tree, uint64_t key, uint64_t value) 
 		}
 	}
 
-	struct splay_tree_node* new_node = malloc(
-			sizeof(struct splay_tree_node));
+	node* new_node = malloc(sizeof(node));
 	assert(new_node);
-	*new_node = (struct splay_tree_node) {
+	*new_node = (node) {
 		.key = key, .value = value, .left = NULL, .right = NULL };
 	*target = new_node;
 
@@ -238,7 +240,7 @@ void splay_tree_find(splay_tree* this, uint64_t key, bool *found,
 		return;
 	}
 
-	struct splay_tree_node* current_node = this->root;
+	node* current_node = this->root;
 	while (current_node->key != key) {
 		if (current_node->key > key) {
 			if (current_node->left) {
@@ -265,8 +267,32 @@ void splay_tree_find(splay_tree* this, uint64_t key, bool *found,
 	splay_up(this, key);
 }
 
-static uint8_t count_children(struct splay_tree_node* node) {
-	return (node->left != NULL) + (node->right != NULL);
+static uint8_t count_children(node* the_node) {
+	return (the_node->left != NULL) + (the_node->right != NULL);
+}
+
+static void get_leftmost_in_right_subtree(node* current_node,
+		node** _leftmost_in_right, node** _leftmost_in_right_parent) {
+	node* lir_parent = current_node;
+	node* leftmost_in_right = current_node->right;
+	while (leftmost_in_right != NULL && leftmost_in_right->left != NULL) {
+		lir_parent = leftmost_in_right;
+		leftmost_in_right = leftmost_in_right->left;
+	}
+
+	*_leftmost_in_right = leftmost_in_right;
+	if (_leftmost_in_right_parent) {
+		*_leftmost_in_right_parent = lir_parent;
+	}
+}
+
+static void get_rightmost_in_left_subtree(node* current_node,
+		node** _rightmost_in_left) {
+	node* rightmost_in_left = current_node->left;
+	while (rightmost_in_left != NULL && rightmost_in_left->right != NULL) {
+		rightmost_in_left = rightmost_in_left->right;
+	}
+	*_rightmost_in_left = rightmost_in_left;
 }
 
 int8_t splay_tree_delete(splay_tree* this, uint64_t key) {
@@ -274,8 +300,8 @@ int8_t splay_tree_delete(splay_tree* this, uint64_t key) {
 		return 1;
 	}
 
-	struct splay_tree_node* parent = NULL;
-	struct splay_tree_node* current_node = this->root;
+	node* parent = NULL;
+	node* current_node = this->root;
 	while (current_node->key != key) {
 		if (current_node->key > key) {
 			if (current_node->left) {
@@ -319,7 +345,7 @@ int8_t splay_tree_delete(splay_tree* this, uint64_t key) {
 	case 1: {
 		// I have only one child. Swap my child with me in my parent
 		// and delete me.
-		struct splay_tree_node* child;
+		node* child;
 		if (current_node->left) {
 			child = current_node->left;
 		} else {
@@ -341,12 +367,10 @@ int8_t splay_tree_delete(splay_tree* this, uint64_t key) {
 	}
 	case 2: {
 		// Ooops...
-		struct splay_tree_node* lir_parent = current_node;
-		struct splay_tree_node* leftmost_in_right = current_node->right;
-		while (leftmost_in_right->left != NULL) {
-			lir_parent = leftmost_in_right;
-			leftmost_in_right = leftmost_in_right->left;
-		}
+		node* lir_parent;
+		node* leftmost_in_right;
+		get_leftmost_in_right_subtree(current_node, &leftmost_in_right,
+				&lir_parent);
 
 		if (lir_parent->left == leftmost_in_right) {
 			lir_parent->left = NULL;
@@ -365,8 +389,83 @@ int8_t splay_tree_delete(splay_tree* this, uint64_t key) {
 		break;
 	}
 	default: {
-		log_fatal("son what the fuck are you doing");
+		log_fatal("splay tree node has >2 children?");
 	}
 	}
 	return 0;
+}
+
+static void navigate(splay_tree* this, splay_tree_key key, node** found_node) {
+	node* current = this->root;
+	do {
+		if (current->key == key) {
+			break;  // Got it.
+		} else if (key < current->key) {
+			if (current->left) {
+				current = current->left;
+			} else {
+				break;
+			}
+		} else {
+			if (current->right) {
+				current = current->right;
+			} else {
+				break;
+			}
+		}
+	} while (true);
+	*found_node = current;
+}
+
+void splay_tree_next_key(splay_tree* this, splay_tree_key key,
+		splay_tree_key* next_key, bool* found) {
+	node* current = this->root;
+	if (current == NULL) {
+		*found = false;
+		return;
+	}
+	// TODO: navigate while splaying up
+	navigate(this, key, &current);
+	splay_up(this, current->key);
+
+	if (this->root->key > key) {
+		*next_key = this->root->key;
+		*found = true;
+	} else {
+		node* leftmost_in_right;
+		get_leftmost_in_right_subtree(this->root, &leftmost_in_right,
+				NULL);
+		if (leftmost_in_right) {
+			*next_key = leftmost_in_right->key;
+			*found = true;
+		} else {
+			*found = false;
+		}
+	}
+}
+
+void splay_tree_previous_key(splay_tree* this, splay_tree_key key,
+		splay_tree_key* previous_key, bool *found) {
+	node* current = this->root;
+	if (current == NULL) {
+		*found = false;
+		return;
+	}
+	// TODO: navigate while splaying up
+	navigate(this, key, &current);
+	splay_up(this, current->key);
+
+	if (this->root->key < key) {
+		*previous_key = this->root->key;
+		*found = true;
+	} else {
+		node* rightmost_in_left;
+		get_rightmost_in_left_subtree(this->root, &rightmost_in_left);
+		if (rightmost_in_left) {
+			*previous_key = rightmost_in_left->key;
+			*found = true;
+		} else {
+			*found = false;
+		}
+	}
 }
