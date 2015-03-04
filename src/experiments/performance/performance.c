@@ -8,6 +8,7 @@
 #include "dict/btree.h"
 #include "dict/cobt.h"
 #include "dict/dict.h"
+#include "dict/splay.h"
 #include "log/log.h"
 #include "measurement/measurement.h"
 #include "performance/random_read.h"
@@ -95,9 +96,12 @@ int main(int argc, char** argv) {
 		log_info("size=%" PRIu64, size);
 		struct results btree = measure_api(&dict_btree, size);
 		struct results cobt = measure_api(&dict_cobt, size);
+		struct results splay = measure_api(&dict_splay, size);
 
 		fprintf(output,
 				"%" PRIu64 "\t"
+				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
+				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
 				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
 				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
 				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
@@ -107,8 +111,12 @@ int main(int argc, char** argv) {
 				size,
 				btree.combined.cache_misses, btree.combined.cache_references, btree.combined.time_nsec,
 				cobt.combined.cache_misses, cobt.combined.cache_references, cobt.combined.time_nsec,
+				splay.combined.cache_misses, splay.combined.cache_references, splay.combined.time_nsec,
+
 				btree.just_find.cache_misses, btree.just_find.cache_references, btree.just_find.time_nsec,
 				cobt.just_find.cache_misses, cobt.just_find.cache_references, cobt.just_find.time_nsec,
+				splay.just_find.cache_misses, splay.just_find.cache_references, splay.just_find.time_nsec,
+
 				COB_COUNTERS.total_reorganized_size);
 		fflush(output);
 		x *= base;

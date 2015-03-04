@@ -8,30 +8,36 @@ set ylabel 'cache misses'
 set y2label 'ns'
 set xrange [100:]
 plot \
-	"results.csv" u 1:($2/$1) w lines title 'Cache misses per element (B-tree)', \
-	"results.csv" u 1:($5/$1) w lines title 'Cache misses per element (COB-tree)', \
-	"results.csv" u 1:($4/$1) axes x1y2 w lines title 'Time per element (B-tree)' linewidth 2, \
-	"results.csv" u 1:($7/$1) axes x1y2 w lines title 'Time per element (COB-tree)' linewidth 2
+	"results.tsv" u 1:($2/$1) w lines title 'Cache misses per element (B-tree)', \
+	"" u 1:($5/$1) w lines title 'Cache misses per element (COB-tree)', \
+	"" u 1:($8/$1) w lines title 'Cache misses per element (splay)', \
+	"" u 1:($4/$1) axes x1y2 w lines title 'Time per element (B-tree)' linewidth 2, \
+	"" u 1:($7/$1) axes x1y2 w lines title 'Time per element (COB-tree)' linewidth 2, \
+	"" u 1:($10/$1) axes x1y2 w lines title 'Time per element (splay)' linewidth 2
 
 set output "graph1-findonly.png"
 plot \
-	"results.csv" u 1:($8/$1) w lines title 'Cache misses per element (B-tree)', \
-	"results.csv" u 1:($11/$1) w lines title 'Cache misses per element (COB-tree)', \
-	"results.csv" u 1:($10/$1) axes x1y2 w lines title 'Time per element (B-tree)' linewidth 2, \
-	"results.csv" u 1:($13/$1) axes x1y2 w lines title 'Time per element (COB-tree)' linewidth 2
+	"results.tsv" u 1:($11/$1) w lines title 'Cache misses per element (B-tree)', \
+	"" u 1:($14/$1) w lines title 'Cache misses per element (COB-tree)', \
+	"" u 1:($17/$1) w lines title 'Cache misses per element (splay)', \
+	"" u 1:($13/$1) axes x1y2 w lines title 'Time per element (B-tree)' linewidth 2, \
+	"" u 1:($16/$1) axes x1y2 w lines title 'Time per element (COB-tree)' linewidth 2, \
+	"" u 1:($19/$1) axes x1y2 w lines title 'Time per element (splay)' linewidth 2
 
 set output "graph2.png"
 plot \
-	"results.csv" u 1:($4/$1) axes x1y2 w lines title 'Time per element (B-tree)', \
-	"results.csv" u 1:($7/$1) axes x1y2 w lines title 'Time per element (COB-tree)'
+	"results.tsv" u 1:($4/$1) axes x1y2 w lines title 'Time per element (B-tree)', \
+	"" u 1:($7/$1) axes x1y2 w lines title 'Time per element (COB-tree)', \
+	"" u 1:($10/$1) axes x1y2 w lines title 'Time per element (splay)'
 
 set output "graph2-findonly.png"
 plot \
-	"results.csv" u 1:($10/$1) axes x1y2 w lines title 'Time per element (B-tree)', \
-	"results.csv" u 1:($13/$1) axes x1y2 w lines title 'Time per element (COB-tree)'
+	"results.tsv" u 1:($13/$1) axes x1y2 w lines title 'Time per element (B-tree)', \
+	"" u 1:($16/$1) axes x1y2 w lines title 'Time per element (COB-tree)', \
+	"" u 1:($19/$1) axes x1y2 w lines title 'Time per element (splay)'
 
 set output "graph3.png"
 set noylabel
 set noy2label
 plot \
-	"results.csv" u 1:($14/$1) w lines title 'Total reorganized elements / N'
+	"results.tsv" u 1:($20/$1) w lines title 'Total reorganized elements / N'
