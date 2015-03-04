@@ -110,6 +110,22 @@ void cob_dump(struct cob _this) {
 	ofm_dump(_this.file);
 }
 
+static inline ofm_range left_half_of(ofm_range range) {
+	return (ofm_range) {
+		.begin = range.begin,
+		.size = range.size / 2,
+		.file = range.file
+	};
+}
+
+static inline ofm_range right_half_of(ofm_range range) {
+	return (ofm_range) {
+		.begin = range.begin + range.size / 2,
+		.size = range.size / 2,
+		.file = range.file
+	};
+}
+
 static void fix_range_recursive(struct cob* this, ofm_range range_to_fix,
 		ofm_range current_range, struct drilldown_track* track) {
 	log_info("to_fix=[%" PRIu64 "+%" PRIu64 "] current_range=[%" PRIu64 "+%" PRIu64 "] "
@@ -118,57 +134,41 @@ static void fix_range_recursive(struct cob* this, ofm_range range_to_fix,
 			current_range.begin, current_range.size,
 			this->file.block_size);
 	const uint64_t current_nid = track->pos[track->depth];
+
 	if (current_range.size > range_to_fix.size) {
 		log_info("partially dirty");
 		if (range_to_fix.begin <
 				current_range.begin + current_range.size / 2) {
 			drilldown_go_left(this->level_data, track);
-			fix_range_recursive(this, range_to_fix, (ofm_range) {
-				.begin = current_range.begin,
-				.size = current_range.size / 2,
-				.file = &this->file
-			}, track);
-			if (this->veb_minima[track->pos[track->depth]] < this->veb_minima[current_nid]) {
-				this->veb_minima[current_nid] = this->veb_minima[track->pos[track->depth]];
-			}
-			drilldown_go_up(track);
+			fix_range_recursive(this, range_to_fix,
+					left_half_of(current_range), track);
 		} else {
 			drilldown_go_right(this->level_data, track);
-			fix_range_recursive(this, range_to_fix, (ofm_range) {
-				.begin = current_range.begin + current_range.size / 2,
-				.size = current_range.size / 2,
-				.file = &this->file
-			}, track);
-			if (this->veb_minima[track->pos[track->depth]] < this->veb_minima[current_nid]) {
-				this->veb_minima[current_nid] = this->veb_minima[track->pos[track->depth]];
-			}
-			drilldown_go_up(track);
+			fix_range_recursive(this, range_to_fix,
+					right_half_of(current_range), track);
 		}
+		if (this->veb_minima[track->pos[track->depth]] < this->veb_minima[current_nid]) {
+			this->veb_minima[current_nid] = this->veb_minima[track->pos[track->depth]];
+		}
+		drilldown_go_up(track);
 	} else if (current_range.size > this->file.block_size) {
 		log_info("completely dirty");
 		this->veb_minima[current_nid] = COB_INFINITY;
 		drilldown_go_left(this->level_data, track);
-		fix_range_recursive(this, range_to_fix, (ofm_range) {
-			.begin = current_range.begin,
-			.size = current_range.size / 2,
-			.file = &this->file
-		}, track);
+		fix_range_recursive(this, range_to_fix,
+				left_half_of(current_range), track);
 		if (this->veb_minima[track->pos[track->depth]] < this->veb_minima[current_nid]) {
 			this->veb_minima[current_nid] = this->veb_minima[track->pos[track->depth]];
 		}
 		drilldown_go_up(track);
 
 		drilldown_go_right(this->level_data, track);
-		fix_range_recursive(this, range_to_fix, (ofm_range) {
-			.begin = current_range.begin + current_range.size / 2,
-			.size = current_range.size / 2,
-			.file = &this->file
-		}, track);
+		fix_range_recursive(this, range_to_fix,
+				right_half_of(current_range), track);
 		if (this->veb_minima[track->pos[track->depth]] < this->veb_minima[current_nid]) {
 			this->veb_minima[current_nid] = this->veb_minima[track->pos[track->depth]];
 		}
 		drilldown_go_up(track);
-
 	} else {
 		this->veb_minima[current_nid] = cobt_range_get_minimum(current_range);
 	}
@@ -202,11 +202,6 @@ static uint64_t veb_walk(const struct cob* this, uint64_t key) {
 			// This is the leaf.
 			break;
 		} else {
-			//veb_pointer left, right;
-			//veb_get_children(pointer, veb_height, &left, &right);
-			//log_info("-> %" PRIu64 ": right min = %" PRIu64,
-			//		pointer, this->veb_minima[right.node]);
-			//CHECK(left.present && right.present, "unexpected leaf");
 			drilldown_go_right(this->level_data, &track);
 			if (key >= this->veb_minima[track.pos[track.depth]]) {
 				// We want to go right.
@@ -216,16 +211,6 @@ static uint64_t veb_walk(const struct cob* this, uint64_t key) {
 				drilldown_go_left(this->level_data, &track);
 				leaf_index = leaf_index << 1;
 			}
-
-			//if (key >= this->veb_minima[right.node]) {
-			//	// We want to go right.
-			//	pointer = right.node;
-			//	leaf_index = (leaf_index << 1) + 1;
-			//} else {
-			//	// We want to go left.
-			//	pointer = left.node;
-			//	leaf_index = leaf_index << 1;
-			//}
 		}
 	} while (true);
 
