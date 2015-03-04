@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-//#define NO_LOG_INFO
 #include "log/log.h"
 #include "math/math.h"
 
@@ -24,14 +23,6 @@ void range_describe(ofm file, ofm_range range, char* buffer) {
 			buffer += sprintf(buffer, "[%2" PRIu64 "]---- ", i);
 		}
 	}
-}
-
-static uint64_t get_leaf_depth(struct parameters parameters) {
-	if (parameters.capacity == parameters.block_size) {
-		// XXX: hack for special small case
-		return 1;
-	}
-	return ceil_log2(parameters.capacity / parameters.block_size);
 }
 */
 
@@ -133,7 +124,7 @@ bool ofm_is_entire_file(ofm_range block) {
 }
 
 static void ofm_move(ofm file, uint64_t to, uint64_t from, uint64_t *watch) {
-	// log_info("%" PRIu64 " <- %" PRIu64, to, from);
+	log_verbose(4, "%" PRIu64 " <- %" PRIu64, to, from);
 	assert(to < file.capacity && from < file.capacity);
 	if (watch != NULL && *watch == from) {
 		*watch = to;
@@ -146,8 +137,8 @@ static void ofm_move(ofm file, uint64_t to, uint64_t from, uint64_t *watch) {
 }
 
 static void ofm_compact_left(ofm_range block, uint64_t *watch) {
-	// log_info("compact_left(%" PRIu64 "+%" PRIu64 ")",
-	// 		block.begin, block.size);
+	log_verbose(2, "compact_left(%" PRIu64 "+%" PRIu64 ")",
+			block.begin, block.size);
 	uint64_t to = block.begin;
 	for (uint64_t i = 0; i < block.size; i++) {
 		uint64_t from = block.begin + i;
@@ -155,25 +146,28 @@ static void ofm_compact_left(ofm_range block, uint64_t *watch) {
 			ofm_move(*block.file, to++, from, watch);
 		}
 	}
+	IF_LOG_VERBOSE(3) {
+		ofm_dump(*block.file);
+	}
 }
 
 static void ofm_compact_right(ofm_range block, uint64_t *watch) {
-	// log_info("compact_right[%" PRIu64 "+%" PRIu64 "]",
-	// 		block.begin, block.size);
-	// ofm_dump(*block.file);
+	log_verbose(2, "compact_right[%" PRIu64 "+%" PRIu64 "]",
+			block.begin, block.size);
 	uint64_t to = block.begin + block.size - 1;
 	for (uint64_t i = 0; i < block.size; i++) {
 		uint64_t from = block.begin + block.size - 1 - i;
 		assert(from <= to);
-		// log_info("i=%" PRIu64 " to=%" PRIu64 " from=%" PRIu64,
-		// 		i, to, from);
 		if (block.file->occupied[from]) {
-			// log_info("move it");
+			log_verbose(3, "i=%" PRIu64 " "
+					"to=%" PRIu64 " from=%" PRIu64,
+					i, to, from);
 			ofm_move(*block.file, to--, from, watch);
 		}
 	}
-	// ofm_dump(*block.file);
-	// log_info("/ compact_right");
+	IF_LOG_VERBOSE(3) {
+		ofm_dump(*block.file);
+	}
 }
 
 static uint64_t ofm_count_occupied(ofm_range block) {
@@ -187,12 +181,11 @@ static uint64_t ofm_count_occupied(ofm_range block) {
 }
 
 static void ofm_spread(ofm_range block, uint64_t *watch) {
-	// log_info("spread");
+	log_verbose(2, "ofm_spread");
 	ofm_compact_right(block, watch);
-	uint64_t occupied = ofm_count_occupied(block);
-	// log_info("occupied=%" PRIu64, occupied);
+	const uint64_t occupied = ofm_count_occupied(block);
 	if (occupied > 0) {
-		double gap = ((double) block.size) / occupied;
+		const double gap = ((double) block.size) / occupied;
 		for (uint64_t i = 0; i < occupied; i++) {
 			uint64_t from = block.begin + block.size - occupied + i;
 			uint64_t to = block.begin + floor(gap * i);
@@ -215,10 +208,10 @@ static bool ofm_block_within_threshold(ofm_range block) {
 		((double) block_depth / leaf_depth) / 4;
 	const double density = ((double) ofm_count_occupied(block)) /
 		block.size;
-	// log_info("bs=%" PRIu64 " leaf_size=%" PRIu64 " d=%lf "
-	// 		"min_d=%lf max_d=%lf", block.size,
-	// 		block.file->block_size, density, min_density,
-	// 		max_density);
+	log_verbose(2, "bs=%" PRIu64 " leaf_size=%" PRIu64 " d=%lf "
+			"min_d=%lf max_d=%lf", block.size,
+			block.file->block_size, density, min_density,
+			max_density);
 	return min_density <= density && density <= max_density;
 }
 
@@ -232,13 +225,14 @@ static void rebalance(ofm* file, ofm_range start_block,
 	}
 
 	if (ofm_is_entire_file(range)) {
-		// log_info("entire file out of balance");
+		log_verbose(1, "entire file out of balance");
 		struct parameters parameters = adequate_parameters(
 				ofm_count_occupied(range));
 
 		if (parameters.capacity == file->capacity &&
 				parameters.block_size == file->block_size) {
-			// log_info("ignoring, parameters are deemed adequate.");
+			log_verbose(1, "ignoring, parameters are "
+					"still adequate.");
 		} else {
 			ofm new_file = {
 				.occupied = calloc(parameters.capacity, sizeof(bool)),
@@ -267,9 +261,9 @@ static void rebalance(ofm* file, ofm_range start_block,
 				.size = file->capacity,
 				.file = file,
 			};
-			// log_info("resized, new capacity=%" PRIu64 " "
-			// 		"occupied=%" PRIu64, file->capacity,
-			// 		ofm_count_occupied(whole_file));
+			log_verbose(1, "resized, new capacity=%" PRIu64 " "
+					"occupied=%" PRIu64, file->capacity,
+					ofm_count_occupied(whole_file));
 			range = whole_file;
 			assert(ofm_block_within_threshold(range));
 		}
@@ -287,7 +281,7 @@ static void rebalance(ofm* file, ofm_range start_block,
 // Moves every item in the block, starting with index `step_start`,
 // one slot to the right.
 void ofm_step_right(ofm_range block, uint64_t step_start) {
-	// log_info("step_right");
+	log_verbose(2, "ofm_step_right");
 	// There needs to be some free space at the end.
 	for (uint64_t i = block.begin + block.size - 1; i > step_start; i--) {
 		assert(!block.file->occupied[i]);
@@ -298,9 +292,9 @@ void ofm_step_right(ofm_range block, uint64_t step_start) {
 void ofm_insert_before(ofm* file, ofm_item item,
 		uint64_t insert_before_index, uint64_t *saved_at,
 		ofm_range *touched_range) {
-	// log_info("insert_before(%" PRIu64 "=%" PRIu64 ", "
-	// 		"before_index=%" PRIu64 ")", item.key, item.value,
-	// 		insert_before_index);
+	log_verbose(2, "ofm_insert_before(%" PRIu64 "=%" PRIu64 ", "
+			"before_index=%" PRIu64 ")", item.key, item.value,
+			insert_before_index);
 	assert(insert_before_index <= file->capacity);
 
 	ofm_range block;
@@ -352,7 +346,9 @@ void ofm_insert_before(ofm* file, ofm_item item,
 	}
 
 	rebalance(file, block, touched_range, saved_at);
-	//ofm_dump(*file);
+	IF_LOG_VERBOSE(3) {
+		ofm_dump(*file);
+	}
 }
 
 // `next_item_at` will hold the position where the next item was moved,
