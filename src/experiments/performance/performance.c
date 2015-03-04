@@ -1,3 +1,4 @@
+#include <argp.h>
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +15,7 @@
 #include "performance/random_read.h"
 #include "rand/rand.h"
 #include "stopwatch/stopwatch.h"
+#include "util/human.h"
 
 static uint64_t make_key(uint64_t i) {
 	return toycrypt(i, 0x0123456789ABCDEFLL);
@@ -79,17 +81,55 @@ struct results measure_api(const dict_api* api, uint64_t size) {
 	return tr;
 }
 
+// Those break.
+struct {
+	uint64_t maximum;
+	double base;
+} FLAGS;
+
+static int parse_option(int key, char *arg, struct argp_state *state) {
+	(void) arg; (void) state;
+	switch (key) {
+	case 'n':
+		FLAGS.maximum = parse_human_i(arg);
+		break;
+	case 'b':
+		FLAGS.base = parse_human_d(arg);
+		break;
+	case ARGP_KEY_ARG:
+		log_fatal("unexpected argument: %s", arg);
+	}
+	return 0;
+}
+
+static void parse_flags(int argc, char** argv) {
+	FLAGS.maximum = 64 * 1024 * 1024;
+	FLAGS.base = 1.2;
+
+	struct argp_option options[] = {
+		{
+			.name = NULL, .key = 'n', .arg = "MAX", .flags = 0,
+			.doc = "Store MAX elements to store at most", .group = 0
+		}, {
+			.name = NULL, .key = 'b', .arg = "BASE", .flags = 0,
+			.doc = "Multiply by BASE at each iteration", .group = 0
+		}, { 0 }
+	};
+	struct argp argp = {
+		.options = options, .parser = parse_option,
+		.args_doc = NULL, .doc = NULL, .children = NULL,
+		.help_filter = NULL, .argp_domain = NULL
+	};
+	assert(!argp_parse(&argp, argc, argv, 0, 0, 0));
+}
+
 int main(int argc, char** argv) {
-	(void) argc; (void) argv;
+	parse_flags(argc, argv);
+
 	FILE* output = fopen("experiments/performance/results.tsv", "w");
-	//double base = 1.2;
-	double base = 2;
-	double x = 10;
 
 	// TODO: merge with //performance.c
-
-	//while (x < 128 * 1024 * 1024) {
-	while (x < 32 * 1024 * 1024) {
+	for (double x = 10; x < FLAGS.maximum; x *= FLAGS.base) {
 		COB_COUNTERS.total_reorganized_size = 0;
 
 		const uint64_t size = round(x);
@@ -119,7 +159,6 @@ int main(int argc, char** argv) {
 
 				COB_COUNTERS.total_reorganized_size);
 		fflush(output);
-		x *= base;
 	}
 	fclose(output);
 	return 0;
