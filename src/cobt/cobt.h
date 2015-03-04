@@ -4,7 +4,7 @@
 // Cache-oblivious B-tree
 
 #include <stdint.h>
-#include "ordered_file_maintenance/ordered_file_maintenance.h"
+#include "ofm/ofm.h"
 
 #define COB_INFINITY UINT64_MAX
 

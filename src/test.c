@@ -14,7 +14,7 @@
 #include "log/log.h"
 #include "math/test.h"
 #include "observation/test/test.h"
-#include "ordered_file_maintenance/test.h"
+#include "ofm/test.h"
 #include "performance/random_read.h"
 #include "rand/test/test.h"
 #include "splay_tree/test.h"
@@ -26,7 +26,7 @@ void run_unit_tests() {
 	test_math();
 	test_rand();
 	test_veb_layout();
-	test_ordered_file_maintenance();
+	test_ofm();
 	test_observation(); // Uses hash_array.
 
 	test_hashtable();

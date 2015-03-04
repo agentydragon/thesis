@@ -1,4 +1,4 @@
-#include "ordered_file_maintenance/ordered_file_maintenance.h"
+#include "ofm/ofm.h"
 
 #include <assert.h>
 #include <inttypes.h>
@@ -35,7 +35,7 @@ static uint64_t get_leaf_depth(struct parameters parameters) {
 }
 */
 
-char buffer[65536];
+static char buffer[65536];
 
 void ofm_dump(ofm file) {
 	strcpy(buffer, "");

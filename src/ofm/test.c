@@ -1,4 +1,4 @@
-#include "ordered_file_maintenance/test.h"
+#include "ofm/test.h"
 
 #include <assert.h>
 #include <inttypes.h>
@@ -9,7 +9,7 @@
 
 #include "log/log.h"
 #include "math/math.h"
-#include "ordered_file_maintenance/ordered_file_maintenance.h"
+#include "ofm/ofm.h"
 
 #define COUNTOF(x) (sizeof(x) / sizeof(*(x)))
 #define NIL 0xDEADDEADDEADDEAD
@@ -117,7 +117,7 @@ void test_functional() {
 }
 */
 
-void test_ordered_file_maintenance() {
+void test_ofm() {
 //	test_parameter_policy();
 //	test_functional();
 	test_reorganization_complexity();
