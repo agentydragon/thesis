@@ -1,5 +1,7 @@
-#ifndef CACHE_OBLIVIOUS_BTREE_H
-#define CACHE_OBLIVIOUS_BTREE_H
+#ifndef COBT_H
+#define COBT_H
+
+// Cache-oblivious B-tree
 
 #include <stdint.h>
 #include "ordered_file_maintenance/ordered_file_maintenance.h"

@@ -4,7 +4,7 @@
 #include <inttypes.h>
 #include <math.h>
 
-#include "cache_oblivious_btree/cache_oblivious_btree.h"
+#include "cobt/cobt.h"
 #include "dict/btree.h"
 #include "dict/cobt.h"
 #include "dict/dict.h"

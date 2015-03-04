@@ -1,4 +1,4 @@
-#include "cache_oblivious_btree/cache_oblivious_btree.h"
+#include "cobt/cobt.h"
 
 #include <assert.h>
 #include <inttypes.h>
