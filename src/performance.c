@@ -2,11 +2,11 @@
 #include <stdlib.h>
 
 #include "dict/array.h"
-#include "dict/hashtable.h"
 #include "dict/btree.h"
-
+#include "dict/cobt.h"
+#include "dict/hashtable.h"
+#include "dict/splay.h"
 #include "log/log.h"
-
 #include "performance/random_read.h"
 
 int test_mmap();
@@ -25,6 +25,18 @@ void run_performance_tests() {
 	for (uint64_t size = 10000; size < 20 * 1024ULL * 1024ULL;
 			size *= 2) {
 		time_random_reads(&dict_btree, size, size);
+	}
+
+	log_info("Splay tree");
+	for (uint64_t size = 10000; size < 20 * 1024ULL * 1024ULL;
+			size *= 2) {
+		time_random_reads(&dict_splay, size, size);
+	}
+
+	log_info("COB tree");
+	for (uint64_t size = 10000; size < 20 * 1024ULL * 1024ULL;
+			size *= 2) {
+		time_random_reads(&dict_cobt, size, size);
 	}
 }
 

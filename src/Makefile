@@ -37,13 +37,13 @@ asm: bin/test
 	objdump -S bin/test > asm.dump
 
 bin/performance: performance.c $(SOURCES)
-	$(CC) $(CFLAGS) performance.c $(SOURCES) -o $@
+	$(CC) $(CFLAGS) performance.c $(SOURCES) -o $@ $(LIBS)
 
-bin/experiments/cob_cache_behavior: experiments/cob_cache_behavior/cob_cache_behavior.c $(SOURCES)
-	$(CC) -g $(CFLAGS) experiments/cob_cache_behavior/cob_cache_behavior.c $(SOURCES) -o $@ $(LIBS)
+bin/experiments/performance: experiments/performance/performance.c $(SOURCES)
+	$(CC) -g $(CFLAGS) experiments/performance/performance.c $(SOURCES) -o $@ $(LIBS)
 
-bin/experiments/cob_cache_behavior_profile: experiments/cob_cache_behavior/cob_cache_behavior.c $(SOURCES)
-	$(CC) -pg $(CFLAGS) experiments/cob_cache_behavior/cob_cache_behavior.c $(SOURCES) -o $@ $(LIBS)
+bin/experiments/performance: experiments/performance/performance.c $(SOURCES)
+	$(CC) -pg $(CFLAGS) experiments/performance/performance.c $(SOURCES) -o $@ $(LIBS)
 
 bin/experiments/veb_performance: experiments/veb_performance/veb_performance.c $(SOURCES)
 	$(CC) $(CFLAGS) experiments/veb_performance/veb_performance.c $(SOURCES) -o $@ $(LIBS)

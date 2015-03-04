@@ -80,10 +80,12 @@ struct results measure_api(const dict_api* api, uint64_t size) {
 
 int main(int argc, char** argv) {
 	(void) argc; (void) argv;
-	FILE* output = fopen("experiments/cob_cache_behavior/results.csv", "w");
+	FILE* output = fopen("experiments/performance/results.tsv", "w");
 	//double base = 1.2;
 	double base = 2;
 	double x = 10;
+
+	// TODO: merge with //performance.c
 
 	//while (x < 128 * 1024 * 1024) {
 	while (x < 32 * 1024 * 1024) {
