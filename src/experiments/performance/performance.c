@@ -1,4 +1,3 @@
-#include <argp.h>
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,16 +5,12 @@
 #include <math.h>
 
 #include "cobt/cobt.h"
-#include "dict/btree.h"
-#include "dict/cobt.h"
-#include "dict/dict.h"
-#include "dict/splay.h"
+#include "experiments/performance/flags.h"
 #include "log/log.h"
 #include "measurement/measurement.h"
 #include "performance/random_read.h"
 #include "rand/rand.h"
 #include "stopwatch/stopwatch.h"
-#include "util/human.h"
 
 static uint64_t make_key(uint64_t i) {
 	return toycrypt(i, 0x0123456789ABCDEFLL);
@@ -81,48 +76,6 @@ struct results measure_api(const dict_api* api, uint64_t size) {
 	return tr;
 }
 
-// Those break.
-struct {
-	uint64_t maximum;
-	double base;
-} FLAGS;
-
-static int parse_option(int key, char *arg, struct argp_state *state) {
-	(void) arg; (void) state;
-	switch (key) {
-	case 'n':
-		FLAGS.maximum = parse_human_i(arg);
-		break;
-	case 'b':
-		FLAGS.base = parse_human_d(arg);
-		break;
-	case ARGP_KEY_ARG:
-		log_fatal("unexpected argument: %s", arg);
-	}
-	return 0;
-}
-
-static void parse_flags(int argc, char** argv) {
-	FLAGS.maximum = 64 * 1024 * 1024;
-	FLAGS.base = 1.2;
-
-	struct argp_option options[] = {
-		{
-			.name = NULL, .key = 'n', .arg = "MAX", .flags = 0,
-			.doc = "Store MAX elements to store at most", .group = 0
-		}, {
-			.name = NULL, .key = 'b', .arg = "BASE", .flags = 0,
-			.doc = "Multiply by BASE at each iteration", .group = 0
-		}, { 0 }
-	};
-	struct argp argp = {
-		.options = options, .parser = parse_option,
-		.args_doc = NULL, .doc = NULL, .children = NULL,
-		.help_filter = NULL, .argp_domain = NULL
-	};
-	assert(!argp_parse(&argp, argc, argv, 0, 0, 0));
-}
-
 int main(int argc, char** argv) {
 	parse_flags(argc, argv);
 
@@ -134,29 +87,28 @@ int main(int argc, char** argv) {
 
 		const uint64_t size = round(x);
 		log_info("size=%" PRIu64, size);
-		struct results btree = measure_api(&dict_btree, size);
-		struct results cobt = measure_api(&dict_cobt, size);
-		struct results splay = measure_api(&dict_splay, size);
 
-		fprintf(output,
-				"%" PRIu64 "\t"
-				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
-				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
-				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
-				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
-				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
-				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
-				"%" PRIu64
-				"\n",
-				size,
-				btree.combined.cache_misses, btree.combined.cache_references, btree.combined.time_nsec,
-				cobt.combined.cache_misses, cobt.combined.cache_references, cobt.combined.time_nsec,
-				splay.combined.cache_misses, splay.combined.cache_references, splay.combined.time_nsec,
+		fprintf(output, "%" PRIu64 "\t", size);
 
-				btree.just_find.cache_misses, btree.just_find.cache_references, btree.just_find.time_nsec,
-				cobt.just_find.cache_misses, cobt.just_find.cache_references, cobt.just_find.time_nsec,
-				splay.just_find.cache_misses, splay.just_find.cache_references, splay.just_find.time_nsec,
+		struct results results[10];
+		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
+			results[i] = measure_api(FLAGS.measured_apis[i], size);
+		}
 
+		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
+			fprintf(output, "%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t",
+					results[i].combined.cache_misses,
+					results[i].combined.cache_references,
+					results[i].combined.time_nsec);
+		}
+		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
+			fprintf(output, "%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t",
+					results[i].just_find.cache_misses,
+					results[i].just_find.cache_references,
+					results[i].just_find.time_nsec);
+		}
+
+		fprintf(output, "%" PRIu64 "\n",
 				COB_COUNTERS.total_reorganized_size);
 		fflush(output);
 	}
