@@ -39,11 +39,13 @@ asm: bin/test
 bin/performance: performance.c $(SOURCES)
 	$(CC) $(CFLAGS) performance.c $(SOURCES) -o $@ $(LIBS)
 
-bin/experiments/performance: experiments/performance/performance.c $(SOURCES)
-	$(CC) -g $(CFLAGS) experiments/performance/performance.c $(SOURCES) -o $@ $(LIBS)
+PERFORMANCE_SOURCES=$(SOURCES) experiments/performance/performance.c experiments/performance/flags.c
 
-bin/experiments/performance: experiments/performance/performance.c $(SOURCES)
-	$(CC) -pg $(CFLAGS) experiments/performance/performance.c $(SOURCES) -o $@ $(LIBS)
+bin/experiments/performance: $(PERFORMANCE_SOURCES)
+	$(CC) -g $(CFLAGS) $(PERFORMANCE_SOURCES) -o $@ $(LIBS)
+
+bin/experiments/performance_profile: $(PERFORMANCE_SOURCES)
+	$(CC) -pg $(CFLAGS) $(PERFORMANCE_SOURCES) -o $@ $(LIBS)
 
 bin/experiments/veb_performance: experiments/veb_performance/veb_performance.c $(SOURCES)
 	$(CC) $(CFLAGS) experiments/veb_performance/veb_performance.c $(SOURCES) -o $@ $(LIBS)
