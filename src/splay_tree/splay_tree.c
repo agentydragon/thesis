@@ -75,6 +75,28 @@ static void zig_zag_right_left(node* x, node* parent, node* grandparent) {
 	parent->right = d;
 }
 
+static void navigate(splay_tree* this, splay_tree_key key, node** found_node) {
+	node* current = this->root;
+	do {
+		if (current->key == key) {
+			break;  // Got it.
+		} else if (key < current->key) {
+			if (current->left) {
+				current = current->left;
+			} else {
+				break;
+			}
+		} else {
+			if (current->right) {
+				current = current->right;
+			} else {
+				break;
+			}
+		}
+	} while (true);
+	*found_node = current;
+}
+
 static void splay_up_internal(splay_tree* this, uint64_t key, node** stack, uint64_t stack_size) {
 	node* current = this->root;
 
@@ -167,8 +189,8 @@ void splay_up(splay_tree* this, uint64_t key) {
 	splay_up_internal(this, key, global_stack, GLOBAL_STACK_SIZE);
 }
 
-void splay_tree_init(struct splay_tree** _tree) {
-	struct splay_tree* tree = malloc(sizeof(struct splay_tree));
+void splay_tree_init(splay_tree** _tree) {
+	struct splay_tree* tree = malloc(sizeof(splay_tree));
 	assert(tree);
 	tree->root = NULL;
 	*_tree = tree;
@@ -240,28 +262,14 @@ void splay_tree_find(splay_tree* this, uint64_t key, bool *found,
 		return;
 	}
 
-	node* current_node = this->root;
-	while (current_node->key != key) {
-		if (current_node->key > key) {
-			if (current_node->left) {
-				current_node = current_node->left;
-			} else {
-				break;
-			}
-		} else {
-			if (current_node->right) {
-				current_node = current_node->right;
-			} else {
-				break;
-			}
-		}
-	}
+	node* current;
+	navigate(this, key, &current);
 
 	if (found != NULL) {
-		*found = (current_node->key == key);
+		*found = (current->key == key);
 	}
-	if (current_node->key == key && value != NULL) {
-		*value = current_node->value;
+	if (current->key == key && value != NULL) {
+		*value = current->value;
 	}
 
 	splay_up(this, key);
@@ -271,10 +279,10 @@ static uint8_t count_children(node* the_node) {
 	return (the_node->left != NULL) + (the_node->right != NULL);
 }
 
-static void get_leftmost_in_right_subtree(node* current_node,
+static void get_leftmost_in_right_subtree(node* current,
 		node** _leftmost_in_right, node** _leftmost_in_right_parent) {
-	node* lir_parent = current_node;
-	node* leftmost_in_right = current_node->right;
+	node* lir_parent = current;
+	node* leftmost_in_right = current->right;
 	while (leftmost_in_right != NULL && leftmost_in_right->left != NULL) {
 		lir_parent = leftmost_in_right;
 		leftmost_in_right = leftmost_in_right->left;
@@ -286,9 +294,9 @@ static void get_leftmost_in_right_subtree(node* current_node,
 	}
 }
 
-static void get_rightmost_in_left_subtree(node* current_node,
+static void get_rightmost_in_left_subtree(node* current,
 		node** _rightmost_in_left) {
-	node* rightmost_in_left = current_node->left;
+	node* rightmost_in_left = current->left;
 	while (rightmost_in_left != NULL && rightmost_in_left->right != NULL) {
 		rightmost_in_left = rightmost_in_left->right;
 	}
@@ -301,39 +309,39 @@ int8_t splay_tree_delete(splay_tree* this, uint64_t key) {
 	}
 
 	node* parent = NULL;
-	node* current_node = this->root;
-	while (current_node->key != key) {
-		if (current_node->key > key) {
-			if (current_node->left) {
-				parent = current_node;
-				current_node = current_node->left;
+	node* current = this->root;
+	while (current->key != key) {
+		if (current->key > key) {
+			if (current->left) {
+				parent = current;
+				current = current->left;
 			} else {
 				break;
 			}
 		} else {
-			if (current_node->right) {
-				parent = current_node;
-				current_node = current_node->right;
+			if (current->right) {
+				parent = current;
+				current = current->right;
 			} else {
 				break;
 			}
 		}
 	}
 
-	if (current_node->key != key) {
+	if (current->key != key) {
 		return 1;
 	}
 
-	switch (count_children(current_node)) {
+	switch (count_children(current)) {
 	case 0: {
-		free(current_node);
+		free(current);
 
 		if (!parent) {
 			// Deleting the root.
 			this->root = NULL;
 		} else {
 			// Fix my parent and splay him up.
-			if (parent->left == current_node) {
+			if (parent->left == current) {
 				parent->left = NULL;
 			} else {
 				parent->right = NULL;
@@ -346,30 +354,30 @@ int8_t splay_tree_delete(splay_tree* this, uint64_t key) {
 		// I have only one child. Swap my child with me in my parent
 		// and delete me.
 		node* child;
-		if (current_node->left) {
-			child = current_node->left;
+		if (current->left) {
+			child = current->left;
 		} else {
-			assert(child = current_node->right);
+			assert(child = current->right);
 		}
 		if (parent) {
-			if (parent->left == current_node) {
+			if (parent->left == current) {
 				parent->left = child;
 			} else {
-				assert(parent->right == current_node);
+				assert(parent->right == current);
 				parent->right = child;
 			}
 			splay_up(this, parent->key);
 		} else {
 			this->root = child;
 		}
-		free(current_node);
+		free(current);
 		break;
 	}
 	case 2: {
 		// Ooops...
 		node* lir_parent;
 		node* leftmost_in_right;
-		get_leftmost_in_right_subtree(current_node, &leftmost_in_right,
+		get_leftmost_in_right_subtree(current, &leftmost_in_right,
 				&lir_parent);
 
 		if (lir_parent->left == leftmost_in_right) {
@@ -378,8 +386,8 @@ int8_t splay_tree_delete(splay_tree* this, uint64_t key) {
 			assert(lir_parent->right == leftmost_in_right);
 			lir_parent->right = NULL;
 		}
-		current_node->key = leftmost_in_right->key;
-		current_node->value = leftmost_in_right->value;
+		current->key = leftmost_in_right->key;
+		current->value = leftmost_in_right->value;
 		free(leftmost_in_right);
 		// TODO: maybe splay the parent of the actually deleted node
 		// instead? TODO: check out the proofs
@@ -393,28 +401,6 @@ int8_t splay_tree_delete(splay_tree* this, uint64_t key) {
 	}
 	}
 	return 0;
-}
-
-static void navigate(splay_tree* this, splay_tree_key key, node** found_node) {
-	node* current = this->root;
-	do {
-		if (current->key == key) {
-			break;  // Got it.
-		} else if (key < current->key) {
-			if (current->left) {
-				current = current->left;
-			} else {
-				break;
-			}
-		} else {
-			if (current->right) {
-				current = current->right;
-			} else {
-				break;
-			}
-		}
-	} while (true);
-	*found_node = current;
 }
 
 void splay_tree_next_key(splay_tree* this, splay_tree_key key,
