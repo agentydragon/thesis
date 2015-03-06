@@ -365,33 +365,6 @@ void drilldown_begin(struct drilldown_track* track) {
 	track->bfs = 0;
 }
 
-static void add_level(struct level_data* ld, struct drilldown_track* track) {
-	++track->depth;
-//	log_info("going to BFS=%" PRIu64 ".", track->bfs);
-//	log_info("level data for level=%" PRIu64 ": top_size=%" PRIu64
-//			" bottom_size=%" PRIu64 " top_depth=%" PRIu64,
-//			track->depth,
-//			ld[track->depth].top_size, ld[track->depth].bottom_size,
-//			ld[track->depth].top_depth);
-//	log_info("root of my top tree is at depth %" PRIu64, ld[track->depth].top_depth);
-//	log_info("that means node %" PRIu64, track->pos[ld[track->depth].top_depth]);
-//	log_info("I am bottom tree number %" PRIu64, (track->bfs + 1) & ld[track->depth].top_size);
-	// TODO: shift and minus, not multiply; also, logs
-	track->pos[track->depth] = track->pos[ld[track->depth].top_depth] +
-		ld[track->depth].top_size +
-		((track->bfs + 1) & ld[track->depth].top_size) * ld[track->depth].bottom_size;
-}
-
-void drilldown_go_left(struct level_data* ld, struct drilldown_track* track) {
-	track->bfs = (track->bfs << 1ULL) + 1;
-	add_level(ld, track);
-}
-
-void drilldown_go_right(struct level_data* ld, struct drilldown_track* track) {
-	track->bfs = (track->bfs << 1ULL) + 2;
-	add_level(ld, track);
-}
-
 // Inverse of drilldown_go_(left|right)
 void drilldown_go_up(struct drilldown_track* track) {
 	track->depth--;

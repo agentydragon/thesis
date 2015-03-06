@@ -19,9 +19,25 @@ struct drilldown_track {
 	uint64_t bfs;
 };
 void drilldown_begin(struct drilldown_track* track);
-void drilldown_go_left(struct level_data* ld, struct drilldown_track* track);
-void drilldown_go_right(struct level_data* ld, struct drilldown_track* track);
 void drilldown_go_up(struct drilldown_track* track);
+
+// add_level, drilldown_go_left, drilldown_go_right inlined for speed
+inline void add_level(struct level_data* ld, struct drilldown_track* track) {
+	++track->depth;
+	track->pos[track->depth] = track->pos[ld[track->depth].top_depth] +
+		ld[track->depth].top_size +
+		((track->bfs + 1) & ld[track->depth].top_size) * ld[track->depth].bottom_size;
+}
+
+inline void drilldown_go_left(struct level_data* ld, struct drilldown_track* track) {
+	track->bfs = (track->bfs << 1ULL) + 1;
+	add_level(ld, track);
+}
+
+inline void drilldown_go_right(struct level_data* ld, struct drilldown_track* track) {
+	track->bfs = (track->bfs << 1ULL) + 2;
+	add_level(ld, track);
+}
 
 // OLD API:
 typedef struct veb_pointer {
