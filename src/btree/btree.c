@@ -15,7 +15,10 @@
 
 // Details of node representation:
 // TODO: document empty slots; TODO: trick to represent SLOT_UNUSED=SLOT_UNUSED
+
+// Equal to dict DICT_RESERVED_KEY
 #define SLOT_UNUSED 0xFFFFFFFFFFFFFFFF
+
 static btree_node_persisted* new_empty_leaf();
 static btree_node_persisted* new_fork_node(uint64_t middle_key,
 		btree_node_persisted* left, btree_node_persisted* right);

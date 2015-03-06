@@ -36,8 +36,20 @@ plot \
 	"" u 1:($16/$1) axes x1y2 w lines title 'Time per element (COB-tree)', \
 	"" u 1:($19/$1) axes x1y2 w lines title 'Time per element (splay)'
 
+set output "working-set-1k-findonly.png"
+plot \
+	"results.tsv" u 1:($22/$1) axes x1y2 w lines title 'Time per element (B-tree)', \
+	"" u 1:($25/$1) axes x1y2 w lines title 'Time per element (COB-tree)', \
+	"" u 1:($28/$1) axes x1y2 w lines title 'Time per element (splay)'
+
+set output "working-set-100k-findonly.png"
+plot \
+	"results.tsv" u 1:($31/$1) axes x1y2 w lines title 'Time per element (B-tree)', \
+	"" u 1:($34/$1) axes x1y2 w lines title 'Time per element (COB-tree)', \
+	"" u 1:($37/$1) axes x1y2 w lines title 'Time per element (splay)'
+
 set output "graph3.png"
 set noylabel
 set noy2label
 plot \
-	"results.tsv" u 1:($20/$1) w lines title 'Total reorganized elements / N'
+	"results.tsv" u 1:($38/$1) w lines title 'Total reorganized elements / N'

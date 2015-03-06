@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define DICT_RESERVED_KEY 0xFFFFFFFFFFFFFFFF
+
 typedef struct dict_s dict;
 
 typedef struct {

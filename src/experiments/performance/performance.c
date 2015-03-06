@@ -26,11 +26,49 @@ struct metrics {
 	uint64_t time_nsec;
 };
 
-struct results {
-	struct metrics combined, just_find;
-};
+static void insert(dict* dict, uint64_t key, uint64_t value) {
+	CHECK(key != RESERVED_KEY, "trying to insert reserved key");
+	CHECK(!dict_insert(table, key, value), "cannot insert");
+}
 
-struct results measure_api(const dict_api* api, uint64_t size) {
+struct metrics measure_working_set(const dict_api* api, uint64_t size,
+		uint64_t working_set_size) {
+	struct measurement measurement = measurement_begin();
+	stopwatch watch = stopwatch_start();
+
+	const uint64_t used_ws_size = working_set_size < size ? working_set_size : size;
+
+	dict* table;
+	CHECK(!dict_init(&table, api, NULL), "cannot init dict");
+	for (uint64_t i = 0; i < size; i++) {
+		insert(table, make_key(i), make_value(i));
+	}
+
+	struct measurement measurement_just_find = measurement_begin();
+	stopwatch watch_just_find = stopwatch_start();
+
+	rand_generator generator = { .state = 0 };
+	for (uint64_t i = 0; i < size; i++) {
+		int k = rand_next(&generator, used_ws_size);
+		uint64_t value;
+		bool found;
+		assert(!dict_find(table, make_key(k), &value, &found));
+		assert(found && value == make_value(k));
+	}
+
+	struct measurement_results results_combined = measurement_end(measurement),
+				   results_just_find = measurement_end(measurement_just_find);
+	dict_destroy(&table);
+
+	return (struct metrics) {
+		.cache_misses = results_just_find.cache_misses,
+		.cache_references = results_just_find.cache_references,
+		.time_nsec = stopwatch_read_ns(watch_just_find)
+	};
+}
+
+enum { SERIAL_BOTH, SERIAL_JUST_FIND } SERIAL_MODE = SERIAL_BOTH;
+struct metrics measure_serial(const dict_api* api, uint64_t size) {
 	struct measurement measurement = measurement_begin();
 	stopwatch watch = stopwatch_start();
 
@@ -58,22 +96,24 @@ struct results measure_api(const dict_api* api, uint64_t size) {
 
 	struct measurement_results results_combined = measurement_end(measurement),
 				   results_just_find = measurement_end(measurement_just_find);
-
 	dict_destroy(&table);
 
-	struct results tr = {
-		.combined = {
+	switch (SERIAL_MODE) {
+	case SERIAL_BOTH:
+		return (struct metrics) {
 			.cache_misses = results_combined.cache_misses,
 			.cache_references = results_combined.cache_references,
 			.time_nsec = stopwatch_read_ns(watch)
-		},
-		.just_find = {
+		};
+	case SERIAL_JUST_FIND:
+		return (struct metrics) {
 			.cache_misses = results_just_find.cache_misses,
 			.cache_references = results_just_find.cache_references,
 			.time_nsec = stopwatch_read_ns(watch_just_find)
-		},
-	};
-	return tr;
+		};
+	default:
+		log_fatal("internal error");
+	}
 }
 
 int main(int argc, char** argv) {
@@ -90,22 +130,39 @@ int main(int argc, char** argv) {
 
 		fprintf(output, "%" PRIu64 "\t", size);
 
-		struct results results[10];
+		struct metrics results[10];
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
-			results[i] = measure_api(FLAGS.measured_apis[i], size);
+			SERIAL_MODE = SERIAL_BOTH;
+			results[i] = measure_serial(FLAGS.measured_apis[i], size);
+			fprintf(output, "%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t",
+					results[i].cache_misses,
+					results[i].cache_references,
+					results[i].time_nsec);
 		}
 
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
+			SERIAL_MODE = SERIAL_JUST_FIND;
+			results[i] = measure_serial(FLAGS.measured_apis[i], size);
 			fprintf(output, "%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t",
-					results[i].combined.cache_misses,
-					results[i].combined.cache_references,
-					results[i].combined.time_nsec);
+					results[i].cache_misses,
+					results[i].cache_references,
+					results[i].time_nsec);
 		}
+
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
+			results[i] = measure_working_set(FLAGS.measured_apis[i], size, 1000);
 			fprintf(output, "%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t",
-					results[i].just_find.cache_misses,
-					results[i].just_find.cache_references,
-					results[i].just_find.time_nsec);
+					results[i].cache_misses,
+					results[i].cache_references,
+					results[i].time_nsec);
+		}
+
+		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
+			results[i] = measure_working_set(FLAGS.measured_apis[i], size, 100000);
+			fprintf(output, "%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t",
+					results[i].cache_misses,
+					results[i].cache_references,
+					results[i].time_nsec);
 		}
 
 		fprintf(output, "%" PRIu64 "\n",
