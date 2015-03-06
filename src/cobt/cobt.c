@@ -241,26 +241,25 @@ static void validate_key(uint64_t key) {
 	CHECK(key != COB_INFINITY, "Trying to operate on key=COB_INFINITY");
 }
 
-int8_t cob_insert(struct cob* this, uint64_t key, uint64_t value) {
-	bool exists;
-	cob_find(this, key, &exists, NULL);
-	if (exists) {
-		// Duplicate key;
-		return 1;
-	}
+static ofm_range get_leaf(struct cob* this, uint64_t leaf_index) {
+	return ofm_get_leaf(&this->file, leaf_index * this->file.block_size);
+}
 
+int8_t cob_insert(struct cob* this, uint64_t key, uint64_t value) {
 	validate_key(key);
 
 	// Walk down vEB layout to find where does the key belong.
 	const uint64_t leaf_index = veb_walk(this, key);
+	if (range_find(get_leaf(this, leaf_index), key, NULL)) {
+		// Duplicate key;
+		return 1;
+	}
 
 	const struct parameters prior_parameters = get_params(this->file);
 
 	// Insert into ordered file.
 	const ofm_range reorg_range = insert_sorted_order(
-			ofm_get_leaf(&this->file,
-					leaf_index * this->file.block_size),
-			key, value);
+			get_leaf(this, leaf_index), key, value);
 	COB_COUNTERS.total_reorganized_size += reorg_range.size;
 	log_info("reorged range [%" PRIu64 "+%" PRIu64 "]",
 			reorg_range.begin, reorg_range.size);
@@ -282,10 +281,8 @@ int8_t cob_delete(struct cob* this, uint64_t key) {
 	const struct parameters prior_parameters = get_params(this->file);
 
 	// Delete from ordered file.
-	ofm_range leaf_sr = ofm_get_leaf(&this->file, leaf_index *
-			this->file.block_size);
 	uint64_t index;
-	if (!range_find(leaf_sr, key, &index)) {
+	if (!range_find(get_leaf(this, leaf_index), key, &index)) {
 		// Deleting nonexistant key.
 		return 1;
 	}
@@ -305,10 +302,8 @@ void cob_find(struct cob* this, uint64_t key, bool *found, uint64_t *value) {
 	// Walk down vEB layout to find where does the key belong.
 	const uint64_t leaf_index = veb_walk(this, key);
 
-	const ofm_range leaf_range = ofm_get_leaf(&this->file,
-			leaf_index * this->file.block_size);
 	uint64_t index;
-	if (range_find(leaf_range, key, &index)) {
+	if (range_find(get_leaf(this, leaf_index), key, &index)) {
 		*found = true;
 		if (value) {
 			*value = this->file.items[index].value;
@@ -344,7 +339,7 @@ void cob_previous_key(struct cob* this, uint64_t key,
 
 	// Walk down vEB layout to find where does the key belong.
 	const uint64_t leaf_index = veb_walk(this, key);
-	ofm_range leaf = ofm_get_leaf(&this->file, leaf_index * this->file.block_size);
+	ofm_range leaf = get_leaf(this, leaf_index);
 
 	// TODO: plain single FOR?
 	// TODO: return pointer for faster lookup
