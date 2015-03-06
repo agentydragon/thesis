@@ -27,8 +27,8 @@ struct metrics {
 };
 
 static void insert(dict* dict, uint64_t key, uint64_t value) {
-	CHECK(key != RESERVED_KEY, "trying to insert reserved key");
-	CHECK(!dict_insert(table, key, value), "cannot insert");
+	CHECK(key != DICT_RESERVED_KEY, "trying to insert reserved key");
+	CHECK(!dict_insert(dict, key, value), "cannot insert");
 }
 
 static void check_contains(dict* dict, uint64_t key, uint64_t value) {
@@ -38,6 +38,15 @@ static void check_contains(dict* dict, uint64_t key, uint64_t value) {
 	assert(found && found_value == value);
 }
 
+dict* seed(const dict_api* api, uint64_t size) {
+	dict* dict;
+	CHECK(!dict_init(&dict, api, NULL), "cannot init dict");
+	for (uint64_t i = 0; i < size; i++) {
+		insert(dict, make_key(i), make_value(i));
+	}
+	return dict;
+}
+
 struct metrics measure_working_set(const dict_api* api, uint64_t size,
 		uint64_t working_set_size) {
 	struct measurement measurement = measurement_begin();
@@ -45,11 +54,7 @@ struct metrics measure_working_set(const dict_api* api, uint64_t size,
 
 	const uint64_t used_ws_size = working_set_size < size ? working_set_size : size;
 
-	dict* table;
-	CHECK(!dict_init(&table, api, NULL), "cannot init dict");
-	for (uint64_t i = 0; i < size; i++) {
-		insert(table, make_key(i), make_value(i));
-	}
+	dict* table = seed(api, size);
 
 	struct measurement measurement_just_find = measurement_begin();
 	stopwatch watch_just_find = stopwatch_start();
@@ -70,6 +75,49 @@ struct metrics measure_working_set(const dict_api* api, uint64_t size,
 		.time_nsec = stopwatch_read_ns(watch_just_find)
 	};
 }
+
+static void iterate_ltr(dict* dict) {
+	uint64_t min = 0;
+	bool found;
+	assert(!dict_find(dict, min, NULL, &found));
+	if (!found) {
+		assert(!dict_next(dict, min, &min, &found));
+	}
+
+	uint64_t current_key = min;
+	while (found) {
+		uint64_t value;
+		assert(!dict_find(dict, current_key, &value, &found));
+		(void) value;  // unused
+		assert(found);
+
+		assert(!dict_next(dict, current_key, &current_key, &found));
+	}
+}
+
+// TODO: measure_ltr_scan breaks the hacky implementation of splay_tree
+/*
+struct metrics measure_ltr_scan(const dict_api* api, uint64_t size) {
+	dict* table = seed(api, size);
+
+	struct measurement measurement_just_find = measurement_begin();
+	stopwatch watch_just_find = stopwatch_start();
+
+	const int K = 5;  // for cache warmup
+	for (int i = 0; i < K; i++) {
+		iterate_ltr(table);
+	}
+
+	struct measurement_results results_just_find = measurement_end(measurement_just_find);
+	dict_destroy(&table);
+
+	return (struct metrics) {
+		.cache_misses = results_just_find.cache_misses / K,
+		.cache_references = results_just_find.cache_references / K,
+		.time_nsec = stopwatch_read_ns(watch_just_find) / K
+	};
+}
+*/
 
 enum { SERIAL_BOTH, SERIAL_JUST_FIND } SERIAL_MODE = SERIAL_BOTH;
 struct metrics measure_serial(const dict_api* api, uint64_t size) {
@@ -163,6 +211,19 @@ int main(int argc, char** argv) {
 					results[i].cache_references,
 					results[i].time_nsec);
 		}
+
+		/*
+		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
+			// "implements ordering"?
+			if (FLAGS.measured_apis[i]->next) {
+				results[i] = measure_ltr_scan(FLAGS.measured_apis[i], size);
+				fprintf(output, "%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t",
+						results[i].cache_misses,
+						results[i].cache_references,
+						results[i].time_nsec);
+			}
+		}
+		*/
 
 		fprintf(output, "%" PRIu64 "\n",
 				COB_COUNTERS.total_reorganized_size);

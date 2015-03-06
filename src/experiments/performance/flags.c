@@ -57,13 +57,17 @@ static int parse_option(int key, char *arg, struct argp_state *state) {
 	return 0;
 }
 
-void parse_flags(int argc, char** argv) {
+static void set_defaults() {
 	FLAGS.maximum = 64 * 1024 * 1024;
 	FLAGS.base = 1.2;
 	FLAGS.measured_apis[0] = &dict_btree;
 	FLAGS.measured_apis[1] = &dict_cobt;
 	FLAGS.measured_apis[2] = &dict_splay;
 	FLAGS.measured_apis[3] = NULL;
+}
+
+void parse_flags(int argc, char** argv) {
+	set_defaults();
 
 	struct argp_option options[] = {
 		{
