@@ -126,6 +126,7 @@ static inline ofm_range right_half_of(ofm_range range) {
 	};
 }
 
+// TODO: remove recursive call
 static void fix_range_recursive(struct cob* this, ofm_range range_to_fix,
 		ofm_range current_range, struct drilldown_track* track) {
 	log_info("to_fix=[%" PRIu64 "+%" PRIu64 "] current_range=[%" PRIu64 "+%" PRIu64 "] "
@@ -202,6 +203,8 @@ static uint64_t veb_walk(const struct cob* this, uint64_t key) {
 			// This is the leaf.
 			break;
 		} else {
+			// NOTE: this is the reason why right drilldowns
+			// are more likely.
 			drilldown_go_right(this->level_data, &track);
 			if (key >= this->veb_minima[track.pos[track.depth]]) {
 				// We want to go right.
