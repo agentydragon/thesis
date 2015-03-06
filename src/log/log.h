@@ -3,6 +3,7 @@
 
 void __log_basic(const char* tag, const char* format, ...);
 void log_fatal(const char* format, ...) __attribute__((noreturn));
+// TODO: log_q(uiet)fatal?
 
 #define CHECK(assertion,message,...) do { \
 	if (!(assertion)) { \
