@@ -25,3 +25,11 @@ Tested on \texttt{bin/experiments/performance -m 10M -a dict\_cobt}:
 Before: 111.93 107.52 108.41 108.59 114.54, after:
 99.95, 101.05, 102.63, 102.41, 100.96.
 The speedup is about 8\%.
+
+\subsection{Keeping stack for splaying in \texttt{splay\_tree.c}}
+See commit \texttt{90f9247}.
+\texttt{splay\_tree\_insert} previously first added a new node, and then called
+a separate function to find the new node by its key and to splay it up.
+Constructing a "splay stack" while inserting enhanced performance by about 12\%.
+Original \texttt{bin/experiments/performance -m 10M -b 5 -a dict\_splay}:
+13.770, 13.589, 13.868. After: 12.348, 12.172, 12.15.
