@@ -127,38 +127,14 @@ void btree_destroy(btree* tree) {
 	tree->root = NULL;
 }
 
-static void dump_now(btree_node_traversed node, int depth) {
-	/*
-	char buffer[256];
-	uint64_t shift = 0;
-	for (uint8_t i = 0; i < depth; i++) {
-		shift += sprintf(buffer + shift, "  ");
-	}
-	if (node.persisted->leaf) {
-		shift += sprintf(buffer + shift, "%p: ", node.persisted);
-		for (uint8_t i = 0; i < get_n_FOO_keys(node.persisted); ++i) {
-			shift += sprintf(buffer + shift,
-					" %" PRIu64 "=%" PRIu64,
-					node.persisted->keys[i],
-					node.persisted->leaf.values[i]);
-		}
-	} else {
-		shift += sprintf(buffer + shift, "%p: ", node.persisted);
-		for (uint8_t i = 0; i < get_n_FOO_keys(node.persisted); ++i) {
-			shift += sprintf(buffer + shift, " %p <%" PRIu64 ">",
-					node.persisted->internal.pointers[i],
-					node.persisted->keys[i]);
-		}
-		shift += sprintf(buffer + shift, " %p",
-				node.persisted->internal.pointers[get_n_FOO_keys(node.persisted)]);
-	}
-	printf("%s\n", buffer);
-	*/
+static void dump_node_content(btree_node_traversed node, int depth) {
+	(void) node; (void) depth;
+	// TODO: make dumping work again
 	printf("dumping doesn't work\n");
 }
 
 static void dump_recursive(btree_node_traversed node, int depth) {
-	dump_now(node, depth);
+	dump_node_content(node, depth);
 	if (!nt_is_leaf(node)) {
 		FOR_EACH_INTERNAL_POINTER(node.persisted, {
 			btree_node_traversed subnode = node;

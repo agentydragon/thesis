@@ -32,13 +32,21 @@ static int8_t find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 	return 0;
 }
 
+static int8_t insert(void* _this, uint64_t key, uint64_t value) {
+	return btree_insert(_this, key, value);
+}
+
+static int8_t delete(void* _this, uint64_t key) {
+	return btree_delete(_this, key);
+}
+
 const dict_api dict_btree = {
 	.init = init,
 	.destroy = destroy,
 
 	.find = find,
-	.insert = btree_insert,
-	.delete = btree_delete,
+	.insert = insert,
+	.delete = delete,
 
 	.dump = NULL,
 	.name = "dict_btree"
