@@ -9,7 +9,6 @@
 #include "math/math.h"
 #include "veb_layout/veb_layout.h"
 
-#define NO_LOG_INFO
 #include "log/log.h"
 
 struct parameters { uint64_t block_size; uint64_t capacity; };
@@ -26,7 +25,7 @@ static bool parameters_equal(struct parameters x, struct parameters y) {
 }
 
 static bool range_find(ofm_range range, uint64_t key, uint64_t *found_index) {
-	log_info("looking for %" PRIu64 " in [%" PRIu64 "+%" PRIu64 "]",
+	log_verbose(2, "looking for %" PRIu64 " in [%" PRIu64 "+%" PRIu64 "]",
 			key, range.begin, range.size);
 	for (uint64_t i = 0; i < range.size; i++) {
 		const uint64_t index = range.begin + i;
@@ -47,13 +46,13 @@ uint64_t cobt_range_get_minimum(ofm_range range) {
 	for (uint64_t i = 0; i < range.size; i++) {
 		const uint64_t index = range.begin + i;
 		if (range.file->occupied[index]) {
-			log_info("minimum [%" PRIu64 "+%" PRIu64 "]=%" PRIu64,
+			log_verbose(2, "minimum [%" PRIu64 "+%" PRIu64 "]=%" PRIu64,
 					range.begin, range.size,
 					range.file->items[index].key);
 			return range.file->items[index].key;
 		}
 	}
-	log_info("minimum [%" PRIu64 "+%" PRIu64 "]=infty",
+	log_verbose(2, "minimum [%" PRIu64 "+%" PRIu64 "]=infty",
 			range.begin, range.size);
 	return COB_INFINITY;
 }
@@ -72,7 +71,7 @@ static ofm_range insert_sorted_order(ofm_range range, uint64_t key,
 
 	ofm_range touched_range;
 	if (found_after) {
-		log_info("inserting %" PRIu64 "=%" PRIu64 " before %" PRIu64,
+		log_verbose(2, "inserting %" PRIu64 "=%" PRIu64 " before %" PRIu64,
 				key, value, index_after);
 		ofm_insert_before(range.file,
 				(ofm_item) { .key = key, .value = value },
@@ -126,67 +125,116 @@ static inline ofm_range right_half_of(ofm_range range) {
 	};
 }
 
-// TODO: remove recursive call
-static void fix_range_recursive(struct cob* this, ofm_range range_to_fix,
-		ofm_range current_range, struct drilldown_track* track) {
-	log_info("to_fix=[%" PRIu64 "+%" PRIu64 "] current_range=[%" PRIu64 "+%" PRIu64 "] "
-			" bs=%" PRIu64,
-			range_to_fix.begin, range_to_fix.size,
-			current_range.begin, current_range.size,
-			this->file.block_size);
-	const uint64_t current_nid = track->pos[track->depth];
+static void fix_range(struct cob* this, ofm_range to_fix) {
+	typedef struct {
+		ofm_range range;
+		enum { ENTERING, TAKEN_LEFT, TAKEN_ALL } state;
+	} stack_frame;
 
-	if (current_range.size > range_to_fix.size) {
-		log_info("partially dirty");
-		if (range_to_fix.begin <
-				current_range.begin + current_range.size / 2) {
-			drilldown_go_left(this->level_data, track);
-			fix_range_recursive(this, range_to_fix,
-					left_half_of(current_range), track);
-		} else {
-			drilldown_go_right(this->level_data, track);
-			fix_range_recursive(this, range_to_fix,
-					right_half_of(current_range), track);
-		}
-		if (this->veb_minima[track->pos[track->depth]] < this->veb_minima[current_nid]) {
-			this->veb_minima[current_nid] = this->veb_minima[track->pos[track->depth]];
-		}
-		drilldown_go_up(track);
-	} else if (current_range.size > this->file.block_size) {
-		log_info("completely dirty");
-		this->veb_minima[current_nid] = COB_INFINITY;
-		drilldown_go_left(this->level_data, track);
-		fix_range_recursive(this, range_to_fix,
-				left_half_of(current_range), track);
-		if (this->veb_minima[track->pos[track->depth]] < this->veb_minima[current_nid]) {
-			this->veb_minima[current_nid] = this->veb_minima[track->pos[track->depth]];
-		}
-		drilldown_go_up(track);
+	stack_frame stack[64];
+	uint8_t stack_depth = 1;
 
-		drilldown_go_right(this->level_data, track);
-		fix_range_recursive(this, range_to_fix,
-				right_half_of(current_range), track);
-		if (this->veb_minima[track->pos[track->depth]] < this->veb_minima[current_nid]) {
-			this->veb_minima[current_nid] = this->veb_minima[track->pos[track->depth]];
-		}
-		drilldown_go_up(track);
-	} else {
-		this->veb_minima[current_nid] = cobt_range_get_minimum(current_range);
-	}
-	log_info("=> %" PRIu64 " fixed to %" PRIu64,
-			current_nid, this->veb_minima[current_nid]);
-}
-
-static void fix_range(struct cob* this, ofm_range range_to_fix) {
 	struct drilldown_track track;
 	drilldown_begin(&track);
-	fix_range_recursive(this, range_to_fix, (ofm_range) {
+
+	stack[0].range = (ofm_range) {
 		.begin = 0, .size = this->file.capacity, .file = &this->file
-	}, &track);
+	};
+	stack[0].state = ENTERING;
+
+	while (stack_depth > 0) {
+		const uint64_t my_nid = track.pos[stack_depth - 1];
+		stack_frame* frame = &stack[stack_depth - 1];
+
+		log_verbose(1, "[%" PRIu8 "] current_range=[%" PRIu64 "+%" PRIu64 "] "
+				" state=%d",
+				stack_depth,
+				frame->range.begin, frame->range.size,
+				frame->state);
+
+		if (frame->range.size > to_fix.size) {
+			// Partially dirty range.
+			switch (frame->state) {
+			case ENTERING:
+				if (to_fix.begin < frame->range.begin + frame->range.size / 2) {
+					drilldown_go_left(this->level_data, &track);
+					stack[stack_depth++] = (stack_frame) {
+						.range = left_half_of(frame->range),
+						.state = ENTERING
+					};
+				} else {
+					drilldown_go_right(this->level_data, &track);
+					stack[stack_depth++] = (stack_frame) {
+						.range = right_half_of(frame->range),
+						.state = ENTERING
+					};
+				}
+				frame->state = TAKEN_ALL;
+				break;
+			case TAKEN_ALL: {
+				const uint64_t returned_nid = track.pos[track.depth];
+				if (this->veb_minima[returned_nid] < this->veb_minima[my_nid]) {
+					this->veb_minima[my_nid] = this->veb_minima[returned_nid];
+				}
+				drilldown_go_up(&track);
+				--stack_depth;
+				break;
+			}
+			default:
+				log_fatal("invalid frame state");
+			}
+		} else if (frame->range.size > this->file.block_size) {
+			// Completely dirty range.
+			switch (frame->state) {
+			case ENTERING:
+				this->veb_minima[my_nid] = COB_INFINITY;
+				drilldown_go_left(this->level_data, &track);
+				stack[stack_depth++] = (stack_frame) {
+					.range = left_half_of(frame->range),
+					.state = ENTERING
+				};
+				frame->state = TAKEN_LEFT;
+				break;
+			case TAKEN_LEFT: {
+				const uint64_t returned_nid = track.pos[track.depth];
+				if (this->veb_minima[returned_nid] < this->veb_minima[my_nid]) {
+					this->veb_minima[my_nid] = this->veb_minima[returned_nid];
+				}
+				drilldown_go_up(&track);
+
+				drilldown_go_right(this->level_data, &track);
+				stack[stack_depth++] = (stack_frame) {
+					.range = right_half_of(frame->range),
+					.state = ENTERING
+				};
+				frame->state = TAKEN_ALL;
+				break;
+			}
+			case TAKEN_ALL: {
+				const uint64_t returned_nid = track.pos[track.depth];
+				if (this->veb_minima[returned_nid] < this->veb_minima[my_nid]) {
+					this->veb_minima[my_nid] = this->veb_minima[returned_nid];
+				}
+				drilldown_go_up(&track);
+				--stack_depth;
+				break;
+			}
+			default:
+				log_fatal("invalid frame state");
+			}
+		} else {
+			assert(frame->state == ENTERING);
+			// Simple block to fix.
+			this->veb_minima[my_nid] = cobt_range_get_minimum(frame->range);
+			--stack_depth;
+		}
+	};
+	// log_info("=> %" PRIu64 " fixed to %" PRIu64,
+	//		current_nid, this->veb_minima[current_nid]);
 }
 
 static uint64_t veb_walk(const struct cob* this, uint64_t key) {
-	log_info("veb_walking to key %" PRIu64, key);
+	log_verbose(1, "veb_walking to key %" PRIu64, key);
 	uint64_t stack_size = 0;
 
 	struct drilldown_track track;
@@ -199,7 +247,8 @@ static uint64_t veb_walk(const struct cob* this, uint64_t key) {
 		stack_size++;
 
 		if (stack_size == veb_height) {
-			log_info("-> %" PRIu64 " is the leaf we want", pointer);
+			log_verbose(1, "-> %" PRIu64 " is the leaf we want",
+					leaf_index);
 			// This is the leaf.
 			break;
 		} else {
@@ -261,7 +310,7 @@ int8_t cob_insert(struct cob* this, uint64_t key, uint64_t value) {
 	const ofm_range reorg_range = insert_sorted_order(
 			get_leaf(this, leaf_index), key, value);
 	COB_COUNTERS.total_reorganized_size += reorg_range.size;
-	log_info("reorged range [%" PRIu64 "+%" PRIu64 "]",
+	log_verbose(1, "reorged range [%" PRIu64 "+%" PRIu64 "]",
 			reorg_range.begin, reorg_range.size);
 
 	if (parameters_equal(get_params(this->file), prior_parameters)) {
