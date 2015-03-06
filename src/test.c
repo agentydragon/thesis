@@ -46,7 +46,7 @@ void run_unit_tests() {
 	// TODO: optimize dict_cobt for better performance
 	test_dict_large(&dict_cobt, 1 << 20);
 	test_dict_large(&dict_hashtable, 1 << 20);
-	test_dict_large(&dict_splay, 1 << 10);
+	test_dict_large(&dict_splay, 1 << 20);
 }
 
 int main(int argc, char** argv) {
