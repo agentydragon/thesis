@@ -31,6 +31,13 @@ static void insert(dict* dict, uint64_t key, uint64_t value) {
 	CHECK(!dict_insert(table, key, value), "cannot insert");
 }
 
+static void check_contains(dict* dict, uint64_t key, uint64_t value) {
+	uint64_t found_value;
+	bool found;
+	assert(!dict_find(dict, key, &found_value, &found));
+	assert(found && found_value == value);
+}
+
 struct metrics measure_working_set(const dict_api* api, uint64_t size,
 		uint64_t working_set_size) {
 	struct measurement measurement = measurement_begin();
@@ -49,11 +56,8 @@ struct metrics measure_working_set(const dict_api* api, uint64_t size,
 
 	rand_generator generator = { .state = 0 };
 	for (uint64_t i = 0; i < size; i++) {
-		int k = rand_next(&generator, used_ws_size);
-		uint64_t value;
-		bool found;
-		assert(!dict_find(table, make_key(k), &value, &found));
-		assert(found && value == make_value(k));
+		const int k = rand_next(&generator, used_ws_size);
+		check_contains(table, make_key(k), make_value(k));
 	}
 
 	struct measurement_results results_combined = measurement_end(measurement),
@@ -75,23 +79,18 @@ struct metrics measure_serial(const dict_api* api, uint64_t size) {
 	dict* table;
 	if (dict_init(&table, api, NULL)) log_fatal("cannot init dict");
 	for (uint64_t i = 0; i < size; i++) {
-		if (dict_insert(table, make_key(i), make_value(i))) {
-			log_fatal("cannot insert");
-		}
+		insert(table, make_key(i), make_value(i));
 	}
 
 	struct measurement measurement_just_find = measurement_begin();
 	stopwatch watch_just_find = stopwatch_start();
 
 	rand_generator generator = { .state = 0 };
-	// Let every read be a hit.
 	// TODO: separate size/reads
 	for (uint64_t i = 0; i < size; i++) {
-		int k = rand_next(&generator, size);
-		uint64_t value;
-		bool found;
-		assert(!dict_find(table, make_key(k), &value, &found));
-		assert(found && value == make_value(k));
+		const int k = rand_next(&generator, size);
+		// Let every read be a hit.
+		check_contains(table, make_key(k), make_value(k));
 	}
 
 	struct measurement_results results_combined = measurement_end(measurement),
