@@ -97,36 +97,7 @@ static void navigate(splay_tree* this, splay_tree_key key, node** found_node) {
 	*found_node = current;
 }
 
-static void splay_up_internal(splay_tree* this, uint64_t key, node** stack, uint64_t stack_size) {
-	node* current = this->root;
-
-	uint64_t depth = 0;
-
-	do {
-		assert(depth < stack_size);
-		stack[depth++] = current;
-
-		if (current->key == key) {
-			break;
-		} else if (current->key < key) {
-			if (current->right) {
-				current = current->right;
-			} else {
-				// log_fatal("failed to find");
-				// return;
-				break;
-			}
-		} else /* current->key > key */ {
-			if (current->left) {
-				current = current->left;
-			} else {
-				// log_fatal("failed to find");
-				// return;
-				break;
-			}
-		}
-	} while (true);
-
+static void splay_up_stack(splay_tree* this, node** stack, uint64_t depth) {
 	while (depth > 1) {
 		if (depth == 2) {
 			node *parent = stack[0], *x = stack[1];
@@ -185,6 +156,37 @@ static void splay_up_internal(splay_tree* this, uint64_t key, node** stack, uint
 	this->root = stack[0];
 }
 
+static void splay_up_internal(splay_tree* this, uint64_t key,
+		node** stack, uint64_t stack_size) {
+	node* current = this->root;
+	uint64_t depth = 0;
+
+	do {
+		assert(depth < stack_size);
+		stack[depth++] = current;
+
+		if (current->key == key) {
+			break;
+		} else if (current->key < key) {
+			if (current->right) {
+				current = current->right;
+			} else {
+				// log_fatal("failed to find");
+				break;
+			}
+		} else /* current->key > key */ {
+			if (current->left) {
+				current = current->left;
+			} else {
+				// log_fatal("failed to find");
+				break;
+			}
+		}
+	} while (true);
+
+	splay_up_stack(this, stack, depth);
+}
+
 void splay_up(splay_tree* this, uint64_t key) {
 	splay_up_internal(this, key, global_stack, GLOBAL_STACK_SIZE);
 }
@@ -217,11 +219,19 @@ void splay_tree_destroy(struct splay_tree** _tree) {
 
 int8_t splay_tree_insert(struct splay_tree* tree, uint64_t key, uint64_t value) {
 	node** target;
+
+	node** stack = global_stack;
+	const uint64_t stack_size = GLOBAL_STACK_SIZE;
+	uint64_t depth = 0;
+
 	if (tree->root == NULL) {
 		target = &tree->root;
 	} else {
 		node* parent = tree->root;
 		while (true) {
+			assert(depth < stack_size);
+			stack[depth++] = parent;
+
 			if (parent->key > key) {
 				if (parent->left == NULL) {
 					target = &parent->left;
@@ -249,9 +259,10 @@ int8_t splay_tree_insert(struct splay_tree* tree, uint64_t key, uint64_t value) 
 		.key = key, .value = value, .left = NULL, .right = NULL };
 	*target = new_node;
 
-	// This will do the splay step.
-	// TODO(prvak): make this better
-	splay_tree_find(tree, key, NULL, NULL);
+	assert(depth < stack_size);
+	stack[depth++] = new_node;
+
+	splay_up_stack(tree, stack, depth);
 	return 0;
 }
 
