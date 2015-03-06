@@ -63,31 +63,27 @@ typedef struct {
 	btree_node_persisted* persisted;
 } btree_node_traversed;
 
-static bool nt_is_leaf(btree_node_traversed node) {
+static inline bool nt_is_leaf(btree_node_traversed node) {
 	return node.levels_above_leaves == 0;
 }
 
-static btree_node_traversed nt_root(btree* tree) {
+static inline btree_node_traversed nt_root(btree* tree) {
 	return (btree_node_traversed) {
 		.persisted = tree->root,
 		.levels_above_leaves = tree->levels_above_leaves
 	};
 }
 
-static btree_node_traversed nt_advance(const btree_node_traversed node,
-		uint64_t key) {
-	for (uint8_t i = 0; i < get_n_internal_keys(node.persisted); i++) {
-		if (node.persisted->internal.keys[i] > key) {
-			return (btree_node_traversed) {
-				.persisted = node.persisted->internal.pointers[i],
-				.levels_above_leaves = node.levels_above_leaves - 1,
-			};
+static inline void nt_advance(btree_node_traversed* node, uint64_t key) {
+	const uint8_t n_internal_keys = get_n_internal_keys(node->persisted);
+	--node->levels_above_leaves;
+	for (uint8_t i = 0; i < n_internal_keys; i++) {
+		if (node->persisted->internal.keys[i] > key) {
+			node->persisted = node->persisted->internal.pointers[i];
+			return;
 		}
 	}
-	return (btree_node_traversed) {
-		.persisted = node.persisted->internal.pointers[get_n_internal_keys(node.persisted)],
-		.levels_above_leaves = node.levels_above_leaves - 1,
-	};
+	node->persisted = node->persisted->internal.pointers[n_internal_keys];
 }
 
 static void split_keys_with_preference(uint8_t total_keys,
@@ -229,7 +225,7 @@ int8_t btree_insert(btree* this, uint64_t key, uint64_t value) {
 		log_verbose(1, "now at: parent=%p node=%p",
 				parent, node.persisted);
 		parent = node.persisted;
-		node = nt_advance(node, key);
+		nt_advance(&node, key);
 		log_verbose(1, "went to: parent=%p node=%p",
 				parent, node.persisted);
 	} while (true);
@@ -358,7 +354,7 @@ int8_t btree_delete(btree* this, uint64_t key) {
 		log_verbose(1, "now at: parent=%p node=%p",
 				parent, node.persisted);
 		parent = node.persisted;
-		node = nt_advance(node, key);
+		nt_advance(&node, key);
 		log_verbose(1, "went to: parent=%p node=%p",
 				parent, node.persisted);
 	} while (true);
@@ -383,7 +379,7 @@ void btree_find(btree* this, uint64_t key, bool *found, uint64_t *value) {
 	btree_node_traversed node = nt_root(this);
 
 	while (!nt_is_leaf(node)) {
-		node = nt_advance(node, key);
+		nt_advance(&node, key);
 	}
 
 	for (uint8_t i = 0; i < get_n_leaf_keys(node.persisted); i++) {
