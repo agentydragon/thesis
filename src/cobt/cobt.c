@@ -126,48 +126,41 @@ static inline ofm_range right_half_of(ofm_range range) {
 }
 
 static void fix_range(struct cob* this, ofm_range to_fix) {
-	typedef struct {
-		uint64_t begin;
-		enum { ENTERING, TAKEN_LEFT, TAKEN_ALL } state;
-	} stack_frame;
-
-	stack_frame stack[64];
+	enum state { ENTERING, TAKEN_LEFT, TAKEN_ALL };
+	enum state stack[64];
 	uint8_t stack_depth = 1;
 
 	struct drilldown_track track;
 	drilldown_begin(&track);
 
-	stack[0].begin = 0;
-	stack[0].state = ENTERING;
+	stack[0] = ENTERING;
+
+	ofm_range range = {
+		.file = &this->file,
+		.size = this->file.capacity
+	};
 
 	while (stack_depth > 0) {
-		stack_frame* frame = &stack[stack_depth - 1];
-		const ofm_range range = {
-			.begin = frame->begin,
-			.size = this->file.capacity >> (stack_depth - 1),
-			.file = &this->file
-		};
-
 		const uint64_t my_nid = track.pos[stack_depth - 1];
 
 		log_verbose(1, "[%" PRIu8 "] range=[%" PRIu64 "+%" PRIu64 "] "
-				" state=%d",
+				"state=%d begin=%" PRIu64,
 				stack_depth, range.begin, range.size,
-				frame->state);
+				stack[stack_depth - 1], range.begin);
 
 		if (range.size > to_fix.size) {
 			// Partially dirty range.
-			switch (frame->state) {
+			switch (stack[stack_depth - 1]) {
 			case ENTERING:
 				if (to_fix.begin < range.begin + range.size / 2) {
 					drilldown_go_left(this->level_data, &track);
-					stack[stack_depth].begin = frame->begin;
 				} else {
 					drilldown_go_right(this->level_data, &track);
-					stack[stack_depth].begin = frame->begin + range.size / 2;
+					range.begin += range.size / 2;
 				}
-				stack[stack_depth++].state = ENTERING;
-				frame->state = TAKEN_ALL;
+				stack[stack_depth - 1] = TAKEN_ALL;
+				stack[stack_depth++] = ENTERING;
+				range.size /= 2;
 				break;
 			case TAKEN_ALL: {
 				const uint64_t returned_nid = track.pos[track.depth];
@@ -176,6 +169,9 @@ static void fix_range(struct cob* this, ofm_range to_fix) {
 				}
 				drilldown_go_up(&track);
 				--stack_depth;
+				// All done, restore previous begin.
+				range.begin -= range.begin % (range.size * 2);
+				range.size *= 2;
 				break;
 			}
 			default:
@@ -183,14 +179,13 @@ static void fix_range(struct cob* this, ofm_range to_fix) {
 			}
 		} else if (range.size > this->file.block_size) {
 			// Completely dirty range.
-			switch (frame->state) {
+			switch (stack[stack_depth - 1]) {
 			case ENTERING:
 				this->veb_minima[my_nid] = COB_INFINITY;
 				drilldown_go_left(this->level_data, &track);
-				stack[stack_depth].begin = frame->begin;
-				stack[stack_depth].state = ENTERING;
-				++stack_depth;
-				frame->state = TAKEN_LEFT;
+				stack[stack_depth - 1] = TAKEN_LEFT;
+				stack[stack_depth++] = ENTERING;
+				range.size /= 2;
 				break;
 			case TAKEN_LEFT: {
 				const uint64_t returned_nid = track.pos[track.depth];
@@ -200,10 +195,10 @@ static void fix_range(struct cob* this, ofm_range to_fix) {
 				drilldown_go_up(&track);
 
 				drilldown_go_right(this->level_data, &track);
-				stack[stack_depth].begin = frame->begin + range.size / 2;
-				stack[stack_depth].state = ENTERING;
-				++stack_depth;
-				frame->state = TAKEN_ALL;
+				range.begin += range.size / 2;
+				stack[stack_depth - 1] = TAKEN_ALL;
+				stack[stack_depth++] = ENTERING;
+				range.size /= 2;
 				break;
 			}
 			case TAKEN_ALL: {
@@ -213,16 +208,20 @@ static void fix_range(struct cob* this, ofm_range to_fix) {
 				}
 				drilldown_go_up(&track);
 				--stack_depth;
+				range.begin -= range.begin % (range.size * 2);
+				range.size *= 2;
 				break;
 			}
 			default:
 				log_fatal("invalid frame state");
 			}
 		} else {
-			assert(frame->state == ENTERING);
 			// Simple block to fix.
+			assert(stack[stack_depth - 1] == ENTERING);
 			this->veb_minima[my_nid] = cobt_range_get_minimum(range);
 			--stack_depth;
+			range.begin -= range.begin % (range.size * 2);
+			range.size *= 2;
 		}
 	}
 	// log_info("=> %" PRIu64 " fixed to %" PRIu64,
