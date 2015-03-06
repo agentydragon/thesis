@@ -221,7 +221,7 @@ TODO: check
 
 	\State {$h_\downarrow \gets \lhfloor h-1 \rhfloor$} \Comment{Calculate
 top and bottom heights}
-	\State {$h_\uparrow \gets h-h_\downarrow$} 
+	\State {$h_\uparrow \gets h-h_\downarrow$}
 	\State {$N_\uparrow, N_\downarrow \gets 2^{h_\uparrow}-1,
 	2^{h_\downarrow}-1$} \Comment{Calculate top and bottom tree sizes}
 
@@ -254,8 +254,8 @@ top and bottom heights}
 \end{algorithmic}
 
 The cost of this procedure in the cache-oblivious model is $\O(1)$, because
-it can be implemented using constant memory (by modifying the recursion into
-a loop). Unfortunately, on a real computer, this is not quite the case --
+it can be implemented using constant memory by modifying the tail recursion into
+a loop. Unfortunately, on a real computer, this is not quite the case --
 every call of this procedure performs $\Theta(\log\log N)$ instructions and
 repeating this $\Theta(\log N)$ times between the root and a leaf is slow.
 Indeed, this calculation of implicit pointers can become the performance
@@ -286,13 +286,13 @@ As the bits of the BFS index $i$ correspond to left and right turns made during
 the traversal, the $\log(T[d]+1)$ least significant bits of $i$ are the
 index of the unique bottom tree rooted by the node $x$. Because $T[d]$ is
 always in the form $2^k-1$, we can find those bits quickly by calculating
-$i \& T[d]$.
+$i \And T[d]$.
 
-Because the current node $x$ is the root of the $(i \& T[d])$-th
+Because the current node $x$ is the root of the $(i \And T[d])$-th
 bottom tree of size $B[d]$ after a top tree of size $T[d]$ rooted in
 $Pos[D[d]]$, it follows that the van Emde Boas index of the current node can be
 calculated in $\O(1)$ time as:
-$$Pos[d]=Pos[D[d]] + T[d] + (i \& T[d]) \cdot B[d]$$
+$$Pos[d]=Pos[D[d]] + T[d] + (i \And T[d]) \cdot B[d]$$
 
 Our root-to-leaf traversal starts by setting $i\gets 0, d\gets 0, Pos[0]=0$.
 Navigation to the left or right child of the current node is performed
