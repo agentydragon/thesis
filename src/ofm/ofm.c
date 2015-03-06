@@ -240,6 +240,8 @@ static void rebalance(ofm* file, ofm_range start_block,
 				.block_size = parameters.block_size,
 				.capacity = parameters.capacity
 			};
+			assert(new_file.occupied != NULL);
+			assert(new_file.items != NULL);
 			for (uint64_t i = 0; i < new_file.capacity; i++) {
 				new_file.occupied[i] = false;
 			}
