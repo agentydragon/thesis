@@ -1,6 +1,7 @@
 #include "splay_tree/test.h"
 
 #include <assert.h>
+#include <stdlib.h>
 
 #include "log/log.h"
 #include "splay_tree/splay_tree.h"
@@ -26,7 +27,7 @@ static void test_alternating_3() {
 	splay_tree_node a = { .key = 10, .left = &b, .right = MOCK(4) };
 
 	splay_tree this = { .root = &a };
-	splay_up(&this, 5);
+	splay(&this, 5);
 
 	assert(this.root == &c);
 	assert_node(((struct splay_tree_node) { .key = 5, .left = &b, .right = &a }), &c);
@@ -41,7 +42,7 @@ static void test_right_path_4() {
 	splay_tree_node a = { .key = 100, .left = MOCK(1), .right = &b };
 
 	splay_tree this = { .root = &a };
-	splay_up(&this, 400);
+	splay(&this, 400);
 
 	assert(this.root == &d);
 	assert_node(((struct splay_tree_node) { .key = 400, .left = &a, .right = MOCK(5) }), &d);
@@ -58,7 +59,7 @@ static void test_left_path_5() {
 	splay_tree_node a = { .key = 1000, .left = &b, .right = MOCK(6) };
 
 	splay_tree this = { .root = &a };
-	splay_up(&this, 600);
+	splay(&this, 600);
 
 	assert(this.root == &e);
 	assert_node(((struct splay_tree_node) { .key = 600, .left = MOCK(1), .right = &b }), &e);
