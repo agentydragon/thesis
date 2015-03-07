@@ -5,6 +5,7 @@
 
 struct observed_operation {
 	enum { OP_FIND, OP_INSERT, OP_DELETE } operation;
+	// TODO: previous_key, next_key operations
 
 	union {
 		struct {
