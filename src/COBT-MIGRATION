@@ -1,6 +1,6 @@
 COBT migration plan:
 
-* Rewrite OFM to handle generic value size.
+* [DONE] Rewrite OFM to handle generic value size.
 
   COBT stores O(log N) chunks of key-value pairs together, so a static size
   is not enough anymore.
