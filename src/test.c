@@ -17,7 +17,7 @@
 #include "ofm/test.h"
 #include "performance/random_read.h"
 #include "rand/test/test.h"
-#include "splay_tree/test.h"
+#include "splay/test.h"
 #include "veb_layout/test.h"
 
 void run_unit_tests() {

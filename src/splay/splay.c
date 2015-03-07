@@ -1,4 +1,4 @@
-#include "splay_tree/splay_tree.h"
+#include "splay/splay.h"
 
 #include <assert.h>
 #include <stdbool.h>
@@ -9,7 +9,7 @@
 #define COUNT_OF(x) ((sizeof(x)) / sizeof(*x))
 // TODO: remove log_fatals
 
-#define node splay_tree_node
+#define node splay_node
 
 // TODO: rewrite to stop using single global stack
 // TODO: the stack can actually be O(N) worst-case
@@ -88,7 +88,7 @@ static void zig_zag_right_left(node* x, node* parent, node* grandparent) {
 	parent->right = d;
 }
 
-static node* navigate(splay_tree* this, splay_tree_key key,
+static node* navigate(splay_tree* this, splay_key key,
 		splay_stack* stack) {
 	assert(stack);
 	node* current = this->root;
@@ -176,33 +176,33 @@ static void splay_up_stack(splay_tree* this, splay_stack* stack) {
 }
 
 
-void splay_tree_init(splay_tree** _tree) {
-	struct splay_tree* tree = malloc(sizeof(splay_tree));
+void splay_init(splay_tree** _tree) {
+	splay_tree* tree = malloc(sizeof(splay_tree));
 	assert(tree);
 	tree->root = NULL;
 	*_tree = tree;
 }
 
-static void tree_destroy_recursive(node** _node) {
+static void destroy_recursive(node** _node) {
 	assert(_node);
 	if (*_node) {
-		tree_destroy_recursive(&((*_node)->left));
-		tree_destroy_recursive(&((*_node)->right));
+		destroy_recursive(&((*_node)->left));
+		destroy_recursive(&((*_node)->right));
 		free(*_node);
 		*_node = NULL;
 	}
 }
 
-void splay_tree_destroy(struct splay_tree** _tree) {
+void splay_destroy(splay_tree** _tree) {
 	assert(_tree);
 	if (*_tree) {
-		tree_destroy_recursive(&(*_tree)->root);
+		destroy_recursive(&(*_tree)->root);
 		free(*_tree);
 		*_tree = NULL;
 	}
 }
 
-int8_t splay_tree_insert(struct splay_tree* tree, uint64_t key, uint64_t value) {
+int8_t splay_insert(splay_tree* tree, uint64_t key, uint64_t value) {
 	node** target;
 
 	splay_stack stack = GLOBAL_STACK;
@@ -245,7 +245,7 @@ void splay(splay_tree* this, uint64_t key) {
 	_splay(this, key);
 }
 
-void splay_tree_find(splay_tree* this, uint64_t key, uint64_t *value,
+void splay_find(splay_tree* this, uint64_t key, uint64_t *value,
 		bool *found) {
 	if (this->root == NULL) {
 		*found = false;
@@ -289,11 +289,12 @@ static void get_rightmost_in_left_subtree(node* current,
 	*_rightmost_in_left = rightmost_in_left;
 }
 
-int8_t splay_tree_delete(splay_tree* this, uint64_t key) {
+int8_t splay_delete(splay_tree* this, uint64_t key) {
 	if (this->root == NULL) {
 		return 1;
 	}
 
+	// TODO: do with a single splay up, not navigate->splay.
 	splay_stack stack = GLOBAL_STACK;
 	node* current = navigate(this, key, &stack);
 	node* parent = stack.depth > 1 ? stack.stack[stack.depth - 2] : NULL;
@@ -376,8 +377,8 @@ int8_t splay_tree_delete(splay_tree* this, uint64_t key) {
 	return 0;
 }
 
-void splay_tree_next_key(splay_tree* this, splay_tree_key key,
-		splay_tree_key* next_key, bool* found) {
+void splay_next_key(splay_tree* this, splay_key key,
+		splay_key* next_key, bool* found) {
 	if (this->root == NULL) {
 		*found = false;
 		return;
@@ -401,8 +402,8 @@ void splay_tree_next_key(splay_tree* this, splay_tree_key key,
 	}
 }
 
-void splay_tree_previous_key(splay_tree* this, splay_tree_key key,
-		splay_tree_key* previous_key, bool *found) {
+void splay_previous_key(splay_tree* this, splay_key key,
+		splay_key* previous_key, bool *found) {
 	if (this->root == NULL) {
 		*found = false;
 		return;
