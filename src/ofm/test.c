@@ -85,6 +85,7 @@ static void test_parameter_policy() {
 
 #define ITEM(x) ((ofm_item) { .key = x, .value = (x) * 2 })
 
+/*
 void test_reorganization_complexity() {
 //	for (uint64_t size = 2; size < 1000000; size += size / 2) {
 	for (uint64_t size = 2; size < 10000; size += size / 2) {
@@ -101,6 +102,7 @@ void test_reorganization_complexity() {
 				size, OFM_COUNTERS.reorganized_size);
 	}
 }
+*/
 
 /*
 void test_functional() {
@@ -120,5 +122,5 @@ void test_functional() {
 void test_ofm() {
 //	test_parameter_policy();
 //	test_functional();
-	test_reorganization_complexity();
+//	test_reorganization_complexity();
 }

@@ -26,6 +26,35 @@ void range_describe(ofm file, ofm_range range, char* buffer) {
 }
 */
 
+static void alloc_file(ofm* file) {
+	assert(!file->keys && !file->values && !file->occupied);
+	file->keys = calloc(file->capacity, sizeof(uint64_t));
+	file->values = calloc(file->capacity, file->value_size);
+	file->occupied = calloc(file->capacity, sizeof(bool));
+	assert(file->keys && file->values && file->occupied);
+	for (uint64_t i = 0; i < file->capacity; i++) {
+		file->occupied[i] = false;
+	}
+}
+
+static void* value_address(ofm* file, uint64_t index) {
+	return file->values + file->value_size * index;
+}
+
+static void assign_value(ofm* file, uint64_t index, const void* source) {
+	void* target = value_address(file, index);
+	if (target != source) {
+		memcpy(target, source, file->value_size);
+	}
+}
+
+static void copy_item(ofm* target, uint64_t target_index,
+		ofm* source, uint64_t source_index) {
+	assert(source->value_size == target->value_size);
+	target->keys[target_index] = source->keys[source_index];
+	assign_value(target, target_index, value_address(source, source_index));
+}
+
 static char buffer[65536];
 
 void ofm_dump(ofm file) {
@@ -37,7 +66,7 @@ void ofm_dump(ofm file) {
 		}
 		if (file.occupied[i]) {
 			z += sprintf(buffer + z, "%4" PRIu64 " ",
-					file.items[i].key);
+					file.keys[i]);
 		} else {
 			z += sprintf(buffer + z, ".... ");
 		}
@@ -130,7 +159,7 @@ static void ofm_move(ofm file, uint64_t to, uint64_t from, uint64_t *watch) {
 		*watch = to;
 	}
 	if (file.occupied[from]) {
-		file.items[to] = file.items[from];
+		copy_item(&file, to, &file, from);
 		file.occupied[from] = false;
 		file.occupied[to] = true;
 	}
@@ -235,23 +264,21 @@ static void rebalance(ofm* file, ofm_range start_block,
 					"still adequate.");
 		} else {
 			ofm new_file = {
-				.occupied = calloc(parameters.capacity, sizeof(bool)),
-				.items = calloc(parameters.capacity, sizeof(ofm_item)),
 				.block_size = parameters.block_size,
-				.capacity = parameters.capacity
+				.capacity = parameters.capacity,
+				.value_size = file->value_size,
+				.keys = NULL,
+				.values = NULL,
+				.occupied = NULL,
 			};
-			assert(new_file.occupied != NULL);
-			assert(new_file.items != NULL);
-			for (uint64_t i = 0; i < new_file.capacity; i++) {
-				new_file.occupied[i] = false;
-			}
+			alloc_file(&new_file);
 			for (uint64_t i = 0, j = 0; i < file->capacity; i++) {
 				if (file->occupied[i]) {
 					if (watch != NULL && *watch == i) {
 						*watch = j;
 					}
 					new_file.occupied[j] = true;
-					new_file.items[j] = file->items[i];
+					copy_item(&new_file, j, file, i);
 					j++;
 				}
 			}
@@ -291,12 +318,16 @@ void ofm_step_right(ofm_range block, uint64_t step_start) {
 	}
 }
 
-void ofm_insert_before(ofm* file, ofm_item item,
+void ofm_get_value(ofm* file, uint64_t index, void* value) {
+	memcpy(value, value_address(file, index), file->value_size);
+}
+
+void ofm_insert_before(ofm* file, uint64_t key, const void* value,
 		uint64_t insert_before_index, uint64_t *saved_at,
 		ofm_range *touched_range) {
-	log_verbose(2, "ofm_insert_before(%" PRIu64 "=%" PRIu64 ", "
-			"before_index=%" PRIu64 ")", item.key, item.value,
-			insert_before_index);
+	// log_verbose(2, "ofm_insert_before(%" PRIu64 "=%" PRIu64 ", "
+	// 		"before_index=%" PRIu64 ")", item.key, item.value,
+	// 		insert_before_index);
 	assert(insert_before_index <= file->capacity);
 
 	ofm_range block;
@@ -323,7 +354,7 @@ void ofm_insert_before(ofm* file, ofm_item item,
 				.size = file->capacity,
 				.file = file }, NULL, &insert_before_index);
 		if (was_end) insert_before_index = file->capacity;
-		ofm_insert_before(file, item,
+		ofm_insert_before(file, key, value,
 				insert_before_index, saved_at,
 				touched_range);
 		return;
@@ -342,7 +373,8 @@ void ofm_insert_before(ofm* file, ofm_item item,
 	}
 	assert(!file->occupied[insert_before_index]);
 	file->occupied[insert_before_index] = true;
-	file->items[insert_before_index] = item;
+	file->keys[insert_before_index] = key;
+	assign_value(file, insert_before_index, value);
 	if (saved_at != NULL) {
 		*saved_at = insert_before_index;
 	}
@@ -374,22 +406,18 @@ void ofm_delete(ofm* file, uint64_t index, uint64_t *next_item_at,
 	rebalance(file, ofm_get_leaf(file, index), touched_range, next_item_at);
 }
 
-void ofm_init(ofm* file) {
+void ofm_init(ofm* file, size_t value_size) {
 	// TODO: copy over?
 	// TODO: merge with new_ordered_file
 	file->capacity = 4;
 	file->block_size = 4;
-	file->items = calloc(4, sizeof(ofm_item));
-	file->occupied = calloc(4, sizeof(bool));
-
-	for (uint8_t i = 0; i < 4; i++) {
-		file->occupied[i] = false;
-	}
-
-	assert(file->items && file->occupied);
+	file->value_size = value_size;
+	file->keys = file->values = file->occupied = NULL;
+	alloc_file(file);
 }
 
 void ofm_destroy(ofm file) {
-	free(file.items);
+	free(file.keys);
+	free(file.values);
 	free(file.occupied);
 }
