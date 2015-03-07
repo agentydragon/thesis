@@ -358,7 +358,7 @@ int8_t btree_delete(btree* this, uint64_t key) {
 	return 0;
 }
 
-void btree_find(btree* this, uint64_t key, bool *found, uint64_t *value) {
+void btree_find(btree* this, uint64_t key, uint64_t *value, bool *found) {
 	btree_node_traversed node = nt_root(this);
 
 	while (!nt_is_leaf(node)) {

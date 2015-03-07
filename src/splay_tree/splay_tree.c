@@ -245,8 +245,8 @@ void splay(splay_tree* this, uint64_t key) {
 	_splay(this, key);
 }
 
-void splay_tree_find(splay_tree* this, uint64_t key, bool *found,
-		uint64_t *value) {
+void splay_tree_find(splay_tree* this, uint64_t key, uint64_t *value,
+		bool *found) {
 	if (this->root == NULL) {
 		*found = false;
 		return;
