@@ -53,4 +53,6 @@ int8_t btree_delete(btree*, uint64_t key);
 void btree_find(btree*, uint64_t key, bool *found, uint64_t *value);
 void btree_destroy(btree*);
 
+// TODO: implement _next, _prev
+
 #endif
