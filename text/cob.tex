@@ -9,7 +9,7 @@ is using a B-tree. A B-tree is a generalization of balanced binary search
 trees, in which nodes keep up to $b$ key-value pairs in sorted order.
 An inner node of a binary search tree with key $X$ contains two pointers
 pointing to children with keys $< X$ and $\geq X$. The B-tree generalizes
-this by having an inner node with $K_1,\ldots K_k$ keeping $k+1$ pointers
+this by having an inner node with keys $K_1,\ldots K_k$ keeping $k+1$ pointers
 to children with keys $< K_1$, $K_1\cdots K_2-1$, \dots, $> K_k$.
 
 The process of finding a key-value pair in a B-tree starts at the root node
@@ -165,7 +165,7 @@ every box are contiguous.}
 
 \begin{theorem}
 In a tree stored in the van Emde Boas layout, reading the sequence of nodes
-on any root-leaf path costs $\Theta(1+\log_B N)$ memory transfers (assuming
+on any root-leaf path costs $\Theta(1+\log_B N)$ block transfers (assuming
 every node fits in one block).
 \end{theorem}
 
@@ -303,35 +303,39 @@ decrementing $d$.
 
 TODO: graf
 
-\section{Packed memory array}
-In this section we shall describe an auxilliary data structure which stores
-an ordered list of $N$ keys (in the given order) in a contiguous array of
-size $\O(N)$. The operations allowed on this structure are
-\textsc{Insert}(\textit{index},\textit{key}), which inserts a new key before
-or after a given index in the array, and \textsc{Delete}(\textit{index}),
-which deletes an item at a given index.
-We shall allow the array to contain gaps up to a constant maximum size.
+\section{Ordered file maintenance}
+The ordered file maintenance problem is storing an ordered list of $N$ keys
+(in the given order) in a contiguous array of size $\O(N)$. The operations
+allowed on this structure are \textsc{Insert}(\textit{index},\textit{key}),
+which inserts a new key before or after a given index in the array,
+and \textsc{Delete}(\textit{index}), which deletes an item at a given index.
+We allow the array to contain gaps up to a constant maximum size.
 Having constant-size gaps allows scanning a range of $n$ keys using the
 optimal $\Theta(n/B)$ scans.
 
-Updates (\textsc{Insert}s and \textsc{Delete}s) will rewrite a contiguous
-range of size $\Theta(\log^2 N)$ amortized. Thanks to the range being
-contiguous, updates will incur $\Theta(1+\frac{\log^2 N}{B})$ amortized
-block transfers.
+The \textit{packed memory array} is a data structure that maintains an ordered
+file. Updates (\textsc{Insert}s and \textsc{Delete}s) of a packed memory array
+rewrite a contiguous range of size $\Theta(\log^2 N)$ amortized.
+Thanks to the range being contiguous, updates will incur
+$\Theta(1+\frac{\log^2 N}{B})$ amortized block transfers.
+
+The packed memory array consists of a physical array. Each position in this
+array either contains an element, or it is empty.
+The array is divided into \textit{leaf blocks} of constant size $\O(\log N)$.
+A \textit{virtual full binary tree} is built above those leaf blocks. Every
+node of this binary tree represents the range covering all the leaf blocks below.
 
 To properly define the structure, we need to define some terms. The
 \textit{capacity} of a certain range of the array is its size and the
 \textit{density} of a range is the number of items present in the range divided
 by its capacity.
-
-The data structure maintains certain bounds on the densities of subranges of the array.
-In particular, the array is divided into \textit{leaf blocks} of size $\O(\log N)$.
-A \textit{virtual full binary tree} is built above those leaf blocks. Every
-node of this binary tree represents the range covering all the leaf blocks below.
+The data structure maintains certain bounds on the densities of subranges of
+the array.
 
 The densities in the leaf blocks are kept between \unichar{"00BC} % VULGAR FRACTION ONE QUARTER
-and 1. If our update keeps the density of the leaf block, within bounds,
-we rewrite all the $\Theta(\log N)$ items of the leaf block.
+and 1. If an update keeps the density of the leaf block within bounds,
+we perform the update by rewriting all the $\Theta(\log N)$ items
+of the leaf block.
 When a block becomes too sparse or too dense, we walk up the binary
 tree until we find a node that fits our density requirements.
 Those requirements become stricter as we walk up the binary tree.
@@ -340,44 +344,46 @@ is kept between $\frac{1}{2}-\frac{1}{4}\frac{d}{h}$ and $\frac{3}{4}+\frac{1}{4
 \footnote{The constants are arbitrary and control the tradeoff
 between memory consumption and time complexity of rebuilding.}.
 When we find a node that is \textit{within threshold}, we uniformly redistribute
-the keys in its range. If no such node exists, we resize the entire structure
+the items in its range. If no such node exists, we resize the entire structure
 by a constant factor, which lets us amortize the costs of this resizing to
 a multiplicative constant.
 
-We claim that while this while this redistribution may reorganize a range
-of size up to $\O(N)$, the redistribution of a node puts all nodes below it
-well within bounds, so the next redistribution of those nodes will occur
-only after relatively many updates. % TODO: how much is "many"?
+We claim that while this redistribution may reorganize a range of size up
+to $\O(N)$, the redistribution of a node puts all nodes below it well within
+bounds, so the next reorganization will be needed only after many more updates.
+% TODO: how much is "many"?
 
 The search for a node to redistribute is implemented as two interspersed scans,
 one extending the scanned range to the left, one to the right. The
-redistribution can be performed by performing another left-to-right scan to
-shuffle all present items to one side of the array, followed by a last
-right-to-left scan putting items into their final destinations. Thus,
+redistribution can be done by collecting all items in the array on the left side
+of the array using a left-to-right scan, followed by a right-to-left scan
+putting items into their final destinations. Thus,
 redistributing a range of $K$ items takes $\Theta(1+K/B)$ block transfers.
 
 TODO: figure of redistribution
 
 \begin{theorem}
-The amortized block-transfer cost of an update of the packed-memory array
-is $\O(1+\frac{\log^2 N}{B})$.
+The block-transfer cost of an update of the packed-memory array
+is $\Theta(1+\frac{\log^2 N}{B})$ amortized.
 \end{theorem}
 
 \begin{proof}
 Suppose we need to redistribute some node $X$ of depth $d$ after performing
 an insertion. Since we are redistributing this node, it is within threshold,
-but it has one child $Y$ which is not. Therefore the density of $X$ is at most
+but one of its children, say $Y$, is not.
+Therefore the density of $X$ is at most
 $\frac{3}{4}+\frac{1}{4}\frac{d}{h}$, while the density of $Y$ is more than
 $\frac{3}{4}+\frac{1}{4}\frac{d+1}{h}$. After we redistribute the items within $X$,
 the density of $Y$ will drop by $\frac{1}{h}$. Thus, if we denote the capacity
-of $Y$ as $|Y|$, we will need to insert at least $|Y|/h$ items under $Y$ before
-we need to rebalance $X$ again. Thus, we can charge the redistributed interval
-of size $\O(|X|)$ to the insertions into $Y$, which gives us amortized $\O(\log N)$
+of $Y$ as $|Y|$, we will need to insert at least $|Y|/h$ items under any
+child of $X$ before we need to rebalance $X$ again.
+Thus, we can charge the redistributed interval of size $\O(|X|)$ to the
+insertions into $Y$, which gives us amortized $\O(\log N)$
 redistribution steps per insertion into $Y$.
 
 Since the node $Y$ has in general $h=\Theta(\log N)$ ancestors, we can amortize
-$\O(\log^2 N)$ redistribution steps per insertion, which is
-$\O(1+\frac{\log^2 N}{B})$ in block transfers. The proof of the deletion
+$\Theta(\log^2 N)$ redistribution steps per insertion, which is
+$\Theta(1+\frac{\log^2 N}{B})$ in block transfers. The proof of the deletion
 cost is analogous.
 \end{proof}
 
