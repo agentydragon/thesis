@@ -1,0 +1,20 @@
+COBT migration plan:
+
+* Rewrite OFM to handle generic value size.
+
+  COBT stores O(log N) chunks of key-value pairs together, so a static size
+  is not enough anymore.
+
+* Rewrite COBT to store all OFM nodes as atomic units, not OFM blocks.
+
+  COBT right now stores minima of OFM leaf nodes. COBT needs to store
+  keys of all OFM nodes. Note that after the migration is finished, the
+  memory usage will remain the same, because now the COBT will be referring
+  to all N/log N OFM cells.
+
+* Add cobt_from_sorted API.
+
+  This will be needed to perform reconstruction when we need to store larger
+  pieces in OFM chunks.
+
+* Write final COBT.
