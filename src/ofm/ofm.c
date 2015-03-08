@@ -318,8 +318,8 @@ void ofm_step_right(ofm_range block, uint64_t step_start) {
 	}
 }
 
-void ofm_get_value(ofm* file, uint64_t index, void* value) {
-	memcpy(value, value_address(file, index), file->value_size);
+void* ofm_get_value(ofm* file, uint64_t index) {
+	return value_address(file, index);
 }
 
 void ofm_insert_before(ofm* file, uint64_t key, const void* value,

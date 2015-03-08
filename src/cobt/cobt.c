@@ -110,7 +110,7 @@ void cob_find(cob* this, uint64_t key, bool *found, uint64_t *value) {
 	if (this->file.occupied[index] && this->file.keys[index] == key) {
 		*found = true;
 		if (value != NULL) {
-			ofm_get_value(&this->file, index, value);
+			*value = *(uint64_t*) ofm_get_value(&this->file, index);
 		}
 	} else {
 		*found = false;

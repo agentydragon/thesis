@@ -45,6 +45,6 @@ void ofm_destroy(ofm file);
 bool ofm_is_entire_file(ofm_range block);
 ofm_range ofm_block_parent(ofm_range block);
 
-void ofm_get_value(ofm* file, uint64_t index, void* value);
+void* ofm_get_value(ofm* file, uint64_t index);
 
 #endif
