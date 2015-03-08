@@ -24,17 +24,15 @@ static ofm_range insert_sorted_order(cob* this, uint64_t index, uint64_t key,
 		}
 	}
 
-	ofm_range touched_range;
 	if (found_after) {
 		log_info("inserting %" PRIu64 "=%" PRIu64 " before %" PRIu64,
 				key, value, index_after);
-		ofm_insert_before(&this->file, key, &value,
-				index_after, NULL, &touched_range);
+		return ofm_insert_before(&this->file, key, &value,
+				index_after, NULL);
 	} else {
-		ofm_insert_before(&this->file, key, &value,
-				this->file.capacity, NULL, &touched_range);
+		return ofm_insert_before(&this->file, key, &value,
+				this->file.capacity, NULL);
 	}
-	return touched_range;
 }
 
 static void fix_range(cob* this, ofm_range range_to_fix) {
@@ -83,19 +81,14 @@ int8_t cob_insert(cob* this, uint64_t key, uint64_t value) {
 int8_t cob_delete(cob* this, uint64_t key) {
 	validate_key(key);
 
-	log_info("delete %" PRIu64, key);
-
-	// Walk down vEB layout to find where does the key belong.
 	const uint64_t index = cobt_tree_find_le(&this->tree, key);
-
 	if (!(this->file.occupied[index] && this->file.keys[index] == key)) {
 		// Deleting nonexistant key.
 		return 1;
 	}
 
 	const uint64_t prior_capacity = this->file.capacity;
-	ofm_range reorg_range;
-	ofm_delete(&this->file, index, NULL, &reorg_range);
+	ofm_range reorg_range =  ofm_delete(&this->file, index, NULL);
 	if (this->file.capacity == prior_capacity) {
 		fix_range(this, reorg_range);
 	} else {

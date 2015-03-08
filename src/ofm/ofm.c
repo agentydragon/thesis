@@ -244,8 +244,7 @@ static bool ofm_block_within_threshold(ofm_range block) {
 	return min_density <= density && density <= max_density;
 }
 
-static void rebalance(ofm* file, ofm_range start_block,
-		ofm_range *touched_block, uint64_t *watch) {
+static ofm_range rebalance(ofm* file, ofm_range start_block, uint64_t *watch) {
 	ofm_range range = start_block;
 
 	while (!ofm_is_entire_file(range) &&
@@ -302,9 +301,7 @@ static void rebalance(ofm* file, ofm_range start_block,
 	OFM_COUNTERS.reorganized_size += range.size;
 
 	ofm_spread(range, watch);
-	if (touched_block != NULL) {
-		*touched_block = range;
-	}
+	return range;
 }
 
 // Moves every item in the block, starting with index `step_start`,
@@ -322,9 +319,8 @@ void* ofm_get_value(ofm* file, uint64_t index) {
 	return value_address(file, index);
 }
 
-void ofm_insert_before(ofm* file, uint64_t key, const void* value,
-		uint64_t insert_before_index, uint64_t *saved_at,
-		ofm_range *touched_range) {
+ofm_range ofm_insert_before(ofm* file, uint64_t key, const void* value,
+		uint64_t insert_before_index, uint64_t *saved_at) {
 	// log_verbose(2, "ofm_insert_before(%" PRIu64 "=%" PRIu64 ", "
 	// 		"before_index=%" PRIu64 ")", item.key, item.value,
 	// 		insert_before_index);
@@ -350,15 +346,13 @@ void ofm_insert_before(ofm* file, uint64_t key, const void* value,
 	if (ofm_block_full(block) && ofm_is_entire_file(block)) {
 		bool was_end = (insert_before_index == file->capacity);
 		rebalance(file, (ofm_range) {
-				.begin = 0,
-				.size = file->capacity,
-				.file = file }, NULL, &insert_before_index);
+			.begin = 0,
+			.size = file->capacity,
+			.file = file
+		}, &insert_before_index);
 		if (was_end) insert_before_index = file->capacity;
-		ofm_insert_before(file, key, value,
-				insert_before_index, saved_at,
-				touched_range);
-		return;
-		//log_fatal("File full.");
+		return ofm_insert_before(file, key, value,
+				insert_before_index, saved_at);
 	}
 
 	assert(!ofm_block_full(block));
@@ -379,16 +373,12 @@ void ofm_insert_before(ofm* file, uint64_t key, const void* value,
 		*saved_at = insert_before_index;
 	}
 
-	rebalance(file, block, touched_range, saved_at);
-	IF_LOG_VERBOSE(3) {
-		ofm_dump(*file);
-	}
+	return rebalance(file, block, saved_at);
 }
 
 // `next_item_at` will hold the position where the next item was moved,
 // or NULL_INDEX if there is no such item.
-void ofm_delete(ofm* file, uint64_t index, uint64_t *next_item_at,
-		ofm_range *touched_range) {
+ofm_range ofm_delete(ofm* file, uint64_t index, uint64_t *next_item_at) {
 	assert(file->occupied[index]);
 	uint64_t next_index = NULL_INDEX;
 
@@ -403,7 +393,7 @@ void ofm_delete(ofm* file, uint64_t index, uint64_t *next_item_at,
 	if (next_item_at != NULL) {
 		*next_item_at = next_index;
 	}
-	rebalance(file, ofm_get_leaf(file, index), touched_range, next_item_at);
+	return rebalance(file, ofm_get_leaf(file, index), next_item_at);
 }
 
 void ofm_init(ofm* file, size_t value_size) {
