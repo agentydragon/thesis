@@ -7,6 +7,7 @@
 
 typedef struct {
 	const uint64_t *backing_array;
+	const bool *backing_array_occupied;
 	uint64_t backing_array_size;
 
 	// The actual tree. Its size is hyperceil(size).
@@ -22,8 +23,9 @@ typedef struct {
 	uint64_t end;
 } cobt_tree_range;
 
-void cobt_tree_init(cobt_tree*,
-		const uint64_t* backing_array, uint64_t backing_array_size);
+void cobt_tree_init(cobt_tree*, const uint64_t* backing_array,
+		const bool* backing_array_occupied,
+		uint64_t backing_array_size);
 void cobt_tree_destroy(cobt_tree*);
 
 // Finds the largest index I such that backing_array[I] <= key.

@@ -8,11 +8,11 @@
 static int8_t init(void** _this, void* args_unused) {
 	(void) args_unused;
 
-	cob* cob = malloc(sizeof(cob));
-	if (!cob) return 1;
+	cob* this = malloc(sizeof(cob));
+	if (!this) return 1;
 
-	cob_init(cob);
-	*_this = cob;
+	cob_init(this);
+	*_this = this;
 
 	return 0;
 }
@@ -20,7 +20,7 @@ static int8_t init(void** _this, void* args_unused) {
 static void destroy(void** _this) {
 	if (_this) {
 		cob* this = * (cob**) _this;
-		cob_destroy(*this);
+		cob_destroy(this);
 		free(this);
 		*_this = NULL;
 	}
@@ -37,10 +37,6 @@ static int8_t insert(void* _this, uint64_t key, uint64_t value) {
 
 static int8_t delete(void* _this, uint64_t key) {
 	return cob_delete(_this, key);
-}
-
-static void check(void* _this) {
-	return cob_check(_this);
 }
 
 static int8_t next(void* _this, uint64_t key, uint64_t *next_key, bool *found) {
@@ -60,8 +56,6 @@ const dict_api dict_cobt = {
 	.insert = insert,
 	.find = find,
 	.delete = delete,
-
-	.check = check,
 
 	.next = next,
 	.prev = prev,

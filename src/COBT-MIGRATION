@@ -5,7 +5,7 @@ COBT migration plan:
   COBT stores O(log N) chunks of key-value pairs together, so a static size
   is not enough anymore.
 
-* Rewrite COBT to store all OFM nodes as atomic units, not OFM blocks.
+* [DONE] Rewrite COBT to store all OFM nodes as atomic units, not OFM blocks.
 
   COBT right now stores minima of OFM leaf nodes. COBT needs to store
   keys of all OFM nodes. Note that after the migration is finished, the

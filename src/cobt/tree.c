@@ -25,9 +25,11 @@ static cobt_tree_range entire_tree(cobt_tree* this) {
 	};
 }
 
-void cobt_tree_init(cobt_tree* this,
-		const uint64_t* backing_array, uint64_t backing_array_size) {
+void cobt_tree_init(cobt_tree* this, const uint64_t* backing_array,
+		const bool* backing_array_occupied,
+		uint64_t backing_array_size) {
 	this->backing_array = backing_array;
+	this->backing_array_occupied = backing_array_occupied;
 	this->backing_array_size = backing_array_size;
 
 	this->tree = calloc(tree_node_count(this), sizeof(uint64_t));
@@ -117,7 +119,8 @@ static void refresh_recursive(cobt_tree* this, cobt_tree_range refresh,
 			current_nid);
 
 	if (size(current) == 1) {
-		if (current.begin < this->backing_array_size) {
+		if (current.begin < this->backing_array_size &&
+				this->backing_array_occupied[current.begin]) {
 			this->tree[current_nid] = this->backing_array[current.begin];
 		} else {
 			this->tree[current_nid] = INFINITY;

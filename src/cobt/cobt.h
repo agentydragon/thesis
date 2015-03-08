@@ -4,6 +4,8 @@
 // Cache-oblivious B-tree
 
 #include <stdint.h>
+
+#include "cobt/tree.h"
 #include "ofm/ofm.h"
 
 #define COB_INFINITY UINT64_MAX
@@ -30,14 +32,14 @@ typedef struct {
 	// vEB-layout nodes
 	// ordered file structure
 	ofm file;
-	// contains 2*(ordered file subranges)-1 nodes
-	uint64_t* veb_minima;
-
-	struct level_data* level_data;
+	cobt_tree tree;
+	//// contains 2*(ordered file subranges)-1 nodes
+	//uint64_t* veb_minima;
+	//struct level_data* level_data;
 } cob;
 
 void cob_init(cob* this);
-void cob_destroy(cob this);
+void cob_destroy(cob* this);
 int8_t cob_insert(cob* this, uint64_t key, uint64_t value);
 int8_t cob_delete(cob* this, uint64_t key);
 void cob_find(cob* this, uint64_t key, bool *found, uint64_t *value);
