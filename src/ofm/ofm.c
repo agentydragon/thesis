@@ -76,7 +76,7 @@ void ofm_dump(ofm file) {
 
 struct parameters { uint64_t capacity, block_size; };
 
-struct parameters adequate_parameters(uint64_t items) {
+static struct parameters adequate_parameters(uint64_t items) {
 	if (items < 4) {
 		return (struct parameters) {
 			.capacity = 4,
@@ -127,7 +127,7 @@ struct parameters adequate_parameters(uint64_t items) {
 	};
 }
 
-ofm_range ofm_get_leaf(ofm* file, uint64_t index) {
+static ofm_range get_leaf(ofm* file, uint64_t index) {
 	return (ofm_range) {
 		.file = file,
 		.begin = index - (index % file->block_size),
@@ -142,13 +142,13 @@ static bool ofm_block_full(ofm_range block) {
 	return true;
 }
 
-ofm_range ofm_block_parent(ofm_range block) {
+static ofm_range block_parent(ofm_range block) {
 	block.size *= 2;
 	block.begin -= block.begin % block.size;
 	return block;
 }
 
-bool ofm_is_entire_file(ofm_range block) {
+static bool is_entire_file(ofm_range block) {
 	return block.begin == 0 && block.size == block.file->capacity;
 }
 
@@ -247,12 +247,12 @@ static bool ofm_block_within_threshold(ofm_range block) {
 static ofm_range rebalance(ofm* file, ofm_range start_block, uint64_t *watch) {
 	ofm_range range = start_block;
 
-	while (!ofm_is_entire_file(range) &&
+	while (!is_entire_file(range) &&
 			!ofm_block_within_threshold(range)) {
-		range = ofm_block_parent(range);
+		range = block_parent(range);
 	}
 
-	if (ofm_is_entire_file(range)) {
+	if (is_entire_file(range)) {
 		log_verbose(1, "entire file out of balance");
 		struct parameters parameters = adequate_parameters(
 				ofm_count_occupied(range));
@@ -306,8 +306,8 @@ static ofm_range rebalance(ofm* file, ofm_range start_block, uint64_t *watch) {
 
 // Moves every item in the block, starting with index `step_start`,
 // one slot to the right.
-void ofm_step_right(ofm_range block, uint64_t step_start) {
-	log_verbose(2, "ofm_step_right");
+static void step_right(ofm_range block, uint64_t step_start) {
+	log_verbose(2, "step_right");
 	// There needs to be some free space at the end.
 	for (uint64_t i = block.begin + block.size - 1; i > step_start; i--) {
 		assert(!block.file->occupied[i]);
@@ -330,20 +330,20 @@ ofm_range ofm_insert_before(ofm* file, uint64_t key, const void* value,
 	if (insert_before_index == file->capacity) {
 		// Special case. We will shift everything to the left,
 		// and then insert to the end.
-		block = ofm_get_leaf(file, file->capacity - 1);
+		block = get_leaf(file, file->capacity - 1);
 	} else {
 		// We will shift everything to the left,
 		// then shift everything after `insert_before_index`
 		// by 1 to the right and reshuffle.
 		assert(file->occupied[insert_before_index]);
-		block = ofm_get_leaf(file, insert_before_index);
+		block = get_leaf(file, insert_before_index);
 	}
 
-	while (ofm_block_full(block) && !ofm_is_entire_file(block)) {
-		block = ofm_block_parent(block);
+	while (ofm_block_full(block) && !is_entire_file(block)) {
+		block = block_parent(block);
 	}
 
-	if (ofm_block_full(block) && ofm_is_entire_file(block)) {
+	if (ofm_block_full(block) && is_entire_file(block)) {
 		bool was_end = (insert_before_index == file->capacity);
 		rebalance(file, (ofm_range) {
 			.begin = 0,
@@ -363,7 +363,7 @@ ofm_range ofm_insert_before(ofm* file, uint64_t key, const void* value,
 	} else {
 		assert(insert_before_index >= block.begin &&
 				insert_before_index < block.begin + block.size);
-		ofm_step_right(block, insert_before_index);
+		step_right(block, insert_before_index);
 	}
 	assert(!file->occupied[insert_before_index]);
 	file->occupied[insert_before_index] = true;
@@ -393,7 +393,7 @@ ofm_range ofm_delete(ofm* file, uint64_t index, uint64_t *next_item_at) {
 	if (next_item_at != NULL) {
 		*next_item_at = next_index;
 	}
-	return rebalance(file, ofm_get_leaf(file, index), next_item_at);
+	return rebalance(file, get_leaf(file, index), next_item_at);
 }
 
 void ofm_init(ofm* file, size_t value_size) {

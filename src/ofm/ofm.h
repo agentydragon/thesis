@@ -31,17 +31,12 @@ typedef struct {
 	ofm* file;
 } ofm_range;
 
-ofm_range ofm_get_leaf(ofm* file, uint64_t index);
-
 void ofm_dump(ofm file);
 ofm_range ofm_insert_before(ofm* file, uint64_t key, const void* value,
 		uint64_t insert_before_index, uint64_t *saved_at);
 ofm_range ofm_delete(ofm* file, uint64_t index, uint64_t *next_item_at);
 void ofm_init(ofm* file, size_t value_size);
 void ofm_destroy(ofm file);
-
-bool ofm_is_entire_file(ofm_range block);
-ofm_range ofm_block_parent(ofm_range block);
 
 void* ofm_get_value(ofm* file, uint64_t index);
 
