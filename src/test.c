@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "btree/test.h"
+#include "cobt/tree_test.h"
 #include "dict/array.h"
 #include "dict/btree.h"
 #include "dict/cobt.h"
@@ -21,6 +22,8 @@
 #include "veb_layout/test.h"
 
 void run_unit_tests() {
+	test_cobt_tree();
+
 	test_btree();
 
 	test_math();
