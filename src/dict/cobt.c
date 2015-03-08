@@ -8,7 +8,7 @@
 static int8_t init(void** _this, void* args_unused) {
 	(void) args_unused;
 
-	struct cob* cob = malloc(sizeof(struct cob));
+	cob* cob = malloc(sizeof(cob));
 	if (!cob) return 1;
 
 	cob_init(cob);
@@ -19,9 +19,9 @@ static int8_t init(void** _this, void* args_unused) {
 
 static void destroy(void** _this) {
 	if (_this) {
-		struct cob* cob = * (struct cob**) _this;
-		cob_destroy(*cob);
-		free(cob);
+		cob* this = * (cob**) _this;
+		cob_destroy(*this);
+		free(this);
 		*_this = NULL;
 	}
 }

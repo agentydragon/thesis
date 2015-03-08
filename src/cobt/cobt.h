@@ -26,7 +26,7 @@ struct {
 //
 // 3) TODO: pridat indirekci abych se zbavil O((log^2 N) / B)
 
-struct cob {
+typedef struct {
 	// vEB-layout nodes
 	// ordered file structure
 	ofm file;
@@ -34,22 +34,17 @@ struct cob {
 	uint64_t* veb_minima;
 
 	struct level_data* level_data;
-};
+} cob;
 
-void cob_init(struct cob* this);
-void cob_destroy(struct cob this);
-int8_t cob_insert(struct cob* this, uint64_t key, uint64_t value);
-int8_t cob_delete(struct cob* this, uint64_t key);
-void cob_find(struct cob* this, uint64_t key,
-		bool *found, uint64_t *value);
-void cob_next_key(struct cob* this, uint64_t key,
+void cob_init(cob* this);
+void cob_destroy(cob this);
+int8_t cob_insert(cob* this, uint64_t key, uint64_t value);
+int8_t cob_delete(cob* this, uint64_t key);
+void cob_find(cob* this, uint64_t key, bool *found, uint64_t *value);
+void cob_next_key(cob* this, uint64_t key,
 		bool *next_key_exists, uint64_t *next_key);
-void cob_previous_key(struct cob* this, uint64_t key,
+void cob_previous_key(cob* this, uint64_t key,
 		bool *previous_key_exists, uint64_t *previous_key);
-uint64_t cobt_get_veb_height(struct cob this);
-uint64_t cobt_range_get_minimum(ofm_range range);
-void cob_dump(struct cob _this);
-uint64_t cob_veb_node_count(struct cob _this);
-void cob_check(struct cob* this);
+void cob_check(cob* this);
 
 #endif
