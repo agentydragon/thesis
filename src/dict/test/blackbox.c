@@ -15,7 +15,7 @@ static void has_element(dict* table, uint64_t key, uint64_t value) {
 			"dict_find for %ld failed", key);
 	CHECK(found, "key %ld not found", key);
 	CHECK(value_found == value,
-			"value for key %ld is %ld, not %ld",
+			"value for key %ld should be %ld, but is %ld",
 			key, value, value_found);
 }
 

@@ -34,4 +34,6 @@ uint64_t cobt_tree_find_le(cobt_tree*, uint64_t key);
 // Informs the tree about changes in a range
 void cobt_tree_refresh(cobt_tree*, cobt_tree_range refresh);
 
+void cobt_tree_dump(cobt_tree*);
+
 #endif

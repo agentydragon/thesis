@@ -29,13 +29,14 @@ struct {
 // 3) TODO: pridat indirekci abych se zbavil O((log^2 N) / B)
 
 typedef struct {
-	// vEB-layout nodes
-	// ordered file structure
+	// The OFM stores groups of key-value pairs called "pieces".
+	// They are keyed by their minimal keys.
+	// Piece sizes are O(log N) multiples of 4.
+
+	uint64_t size;  // Number of stored elements.
+	uint8_t piece;  // Piece size in number of key-value pairs
 	ofm file;
 	cobt_tree tree;
-	//// contains 2*(ordered file subranges)-1 nodes
-	//uint64_t* veb_minima;
-	//struct level_data* level_data;
 } cob;
 
 void cob_init(cob* this);

@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <inttypes.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #define NO_LOG_INFO
@@ -51,7 +52,7 @@ void cobt_tree_destroy(cobt_tree* this) {
 }
 
 uint64_t cobt_tree_find_le(cobt_tree* this, uint64_t key) {
-	log_info("finding max index <= key %" PRIu64, key);
+	//log_info("finding max index <= key %" PRIu64, key);
 	uint8_t stack_size = 0;
 
 	struct drilldown_track track;
@@ -62,7 +63,7 @@ uint64_t cobt_tree_find_le(cobt_tree* this, uint64_t key) {
 		stack_size++;
 
 		if (stack_size == height(this)) {
-			log_info(" => %" PRIu64, leaf_index);
+			//log_info(" => %" PRIu64, leaf_index);
 			return leaf_index;
 		} else {
 			// NOTE: this is the reason why right drilldowns
@@ -117,6 +118,7 @@ static void refresh_recursive(cobt_tree* this, cobt_tree_range refresh,
 			refresh.begin, refresh.end,
 			current.begin, current.end,
 			current_nid);
+	const uint64_t old_min = this->tree[current_nid];
 
 	if (size(current) == 1) {
 		if (current.begin < this->backing_array_size &&
@@ -127,24 +129,40 @@ static void refresh_recursive(cobt_tree* this, cobt_tree_range refresh,
 		}
 	} else if (is_subrange_of(refresh, left_half(current)) ||
 			is_subrange_of(refresh, right_half(current))) {
-		// TODO: change to 2 intersections
+		this->tree[current_nid] = UINT64_MAX; // XX: NEEDED
+
+		uint64_t signal, fixed;
+
+		drilldown_go_left(this->level_data, track);
 		if (is_subrange_of(refresh, left_half(current))) {
-			drilldown_go_left(this->level_data, track);
 			refresh_recursive(this, refresh,
 					left_half(current), track);
+			signal = this->tree[track->pos[track->depth]];
 		} else {
-			drilldown_go_right(this->level_data, track);
+			fixed = this->tree[track->pos[track->depth]];
+		}
+		drilldown_go_up(track);
+		drilldown_go_right(this->level_data, track);
+		if (is_subrange_of(refresh, right_half(current))) {
 			refresh_recursive(this, refresh,
 					right_half(current), track);
+			signal = this->tree[track->pos[track->depth]];
+		} else {
+			fixed = this->tree[track->pos[track->depth]];
 		}
+		drilldown_go_up(track);
+		if (signal < fixed) {
+			this->tree[current_nid] = signal;
+		} else {
+			this->tree[current_nid] = fixed;
+		}
+	} else {
+		this->tree[current_nid] = UINT64_MAX; // XX: NEEDED.
+		drilldown_go_left(this->level_data, track);
+		refresh_recursive(this, refresh, left_half(current), track);
 		if (this->tree[track->pos[track->depth]] < this->tree[current_nid]) {
 			this->tree[current_nid] = this->tree[track->pos[track->depth]];
 		}
-		drilldown_go_up(track);
-	} else {
-		drilldown_go_left(this->level_data, track);
-		refresh_recursive(this, refresh, left_half(current), track);
-		this->tree[current_nid] = this->tree[track->pos[track->depth]];
 		drilldown_go_up(track);
 
 		drilldown_go_right(this->level_data, track);
@@ -155,10 +173,19 @@ static void refresh_recursive(cobt_tree* this, cobt_tree_range refresh,
 		drilldown_go_up(track);
 	}
 	if (this->tree[current_nid] == INFINITY) {
-		log_info("=> %" PRIu64 " fixed to INFINITY", current_nid);
+		if (old_min != this->tree[current_nid]) {
+			log_info("=> %" PRIu64 " fixed to INFINITY", current_nid);
+		} else {
+			log_info("=> %" PRIu64 " remains INFINITY", current_nid);
+		}
 	} else {
-		log_info("=> %" PRIu64 " fixed to %" PRIu64,
-				current_nid, this->tree[current_nid]);
+		if (old_min != this->tree[current_nid]) {
+			log_info("=> %" PRIu64 " fixed to %" PRIu64,
+					current_nid, this->tree[current_nid]);
+		} else {
+			log_info("=> %" PRIu64 " remains at %" PRIu64,
+					current_nid, this->tree[current_nid]);
+		}
 	}
 }
 
@@ -166,4 +193,18 @@ void cobt_tree_refresh(cobt_tree* this, cobt_tree_range refresh) {
 	struct drilldown_track track;
 	drilldown_begin(&track);
 	refresh_recursive(this, refresh, entire_tree(this), &track);
+}
+
+void cobt_tree_dump(cobt_tree* this) {
+	char buffer[4096];
+	uint64_t z = 0;
+	for (uint64_t i = 0; i < tree_node_count(this); i++) {
+		if (this->tree[i] != INFINITY) {
+			z += sprintf(buffer + z, "[%" PRIu64 "]=%" PRIu64 " ",
+					i, this->tree[i]);
+		} else {
+			z += sprintf(buffer + z, "[%" PRIu64 "]=INFINITY ", i);
+		}
+	}
+	log_info("%s", buffer);
 }
