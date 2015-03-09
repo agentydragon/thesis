@@ -6,15 +6,6 @@
 
 #define CLZ64(x) (__builtin_clzll(x))
 
-uint8_t ceil_log2(uint64_t x) {
-	// TODO: optimize
-	if (x == 0) return 0;
-	uint64_t exp_l = 1;
-	uint8_t l = 0;
-	for (; exp_l < x; exp_l *= 2, ++l);
-	return l;
-}
-
 uint64_t ceil_div(uint64_t a, uint64_t b) {
 	return (a / b) + (a % b > 0) ? 1 : 0;
 }

@@ -10,6 +10,15 @@ static void test_floor_log2() {
 	assert(floor_log2(134) == 7);
 }
 
+static void test_ceil_log2() {
+	assert(ceil_log2(1) == 0);
+	assert(ceil_log2(2) == 1);
+	assert(ceil_log2(3) == 2);
+	assert(ceil_log2(4) == 2);
+	assert(ceil_log2(6) == 3);
+	assert(ceil_log2(134) == 8);
+}
+
 static void test_exact_log2() {
 	assert(floor_log2(1) == 0);
 	assert(floor_log2(2) == 1);
@@ -26,6 +35,7 @@ static void test_hyperfloor() {
 
 void test_math() {
 	test_floor_log2();
+	test_ceil_log2();
 	test_exact_log2();
 	test_hyperfloor();
 
