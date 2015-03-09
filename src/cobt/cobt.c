@@ -197,8 +197,8 @@ static void insert_first_piece(cob* this, uint64_t key, piece_item* new_piece) {
 static void split_piece(cob* this, uint64_t index) {
 	piece_item* old_piece = ofm_get_value(&this->file, index);
 
-	if (piece_size(this, old_piece) < (this->piece * 3) / 4) {
-		// The piece is not too full yet.
+	if (piece_size(this, old_piece) < this->piece - 1) {
+		// The piece still has some free slots, it needs no splitting.
 		return;
 	}
 
