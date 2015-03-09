@@ -42,6 +42,7 @@ static void destroy(void** _this) {
 }
 
 static void _lookup_index(data* this, uint64_t key, bool *found, uint64_t *index) {
+	// TODO: this should use binary search
 	for (uint64_t i = 0; i < this->pair_count; i++) {
 		if (this->pairs[i].key == key) {
 			*found = true;
