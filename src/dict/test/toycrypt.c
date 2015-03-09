@@ -13,9 +13,23 @@ static uint64_t one_round(uint64_t message, uint64_t key) {
 	return (((uint64_t) R1) << 32LL) | (uint64_t) R2;
 }
 
+static uint64_t reverse_round(uint64_t message, uint64_t key) {
+	uint32_t R1 = (message & 0xFFFFFFFF00000000LL) >> 32LL,
+		 R2 = (message & 0x00000000FFFFFFFFLL);
+	uint32_t L1 = R2, L2 = R1 ^ oneway_fn(L1, key);
+	return (((uint64_t) L1) << 32LL) | (uint64_t) L2;
+}
+
 uint64_t toycrypt(uint64_t message, uint64_t key) {
 	for (uint8_t i = 0; i < 3; i++) {
 		message = one_round(message, key + i);
+	}
+	return message;
+}
+
+uint64_t toyuncrypt(uint64_t message, uint64_t key) {
+	for (uint8_t i = 0; i < 3; i++) {
+		message = reverse_round(message, key + (2 - i));
 	}
 	return message;
 }
