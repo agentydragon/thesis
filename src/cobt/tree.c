@@ -109,16 +109,23 @@ static bool is_subrange_of(cobt_tree_range subrange, cobt_tree_range range) {
 	return (subrange.begin >= range.begin && subrange.end <= range.end);
 }
 
+static bool disjoint(cobt_tree_range a, cobt_tree_range b) {
+	return (a.begin >= b.end) || (b.begin >= a.end);
+}
+
+static bool intersect(cobt_tree_range a, cobt_tree_range b) {
+	return !disjoint(a, b);
+}
+
 static void refresh_recursive(cobt_tree* this, cobt_tree_range refresh,
 		cobt_tree_range current, struct drilldown_track* track) {
 	const uint64_t current_nid = track->pos[track->depth];
-	log_info("to_fix=[%" PRIu64 ",%" PRIu64 ") "
-			"current_range=[%" PRIu64 ",%" PRIu64 ") "
-			"nid=%" PRIu64,
+	log_info("refresh=[%" PRIu64 ",%" PRIu64 ") "
+			"current=[%" PRIu64 ",%" PRIu64 ") nid=%" PRIu64,
 			refresh.begin, refresh.end,
 			current.begin, current.end,
 			current_nid);
-	const uint64_t old_min = this->tree[current_nid];
+	const uint64_t old = this->tree[current_nid];
 
 	if (size(current) == 1) {
 		if (current.begin < this->backing_array_size &&
@@ -127,59 +134,37 @@ static void refresh_recursive(cobt_tree* this, cobt_tree_range refresh,
 		} else {
 			this->tree[current_nid] = INFINITY;
 		}
-	} else if (is_subrange_of(refresh, left_half(current)) ||
-			is_subrange_of(refresh, right_half(current))) {
+	} else {
 		this->tree[current_nid] = UINT64_MAX; // XX: NEEDED
 
-		uint64_t signal, fixed;
-
 		drilldown_go_left(this->level_data, track);
-		if (is_subrange_of(refresh, left_half(current))) {
+		if (intersect(refresh, left_half(current))) {
 			refresh_recursive(this, refresh,
 					left_half(current), track);
-			signal = this->tree[track->pos[track->depth]];
-		} else {
-			fixed = this->tree[track->pos[track->depth]];
 		}
+		const uint64_t left = this->tree[track->pos[track->depth]];
 		drilldown_go_up(track);
 		drilldown_go_right(this->level_data, track);
-		if (is_subrange_of(refresh, right_half(current))) {
+		if (intersect(refresh, right_half(current))) {
 			refresh_recursive(this, refresh,
 					right_half(current), track);
-			signal = this->tree[track->pos[track->depth]];
+		}
+		const uint64_t right = this->tree[track->pos[track->depth]];
+		drilldown_go_up(track);
+		if (left < right) {
+			this->tree[current_nid] = left;
 		} else {
-			fixed = this->tree[track->pos[track->depth]];
+			this->tree[current_nid] = right;
 		}
-		drilldown_go_up(track);
-		if (signal < fixed) {
-			this->tree[current_nid] = signal;
-		} else {
-			this->tree[current_nid] = fixed;
-		}
-	} else {
-		this->tree[current_nid] = UINT64_MAX; // XX: NEEDED.
-		drilldown_go_left(this->level_data, track);
-		refresh_recursive(this, refresh, left_half(current), track);
-		if (this->tree[track->pos[track->depth]] < this->tree[current_nid]) {
-			this->tree[current_nid] = this->tree[track->pos[track->depth]];
-		}
-		drilldown_go_up(track);
-
-		drilldown_go_right(this->level_data, track);
-		refresh_recursive(this, refresh, right_half(current), track);
-		if (this->tree[track->pos[track->depth]] < this->tree[current_nid]) {
-			this->tree[current_nid] = this->tree[track->pos[track->depth]];
-		}
-		drilldown_go_up(track);
 	}
 	if (this->tree[current_nid] == INFINITY) {
-		if (old_min != this->tree[current_nid]) {
+		if (old != this->tree[current_nid]) {
 			log_info("=> %" PRIu64 " fixed to INFINITY", current_nid);
 		} else {
 			log_info("=> %" PRIu64 " remains INFINITY", current_nid);
 		}
 	} else {
-		if (old_min != this->tree[current_nid]) {
+		if (old != this->tree[current_nid]) {
 			log_info("=> %" PRIu64 " fixed to %" PRIu64,
 					current_nid, this->tree[current_nid]);
 		} else {
