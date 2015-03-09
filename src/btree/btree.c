@@ -306,6 +306,7 @@ int8_t btree_delete(btree* this, uint64_t key) {
 							right);
 					node.persisted = left;
 					remove_ptr_from_node(parent, right);
+					free(right);
 					collapse_if_singleton_root(
 							this, parent);
 				} else {
