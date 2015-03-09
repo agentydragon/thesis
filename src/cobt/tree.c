@@ -105,10 +105,6 @@ static cobt_tree_range right_half(cobt_tree_range range) {
 	};
 }
 
-static bool is_subrange_of(cobt_tree_range subrange, cobt_tree_range range) {
-	return (subrange.begin >= range.begin && subrange.end <= range.end);
-}
-
 static bool disjoint(cobt_tree_range a, cobt_tree_range b) {
 	return (a.begin >= b.end) || (b.begin >= a.end);
 }
