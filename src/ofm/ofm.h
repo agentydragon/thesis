@@ -40,4 +40,8 @@ void ofm_destroy(ofm file);
 
 void* ofm_get_value(ofm* file, uint64_t index);
 
+void ofm_stream_start(ofm* file, uint64_t size, uint64_t *scratch);
+void ofm_stream_push(ofm* file, uint64_t key, const void* value,
+		uint64_t *scratch);
+
 #endif

@@ -254,8 +254,8 @@ static ofm_range rebalance(ofm* file, ofm_range start_block, uint64_t *watch) {
 
 	if (is_entire_file(range)) {
 		log_verbose(1, "entire file out of balance");
-		struct parameters parameters = adequate_parameters(
-				ofm_count_occupied(range));
+		const uint64_t count = ofm_count_occupied(range);
+		struct parameters parameters = adequate_parameters(count);
 
 		if (parameters.capacity == file->capacity &&
 				parameters.block_size == file->block_size) {
@@ -263,25 +263,19 @@ static ofm_range rebalance(ofm* file, ofm_range start_block, uint64_t *watch) {
 					"still adequate.");
 		} else {
 			ofm new_file = {
-				.block_size = parameters.block_size,
-				.capacity = parameters.capacity,
 				.value_size = file->value_size,
 				.keys = NULL,
 				.values = NULL,
 				.occupied = NULL,
 			};
-			alloc_file(&new_file);
-			// TODO: This will be soon followed by an expensive
-			// rebalancing. Perhaps we should build it rebalanced
-			// in the first place.
-			for (uint64_t i = 0, j = 0; i < file->capacity; i++) {
+			uint64_t scratch;
+			ofm_stream_start(&new_file, count, &scratch);
+			for (uint64_t i = 0; i < file->capacity; i++) {
 				if (file->occupied[i]) {
-					if (watch != NULL && *watch == i) {
-						*watch = j;
-					}
-					new_file.occupied[j] = true;
-					copy_item(&new_file, j, file, i);
-					j++;
+					ofm_stream_push(&new_file,
+							file->keys[i],
+							value_address(file, i),
+							&scratch);
 				}
 			}
 			ofm_destroy(*file);
@@ -413,4 +407,25 @@ void ofm_destroy(ofm file) {
 	free(file.keys);
 	free(file.values);
 	free(file.occupied);
+}
+
+void ofm_stream_start(ofm* file, uint64_t size, uint64_t *scratch) {
+	struct parameters parameters = adequate_parameters(size);
+	file->block_size = parameters.block_size;
+	file->capacity = parameters.capacity;
+	assert(!file->keys && !file->values && !file->occupied);
+	// TODO: value_size?
+	alloc_file(file);
+	// TODO: This will be soon followed by an expensive
+	// rebalancing. Perhaps we should build it rebalanced
+	// in the first place.
+	*scratch = 0;
+}
+
+void ofm_stream_push(ofm* file, uint64_t key, const void* value,
+		uint64_t *scratch) {
+	file->occupied[*scratch] = true;
+	file->keys[*scratch] = key;
+	assign_value(file, *scratch, value);
+	++*scratch;
 }
