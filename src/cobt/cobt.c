@@ -133,10 +133,6 @@ static void sort_piece(cob* this, piece_item* piece) {
 	qsort(piece, this->piece, sizeof(piece_item), compare_piece_items);
 }
 
-static void sort_piece_c(uint64_t size, piece_item* piece) {
-	qsort(piece, size, sizeof(piece_item), compare_piece_items);
-}
-
 static bool piece_full(cob* this, piece_item* piece) {
 	for (uint8_t i = 0; i < this->piece; i++) {
 		if (piece[i].key == EMPTY) return false;
@@ -308,7 +304,7 @@ static void merge_pieces(cob* this, uint64_t left, uint64_t right) {
 	// log_info("before: right: %s", buffer);
 
 	if (left_size + right_size < (this->piece * 3) / 4) {
-		// Merge to one node.
+		// Merge right into left, drop right.
 		for (uint8_t i = 0; i < right_size; i++) {
 			l[i + left_size].key = r[i].key;
 			l[i + left_size].value = r[i].value;
@@ -339,7 +335,7 @@ static void merge_pieces(cob* this, uint64_t left, uint64_t right) {
 		}
 		// dump_all(this);
 	} else {
-		// Left eats everything, right gets killed off.
+		// Redistribute keys between left and right.
 		// TODO: fuj
 		piece_item* items = alloca((left_size + right_size) * sizeof(piece_item));
 		for (uint8_t i = 0; i < left_size; i++) {
@@ -431,14 +427,12 @@ int8_t cob_delete(cob* this, uint64_t key) {
 
 	const uint64_t index = cobt_tree_find_le(&this->tree, key);
 	if (!this->file.occupied[index]) {
-		// Deleting nonexistant key.
-		goto nonexistant_key;
+		goto no_such_key;
 	}
 
 	piece_item* piece = ofm_get_value(&this->file, index);
 	if (!delete_from_piece(this, piece, key)) {
-		// Deleting nonexistant key.
-		goto nonexistant_key;
+		goto no_such_key;
 	}
 
 	// log_info("updating piece key to reflect deletion of %" PRIu64, key);
@@ -452,7 +446,7 @@ int8_t cob_delete(cob* this, uint64_t key) {
 	// internal_check(this);
 	return 0;
 
-nonexistant_key:
+no_such_key:
 	// log_info("cob_delete(%" PRIu64 ") deleting nonexistant key", key);
 	// internal_check(this);
 	return 1;
@@ -522,7 +516,6 @@ static void rebuild_file(cob* this, uint8_t new_piece, ofm* new_file) {
 
 			if (got_now == preferred_piece) {
 				// log_info("flush");
-				sort_piece_c(preferred_piece, tmp);
 				ofm_insert_before(new_file, tmp[0].key, tmp,
 						new_file->capacity, NULL);
 				got_now = 0;
@@ -536,10 +529,8 @@ static void rebuild_file(cob* this, uint8_t new_piece, ofm* new_file) {
 
 	if (got_now > 0) {
 		// log_info("flush");
-		sort_piece_c(preferred_piece, tmp);
 		ofm_insert_before(new_file, tmp[0].key, tmp,
 				new_file->capacity, NULL);
-		got_now = 0;
 	}
 	// log_info("rebuilt file to piece %" PRIu64, new_piece);
 }
