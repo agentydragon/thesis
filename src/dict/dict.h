@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define DICT_RESERVED_KEY 0xFFFFFFFFFFFFFFFF
+#define DICT_RESERVED_KEY UINT64_MAX
 
 typedef struct dict_s dict;
 
