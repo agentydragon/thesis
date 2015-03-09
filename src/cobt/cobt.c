@@ -6,10 +6,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "math/math.h"
-#include "veb_layout/veb_layout.h"
-
 #include "log/log.h"
+#include "math/math.h"
+#include "util/unused.h"
+#include "veb_layout/veb_layout.h"
 
 #define EMPTY UINT64_MAX
 
@@ -18,7 +18,7 @@ typedef struct {
 	uint64_t value;
 } piece_item;
 
-static void dump_piece(char* buffer, cob* this, uint64_t index) {
+static void UNUSED dump_piece(char* buffer, cob* this, uint64_t index) {
 	piece_item* piece = ofm_get_value(&this->file, index);
 	uint8_t z = 0;
 	z += sprintf(buffer + z, "[%" PRIu64 " %s key=%" PRIu64 "]: ",
@@ -35,7 +35,7 @@ static void dump_piece(char* buffer, cob* this, uint64_t index) {
 	}
 }
 
-static void internal_check(cob* this) {
+static void UNUSED internal_check(cob* this) {
 	for (uint64_t i = 0; i < this->file.capacity; i++) {
 		if (this->file.occupied[i]) {
 			assert(this->file.keys[i] != EMPTY);
@@ -59,7 +59,7 @@ static void internal_check(cob* this) {
 	// Possibly add more checks later.
 }
 
-static void dump_all(cob* this) {
+static void UNUSED dump_all(cob* this) {
 	for (uint64_t i = 0; i < this->file.capacity; i++) {
 		char buffer[1024];
 		dump_piece(buffer, this, i);

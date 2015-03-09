@@ -10,6 +10,7 @@
 #include "hashtable/private/traversal.h"
 #include "log/log.h"
 #include "util/average.h"
+#include "util/unused.h"
 
 /*
 static void calculate_bucket_sizes(hashtable* this, int bucket_sizes[100]) {
@@ -43,7 +44,7 @@ void hashtable_dump(void* _this) {
 */
 
 // Used for debugging. TODO: remove?
-static void __attribute__((unused)) dump_block(hashtable* this, uint64_t index, block* block) {
+static void UNUSED dump_block(hashtable* this, uint64_t index, block* block) {
 	char buffer[256], buffer2[256];
 	snprintf(buffer, sizeof(buffer),
 			"[%04" PRIx64 "] keys_with_hash=%" PRIu32,
@@ -69,7 +70,7 @@ static void __attribute__((unused)) dump_block(hashtable* this, uint64_t index, 
 	log_plain("%s", buffer);
 }
 
-static void __attribute__((unused)) dump_blocks(hashtable* this) {
+static void UNUSED dump_blocks(hashtable* this) {
 	for (uint64_t i = 0; i < this->blocks_size; i++) {
 		dump_block(this, i, &this->blocks[i]);
 	}
