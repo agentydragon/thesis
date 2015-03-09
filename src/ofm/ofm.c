@@ -271,6 +271,9 @@ static ofm_range rebalance(ofm* file, ofm_range start_block, uint64_t *watch) {
 				.occupied = NULL,
 			};
 			alloc_file(&new_file);
+			// TODO: This will be soon followed by an expensive
+			// rebalancing. Perhaps we should build it rebalanced
+			// in the first place.
 			for (uint64_t i = 0, j = 0; i < file->capacity; i++) {
 				if (file->occupied[i]) {
 					if (watch != NULL && *watch == i) {
