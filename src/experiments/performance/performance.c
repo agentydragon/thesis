@@ -123,11 +123,7 @@ struct metrics measure_serial(const dict_api* api, uint64_t size) {
 	struct measurement measurement = measurement_begin();
 	stopwatch watch = stopwatch_start();
 
-	dict* table;
-	if (dict_init(&table, api, NULL)) log_fatal("cannot init dict");
-	for (uint64_t i = 0; i < size; i++) {
-		insert(table, make_key(i), make_value(i));
-	}
+	dict* table = seed(api, size);
 
 	struct measurement measurement_just_find = measurement_begin();
 	stopwatch watch_just_find = stopwatch_start();

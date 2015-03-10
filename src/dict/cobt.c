@@ -11,6 +11,7 @@ static int8_t init(void** _this, void* args_unused) {
 	cob* this = malloc(sizeof(cob));
 	if (!this) return 1;
 
+	memset(this, 0, sizeof(cob));
 	cob_init(this);
 	*_this = this;
 

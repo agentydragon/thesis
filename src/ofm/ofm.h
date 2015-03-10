@@ -40,8 +40,13 @@ void ofm_destroy(ofm file);
 
 void* ofm_get_value(ofm* file, uint64_t index);
 
-void ofm_stream_start(ofm* file, uint64_t size, uint64_t *scratch);
+typedef struct {
+	uint64_t scratch;
+	uint64_t allowed_capacity;
+} ofm_stream;
+
+void ofm_stream_start(ofm* file, uint64_t size, ofm_stream *stream);
 void ofm_stream_push(ofm* file, uint64_t key, const void* value,
-		uint64_t *scratch);
+		ofm_stream* stream);
 
 #endif

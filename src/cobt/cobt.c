@@ -487,11 +487,23 @@ void cob_previous_key(cob* this, uint64_t key,
 	log_fatal("cob_previous_key not implemented yet");
 }
 
-static void rebuild_file(cob* this, uint8_t new_piece, ofm* new_file) {
+static ofm rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
+	log_info("rebuild to %" PRIu8 " (old=%" PRIu8 ")", new_piece,
+			this->piece);
+	ofm new_file = {
+		.occupied = NULL,
+		.keys = NULL,
+		.values = NULL,
+		.value_size = new_piece * sizeof(piece_item)
+	};
 	// log_info("rebuilding");
-	ofm_init(new_file, new_piece * sizeof(piece_item));
-
+	// ofm_init(new_file, new_piece * sizeof(piece_item));
 	const uint8_t preferred_piece = new_piece / 2;
+	const uint64_t piece_count = (new_size / preferred_piece) + 1;
+	log_info("allocating %" PRIu64 " pieces of size %" PRIu8, piece_count, new_piece);
+	ofm_stream stream;
+	ofm_stream_start(&new_file, piece_count /*this->size*/, &stream);
+
 	uint8_t got_now = 0;
 	piece_item* tmp = alloca(new_piece * sizeof(piece_item));
 	for (uint64_t i = 0; i < new_piece; i++) {
@@ -515,9 +527,11 @@ static void rebuild_file(cob* this, uint8_t new_piece, ofm* new_file) {
 			// 		this_piece[j].key, this_piece[j].value);
 
 			if (got_now == preferred_piece) {
-				// log_info("flush");
-				ofm_insert_before(new_file, tmp[0].key, tmp,
-						new_file->capacity, NULL);
+				//// log_info("flush");
+				// ofm_insert_before(new_file, tmp[0].key, tmp,
+				// 		new_file->capacity, NULL);
+				ofm_stream_push(&new_file, tmp[0].key, tmp,
+						&stream);
 				got_now = 0;
 				for (uint8_t z = 0; z < new_piece; z++) {
 					tmp[z].key = EMPTY;
@@ -528,15 +542,17 @@ static void rebuild_file(cob* this, uint8_t new_piece, ofm* new_file) {
 	}
 
 	if (got_now > 0) {
-		// log_info("flush");
-		ofm_insert_before(new_file, tmp[0].key, tmp,
-				new_file->capacity, NULL);
+		//// log_info("flush");
+		// ofm_insert_before(new_file, tmp[0].key, tmp,
+		// 		new_file->capacity, NULL);
+		ofm_stream_push(&new_file, tmp[0].key, tmp, &stream);
 	}
 	// log_info("rebuilt file to piece %" PRIu64, new_piece);
+	return new_file;
 }
 
 static void enforce_piece_policy(cob* this, uint64_t new_size) {
-	const uint8_t log = ceil_log2(new_size);
+	const uint8_t log = new_size == 0 ? 1 : ceil_log2(new_size);
 	uint8_t new_piece = this->piece;
 	while (log >= new_piece + 4) {
 		new_piece += 4;
@@ -544,17 +560,16 @@ static void enforce_piece_policy(cob* this, uint64_t new_size) {
 	while (new_piece > 4 && log <= new_piece - 4) {
 		new_piece -= 4;
 	}
+	if (rand() % 1000000 == 0) {
+		log_info("%" PRIu64 " new_piece %" PRIu8 ", this->piece %" PRIu8,
+				new_size, new_piece, this->piece);
+	}
 	if (this->piece != new_piece) {
-		// log_info("piece resizing from %" PRIu8 " to %" PRIu8,
-		// 		this->piece, new_piece);
-		// Here we should probably start inserting items to a new
-		// file left to right, and then we should rebuild a new
-		// vEB tree on top of that.
-		ofm file;
-		rebuild_file(this, new_piece, &file);
-
+		log_info("%" PRIu64 " piece resizing from %" PRIu8 " to %" PRIu8,
+				new_size, this->piece, new_piece);
+		const ofm new_file = rebuild_file(this, new_size, new_piece);
 		ofm_destroy(this->file);
-		this->file = file;
+		this->file = new_file;
 
 		entirely_reset_veb(this);
 		this->piece = new_piece;
@@ -562,6 +577,7 @@ static void enforce_piece_policy(cob* this, uint64_t new_size) {
 }
 
 void cob_init(cob* this) {
+	log_info("cob_init(%p)", this);
 	this->size = 0;
 	this->piece = 4;  // Initial piece size: 4
 	ofm_init(&this->file, this->piece * sizeof(piece_item));
