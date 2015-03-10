@@ -58,7 +58,7 @@ static int parse_option(int key, char *arg, struct argp_state *state) {
 }
 
 static void set_defaults() {
-	FLAGS.maximum = 64 * 1024 * 1024;
+	FLAGS.maximum = 1024 * 1024 * 1024;
 	FLAGS.base = 1.2;
 	FLAGS.measured_apis[0] = &dict_btree;
 	FLAGS.measured_apis[1] = &dict_cobt;
