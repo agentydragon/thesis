@@ -5,6 +5,7 @@
 #include <math.h>
 
 #include "cobt/cobt.h"
+#include "dict/test/toycrypt.h"
 #include "experiments/performance/flags.h"
 #include "log/log.h"
 #include "measurement/measurement.h"
