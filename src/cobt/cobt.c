@@ -560,10 +560,6 @@ static void enforce_piece_policy(cob* this, uint64_t new_size) {
 	while (new_piece > 4 && log <= new_piece - 4) {
 		new_piece -= 4;
 	}
-	if (rand() % 1000000 == 0) {
-		log_info("%" PRIu64 " new_piece %" PRIu8 ", this->piece %" PRIu8,
-				new_size, new_piece, this->piece);
-	}
 	if (this->piece != new_piece) {
 		log_info("%" PRIu64 " piece resizing from %" PRIu8 " to %" PRIu8,
 				new_size, this->piece, new_piece);
