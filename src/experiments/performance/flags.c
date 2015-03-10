@@ -32,7 +32,7 @@ static int parse_option(int key, char *arg, struct argp_state *state) {
 	case 'a': {
 		const char comma[] = ",";
 		char* token = strtok(arg, comma);
-		int i;
+		uint64_t i;
 		for (i = 0; token != NULL; i++, token = strtok(NULL, comma)) {
 			const dict_api* found = NULL;
 			for (const dict_api** api = &ALL_APIS[0]; *api; ++api) {

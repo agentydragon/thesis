@@ -50,9 +50,6 @@ dict* seed(const dict_api* api, uint64_t size) {
 
 struct metrics measure_working_set(const dict_api* api, uint64_t size,
 		uint64_t working_set_size) {
-	struct measurement measurement = measurement_begin();
-	stopwatch watch = stopwatch_start();
-
 	const uint64_t used_ws_size = working_set_size < size ? working_set_size : size;
 
 	dict* table = seed(api, size);
@@ -66,8 +63,7 @@ struct metrics measure_working_set(const dict_api* api, uint64_t size,
 		check_contains(table, make_key(k), make_value(k));
 	}
 
-	struct measurement_results results_combined = measurement_end(measurement),
-				   results_just_find = measurement_end(measurement_just_find);
+	struct measurement_results results_just_find = measurement_end(measurement_just_find);
 	dict_destroy(&table);
 
 	return (struct metrics) {
@@ -77,6 +73,7 @@ struct metrics measure_working_set(const dict_api* api, uint64_t size,
 	};
 }
 
+/*
 static void iterate_ltr(dict* dict) {
 	uint64_t min = 0;
 	bool found;
@@ -95,6 +92,7 @@ static void iterate_ltr(dict* dict) {
 		assert(!dict_next(dict, current_key, &current_key, &found));
 	}
 }
+*/
 
 // TODO: measure_ltr_scan breaks the hacky implementation of splay_tree
 /*
@@ -197,6 +195,7 @@ int main(int argc, char** argv) {
 					results[i].time_nsec);
 		}
 
+		/*
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
 			results[i] = measure_working_set(FLAGS.measured_apis[i], size, 1000);
 			fprintf(output, "%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t",
@@ -204,7 +203,9 @@ int main(int argc, char** argv) {
 					results[i].cache_references,
 					results[i].time_nsec);
 		}
+		*/
 
+		/*
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
 			results[i] = measure_working_set(FLAGS.measured_apis[i], size, 100000);
 			fprintf(output, "%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t",
@@ -212,6 +213,7 @@ int main(int argc, char** argv) {
 					results[i].cache_references,
 					results[i].time_nsec);
 		}
+		*/
 
 		/*
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
