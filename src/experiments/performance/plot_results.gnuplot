@@ -24,6 +24,15 @@ plot \
 	"" u 1:($16/$1) axes x1y2 w lines title 'Time per element (COB-tree)' linewidth 2, \
 	"" u 1:($19/$1) axes x1y2 w lines title 'Time per element (splay)' linewidth 2
 
+set output "graph1-insertonly.png"
+plot \
+	"results.tsv" u 1:(($2-$11)/$1) w lines title 'Cache misses per element (B-tree)', \
+	"" u 1:(($5-$14)/$1) w lines title 'Cache misses per element (COB-tree)', \
+	"" u 1:(($8-$17)/$1) w lines title 'Cache misses per element (splay)', \
+	"" u 1:(($4-$13)/$1) axes x1y2 w lines title 'Time per element (B-tree)' linewidth 2, \
+	"" u 1:(($7-$16)/$1) axes x1y2 w lines title 'Time per element (COB-tree)' linewidth 2, \
+	"" u 1:(($10-$19)/$1) axes x1y2 w lines title 'Time per element (splay)' linewidth 2
+
 set output "graph2.png"
 plot \
 	"results.tsv" u 1:($4/$1) axes x1y2 w lines title 'Time per element (B-tree)', \
