@@ -14,20 +14,6 @@ struct {
 	uint64_t total_reorganized_size;
 } COB_COUNTERS;
 
-// 1) ordered file maintenance over N keys
-//
-// 2) VEB static pointing to maintained ordered file.
-//	keys are all in leaves, inner nodes contain maxima (gaps = -infty)
-//
-//	log_(B+1) N search: hledam pres leve deti
-//
-//	INSERT: 1) najit successora. vlozim polozku do ordered filu,
-//			updatuju strom.
-//			podobne delete.
-//	O(log_(B+1) N + (log^2 N)/B) block reads.
-//
-// 3) TODO: pridat indirekci abych se zbavil O((log^2 N) / B)
-
 typedef struct {
 	// The OFM stores groups of key-value pairs called "pieces".
 	// They are keyed by their minimal keys.
