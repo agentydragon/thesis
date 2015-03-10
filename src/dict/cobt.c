@@ -4,6 +4,7 @@
 #include "cobt/cobt.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 static int8_t init(void** _this, void* args_unused) {
 	(void) args_unused;
