@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <execinfo.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
 
