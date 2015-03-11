@@ -10,7 +10,7 @@ SOURCES= \
 	dict/test/*.c \
 	log/*.c \
 	math/*.c \
-	observation/*.c observation/test/*.c \
+	observation/*.c \
 	performance/*.c \
 	rand/*.c rand/test/*.c \
 	splay/*.c \

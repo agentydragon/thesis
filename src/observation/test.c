@@ -1,4 +1,4 @@
-#include "observation/test/test.h"
+#include "observation/test.h"
 
 #include <assert.h>
 #include <stdlib.h>
