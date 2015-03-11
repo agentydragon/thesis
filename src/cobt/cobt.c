@@ -572,6 +572,8 @@ static ofm rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
 		// ofm_insert_before(new_file, tmp[0].key, tmp,
 		// 		new_file->capacity, NULL);
 		ofm_stream_push(&new_file, tmp[0].key, &tmp, &stream);
+	} else {
+		free(tmp);
 	}
 	// log_info("rebuilt file to piece %" PRIu64, new_piece);
 	return new_file;
@@ -608,6 +610,13 @@ void cob_init(cob* this) {
 }
 
 void cob_destroy(cob* this) {
+	for (uint64_t i = 0; i < this->file.capacity; i++) {
+		if (this->file.occupied[i]) {
+			piece_item** piece_ptr = ofm_get_value(&this->file, i);
+			piece_item* piece = *piece_ptr;
+			free(piece);
+		}
+	}
 	ofm_destroy(this->file);
 	cobt_tree_destroy(&this->tree);
 }
