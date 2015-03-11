@@ -354,7 +354,6 @@ void veb_prepare(uint64_t height, struct level_data* levels) {
 	if (height >= 2) {
 		for (uint64_t depth = 1; depth < height; depth++) {
 			levels[depth] = veb_get_level_data(height, depth);
-//			log_info("");
 		}
 	}
 }
@@ -363,14 +362,4 @@ void drilldown_begin(struct drilldown_track* track) {
 	track->pos[0] = 0;
 	track->depth = 0;
 	track->bfs = 0;
-}
-
-// Inverse of drilldown_go_(left|right)
-void drilldown_go_up(struct drilldown_track* track) {
-	track->depth--;
-	if (track->bfs % 2) {
-		track->bfs = (track->bfs - 1) >> 1ULL;
-	} else {
-		track->bfs = (track->bfs - 2) >> 1ULL;
-	}
 }

@@ -19,7 +19,6 @@ struct drilldown_track {
 	uint64_t bfs;
 };
 void drilldown_begin(struct drilldown_track* track);
-void drilldown_go_up(struct drilldown_track* track);
 
 // add_level, drilldown_go_left, drilldown_go_right inlined for speed
 inline void add_level(struct level_data* ld, struct drilldown_track* track) {
@@ -37,6 +36,16 @@ inline void drilldown_go_left(struct level_data* ld, struct drilldown_track* tra
 inline void drilldown_go_right(struct level_data* ld, struct drilldown_track* track) {
 	track->bfs = (track->bfs << 1ULL) + 2;
 	add_level(ld, track);
+}
+
+// Inverse of drilldown_go_(left|right)
+inline void drilldown_go_up(struct drilldown_track* track) {
+	track->depth--;
+	if (track->bfs % 2) {
+		track->bfs = (track->bfs - 1) >> 1ULL;
+	} else {
+		track->bfs = (track->bfs - 2) >> 1ULL;
+	}
 }
 
 // OLD API:

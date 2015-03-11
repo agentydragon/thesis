@@ -52,34 +52,24 @@ void cobt_tree_destroy(cobt_tree* this) {
 }
 
 uint64_t cobt_tree_find_le(cobt_tree* this, uint64_t key) {
-	//log_info("finding max index <= key %" PRIu64, key);
-	uint8_t stack_size = 0;
-
 	struct drilldown_track track;
 	drilldown_begin(&track);
 
 	uint64_t leaf_index = 0;
-	do {
-		stack_size++;
-
-		if (stack_size == height(this)) {
-			//log_info(" => %" PRIu64, leaf_index);
-			return leaf_index;
+	const uint8_t max = height(this) - 1;
+	while (track.depth < max) {
+		// NOTE: this is the reason why right drilldowns
+		// are more likely.
+		drilldown_go_right(this->level_data, &track);
+		if (key >= this->tree[track.pos[track.depth]]) {
+			// We want to go right.
+			leaf_index = (leaf_index << 1) + 1;
 		} else {
-			// NOTE: this is the reason why right drilldowns
-			// are more likely.
-			drilldown_go_right(this->level_data, &track);
-			if (key >= this->tree[track.pos[track.depth]]) {
-				// We want to go right.
-				leaf_index = (leaf_index << 1) + 1;
-			} else {
-				drilldown_go_up(&track);
-				drilldown_go_left(this->level_data, &track);
-				leaf_index = leaf_index << 1;
-			}
+			drilldown_go_up(&track);
+			drilldown_go_left(this->level_data, &track);
+			leaf_index = leaf_index << 1;
 		}
-	} while (true);
-
+	}
 	return leaf_index;
 }
 
@@ -131,8 +121,6 @@ static void refresh_recursive(cobt_tree* this, cobt_tree_range refresh,
 			this->tree[current_nid] = INFINITY;
 		}
 	} else {
-		this->tree[current_nid] = UINT64_MAX; // XX: NEEDED
-
 		drilldown_go_left(this->level_data, track);
 		if (intersect(refresh, left_half(current))) {
 			refresh_recursive(this, refresh,
