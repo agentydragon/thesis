@@ -1,51 +1,18 @@
 \chapter{Cache-oblivious B-trees}
 % TODO: assume B > 1
-
-\section{Cache-aware B-trees}
 % TODO: usual => good? best?
 % TODO: reference to B-tree article
-In the external memory model, the usual way of storing sorted dictionaries
-is using a B-tree. A B-tree is a generalization of balanced binary search
-trees, in which nodes keep up to $b$ key-value pairs in sorted order.
-An inner node of a binary search tree with key $X$ contains two pointers
-pointing to children with keys $< X$ and $\geq X$. The B-tree generalizes
-this by having an inner node with keys $K_1,\ldots K_k$ keeping $k+1$ pointers
-to children with keys $< K_1$, $K_1\cdots K_2-1$, \dots, $> K_k$.
-
-The process of finding a key-value pair in a B-tree starts at the root node
-and walks down the tree using a generalization of binary search. Insertions
-similarly first find the right place to put the new key-value pair, and
-then walk back up the tree. If an overfull node (with more than $b$ keys)
-is encountered, it is split to two nodes of $b/2$ keys and a pointer to
-the new node is inserted into the parent. Deletions employ a similar procedure,
-merging underfull nodes (with less than $b/2$ keys) with their siblings.
-
-Thus, updates to the B-tree keep the number of keys within all nodes between
-$b/2$ and $b$, so the depth of the tree is kept between $\log_b N$ and
-$\log_{b/2} N$. The \textsc{Insert}, \textsc{Delete} and
-\textsc{Find} operations therefore run in $\Theta(\log_b N)$ time.
-The \textsc{FindNext} and \textsc{FindPrevious} also run in $\Theta(\log_b N)$ time,
-but if they are invoked after a previous \textsc{Find}, we can keep a pointer
-to the leaf containing the key and accordingly adjust it to find the next
-or previous key, which runs in $\O(1)$ amortized time.
-Thus, B-trees also allow scanning a contigous range of keys of size $n$
-in $\Theta(\log_b N + n)$ time.
-
-If we choose the parameter $b$ to be $\Theta(B)$, we obtain a bound of
-$\Theta(1+\log_B N)$ block transfers for all operations, which can
-be easily shown to be optimal in the comparison model.
-A contigous range of $n$ keys can be
-read using $\Theta(\log_B N+n/B)$ block transfers.
-Thus, the B-tree has optimal performance in the comparison model
-if the block size is known.
-
 The \textit{cache-oblivious B-tree} introduced by \cite{demaine00}
-is a data structure which gives similar bounds in a cache-oblivious
-setting -- it takes $\Theta(1+\log_B N)$ block transfers to perform
-a \textsc{Find}, \textsc{FindNext} or \textsc{FindPrevious} and scanning
-a range of $n$ keys also takes $\Theta(1+\log_B N+n/B)$ time.
-Both \textsc{Insert}s and \textsc{Delete}s cost
-$\Theta(1+\frac{\log^2 N}{B}+\log_B N)$ amortized block transfers.
+is a data structure which replicates the asymptotic performance of B-trees
+in a cache-oblivious setting.
+As in cache-aware B-trees, \textsc{Find}s and updates on cache-oblivious
+B-trees require $\Theta(\log_B N)$\footnote{
+	Strictly speaking, the bound is $\Theta(1+\log_B N)$
+	because we perform $\O(1)$ block transfers even when $B\in\omega(N)$.
+	We decide to use the reasonable assumption that
+	$B<N$ to simplify some bounds in this section.}
+amortized block transfers.
+Scanning a range of $t$ keys also takes $\Theta(\log_B N+t/B)$ time.
 This matches the performance of B-trees for $B=\Omega(\log N\log\log N)$.
 % TODO: unfortunately not common for internal memory
 
@@ -63,9 +30,9 @@ trees include the BFS or DFS order.
 
 The advantage of storing a full binary tree in the van Emde Boas layout
 is that is lets us read the sequence of keys from the root to any leaf
-using $\Theta(1+\log_B N)$ block transfers, which matches the \textsc{Find}
+using $\Theta(\log_B N)$ block transfers, which matches the \textsc{Find}
 cost of B-trees without the need to know $B$ beforehand.
-In contrast, the same operation would cost $\Theta(1+\log N-\log B)$ block
+In contrast, the same operation would cost $\Theta(\log N-\log B)$ block
 transfers in the DFS or BFS order.
 
 The van Emde Boas layout is defined recursively. To find the van Emde Boas layout
@@ -165,7 +132,7 @@ every box are contiguous.}
 
 \begin{theorem}
 In a tree stored in the van Emde Boas layout, reading the sequence of nodes
-on any root-leaf path costs $\Theta(1+\log_B N)$ block transfers (assuming
+on any root-leaf path costs $\Theta(\log_B N)$ block transfers (assuming
 every node fits in one block).
 \end{theorem}
 
@@ -181,7 +148,7 @@ detail} $i$ such that the $2^{h_i}-1$ nodes in the $i$-th-iteration bottom trees
 take up less than $B$ nodes, but bottom trees of the $i-1$-th-iteration bottom
 trees take up at least $B$ nodes.
 
-Since $2^{h_i}-1 < B$ and $2^{h_i-1}-1 \geq B$, it follows that $h_i=\O(\log_B)$.
+Since $2^{h_i}-1 < B$ and $2^{h_i-1}-1 \geq B$, it follows that $h_i=\O(\log_B N)$.
 By construction, the path of from the root of the tree to any leaf contains
 $\Theta(\log N/h_i)=\Theta(\log_B N)$ bottom trees from the $i$-th iteration.
 The path also contains one top tree containing the root which may have a height
@@ -191,7 +158,7 @@ Because the $2^{h_i}-1$ nodes of any $i$-th-iteration bottom tree are stored
 in a contiguous array, every $i$-th-iteration bottom tree (or top tree)
 can be read using $\O(1)$ block transfers. Since every root-to-leaf path
 is composed of $\Theta(\log_B N)$ such subtrees, traversing the path
-takes $\Theta(1+\log_B N)$ block transfers (the added $\O(1)$ covers
+takes $\Theta(\log_B N)$ block transfers (the added $\O(1)$ covers
 the $B\geq N$ case).
 \end{proof}
 
@@ -317,7 +284,7 @@ The \textit{packed memory array} is a data structure that maintains an ordered
 file. Updates (\textsc{Insert}s and \textsc{Delete}s) of a packed memory array
 rewrite a contiguous range of size $\Theta(\log^2 N)$ amortized.
 Thanks to the range being contiguous, updates will incur
-$\Theta(1+\frac{\log^2 N}{B})$ amortized block transfers.
+$\Theta(\frac{\log^2 N}{B})$ amortized block transfers.
 
 The packed memory array consists of a physical array. Each position in this
 array either contains an element, or it is empty.
@@ -358,13 +325,13 @@ one extending the scanned range to the left, one to the right. The
 redistribution can be done by collecting all items in the array on the left side
 of the array using a left-to-right scan, followed by a right-to-left scan
 putting items into their final destinations. Thus,
-redistributing a range of $K$ items takes $\Theta(1+K/B)$ block transfers.
+redistributing a range of $K$ items takes $\Theta(K/B)$ block transfers.
 
 TODO: figure of redistribution
 
 \begin{theorem}
 The block-transfer cost of an update of the packed-memory array
-is $\Theta(1+\frac{\log^2 N}{B})$ amortized.
+is $\Theta(\frac{\log^2 N}{B})$ amortized.
 \end{theorem}
 
 \begin{proof}
@@ -383,7 +350,7 @@ redistribution steps per insertion into $Y$.
 
 Since the node $Y$ has in general $h=\Theta(\log N)$ ancestors, we can amortize
 $\Theta(\log^2 N)$ redistribution steps per insertion, which is
-$\Theta(1+\frac{\log^2 N}{B})$ in block transfers. The proof of the deletion
+$\Theta(\frac{\log^2 N}{B})$ in block transfers. The proof of the deletion
 cost is analogous.
 \end{proof}
 
@@ -406,18 +373,18 @@ TODO: figure
 \textsc{Find}ing a key in the bootstrapping structure is done by binary search
 on the tree. The binary search either finds the ordered file slot which contains
 the key-value pair, or it finds an empty slot. Either way, walking down
-the tree costs $\Theta(1+\log_B N)$ block transfers.
+the tree costs $\Theta(\log_B N)$ block transfers.
 
 \textsc{Insert}s and \textsc{Delete}s first walk to the position the key
-would normally occupy, using $\Theta(1+\log_B N)$ block transfers. The key
+would normally occupy, using $\Theta(\log_B N)$ block transfers. The key
 is then inserted into the ordered file, which costs
-$\Theta(1+\frac{\log^2 N}{B})$ block transfers. Finally, the tree needs to be
+$\Theta(\frac{\log^2 N}{B})$ block transfers. Finally, the tree needs to be
 updated to reflect the changed content of the ordered file.
 
 TODO: update analysis: VEB update
 
 This bootstrapping structure matches B-trees in the speed of \textsc{Find},
-but updates take time $\Theta(1+\log_B N+\frac{\log^2 N}{B})$, which is
+but updates take time $\Theta(\log_B N+\frac{\log^2 N}{B})$, which is
 $\frac{\log^2 N}{B}$ more than B-trees.
 % TODO: precisely when is this term significant?
 This term is significant especially when $B$ is small compared to $\log N$.
@@ -436,16 +403,16 @@ The $\Theta(N/\log N)$ pieces are stored in the \textit{bootstrapping
 structure} as values. The key of each piece is the minimal key it contains.
 
 To \textsc{Find} a key in the cache-oblivious B-tree, we walk down the
-boostrapping structure in $\Theta(1+\log_B (N/\log N))$ to find the piece
+boostrapping structure in $\Theta(\log_B (N/\log N))$ to find the piece
 that may contain the key, and scan it in $\Theta(\frac{\log N}{B})$,
-so the time to \textsc{Find} is still $\Theta(1+\log_B N)$.
+so the time to \textsc{Find} is still $\Theta(\log_B N)$.
 \textsc{FindNext} and \textsc{FindPrevious} work similarly.
 
 \textsc{Insert}s and \textsc{Delete}s first find the appropriate piece
-to update in $\Theta(1+\log_B (N/\log N))$. If the piece can be updated
+to update in $\Theta(\log_B (N/\log N))$. If the piece can be updated
 without getting under $P/4$ or over $P$ items, we rewrite the piece in
 $\Theta(\frac{\log N}{B})$, removing or inserting the key. If we changed
-the minimum of the piece, we also need to walk up the tree in $\Theta(1+\log_B
+the minimum of the piece, we also need to walk up the tree in $\Theta(\log_B
 (N/\log N))$ to propagate the change.
 
 If the piece is too full, we split the piece into two pieces of size
@@ -461,12 +428,12 @@ If there are less than $3P/4$ items in total, the pieces get merged and one
 of them will be deleted from the bootstrapping structure in
 $\Theta(\frac{\log^2 (N/\log N)}{B})$.
 
-Thus, updates take $\Theta(1+\log_B N)$ plus $\Theta(\frac{\log^2 N}{B})$
+Thus, updates take $\Theta(\log_B N)$ plus $\Theta(\frac{\log^2 N}{B})$
 every time we need a split or a merge. However, we don't need splits and
 merges too often: splitting a full piece creates two pieces of size $P/2$,
 which will be only split or merged again after $\Theta(P)$ more updates.
 Merging two pieces yields a piece with between $P/2$ and $3P/4$ items.
 This new piece will also be updated only after $\Theta(P)$ more updates.
 Thus, we can charge each update $\Theta(\frac{1}{\log N}{\log^2 N}{B})$
-time for splits and merges, which gives us $\Theta(1+\log_B N+\frac{\log N}{B})=
-\Theta(1+\log_B N)$ amortized time for updates.
+time for splits and merges, which gives us $\Theta(\log_B N+\frac{\log N}{B})=
+\Theta(\log_B N)$ amortized time for updates.
