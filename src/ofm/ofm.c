@@ -43,9 +43,6 @@ static void alloc_file(ofm* file) {
 		log_fatal("couldn't allocate %" PRIu64 " bools for ofm",
 				file->capacity);
 	}
-	for (uint64_t i = 0; i < file->capacity; i++) {
-		file->occupied[i] = false;
-	}
 }
 
 static void assign_value(ofm* file, uint64_t index, ofm_value new_value) {
