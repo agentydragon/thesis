@@ -9,7 +9,7 @@
 
 int8_t htable_insert_internal(htable* this, uint64_t key, uint64_t value) {
 	const uint64_t key_hash = hash_of(this, key);
-	block* const home_block = &this->blocks[key_hash];
+	htable_block* const home_block = &this->blocks[key_hash];
 
 	if (home_block->keys_with_hash == HTABLE_KEYS_WITH_HASH_MAX) {
 		log_error("cannot insert - overflow in maximum bucket size");
@@ -19,7 +19,7 @@ int8_t htable_insert_internal(htable* this, uint64_t key, uint64_t value) {
 	for (uint64_t i = 0, index = key_hash, traversed = 0;
 			traversed < this->blocks_size;
 			index = htable_next_index(this, index), traversed++) {
-		block* current_block = &this->blocks[index];
+		htable_block* current_block = &this->blocks[index];
 
 		for (int8_t slot = 0; slot < 3; slot++) {
 			if (current_block->occupied[slot]) {

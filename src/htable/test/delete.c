@@ -7,8 +7,8 @@
 
 #include "log/log.h"
 
-static void assert_block_internal(const char* header, const block* found,
-		const block expected) {
+static void assert_block_internal(const char* header, const htable_block* found,
+		const htable_block expected) {
 	for (uint8_t slot = 0; slot < 3; slot++) {
 		if (found->keys[slot] != expected.keys[slot]) {
 			log_fatal("%s: key %d doesn't match: %" PRIu64 " found, "
@@ -54,7 +54,7 @@ static void test_shortening_chains() {
 		AMEN
 	};
 
-	block blocks[7] = {
+	htable_block blocks[7] = {
 		{
 			.keys = { 2222, 11111, 10 },
 			.values = { 11110, 55555, 50 },
@@ -101,7 +101,7 @@ static void test_shortening_chains() {
 	assert(htable_delete(&this, 11) == 0);
 	assert(this.pair_count == 10);
 
-	const block expected[4] = {
+	const htable_block expected[4] = {
 		{
 			// 11111=55555 got moved to block 2.
 			.keys = { 2222, 11111, 10 },

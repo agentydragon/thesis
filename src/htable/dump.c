@@ -43,7 +43,8 @@ void htable_dump(void* _this) {
 */
 
 // Used for debugging. TODO: remove?
-static void UNUSED dump_block(htable* this, uint64_t index, block* block) {
+static void UNUSED dump_block(htable* this, uint64_t index,
+		htable_block* block) {
 	char buffer[256], buffer2[256];
 	snprintf(buffer, sizeof(buffer),
 			"[%04" PRIx64 "] keys_with_hash=%" PRIu32,
@@ -114,7 +115,6 @@ void htable_dump(void* _this) {
 
 	log_plain("htable blocks:%ld pair_count:%ld",
 			this->blocks_size, this->pair_count);
-
 	// dump_blocks(this);
 	dump_distances(this);
 }

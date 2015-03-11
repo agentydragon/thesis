@@ -33,7 +33,7 @@ void htable_test_find() {
 		AMEN
 	};
 
-	block blocks[4] = {
+	htable_block blocks[4] = {
 		{ .keys = {}, .values = {}, .occupied = {} },
 		{
 			.keys = { 302, 101, 100 },

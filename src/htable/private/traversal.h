@@ -5,7 +5,7 @@
 #include "htable/private/helper.h"
 
 struct htable_slot_pointer {
-	block* block;
+	htable_block* block;
 	uint8_t slot;
 };
 

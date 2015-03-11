@@ -6,8 +6,6 @@
 #define hash_mock htable_test_hash_mock
 #define AMEN HTABLE_TEST_AMEN
 
-typedef struct htable_block block;
-
 extern uint64_t AMEN;
 
 // pairs: { key, value, key, value, AMEN }

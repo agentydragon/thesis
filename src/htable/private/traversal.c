@@ -23,12 +23,13 @@ uint8_t htable_scan(htable* this, uint64_t key,
 	const uint64_t key_hash = hash_of(this, key);
 	uint64_t index = key_hash;
 	const uint64_t keys_with_hash = this->blocks[index].keys_with_hash;
-	block current_block;
+	htable_block current_block;
 
 	for (uint64_t i = 0; i < keys_with_hash;
 			index = htable_next_index(this, index)) {
 		// Make a local copy
-		memcpy(&current_block, &this->blocks[index], sizeof(block));
+		memcpy(&current_block, &this->blocks[index],
+				sizeof(htable_block));
 
 		for (uint8_t slot = 0; slot < 3; slot++) {
 			const uint64_t current_key = current_block.keys[slot];

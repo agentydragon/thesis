@@ -88,7 +88,7 @@ static int8_t foreach(htable* this,
 		int8_t (*iterate)(void*, uint64_t key, uint64_t value),
 		void* opaque) {
 	for (uint64_t i = 0; i < this->blocks_size; i++) {
-		const block* current_block = &this->blocks[i];
+		const htable_block* current_block = &this->blocks[i];
 
 		for (uint8_t slot = 0; slot < 3; slot++) {
 			if (current_block->occupied[slot]) {
@@ -125,7 +125,7 @@ static int8_t resize(htable* this, uint64_t new_blocks_size) {
 		.pair_count = 0
 	};
 	assert(posix_memalign((void**) &new_this.blocks, 64,
-				sizeof(block) * new_blocks_size) == 0);
+				sizeof(htable_block) * new_blocks_size) == 0);
 
 	log_info("resizing to %" PRIu64, new_this.blocks_size);
 
@@ -134,7 +134,7 @@ static int8_t resize(htable* this, uint64_t new_blocks_size) {
 		goto err_1;
 	}
 
-	memset(new_this.blocks, 0, sizeof(block) * new_blocks_size);
+	memset(new_this.blocks, 0, sizeof(htable_block) * new_blocks_size);
 
 	if (foreach(this, insert_internal_wrap, &new_this)) {
 		log_error("iteration failed");
