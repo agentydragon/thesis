@@ -19,10 +19,11 @@ typedef struct {
 } piece_item;
 
 static void UNUSED dump_piece(char* buffer, cob* this, uint64_t index) {
-	piece_item* piece = ofm_get_value(&this->file, index);
+	piece_item** piece_ptr = ofm_get_value(&this->file, index);
+	piece_item* piece = *piece_ptr;
 	uint8_t z = 0;
-	z += sprintf(buffer + z, "[%" PRIu64 " %s key=%" PRIu64 "]: ",
-			index,
+	z += sprintf(buffer + z, "[%" PRIu64 " =%p %s key=%" PRIu64 "]: ",
+			index, piece,
 			this->file.occupied[index] ? "occupied" : "unoccupied",
 			this->file.keys[index]);
 	for (uint8_t i = 0; i < this->piece; i++) {
@@ -40,7 +41,8 @@ static void UNUSED internal_check(cob* this) {
 		if (this->file.occupied[i]) {
 			assert(this->file.keys[i] != EMPTY);
 
-			piece_item* piece = ofm_get_value(&this->file, i);
+			piece_item** piece_ptr = ofm_get_value(&this->file, i);
+			piece_item* piece = *piece_ptr;
 			if (this->file.keys[i] != piece[0].key) {
 				char buffer[1024];
 				dump_piece(buffer, this, i);
@@ -84,7 +86,8 @@ static void refresh_piece_key(cob* this, uint64_t index) {
 	// char buffer[1024];
 	// dump_piece(buffer, this, index);
 	// log_info("refresh_piece_key(%s)", buffer);
-	piece_item* piece = ofm_get_value(&this->file, index);
+	piece_item** piece_ptr = ofm_get_value(&this->file, index);
+	piece_item* piece = *piece_ptr;
 	if (this->file.keys[index] == piece[0].key) {
 		// log_info("no need to update piece key %" PRIu64, index);
 	} else {
@@ -156,7 +159,8 @@ static bool delete_from_piece(cob* this, piece_item* piece, uint64_t key) {
 // for every block.
 static void insert_into_piece(cob* this, uint64_t index,
 		uint64_t key, uint64_t value) {
-	piece_item* piece = ofm_get_value(&this->file, index);
+	piece_item** piece_ptr = ofm_get_value(&this->file, index);
+	piece_item* piece = *piece_ptr;
 	for (uint8_t i = 0; i < this->piece; i++) {
 		if (piece[i].key == EMPTY) {
 			// OK, we still have some space here.
@@ -185,7 +189,7 @@ static void insert_first_piece(cob* this, uint64_t key, piece_item* new_piece) {
 	assert(this->size == 0);
 	// TODO: Factor out the "save-change-check-fix" snippet.
 	const uint64_t prior_capacity = this->file.capacity;
-	ofm_range reorg_range = ofm_insert_before(&this->file, key, new_piece,
+	ofm_range reorg_range = ofm_insert_before(&this->file, key, &new_piece,
 			this->file.capacity, NULL);
 	if (this->file.capacity == prior_capacity) {
 		fix_range(this, reorg_range);
@@ -194,8 +198,17 @@ static void insert_first_piece(cob* this, uint64_t key, piece_item* new_piece) {
 	}
 }
 
+static piece_item* alloc_piece2(uint64_t piece) {
+	return malloc(piece * sizeof(piece_item));
+}
+
+static piece_item* alloc_piece(cob* this) {
+	return malloc(this->piece * sizeof(piece_item));
+}
+
 static void split_piece(cob* this, uint64_t index) {
-	piece_item* old_piece = ofm_get_value(&this->file, index);
+	piece_item** old_piece_ptr = ofm_get_value(&this->file, index);
+	piece_item* old_piece = *old_piece_ptr;
 
 	if (piece_size(this, old_piece) < this->piece - 1) {
 		// The piece still has some free slots, it needs no splitting.
@@ -204,7 +217,7 @@ static void split_piece(cob* this, uint64_t index) {
 
 	// log_info("splitting piece %" PRIu64, index);
 
-	piece_item* new_piece = alloca(this->piece * sizeof(piece_item));
+	piece_item* new_piece = alloc_piece(this);
 	clear_piece(this, new_piece);
 	const uint8_t start = this->piece / 2;
 	for (uint8_t i = start; i < this->piece; i++) {
@@ -223,7 +236,7 @@ static void split_piece(cob* this, uint64_t index) {
 	}
 	const uint64_t prior_capacity = this->file.capacity;
 	ofm_range reorg_range =  ofm_insert_before(&this->file,
-			new_piece[0].key, new_piece, after, NULL);
+			new_piece[0].key, &new_piece, after, NULL);
 	if (this->file.capacity == prior_capacity) {
 		fix_range(this, reorg_range);
 	} else {
@@ -242,7 +255,8 @@ int8_t cob_insert(cob* this, uint64_t key, uint64_t value) {
 
 	const uint64_t index = cobt_tree_find_le(&this->tree, key);
 
-	piece_item* piece = ofm_get_value(&this->file, index);
+	piece_item** piece_ptr = ofm_get_value(&this->file, index);
+	piece_item* piece = *piece_ptr;
 	// char buffer[1024] = { 0 };
 	// dump_piece(buffer, this, index);
 	// log_info("key %" PRIu64 " to insert in %s piece %" PRIu64 " [[ %s]]",
@@ -266,7 +280,7 @@ int8_t cob_insert(cob* this, uint64_t key, uint64_t value) {
 	} else {
 		assert(this->size == 0);
 		// Special case: create new piece.
-		piece_item* new_piece = alloca(this->piece * sizeof(piece_item));
+		piece_item* new_piece = alloc_piece(this);
 		new_piece[0].key = key;
 		new_piece[0].value = value;
 		for (uint8_t i = 1; i < this->piece; i++) {
@@ -290,8 +304,9 @@ duplicate_key:
 //	COB_COUNTERS.total_reorganized_size += reorg_range.size;
 
 static void merge_pieces(cob* this, uint64_t left, uint64_t right) {
-	piece_item* l = ofm_get_value(&this->file, left),
-			*r = ofm_get_value(&this->file, right);
+	piece_item** l_ptr = ofm_get_value(&this->file, left),
+			**r_ptr = ofm_get_value(&this->file, right);
+	piece_item* l = *l_ptr, *r = *r_ptr;
 	const uint8_t left_size = piece_size(this, l),
 		      right_size = piece_size(this, r);
 
@@ -324,6 +339,8 @@ static void merge_pieces(cob* this, uint64_t left, uint64_t right) {
 		refresh_piece_key(this, right);
 
 		const uint64_t prior_capacity = this->file.capacity;
+		piece_item* old_piece = *((piece_item**) ofm_get_value(&this->file, right));
+		free(old_piece);
 		ofm_range reorg_range = ofm_delete(&this->file,
 				right, NULL);
 		// log_info("reorg range: %" PRIu64 "+%" PRIu64,
@@ -371,7 +388,8 @@ static void merge_pieces(cob* this, uint64_t left, uint64_t right) {
 }
 
 static void merge_piece(cob* this, uint64_t piece_index) {
-	piece_item* piece = ofm_get_value(&this->file, piece_index);
+	piece_item** piece_ptr = ofm_get_value(&this->file, piece_index);
+	piece_item* piece = *piece_ptr;
 	if (piece_size(this, piece) >= this->piece / 4) {
 		// This piece is still OK.
 		return;
@@ -408,6 +426,8 @@ static void merge_piece(cob* this, uint64_t piece_index) {
 	// log_info("LAST CASE...");
 	if (piece_size(this, piece) == 0) {
 		const uint64_t prior_capacity = this->file.capacity;
+		piece_item* old_piece = *((piece_item**) ofm_get_value(&this->file, piece_index));
+		free(old_piece);
 		ofm_range reorg_range =  ofm_delete(&this->file,
 				piece_index, NULL);
 		if (this->file.capacity == prior_capacity) {
@@ -430,7 +450,8 @@ int8_t cob_delete(cob* this, uint64_t key) {
 		goto no_such_key;
 	}
 
-	piece_item* piece = ofm_get_value(&this->file, index);
+	piece_item** piece_ptr = ofm_get_value(&this->file, index);
+	piece_item* piece = *piece_ptr;
 	if (!delete_from_piece(this, piece, key)) {
 		goto no_such_key;
 	}
@@ -457,7 +478,8 @@ void cob_find(cob* this, uint64_t key, bool *found, uint64_t *value) {
 	const uint64_t index = cobt_tree_find_le(&this->tree, key);
 	if (this->file.occupied[index]) {
 		// Look up the key in this piece.
-		piece_item* piece = ofm_get_value(&this->file, index);
+		piece_item** piece_ptr = ofm_get_value(&this->file, index);
+		piece_item* piece = *piece_ptr;
 		for (uint8_t i = 0; i < this->piece; i++) {
 			if (piece[i].key == key) {
 				if (value != NULL) {
@@ -494,7 +516,8 @@ static ofm rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
 		.occupied = NULL,
 		.keys = NULL,
 		.values = NULL,
-		.value_size = new_piece * sizeof(piece_item)
+		.value_size = sizeof(piece_item*)
+		//.value_size = new_piece * sizeof(piece_item)
 	};
 	// log_info("rebuilding");
 	// ofm_init(new_file, new_piece * sizeof(piece_item));
@@ -505,7 +528,7 @@ static ofm rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
 	ofm_stream_start(&new_file, piece_count /*this->size*/, &stream);
 
 	uint8_t got_now = 0;
-	piece_item* tmp = alloca(new_piece * sizeof(piece_item));
+	piece_item* tmp = alloc_piece2(new_piece);
 	for (uint64_t i = 0; i < new_piece; i++) {
 		tmp[i].key = EMPTY;
 		tmp[i].value = EMPTY;
@@ -513,7 +536,8 @@ static ofm rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
 
 	for (uint64_t i = 0; i < this->file.capacity; i++) {
 		if (!this->file.occupied[i]) continue;
-		piece_item* this_piece = ofm_get_value(&this->file, i);
+		piece_item** this_piece_ptr = ofm_get_value(&this->file, i);
+		piece_item* this_piece = *this_piece_ptr;
 		for (uint8_t j = 0; j < this->piece; j++) {
 			if (this_piece[j].key == EMPTY) {
 				continue;
@@ -530,22 +554,24 @@ static ofm rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
 				//// log_info("flush");
 				// ofm_insert_before(new_file, tmp[0].key, tmp,
 				// 		new_file->capacity, NULL);
-				ofm_stream_push(&new_file, tmp[0].key, tmp,
+				ofm_stream_push(&new_file, tmp[0].key, &tmp,
 						&stream);
 				got_now = 0;
+				tmp = alloc_piece2(new_piece);
 				for (uint8_t z = 0; z < new_piece; z++) {
 					tmp[z].key = EMPTY;
 					tmp[z].value = EMPTY;
 				}
 			}
 		}
+		free(this_piece);
 	}
 
 	if (got_now > 0) {
 		//// log_info("flush");
 		// ofm_insert_before(new_file, tmp[0].key, tmp,
 		// 		new_file->capacity, NULL);
-		ofm_stream_push(&new_file, tmp[0].key, tmp, &stream);
+		ofm_stream_push(&new_file, tmp[0].key, &tmp, &stream);
 	}
 	// log_info("rebuilt file to piece %" PRIu64, new_piece);
 	return new_file;
@@ -576,7 +602,7 @@ void cob_init(cob* this) {
 	log_info("cob_init(%p)", this);
 	this->size = 0;
 	this->piece = 4;  // Initial piece size: 4
-	ofm_init(&this->file, this->piece * sizeof(piece_item));
+	ofm_init(&this->file, sizeof(piece_item*));
 	cobt_tree_init(&this->tree, this->file.keys, this->file.occupied,
 			this->file.capacity);
 }
