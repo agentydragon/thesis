@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "btree/test.h"
+#include "cobt/ofm_test.h"
 #include "cobt/tree_test.h"
 #include "dict/array.h"
 #include "dict/btree.h"
@@ -15,7 +16,6 @@
 #include "log/log.h"
 #include "math/test.h"
 #include "observation/test/test.h"
-#include "ofm/test.h"
 #include "performance/random_read.h"
 #include "rand/test/test.h"
 #include "splay/test.h"

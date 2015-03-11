@@ -1,4 +1,6 @@
-#include "ofm/test.h"
+#include "cobt/ofm_test.h"
+
+// TODO: clean up
 
 #include <assert.h>
 #include <inttypes.h>
@@ -9,7 +11,7 @@
 
 #include "log/log.h"
 #include "math/math.h"
-#include "ofm/ofm.h"
+#include "cobt/ofm.h"
 
 #define COUNTOF(x) (sizeof(x) / sizeof(*(x)))
 #define NIL 0xDEADDEADDEADDEAD
@@ -104,23 +106,34 @@ void test_reorganization_complexity() {
 }
 */
 
-/*
 void test_functional() {
 	ofm file;
+	memset(&file, 0, sizeof(file));
 	ofm_init(&file);
 
-	uint64_t HEAD = file.capacity;
-	for (uint64_t i = 4000; i > 0; i--) {
-		ofm_insert_before(&file, ITEM(i), HEAD, &HEAD, NULL);
-		ofm_dump(file);
+	// Fills file with (1000 => 0), (999 => 500), (998 => 1000), ...
+	for (uint64_t i = 0; i < 1000; i++) {
+		void* mock_value = (void*) (i * 500);
+		ofm_insert_before(&file, (1000 - i), mock_value, file.capacity,
+				NULL);
 	}
+	uint64_t seen = 0;
+	for (uint64_t i = 0; i < file.capacity; i++) {
+		if (file.occupied[i]) {
+			CHECK(file.keys[i] == (1000 - seen),
+					"expected key %" PRIu64 ", found "
+					"%" PRIu64 ".", seen, file.keys[i]);
+			assert(file.values[i] == (void*) (seen * 500));
+			++seen;
+		}
+	}
+	assert(seen == 1000);
 
-	ofm_destroy(file);
+	ofm_destroy(&file);
 }
-*/
 
 void test_ofm() {
+	test_functional();
 //	test_parameter_policy();
-//	test_functional();
 //	test_reorganization_complexity();
 }

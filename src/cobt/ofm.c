@@ -1,4 +1,4 @@
-#include "ofm/ofm.h"
+#include "cobt/ofm.h"
 
 #include <assert.h>
 #include <inttypes.h>
@@ -45,19 +45,14 @@ static void alloc_file(ofm* file) {
 	}
 }
 
-static void assign_value(ofm* file, uint64_t index, ofm_value new_value) {
-	file->values[index] = new_value;
-}
-
 static void copy_item(ofm* target, uint64_t target_index,
 		ofm* source, uint64_t source_index) {
 	target->keys[target_index] = source->keys[source_index];
 	target->values[target_index] = source->values[source_index];
 }
 
-static char buffer[65536];
-
 void ofm_dump(ofm file) {
+	char buffer[65536];
 	strcpy(buffer, "");
 	uint64_t z = 0;
 	for (uint64_t i = 0; i < file.capacity; i++) {
@@ -271,13 +266,11 @@ static ofm_range rebalance(ofm* file, ofm_range start_block, uint64_t *watch) {
 			ofm_stream_start(&new_file, count, &stream);
 			for (uint64_t i = 0; i < file->capacity; i++) {
 				if (file->occupied[i]) {
-					ofm_stream_push(&new_file,
-							file->keys[i],
-							file->values[i],
-							&stream);
+					ofm_stream_push(&stream, file->keys[i],
+							file->values[i]);
 				}
 			}
-			ofm_destroy(*file);
+			ofm_destroy(file);
 			*file = new_file;
 
 			const ofm_range whole_file = {
@@ -372,24 +365,10 @@ ofm_range ofm_insert_before(ofm* file, uint64_t key, const ofm_value value,
 	return rebalance(file, block, saved_at);
 }
 
-// `next_item_at` will hold the position where the next item was moved,
-// or NULL_INDEX if there is no such item.
-ofm_range ofm_delete(ofm* file, uint64_t index, uint64_t *next_item_at) {
+ofm_range ofm_delete(ofm* file, uint64_t index) {
 	assert(file->occupied[index]);
-	uint64_t next_index = NULL_INDEX;
-
-	for (uint64_t i = index + 1; i < file->capacity; i++) {
-		if (file->occupied[i]) {
-			next_index = i;
-			break;
-		}
-	}
-
 	file->occupied[index] = false;
-	if (next_item_at != NULL) {
-		*next_item_at = next_index;
-	}
-	return rebalance(file, get_leaf(file, index), next_item_at);
+	return rebalance(file, get_leaf(file, index), NULL);
 }
 
 void ofm_init(ofm* file) {
@@ -404,30 +383,32 @@ void ofm_init(ofm* file) {
 	alloc_file(file);
 }
 
-void ofm_destroy(ofm file) {
-	free(file.keys);
-	free(file.values);
-	free(file.occupied);
+void ofm_destroy(ofm* file) {
+	free(file->keys);
+	free(file->values);
+	free(file->occupied);
+	file->keys = NULL;
+	file->values = NULL;
+	file->occupied = NULL;
 }
 
 void ofm_stream_start(ofm* file, uint64_t size, ofm_stream* stream) {
 	struct parameters parameters = adequate_parameters(size);
 	file->block_size = parameters.block_size;
 	file->capacity = parameters.capacity;
-	assert(!file->keys && !file->values && !file->occupied);
 	alloc_file(file);
 	// TODO: This will be soon followed by an expensive
 	// rebalancing. Perhaps we should build it rebalanced
 	// in the first place.
-	stream->scratch = 0;
 	stream->allowed_capacity = size;
+	stream->file = file;
+	stream->scratch = 0;
 }
 
-void ofm_stream_push(ofm* file, uint64_t key, const ofm_value value,
-		ofm_stream* stream) {
+void ofm_stream_push(ofm_stream* stream, uint64_t key, const ofm_value value) {
 	assert(stream->scratch < stream->allowed_capacity);
-	file->occupied[stream->scratch] = true;
-	file->keys[stream->scratch] = key;
-	assign_value(file, stream->scratch, value);
-	stream->scratch++;
+	stream->file->occupied[stream->scratch] = true;
+	stream->file->keys[stream->scratch] = key;
+	stream->file->values[stream->scratch] = value;
+	++stream->scratch;
 }

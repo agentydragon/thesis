@@ -165,7 +165,7 @@ int main(int argc, char** argv) {
 
 	// TODO: merge with //performance.c
 	for (double x = 10; x < FLAGS.maximum; x *= FLAGS.base) {
-		COB_COUNTERS.total_reorganized_size = 0;
+		OFM_COUNTERS.total_reorganized_size = 0;
 
 		const uint64_t size = round(x);
 		log_info("size=%" PRIu64, size);
@@ -221,7 +221,7 @@ int main(int argc, char** argv) {
 		*/
 
 		fprintf(output, "%" PRIu64 "\n",
-				COB_COUNTERS.total_reorganized_size);
+				OFM_COUNTERS.total_reorganized_size);
 		fflush(output);
 	}
 	fclose(output);

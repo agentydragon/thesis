@@ -50,7 +50,7 @@ static piece_item* get_piece_start(cob* this, uint64_t index) {
 static void delete_piece(cob* this, uint64_t index) {
 	const uint64_t prior_capacity = this->file.capacity;
 	free(get_piece_start(this, index));
-	ofm_range reorg_range = ofm_delete(&this->file, index, NULL);
+	ofm_range reorg_range = ofm_delete(&this->file, index);
 	if (this->file.capacity == prior_capacity) {
 		fix_range(this, reorg_range);
 	} else {
@@ -129,7 +129,7 @@ static void enforce_piece_policy(cob* this, uint64_t new_size) {
 		log_info("%" PRIu64 " repiecing: %" PRIu8 " -> %" PRIu8,
 				new_size, this->piece, new_piece);
 		const ofm new_file = rebuild_file(this, new_size, new_piece);
-		ofm_destroy(this->file);
+		ofm_destroy(&this->file);
 		this->file = new_file;
 
 		entirely_reset_veb(this);
@@ -296,8 +296,6 @@ duplicate_key:
 	// internal_check(this);
 	return 1;
 }
-
-//	COB_COUNTERS.total_reorganized_size += reorg_range.size;
 
 static void merge_pieces(cob* this, uint64_t left, uint64_t right) {
 	piece_item* l = get_piece_start(this, left),
@@ -492,8 +490,7 @@ static ofm rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
 
 			if (buffer_size == preferred_piece) {
 				log_verbose(2, "flush");
-				ofm_stream_push(&new_file, buffer[0].key,
-						buffer, &stream);
+				ofm_stream_push(&stream, buffer[0].key, buffer);
 				buffer_size = 0;
 				buffer = new_piece2(new_piece);
 			}
@@ -503,7 +500,7 @@ static ofm rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
 
 	if (buffer_size > 0) {
 		log_verbose(2, "final flush");
-		ofm_stream_push(&new_file, buffer[0].key, buffer, &stream);
+		ofm_stream_push(&stream, buffer[0].key, buffer);
 	} else {
 		free(buffer);
 	}
@@ -526,6 +523,6 @@ void cob_destroy(cob* this) {
 			free(get_piece_start(this, i));
 		}
 	}
-	ofm_destroy(this->file);
+	ofm_destroy(&this->file);
 	cobt_tree_destroy(&this->tree);
 }

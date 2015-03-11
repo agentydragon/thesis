@@ -1,10 +1,8 @@
-#ifndef OFM_OFM_H
-#define OFM_OFM_H
+#ifndef COBT_OFM_H
+#define COBT_OFM_H
 
 #include <stdbool.h>
 #include <stdint.h>
-
-#define NULL_INDEX 0xDEADBEEFDEADBEEF
 
 struct {
 	uint64_t reorganized_size;
@@ -34,21 +32,21 @@ typedef struct {
 } ofm_range;
 
 void ofm_dump(ofm file);
-ofm_range ofm_insert_before(ofm* file, uint64_t key, const ofm_value value,
+ofm_range ofm_insert_before(ofm* file, uint64_t key, ofm_value value,
 		uint64_t insert_before_index, uint64_t *saved_at);
-ofm_range ofm_delete(ofm* file, uint64_t index, uint64_t *next_item_at);
+ofm_range ofm_delete(ofm* file, uint64_t index);
 void ofm_init(ofm* file);
-void ofm_destroy(ofm file);
+void ofm_destroy(ofm* file);
 
 ofm_value ofm_get_value(ofm* file, uint64_t index);
 
 typedef struct {
+	ofm* file;
 	uint64_t scratch;
 	uint64_t allowed_capacity;
 } ofm_stream;
 
 void ofm_stream_start(ofm* file, uint64_t size, ofm_stream *stream);
-void ofm_stream_push(ofm* file, uint64_t key, const ofm_value value,
-		ofm_stream* stream);
+void ofm_stream_push(ofm_stream* stream, uint64_t key, ofm_value value);
 
 #endif

@@ -11,7 +11,6 @@ SOURCES= \
 	log/*.c \
 	math/*.c \
 	observation/*.c observation/test/*.c \
-	ofm/*.c \
 	performance/*.c \
 	rand/*.c rand/test/*.c \
 	splay/*.c \

@@ -5,14 +5,10 @@
 
 #include <stdint.h>
 
+#include "cobt/ofm.h"
 #include "cobt/tree.h"
-#include "ofm/ofm.h"
 
 #define COB_INFINITY UINT64_MAX
-
-struct {
-	uint64_t total_reorganized_size;
-} COB_COUNTERS;
 
 typedef struct {
 	// The OFM stores groups of key-value pairs called "pieces".
