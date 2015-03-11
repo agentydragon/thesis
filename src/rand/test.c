@@ -1,4 +1,4 @@
-#include "rand/test/test.h"
+#include "rand/test.h"
 
 #include <stdio.h>
 #include <stdlib.h>

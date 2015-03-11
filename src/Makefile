@@ -12,7 +12,7 @@ SOURCES= \
 	math/*.c \
 	observation/*.c \
 	performance/*.c \
-	rand/*.c rand/test/*.c \
+	rand/*.c \
 	splay/*.c \
 	measurement/*.c \
 	util/*.c \
