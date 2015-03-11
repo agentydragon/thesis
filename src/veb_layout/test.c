@@ -138,7 +138,7 @@ static void test_5() {
 	check(30, NOTHING, NOTHING); check_leaf_number(15, 30);
 }
 
-void test_hyperdrill_level_data() {
+static void test_drilldown_level_data() {
 	struct level_data r;
 	// 0 = forbidden (root) level
 	r = veb_get_level_data(2, 1);
@@ -184,7 +184,7 @@ void test_hyperdrill_level_data() {
 	assert(r.top_size == 1 && r.bottom_size == 1 && r.top_depth == 3);
 }
 
-void test_hyperdrill_1() {
+static void test_drilldown_small() {
 	struct drilldown_track track;
 	struct level_data levels[5 + 1];
 	veb_prepare(5, levels);
@@ -203,51 +203,41 @@ void test_hyperdrill_1() {
 
 	drilldown_go_left(levels, &track);
 	assert(track.depth == 4 && track.pos[track.depth] == 23 && track.bfs == 25);
-
-	log_info("hyperdrill OK");
 }
 
-void test_hyperdrill_integration() {
+static void test_drilldown_integration() {
 	struct drilldown_track track;
 	struct level_data levels[50 + 1];
 
 	for (uint64_t iteration = 0; iteration < 10000; iteration++) {
-		// log_info("==== iteration %" PRIu64 " ====", iteration);
 		uint64_t height = rand() % 50 + 1;
 		veb_prepare(height, levels);
 
 		drilldown_begin(&track);
 		uint64_t reference_node = 0;
 
-		// log_info("height %" PRIu64, height);
-
 		for (uint64_t h = 0; h < height; h++) {
-			// log_info("reference=%" PRIu64 " track=%" PRIu64,
-			// 		reference_node, track.pos[track.depth]);
 			assert(reference_node == track.pos[track.depth]);
 			if (h < height - 1) {
 				veb_pointer left, right;
 				veb_get_children(reference_node, height, &left, &right);
 
 				if (rand() % 2 == 0) {
-					// log_info("go left");
 					drilldown_go_left(levels, &track);
 					reference_node = left.node;
 				} else {
-					// log_info("go right");
 					drilldown_go_right(levels, &track);
 					reference_node = right.node;
 				}
 			}
 		}
 	}
-	log_info("hyperdrill integration OK");
 }
 
-void test_hyperdrill() {
-	test_hyperdrill_level_data();
-	test_hyperdrill_1();
-	test_hyperdrill_integration();
+static void test_drilldown() {
+	test_drilldown_level_data();
+	test_drilldown_small();
+	test_drilldown_integration();
 }
 
 void test_veb_layout() {
@@ -257,5 +247,5 @@ void test_veb_layout() {
 	test_4();
 	test_5();
 
-	test_hyperdrill();
+	test_drilldown();
 }
