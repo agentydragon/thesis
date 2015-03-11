@@ -1,9 +1,7 @@
-#include "htable/private/find.h"
+#include "htable/htable.h"
 
-#include <string.h>
-#include <inttypes.h>
+#include <stdlib.h>
 
-#include "htable/private/data.h"
 #include "htable/private/hash.h"
 #include "htable/private/traversal.h"
 

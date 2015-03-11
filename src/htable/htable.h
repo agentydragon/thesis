@@ -1,5 +1,5 @@
-#ifndef HTABLE_PRIVATE_DATA_H
-#define HTABLE_PRIVATE_DATA_H
+#ifndef HTABLE_HTABLE_H
+#define HTABLE_HTABLE_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -17,13 +17,18 @@ struct htable_block {
 	uint8_t _unused[8]; // padded to 64 bytes
 };
 
-struct htable_data {
+typedef struct {
 	struct htable_block* blocks;
 	uint64_t blocks_size;
 	uint64_t pair_count;
 
 	uint64_t (*hash_fn_override)(void* opaque, uint64_t key);
 	void* hash_fn_override_opaque;
-};
+} htable;
+
+int8_t htable_delete(htable* this, uint64_t key);
+int8_t htable_find(void* _this, uint64_t key, uint64_t *value, bool *found);
+int8_t htable_insert_internal(htable* this, uint64_t key, uint64_t value);
+void htable_dump(void* this);
 
 #endif

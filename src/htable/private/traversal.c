@@ -1,8 +1,9 @@
-#include "traversal.h"
-#include "hash.h"
-#include "helper.h"
+#include "htable/private/traversal.h"
 
 #include <string.h>
+
+#include "htable/private/hash.h"
+#include "htable/private/helper.h"
 
 uint64_t htable_next_index(const htable* this, uint64_t i) {
 	return (i + 1) % this->blocks_size;

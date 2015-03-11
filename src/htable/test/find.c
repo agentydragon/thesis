@@ -1,6 +1,5 @@
 #include "htable/test/find.h"
 #include "htable/test/helper.h"
-#include "htable/private/find.h"
 
 #include <assert.h>
 #include <stdlib.h>

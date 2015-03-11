@@ -1,6 +1,5 @@
 #include "htable/test/delete.h"
 #include "htable/test/helper.h"
-#include "htable/private/delete.h"
 
 #include <assert.h>
 #include <string.h>

@@ -11,9 +11,8 @@
 #define NO_LOG_INFO
 #include "log/log.h"
 
-#include "htable/private/insertion.h"
+#include "htable/htable.h"
 #include "htable/private/helper.h"
-#include "htable/private/data.h"
 
 static const uint64_t MIN_SIZE = 2;
 

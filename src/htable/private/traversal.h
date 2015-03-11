@@ -1,8 +1,8 @@
 #ifndef HTABLE_PRIVATE_TRAVERSAL_H
 #define HTABLE_PRIVATE_TRAVERSAL_H
 
-#include "data.h"
-#include "helper.h"
+#include "htable/htable.h"
+#include "htable/private/helper.h"
 
 struct htable_slot_pointer {
 	block* block;

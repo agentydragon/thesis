@@ -9,17 +9,13 @@
 
 #include "log/log.h"
 
-#include "htable/private/data.h"
-#include "htable/private/dump.h"
+#include "htable/htable.h"
 #include "htable/private/hash.h"
 #include "htable/private/traversal.h"
 #include "htable/private/resizing.h"
-#include "htable/private/insertion.h"
-#include "htable/private/find.h"
-#include "htable/private/delete.h"
 
 /*
-static void check_invariants(struct htable_data* this) {
+static void check_invariants(htable* this) {
 	uint64_t total = 0;
 	for (uint64_t i = 0; i < this->blocks_size; i++) {
 		for (int subindex1 = 0; subindex1 < 3; subindex1++) {
@@ -50,13 +46,13 @@ static void check_invariants(struct htable_data* this) {
 static int8_t init(void** _this, void* args_unused) {
 	(void) args_unused;
 
-	struct htable_data* this = malloc(sizeof(struct htable_data));
+	htable* this = malloc(sizeof(htable));
 	if (!this) {
 		log_error("cannot allocate new htable");
 		return 1;
 	}
 
-	*this = (struct htable_data) {
+	*this = (htable) {
 		.blocks = NULL,
 		.blocks_size = 0,
 		.pair_count = 0
@@ -67,7 +63,7 @@ static int8_t init(void** _this, void* args_unused) {
 
 static void destroy(void** _this) {
 	if (_this) {
-		struct htable_data* this = *_this;
+		htable* this = *_this;
 		if (this) {
 			free(this->blocks);
 		}
@@ -76,10 +72,8 @@ static void destroy(void** _this) {
 	}
 }
 
-const uint32_t HTABLE_KEYS_WITH_HASH_MAX = (1LL << 32LL) - 1;
-
 static int8_t insert(void* _this, uint64_t key, uint64_t value) {
-	struct htable_data* this = _this;
+	htable* this = _this;
 
 	log_info("insert(%" PRIx64 ", %" PRIx64 ")", key, value);
 
@@ -92,7 +86,7 @@ static int8_t insert(void* _this, uint64_t key, uint64_t value) {
 }
 
 static int8_t delete(void* _this, uint64_t key) {
-	struct htable_data* this = _this;
+	htable* this = _this;
 	return htable_delete(this, key);
 }
 
