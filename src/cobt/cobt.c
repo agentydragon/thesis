@@ -136,13 +136,6 @@ static void sort_piece(cob* this, piece_item* piece) {
 	qsort(piece, this->piece, sizeof(piece_item), compare_piece_items);
 }
 
-static bool piece_full(cob* this, piece_item* piece) {
-	for (uint8_t i = 0; i < this->piece; i++) {
-		if (piece[i].key == EMPTY) return false;
-	}
-	return true;
-}
-
 static bool delete_from_piece(cob* this, piece_item* piece, uint64_t key) {
 	for (uint8_t i = 0; i < this->piece; i++) {
 		if (piece[i].key == key) {
@@ -270,7 +263,6 @@ int8_t cob_insert(cob* this, uint64_t key, uint64_t value) {
 				goto duplicate_key;
 			}
 		}
-		assert(!piece_full(this, piece));
 		insert_into_piece(this, index, key, value);
 		refresh_piece_key(this, index);
 
@@ -462,13 +454,13 @@ int8_t cob_delete(cob* this, uint64_t key) {
 	// log_info("merging piece with neighbours");
 	merge_piece(this, index);
 	--this->size;
-	// log_info("cob_delete(%" PRIu64 ") done", key);
+	log_verbose(1, "cob_delete(%" PRIu64 "): done", key);
 	// dump_all(this);
 	// internal_check(this);
 	return 0;
 
 no_such_key:
-	// log_info("cob_delete(%" PRIu64 ") deleting nonexistant key", key);
+	log_verbose(1, "cob_delete(%" PRIu64 "): no such key", key);
 	// internal_check(this);
 	return 1;
 }
@@ -485,14 +477,14 @@ void cob_find(cob* this, uint64_t key, bool *found, uint64_t *value) {
 				if (value != NULL) {
 					*value = piece[i].value;
 				}
-				// log_info("cob_find(%" PRIu64 ") found %" PRIu64,
-				// 		key, piece[i].value);
+				log_verbose(1, "cob_find(%" PRIu64 "): found %" PRIu64,
+						key, piece[i].value);
 				*found = true;
 				return;
 			}
 		}
 	}
-	// log_info("cob_find(%" PRIu64 "): no such key", key);
+	log_verbose(1, "cob_find(%" PRIu64 "): no such key", key);
 	*found = false;
 }
 
@@ -517,10 +509,7 @@ static ofm rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
 		.keys = NULL,
 		.values = NULL,
 		.value_size = sizeof(piece_item*)
-		//.value_size = new_piece * sizeof(piece_item)
 	};
-	// log_info("rebuilding");
-	// ofm_init(new_file, new_piece * sizeof(piece_item));
 	const uint8_t preferred_piece = new_piece / 2;
 	const uint64_t piece_count = (new_size / preferred_piece) + 1;
 	log_info("allocating %" PRIu64 " pieces of size %" PRIu8, piece_count, new_piece);
@@ -547,13 +536,11 @@ static ofm rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
 			tmp[got_now].value = this_piece[j].value;
 			++got_now;
 
-			// log_info("push %" PRIu64 "=%" PRIu64,
-			// 		this_piece[j].key, this_piece[j].value);
+			log_verbose(2, "push %" PRIu64 "=%" PRIu64,
+					this_piece[j].key, this_piece[j].value);
 
 			if (got_now == preferred_piece) {
-				//// log_info("flush");
-				// ofm_insert_before(new_file, tmp[0].key, tmp,
-				// 		new_file->capacity, NULL);
+				log_verbose(2, "flush");
 				ofm_stream_push(&new_file, tmp[0].key, &tmp,
 						&stream);
 				got_now = 0;
@@ -568,14 +555,12 @@ static ofm rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
 	}
 
 	if (got_now > 0) {
-		//// log_info("flush");
-		// ofm_insert_before(new_file, tmp[0].key, tmp,
-		// 		new_file->capacity, NULL);
+		log_verbose(2, "final flush");
 		ofm_stream_push(&new_file, tmp[0].key, &tmp, &stream);
 	} else {
 		free(tmp);
 	}
-	// log_info("rebuilt file to piece %" PRIu64, new_piece);
+	log_verbose(1, "rebuilt file to piece %" PRIu64, new_piece);
 	return new_file;
 }
 
