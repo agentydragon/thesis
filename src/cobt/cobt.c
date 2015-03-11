@@ -463,8 +463,6 @@ void cob_previous_key(cob* this, uint64_t key,
 }
 
 static ofm rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
-	log_info("rebuild to %" PRIu8 " (old=%" PRIu8 ")", new_piece,
-			this->piece);
 	ofm new_file = {
 		.occupied = NULL,
 		.keys = NULL,
