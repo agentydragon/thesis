@@ -188,6 +188,13 @@ A useful property of the van Emde Boas layout is that it is fully specified
 by $h$ of the tree, so there is no need to keep pointers to child nodes.
 The positions of left and right children of a node can be calculated from
 $h$ when they are needed.
+This is particularly useful when $B$ is small and when the size of pointers
+is similar to the size of keys, because not storing pointers lets us
+effectively use a higher branching factor than B-trees with explicit
+pointers could.
+For example, if we store 8-byte keys in a B-tree and if we align nodes to
+a 64-byte cache line, each node can only store up to 3 keys. In contrast,
+64 bytes of a van Emde Boas layout store 8 keys.
 % We refer to this property of the layout as allowing
 % \textit{implicit pointers}.
 
