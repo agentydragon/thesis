@@ -7,7 +7,6 @@
 #include <string.h>
 
 #include "log/log.h"
-#include "stopwatch/stopwatch.h"
 #include "veb_layout/veb_layout.h"
 
 const uint64_t NOTHING = 0xDEADBEEF;

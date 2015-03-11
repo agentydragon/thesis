@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "stopwatch/stopwatch.h"
+#include "measurement/stopwatch.h"
 #include "rand/rand.h"
 
 static void clear(uint8_t* memory, const uint64_t size) {

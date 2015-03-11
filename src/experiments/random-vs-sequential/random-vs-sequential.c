@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
-#include "../../stopwatch/stopwatch.h"
-#include "../../rand/rand.h"
+#include "measurement/stopwatch.h"
+#include "rand/rand.h"
 
 /*
 static void set_up(volatile uint8_t* memory, uint64_t size) {

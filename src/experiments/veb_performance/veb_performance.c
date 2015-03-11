@@ -6,8 +6,8 @@
 
 #include "log/log.h"
 #include "measurement/measurement.h"
+#include "measurement/stopwatch.h"
 #include "rand/rand.h"
-#include "stopwatch/stopwatch.h"
 #include "veb_layout/veb_layout.h"
 
 struct metrics {

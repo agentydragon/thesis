@@ -6,7 +6,6 @@
 #include <stdlib.h>
 
 #include "log/log.h"
-#include "stopwatch/stopwatch.h"
 
 static void has_element(dict* table, uint64_t key, uint64_t value) {
 	uint64_t value_found;
