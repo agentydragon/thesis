@@ -191,7 +191,6 @@ int main(int argc, char** argv) {
 					results[i].time_nsec);
 		}
 
-		/*
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
 			results[i] = measure_working_set(FLAGS.measured_apis[i], size, 1000);
 			fprintf(output, "%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t",
@@ -199,9 +198,7 @@ int main(int argc, char** argv) {
 					results[i].cache_references,
 					results[i].time_nsec);
 		}
-		*/
 
-		/*
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
 			results[i] = measure_working_set(FLAGS.measured_apis[i], size, 100000);
 			fprintf(output, "%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t",
@@ -209,7 +206,6 @@ int main(int argc, char** argv) {
 					results[i].cache_references,
 					results[i].time_nsec);
 		}
-		*/
 
 		/*
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
