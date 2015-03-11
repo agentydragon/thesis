@@ -60,7 +60,7 @@ but if they are invoked after a previous \textsc{Find}, we can keep a pointer
 to the leaf containing the key and accordingly adjust it to find the next
 or previous key, which runs in $\O(1)$ amortized time.
 Thus, B-trees also allow scanning a contigous
-range of keys of size $n$ in $\Theta(\log_b N + n)$ time.
+range of keys of size $k$ in $\Theta(\log_b N + k)$ time.
 
 The \textsc{Insert} and \textsc{Delete} operations may spend up to
 $\Theta(b)$ time splitting or merging nodes on each level, so they run in

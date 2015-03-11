@@ -5,28 +5,44 @@
 The \textit{cache-oblivious B-tree} introduced by \cite{demaine00}
 is a data structure which replicates the asymptotic performance of B-trees
 in a cache-oblivious setting.
-As in cache-aware B-trees, \textsc{Find}s and updates on cache-oblivious
-B-trees require $\Theta(\log_B N)$\footnote{
-	Strictly speaking, the bound is $\Theta(1+\log_B N)$
+\textsc{Find}s and updates on cache-oblivious B-trees require $\Theta(\log_B N)$
+\footnote{Strictly speaking, the bound is $\Theta(1+\log_B N)$
 	because we perform $\O(1)$ block transfers even when $B\in\omega(N)$.
 	We decide to use the reasonable assumption that
 	$B<N$ to simplify some bounds in this section.}
-amortized block transfers.
+amortized block transfers, which is similar to cache-aware B-trees.
 Scanning a range of $t$ keys also takes $\Theta(\log_B N+t/B)$ time.
 This matches the performance of B-trees for $B=\Omega(\log N\log\log N)$.
 % TODO: unfortunately not common for internal memory
 
-TODO: high-level popis
-TODO: indirection and merge/splits
+The cache-oblivious B-tree is composed of three components.
+The \textit{van Emde Boas layout} of binary trees is a way of cache-obliviously
+maintaining full binary trees in memory such that reading or updating any
+root-to-leaf path in order takes $\Theta(\log_B N)$ block transfers.
+Then, the \textit{packed memory array} lets us store a "cache-oblivious linked
+list". The items of this "linked list" will represent key-value pairs.
+The packed memory array has fast updates in the amortized sense. Inserting
+and deleting items overwrites $\Theta(\frac{\log^2 N}{B})$ amortized memory
+blocks.
+Finally, we will combine the two previous parts with \textit{indirection} to
+obtain the desired $\Theta(\log_B N)$ time to \textsc{Find}, \textsc{Insert}
+and \textsc{Delete}.
 
 % TODO: better solutions - O(log N/B) atd.
 
 \section{The van Emde Boas layout}
-One of the building blocks of the cache-oblivious B-tree is the van Emde Boas
-layout (named after the van Emde Boas priority queue, which uses similar ideas).
 The van Emde Boas layout is a way of mapping the nodes of a full binary
 tree of height $h$ to indices $0\ldots 2^h-2$. Other layouts of full binary
 trees include the BFS or DFS order.
+
+TODO: referencovany cobt clanek je spatne -- to je dost jina implementace
+TODO: reference na van emde boas layout clanek
+
+Surprisingly, the van Emde Boas layout was not invented by Peter van Emde Boas.
+The name comes from the earlier \textit{van Emde Boas tree} data structure,
+which was invented by Peter van Emde Boas. % TODO: reference. +nebyl to tym?
+The van Emde Boas tree uses a height splitting scheme which inspired
+the van Emde Boas layout.
 
 The advantage of storing a full binary tree in the van Emde Boas layout
 is that is lets us read the sequence of keys from the root to any leaf
@@ -40,8 +56,8 @@ of a full binary tree of height $h$, we split the tree to bottom subtrees
 of height $\lhfloor h-1 \rhfloor$ and one top subtree of height $h - \lhfloor
 h-1 \rhfloor$.
 The subtrees are recursively aligned in the van Emde Boas layout and then laid
-out - first the top tree, then the bottom trees in BFS order. The van Emde Boas
-layout of a one-node tree is trivial.
+out: the top tree first, followed by the bottom trees in BFS order.
+The van Emde Boas layout of a one-node tree is trivial.
 
 \begin{figure}
 \centering
@@ -125,55 +141,60 @@ layout of a one-node tree is trivial.
 % TODO: linearized figure, general figure
 
 \caption{The van Emde Boas layout of a full binary tree of height 5.
-Boxes mark recursive applications of the construction. The indices within
-every box are contiguous.}
+Boxes mark recursive applications of the construction. Note that the indices
+within every box are contiguous, so at some level of detail, reading
+a box will take $\O(1)$ block transfers.}
 \label{fig:veb_layout_5}
 \end{figure}
 
 \begin{theorem}
 In a tree stored in the van Emde Boas layout, reading the sequence of nodes
-on any root-leaf path costs $\Theta(\log_B N)$ block transfers (assuming
-every node fits in one block).
+on any root-leaf path costs $\Theta(\log_B N)$ block transfers.
 \end{theorem}
 
 \begin{proof}
 Let us examine the recursive applications of the van Emde Boas construction
-for a height $h=\log (N+1)$ and denote the heights of the bottom trees
+for a height $h=\log (N+1)$. Denote the heights of the bottom trees
 $h_1, h_2, \ldots$. For example, as seen in Figure \ref{fig:veb_layout_5}, for
 $h=5$ we have $h_1=4$, $h_2=2$ and $h_3=1$.
 
 Let us assume that the entire tree doesn't fit in a block of size $B$.
-Because a single node fits in one block, there exists a \textit{level of
-detail} $i$ such that the $2^{h_i}-1$ nodes in the $i$-th-iteration bottom trees
-take up less than $B$ nodes, but bottom trees of the $i-1$-th-iteration bottom
-trees take up at least $B$ nodes.
+Because we can assume that a single node fits in one block, there exists a \textit{level of
+detail} $i$ such that the $2^{h_i}-1$ nodes in $i$-th-iteration bottom trees
+fit in a block of size $B$, while bottom trees of $i-1$-th-iteration bottom
+trees do not.
 
 Since $2^{h_i}-1 < B$ and $2^{h_i-1}-1 \geq B$, it follows that $h_i=\O(\log_B N)$.
 By construction, the path of from the root of the tree to any leaf contains
 $\Theta(\log N/h_i)=\Theta(\log_B N)$ bottom trees from the $i$-th iteration.
-The path also contains one top tree containing the root which may have a height
+The path also contains one top tree, which includes the root.
+As seen on Figure \ref{fig:veb_layout_5}, this top tree may have a height
 different than $h_i$, but the height of this tree is always $\leq h_i$.
 
 Because the $2^{h_i}-1$ nodes of any $i$-th-iteration bottom tree are stored
-in a contiguous array, every $i$-th-iteration bottom tree (or top tree)
+in contiguous memory, every $i$-th-iteration bottom tree (or top tree)
 can be read using $\O(1)$ block transfers. Since every root-to-leaf path
 is composed of $\Theta(\log_B N)$ such subtrees, traversing the path
-takes $\Theta(\log_B N)$ block transfers (the added $\O(1)$ covers
-the $B\geq N$ case).
+takes $\Theta(\log_B N)$ block transfers (plus $\O(1)$ in the uncommon
+case when $B > N$).
 \end{proof}
 
 The van Emde Boas layout thus makes a fine data structure for querying static
-data, but we need to combine it with another data structure to allow updates.
+data, but it does not allow inserting or deleting nodes. We will need
+to combine it with another data structure to allow updates.
 
 \subsection{Efficient implementation concerns}
 A useful property of the van Emde Boas layout is that it is fully specified
-by the height of the tree, so storing a full binary tree in this layout does
-not require keeping pointers -- the positions of left and right children
-of a node can be calculated when they are needed. We refer to this property
-of the layout as allowing \textit{implicit pointers}.
+by $h$ of the tree, so there is no need to keep pointers to child nodes.
+The positions of left and right children of a node can be calculated from
+$h$ when they are needed.
+% We refer to this property of the layout as allowing
+% \textit{implicit pointers}.
 
-We will only use the van Emde Boas order to walk from the root node to a leaf.
-Given the \textit{van Emde Boas ID} of a node,
+We will only use the van Emde Boas order to walk in the direction from
+the root node to a leaf or in reverse.
+Given the \textit{van Emde Boas ID} of a node (denoted as numbers
+inside the nodes in Figure \ref{fig:veb_layout_5}),
 we can easily calculate the van Emde Boas IDs of its children by
 a recursive procedure. This procedure either returns \textit{internal} node
 pointers, referencing actual nodes of the tree, or it returns \textit{external}
@@ -224,38 +245,40 @@ The cost of this procedure in the cache-oblivious model is $\O(1)$, because
 it can be implemented using constant memory by modifying the tail recursion into
 a loop. Unfortunately, on a real computer, this is not quite the case --
 every call of this procedure performs $\Theta(\log\log N)$ instructions and
-repeating this $\Theta(\log N)$ times between the root and a leaf is slow.
+the cost of calling this procedure $\Theta(\log N)$ times between the root
+and a leaf is not negligible compared to the cost of memory transfers.
 Indeed, this calculation of implicit pointers can become the performance
 bottleneck of the cache-oblivious B-tree.
 This can be slightly alleviated by caching the results for trees of small
-height.
+height, which allows us to stop the recursion early.
 
 As described in \cite{brodal01}, at the low cost of precomputing $\O(h)$
 items for every height $h$ of the binary tree, we can perform root-leaf
-traversals which take constant time per traversed level.
+traversals in constant time per traversed level.
 
-The main observation is if we select a node and perform the van Emde Boas
-recursive construction until the selected node is the root of a bottom tree,
-this recursion will progress in the same manner for every node in the same
-depth $d$.
+The main observation is that for any node in a fixed depth $d$,
+performing the recursive construction until the selected node is the root
+of a bottom tree will progress through the same sizes of top and bottom trees.
 
 For every depth $d\in[2;h]$, let us precompute the size $B[d]$ of
-the bottom tree rooted in depth $d$, the size $T[d]$ of the corresponding
+bottom trees rooted in depth $d$, the size $T[d]$ of the corresponding
 top tree and the depth $D[d]$ of the top tree's root. The data takes $\O(\log
 N)$ memory and it can be computed in $\O(\log N)$ time by an iterative procedure.
 
-While traversing a root-to-leaf path, we shall maintain the current depth
-$d$, the index $i$ of the current node $x$ in BFS order and an array
-$Pos[j]$ of van Emde Boas order indices of nodes passed in every depth $j<d$
-during this traversal.
+TODO: example pro figure
+
+While traversing a root-to-leaf path, we shall maintain the depth
+$d$ of the current node $X$, the index $i$ of the current node in BFS order
+and an array $Pos[j]$ of van Emde Boas order indices of nodes passed in every
+depth $j<d$ during this traversal.
 
 As the bits of the BFS index $i$ correspond to left and right turns made during
 the traversal, the $\log(T[d]+1)$ least significant bits of $i$ are the
-index of the unique bottom tree rooted by the node $x$. Because $T[d]$ is
+index of the unique bottom tree rooted by the node $X$. Because $T[d]$ is
 always in the form $2^k-1$, we can find those bits quickly by calculating
 $i \And T[d]$.
 
-Because the current node $x$ is the root of the $(i \And T[d])$-th
+Because the current node $X$ is the root of the $(i \And T[d])$-th
 bottom tree of size $B[d]$ after a top tree of size $T[d]$ rooted in
 $Pos[D[d]]$, it follows that the van Emde Boas index of the current node can be
 calculated in $\O(1)$ time as:
@@ -268,17 +291,18 @@ incrementing the depth $d$ and calculating the new $Pos[d]$.
 We can also return one level higher by reversing the update of $i$ and
 decrementing $d$.
 
+TODO: go-to-left-sibling optimization removing multiplication
 TODO: graf
 
 \section{Ordered file maintenance}
-The ordered file maintenance problem is storing an ordered list of $N$ keys
-(in the given order) in a contiguous array of size $\O(N)$. The operations
-allowed on this structure are \textsc{Insert}(\textit{index},\textit{key}),
+The ordered file maintenance problem asks us to store an ordered list of
+$N$ keys in a given order in a contiguous array of size $\O(N)$.
+The allowed operations are \textsc{Insert}(\textit{index},\textit{key}),
 which inserts a new key before or after a given index in the array,
 and \textsc{Delete}(\textit{index}), which deletes an item at a given index.
 We allow the array to contain gaps up to a constant maximum size.
-Having constant-size gaps allows scanning a range of $n$ keys using the
-optimal $\Theta(n/B)$ scans.
+Having constant-size gaps allows scanning a range of $k$ keys using the
+optimal $\Theta(k/B)$ scans.
 
 The \textit{packed memory array} is a data structure that maintains an ordered
 file. Updates (\textsc{Insert}s and \textsc{Delete}s) of a packed memory array
@@ -291,6 +315,7 @@ array either contains an element, or it is empty.
 The array is divided into \textit{leaf blocks} of constant size $\O(\log N)$.
 A \textit{virtual full binary tree} is built above those leaf blocks. Every
 node of this binary tree represents the range covering all the leaf blocks below.
+This tree is only conceptual -- it is never stored in memory.
 
 To properly define the structure, we need to define some terms. The
 \textit{capacity} of a certain range of the array is its size and the
@@ -300,12 +325,14 @@ The data structure maintains certain bounds on the densities of subranges of
 the array.
 
 The densities in the leaf blocks are kept between \unichar{"00BC} % VULGAR FRACTION ONE QUARTER
-and 1. If an update keeps the density of the leaf block within bounds,
-we perform the update by rewriting all the $\Theta(\log N)$ items
-of the leaf block.
+and 1. If an update keeps the density of the leaf block within thresholds,
+we perform the update by rewriting all $\Theta(\log N)$ items of the leaf block.
 When a block becomes too sparse or too dense, we walk up the binary
 tree until we find a node that fits our density requirements.
-Those requirements become stricter as we walk up the binary tree.
+Walking up the binary tree corresponds to "multiplying the range by two"
+to the left or to the right.
+
+The density requirements become stricter as we walk up the virtual tree.
 In particular, the density of a node of depth $d$ within a tree of height $h$
 is kept between $\frac{1}{2}-\frac{1}{4}\frac{d}{h}$ and $\frac{3}{4}+\frac{1}{4}\frac{d}{h}$
 \footnote{The constants are arbitrary and control the tradeoff
@@ -317,7 +344,8 @@ a multiplicative constant.
 
 We claim that while this redistribution may reorganize a range of size up
 to $\O(N)$, the redistribution of a node puts all nodes below it well within
-bounds, so the next reorganization will be needed only after many more updates.
+thresholds, so the next reorganization will be needed only after many more
+updates.
 % TODO: how much is "many"?
 
 The search for a node to redistribute is implemented as two interspersed scans,
@@ -344,12 +372,12 @@ $\frac{3}{4}+\frac{1}{4}\frac{d+1}{h}$. After we redistribute the items within $
 the density of $Y$ will drop by $\frac{1}{h}$. Thus, if we denote the capacity
 of $Y$ as $|Y|$, we will need to insert at least $|Y|/h$ items under any
 child of $X$ before we need to rebalance $X$ again.
-Thus, we can charge the redistributed interval of size $\O(|X|)$ to the
+Thus, we can charge the $\O(|X|)$ cost of redistributing $X$ to the
 insertions into $Y$, which gives us amortized $\O(\log N)$
 redistribution steps per insertion into $Y$.
 
-Since the node $Y$ has in general $h=\Theta(\log N)$ ancestors, we can amortize
-$\Theta(\log^2 N)$ redistribution steps per insertion, which is
+Since the node $Y$ has $h=\Theta(\log N)$ ancestors, we can amortize
+$\Theta(\log N \cdot \log N)$ redistribution steps per insertion, which is
 $\Theta(\frac{\log^2 N}{B})$ in block transfers. The proof of the deletion
 cost is analogous.
 \end{proof}
@@ -359,14 +387,14 @@ TODO: other approaches to ordered file maintenance?
 \section{Cache-oblivious B-tree}
 The first step of constructing a cache-oblivious B-tree is a bootstrapping
 structure, which is a combination of a full binary tree in
-the van Emde Boas layout and an ordered file maintenance structure.
-The ordered file stores inserted key-value pairs sorted by the key.
-Nodes of the tree map to ranges in the ordered file, with leaves mapping
+the van Emde Boas layout and the packed memory array.
+The packed memory array stores inserted key-value pairs sorted by the key.
+Nodes of the tree map to ranges in the array, with leaves mapping
 to individual slots and the root mapping to the entire ordered file.
 The nodes of the tree contain dictionary keys.
 Leaves store the keys stored in their corresponding ordered file slots,
-or $\infty$ if the slot is empty. Each internal node stores the minimum
-of its subtree.
+or $\infty$ if the slot is empty. Each internal node of the tree
+stores the minimum of its subtree.
 
 TODO: figure
 
@@ -379,13 +407,13 @@ the tree costs $\Theta(\log_B N)$ block transfers.
 would normally occupy, using $\Theta(\log_B N)$ block transfers. The key
 is then inserted into the ordered file, which costs
 $\Theta(\frac{\log^2 N}{B})$ block transfers. Finally, the tree needs to be
-updated to reflect the changed content of the ordered file.
+updated to reflect the reorganization of the packed memory array.
 
 TODO: update analysis: VEB update
 
 This bootstrapping structure matches B-trees in the speed of \textsc{Find},
 but updates take time $\Theta(\log_B N+\frac{\log^2 N}{B})$, which is
-$\frac{\log^2 N}{B}$ more than B-trees.
+$\Theta(\frac{\log^2 N}{B})$ more than B-trees.
 % TODO: precisely when is this term significant?
 This term is significant especially when $B$ is small compared to $\log N$.
 
@@ -394,18 +422,18 @@ To remove this term, we will use this bootstrapping data structure with
 
 The final \textit{cache-oblivious B-tree} will store key-value pairs
 partitioned into \textit{pieces} in disjoint intervals. A piece is an array of
-$P=\Theta(\log N)$ slots, which may contain key-value pairs.
-The number of key-value pairs stored in pieces is maintained between
-$P/4$ and $P$. % TODO: opravdu? ne spis 3/4P? to bych mel overit...
+$P=\Theta(\log N)$ slots, which contains between $P/4$ and $P$ key-value pairs.
+% TODO: opravdu? ne spis 3/4P? to bych mel overit...
 Since pieces are physical arrays, reading or fully rewriting a piece
 takes $\Theta(\frac{\log N}{B})$ block transfers.
-The $\Theta(N/\log N)$ pieces are stored in the \textit{bootstrapping
-structure} as values. The key of each piece is the minimal key it contains.
+The \textit{bootstrapping structure} stores pointers to the $\Theta(N/\log N)$
+pieces as values, keyed by their minimal keys.
 
 To \textsc{Find} a key in the cache-oblivious B-tree, we walk down the
-boostrapping structure in $\Theta(\log_B (N/\log N))$ to find the piece
-that may contain the key, and scan it in $\Theta(\frac{\log N}{B})$,
-so the time to \textsc{Find} is still $\Theta(\log_B N)$.
+boostrapping structure in $\Theta(\log_B (N/\log N))=\Theta(\log_B N)$
+to find the piece that may contain the key, and scan it in
+$\Theta(\frac{\log N}{B})$, so we still need only $\Theta(\log_B N)$
+block transfers for \textsc{Find}s.
 \textsc{FindNext} and \textsc{FindPrevious} work similarly.
 
 \textsc{Insert}s and \textsc{Delete}s first find the appropriate piece
@@ -416,14 +444,15 @@ the minimum of the piece, we also need to walk up the tree in $\Theta(\log_B
 (N/\log N))$ to propagate the change.
 
 If the piece is too full, we split the piece into two pieces of size
-$P/2$. The splitting is done in $\Theta(\frac{\log N}{B})$ block transfers.
+$P/2$. The splitting takes $\Theta(\frac{\log N}{B})$ block transfers.
 Afterwards, the new piece needs to be inserted to the bootstrapping structure
-in $\Theta(\frac{\log^2 (N/\log N)}{B})$. Similarly, if the piece is too sparse,
-we merge the piece with one of its neighbours. A neighbour can be found in
-$\O(1)$, because the pieces are stored in the packed memory array, which
-guarantees gaps of constant size. If the two pieces have more than
-$3P/4$ items, we only "borrow" some keys from the neighbour and update
-the bootstrapping structure to reflect new piece minima.
+in $\Theta(\frac{\log^2 (N/\log N)}{B})$ amortized transfers.
+Similarly, if the piece is too sparse, we merge the piece with one of its
+neighbours. A neighbour can be found in $\O(1)$, because the pieces are
+stored in the packed memory array, which guarantees gaps of constant size.
+If the two pieces have more than $3P/4$ items, we only "borrow" some keys from
+the neighbour and update the bootstrapping structure in $\Theta(\log_B N)$
+to reflect new piece minima.
 If there are less than $3P/4$ items in total, the pieces get merged and one
 of them will be deleted from the bootstrapping structure in
 $\Theta(\frac{\log^2 (N/\log N)}{B})$.
@@ -435,5 +464,5 @@ which will be only split or merged again after $\Theta(P)$ more updates.
 Merging two pieces yields a piece with between $P/2$ and $3P/4$ items.
 This new piece will also be updated only after $\Theta(P)$ more updates.
 Thus, we can charge each update $\Theta(\frac{1}{\log N}{\log^2 N}{B})$
-time for splits and merges, which gives us $\Theta(\log_B N+\frac{\log N}{B})=
+for splits and merges, which gives us $\Theta(\log_B N+\frac{\log N}{B})=
 \Theta(\log_B N)$ amortized time for updates.
