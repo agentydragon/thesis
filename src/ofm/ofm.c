@@ -33,11 +33,10 @@ static void alloc_file(ofm* file) {
 		log_fatal("couldn't allocate %" PRIu64 " uint64 keys for ofm",
 			file->capacity);
 	}
-	file->values = calloc(file->capacity, file->value_size);
+	file->values = calloc(file->capacity, sizeof(ofm_value));
 	if (file->values == NULL) {
-		log_fatal("couldn't allocate %" PRIu64 " "
-				"values of size %" PRIu64 " for ofm",
-				file->capacity, file->value_size);
+		log_fatal("couldn't allocate %" PRIu64 " values for ofm",
+				file->capacity);
 	}
 	file->occupied = calloc(file->capacity, sizeof(bool));
 	if (file->occupied == NULL) {
@@ -49,22 +48,14 @@ static void alloc_file(ofm* file) {
 	}
 }
 
-static void* value_address(ofm* file, uint64_t index) {
-	return file->values + file->value_size * index;
-}
-
-static void assign_value(ofm* file, uint64_t index, const void* source) {
-	void* target = value_address(file, index);
-	if (target != source) {
-		memcpy(target, source, file->value_size);
-	}
+static void assign_value(ofm* file, uint64_t index, ofm_value new_value) {
+	file->values[index] = new_value;
 }
 
 static void copy_item(ofm* target, uint64_t target_index,
 		ofm* source, uint64_t source_index) {
-	assert(source->value_size == target->value_size);
 	target->keys[target_index] = source->keys[source_index];
-	assign_value(target, target_index, value_address(source, source_index));
+	target->values[target_index] = source->values[source_index];
 }
 
 static char buffer[65536];
@@ -275,7 +266,6 @@ static ofm_range rebalance(ofm* file, ofm_range start_block, uint64_t *watch) {
 					"still adequate.");
 		} else {
 			ofm new_file = {
-				.value_size = file->value_size,
 				.keys = NULL,
 				.values = NULL,
 				.occupied = NULL,
@@ -286,7 +276,7 @@ static ofm_range rebalance(ofm* file, ofm_range start_block, uint64_t *watch) {
 				if (file->occupied[i]) {
 					ofm_stream_push(&new_file,
 							file->keys[i],
-							value_address(file, i),
+							file->values[i],
 							&stream);
 				}
 			}
@@ -324,11 +314,11 @@ static void step_right(ofm_range block, uint64_t step_start) {
 	}
 }
 
-void* ofm_get_value(ofm* file, uint64_t index) {
-	return value_address(file, index);
+ofm_value ofm_get_value(ofm* file, uint64_t index) {
+	return file->values[index];
 }
 
-ofm_range ofm_insert_before(ofm* file, uint64_t key, const void* value,
+ofm_range ofm_insert_before(ofm* file, uint64_t key, const ofm_value value,
 		uint64_t insert_before_index, uint64_t *saved_at) {
 	// log_verbose(2, "ofm_insert_before(%" PRIu64 "=%" PRIu64 ", "
 	// 		"before_index=%" PRIu64 ")", item.key, item.value,
@@ -377,7 +367,7 @@ ofm_range ofm_insert_before(ofm* file, uint64_t key, const void* value,
 	assert(!file->occupied[insert_before_index]);
 	file->occupied[insert_before_index] = true;
 	file->keys[insert_before_index] = key;
-	assign_value(file, insert_before_index, value);
+	file->values[insert_before_index] = value;
 	if (saved_at != NULL) {
 		*saved_at = insert_before_index;
 	}
@@ -405,14 +395,15 @@ ofm_range ofm_delete(ofm* file, uint64_t index, uint64_t *next_item_at) {
 	return rebalance(file, get_leaf(file, index), next_item_at);
 }
 
-void ofm_init(ofm* file, size_t value_size) {
+void ofm_init(ofm* file) {
 	// TODO: copy over?
 	// TODO: merge with new_ordered_file
 	assert(!file->keys && !file->values && !file->occupied);
 	file->capacity = 4;
 	file->block_size = 4;
-	file->value_size = value_size;
-	file->keys = file->values = file->occupied = NULL;
+	file->keys = NULL;
+	file->values = NULL;
+	file->occupied = NULL;
 	alloc_file(file);
 }
 
@@ -427,7 +418,6 @@ void ofm_stream_start(ofm* file, uint64_t size, ofm_stream* stream) {
 	file->block_size = parameters.block_size;
 	file->capacity = parameters.capacity;
 	assert(!file->keys && !file->values && !file->occupied);
-	// TODO: value_size?
 	alloc_file(file);
 	// TODO: This will be soon followed by an expensive
 	// rebalancing. Perhaps we should build it rebalanced
@@ -436,7 +426,7 @@ void ofm_stream_start(ofm* file, uint64_t size, ofm_stream* stream) {
 	stream->allowed_capacity = size;
 }
 
-void ofm_stream_push(ofm* file, uint64_t key, const void* value,
+void ofm_stream_push(ofm* file, uint64_t key, const ofm_value value,
 		ofm_stream* stream) {
 	assert(stream->scratch < stream->allowed_capacity);
 	file->occupied[stream->scratch] = true;

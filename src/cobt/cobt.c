@@ -35,7 +35,7 @@ static void insert_piece_before(cob* this, piece_item* piece,
 		uint64_t insert_before) {
 	const uint64_t prior_capacity = this->file.capacity;
 	ofm_range reorg_range =  ofm_insert_before(&this->file,
-			piece[0].key, &piece, insert_before, NULL);
+			piece[0].key, piece, insert_before, NULL);
 	if (this->file.capacity == prior_capacity) {
 		fix_range(this, reorg_range);
 	} else {
@@ -44,8 +44,7 @@ static void insert_piece_before(cob* this, piece_item* piece,
 }
 
 static piece_item* get_piece_start(cob* this, uint64_t index) {
-	piece_item** piece_ptr = ofm_get_value(&this->file, index);
-	return *piece_ptr;
+	return ofm_get_value(&this->file, index);
 }
 
 static void delete_piece(cob* this, uint64_t index) {
@@ -463,12 +462,7 @@ void cob_previous_key(cob* this, uint64_t key,
 }
 
 static ofm rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
-	ofm new_file = {
-		.occupied = NULL,
-		.keys = NULL,
-		.values = NULL,
-		.value_size = sizeof(piece_item*)
-	};
+	ofm new_file = { .occupied = NULL, .keys = NULL, .values = NULL };
 	const uint8_t preferred_piece = new_piece / 2;
 	const uint64_t piece_count = (new_size / preferred_piece) + 1;
 	log_info("preparing to store %" PRIu64 " pieces of size %" PRIu8,
@@ -499,7 +493,7 @@ static ofm rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
 			if (buffer_size == preferred_piece) {
 				log_verbose(2, "flush");
 				ofm_stream_push(&new_file, buffer[0].key,
-						&buffer, &stream);
+						buffer, &stream);
 				buffer_size = 0;
 				buffer = new_piece2(new_piece);
 			}
@@ -509,7 +503,7 @@ static ofm rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
 
 	if (buffer_size > 0) {
 		log_verbose(2, "final flush");
-		ofm_stream_push(&new_file, buffer[0].key, &buffer, &stream);
+		ofm_stream_push(&new_file, buffer[0].key, buffer, &stream);
 	} else {
 		free(buffer);
 	}
@@ -521,7 +515,7 @@ void cob_init(cob* this) {
 	log_info("cob_init(%p)", this);
 	this->size = 0;
 	this->piece = 4;  // Initial piece size: 4
-	ofm_init(&this->file, sizeof(piece_item*));
+	ofm_init(&this->file);
 	cobt_tree_init(&this->tree, this->file.keys, this->file.occupied,
 			this->file.capacity);
 }
