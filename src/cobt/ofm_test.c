@@ -114,8 +114,7 @@ void test_functional() {
 	// Fills file with (1000 => 0), (999 => 500), (998 => 1000), ...
 	for (uint64_t i = 0; i < 1000; i++) {
 		void* mock_value = (void*) (i * 500);
-		ofm_insert_before(&file, (1000 - i), mock_value, file.capacity,
-				NULL);
+		ofm_insert_before(&file, (1000 - i), mock_value, file.capacity);
 	}
 	uint64_t seen = 0;
 	for (uint64_t i = 0; i < file.capacity; i++) {

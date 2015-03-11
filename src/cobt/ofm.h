@@ -33,7 +33,7 @@ typedef struct {
 
 void ofm_dump(ofm file);
 ofm_range ofm_insert_before(ofm* file, uint64_t key, ofm_value value,
-		uint64_t insert_before_index, uint64_t *saved_at);
+		uint64_t insert_before_index);
 ofm_range ofm_delete(ofm* file, uint64_t index);
 void ofm_init(ofm* file);
 void ofm_destroy(ofm* file);

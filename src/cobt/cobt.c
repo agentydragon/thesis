@@ -35,7 +35,7 @@ static void insert_piece_before(cob* this, piece_item* piece,
 		uint64_t insert_before) {
 	const uint64_t prior_capacity = this->file.capacity;
 	ofm_range reorg_range =  ofm_insert_before(&this->file,
-			piece[0].key, piece, insert_before, NULL);
+			piece[0].key, piece, insert_before);
 	if (this->file.capacity == prior_capacity) {
 		fix_range(this, reorg_range);
 	} else {

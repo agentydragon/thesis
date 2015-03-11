@@ -309,7 +309,7 @@ ofm_value ofm_get_value(ofm* file, uint64_t index) {
 }
 
 ofm_range ofm_insert_before(ofm* file, uint64_t key, const ofm_value value,
-		uint64_t insert_before_index, uint64_t *saved_at) {
+		uint64_t insert_before_index) {
 	// log_verbose(2, "ofm_insert_before(%" PRIu64 "=%" PRIu64 ", "
 	// 		"before_index=%" PRIu64 ")", item.key, item.value,
 	// 		insert_before_index);
@@ -339,9 +339,10 @@ ofm_range ofm_insert_before(ofm* file, uint64_t key, const ofm_value value,
 			.size = file->capacity,
 			.file = file
 		}, &insert_before_index);
-		if (was_end) insert_before_index = file->capacity;
-		return ofm_insert_before(file, key, value,
-				insert_before_index, saved_at);
+		if (was_end) {
+			insert_before_index = file->capacity;
+		}
+		return ofm_insert_before(file, key, value, insert_before_index);
 	}
 
 	assert(!ofm_block_full(block));
@@ -358,11 +359,7 @@ ofm_range ofm_insert_before(ofm* file, uint64_t key, const ofm_value value,
 	file->occupied[insert_before_index] = true;
 	file->keys[insert_before_index] = key;
 	file->values[insert_before_index] = value;
-	if (saved_at != NULL) {
-		*saved_at = insert_before_index;
-	}
-
-	return rebalance(file, block, saved_at);
+	return rebalance(file, block, NULL);
 }
 
 ofm_range ofm_delete(ofm* file, uint64_t index) {
