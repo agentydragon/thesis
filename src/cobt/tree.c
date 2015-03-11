@@ -65,8 +65,7 @@ uint64_t cobt_tree_find_le(cobt_tree* this, uint64_t key) {
 			// We want to go right.
 			leaf_index = (leaf_index << 1) + 1;
 		} else {
-			drilldown_go_up(&track);
-			drilldown_go_left(this->level_data, &track);
+			drilldown_go_left_sibling(this->level_data, &track);
 			leaf_index = leaf_index << 1;
 		}
 	}
