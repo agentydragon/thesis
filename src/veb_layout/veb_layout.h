@@ -18,7 +18,12 @@ struct drilldown_track {
 	uint8_t depth;     /* pos[depth] = veb position */
 	uint64_t bfs;
 };
-void drilldown_begin(struct drilldown_track* track);
+
+inline void drilldown_begin(struct drilldown_track* track) {
+	track->pos[0] = 0;
+	track->depth = 0;
+	track->bfs = 0;
+}
 
 // add_level, drilldown_go_left, drilldown_go_right inlined for speed
 inline void add_level(struct level_data* ld, struct drilldown_track* track) {

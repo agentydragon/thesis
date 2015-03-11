@@ -357,9 +357,3 @@ void veb_prepare(uint64_t height, struct level_data* levels) {
 		}
 	}
 }
-
-void drilldown_begin(struct drilldown_track* track) {
-	track->pos[0] = 0;
-	track->depth = 0;
-	track->bfs = 0;
-}
