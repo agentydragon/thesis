@@ -14,7 +14,7 @@ SOURCES= \
 	performance/*.c \
 	rand/*.c rand/test/*.c \
 	splay/*.c \
-	stopwatch/*.c measurement/*.c \
+	measurement/*.c \
 	util/*.c \
 	veb_layout/*.c
 
