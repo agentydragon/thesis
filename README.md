@@ -28,7 +28,7 @@ bin/test_coverage
 
 # (measure)
 
-rm **/*.gcda **/*.gcov
+find . -name '*.gcda' -o -name '*.gcov' | xargs rm
 ```
 
 ## Benchmarking
