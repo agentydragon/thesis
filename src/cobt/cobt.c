@@ -448,15 +448,77 @@ void cob_find(cob* this, uint64_t key, bool *found, uint64_t *value) {
 
 void cob_next_key(cob* this, uint64_t key,
 		bool *next_key_exists, uint64_t* next_key) {
-	(void) this; (void) key; (void) next_key_exists; (void) next_key;
-	log_fatal("cob_next_key not implemented yet");
+	validate_key(key);
+	const uint64_t index = cobt_tree_find_le(&this->tree, key);
+
+	if (this->file.occupied[index]) {
+		// Look for next key within the piece.
+		piece_item* piece = get_piece_start(this, index);
+		for (uint8_t i = 0; i < this->piece; i++) {
+			if (piece[i].key > key && piece[i].key != EMPTY) {
+				if (next_key) {
+					*next_key = piece[i].key;
+				}
+				*next_key_exists = true;
+				return;
+			}
+		}
+	}
+	// Look in pieces to the right.
+	for (uint64_t i = index + 1; i < this->file.capacity; i++) {
+		if (!this->file.occupied[i]) {
+			continue;
+		}
+		piece_item* piece = get_piece_start(this, i);
+		if (piece[0].key != EMPTY) {
+			if (next_key) {
+				*next_key = piece[0].key;
+			}
+			*next_key_exists = true;
+			return;
+		}
+	}
+	*next_key_exists = false;
 }
 
 void cob_previous_key(cob* this, uint64_t key,
 		bool *previous_key_exists, uint64_t* previous_key) {
-	(void) this; (void) key;
-	(void) previous_key_exists; (void) previous_key;
-	log_fatal("cob_previous_key not implemented yet");
+	validate_key(key);
+	const uint64_t index = cobt_tree_find_le(&this->tree, key);
+
+	if (this->file.occupied[index]) {
+		// Look for next key within the piece.
+		piece_item* piece = get_piece_start(this, index);
+		for (uint8_t i = 0; i < this->piece; i++) {
+			uint8_t idx = this->piece - i - 1;
+			if (piece[idx].key < key && piece[idx].key != EMPTY) {
+				if (previous_key) {
+					*previous_key = piece[idx].key;
+				}
+				*previous_key_exists = true;
+				return;
+			}
+		}
+	}
+	// Look in pieces to the right.
+	for (uint64_t i = 0; i < index; i++) {
+		uint64_t idx = index - 1 - i;
+		if (!this->file.occupied[idx]) {
+			continue;
+		}
+		piece_item* piece = get_piece_start(this, idx);
+		for (uint8_t i = 0; i < this->piece; i++) {
+			uint8_t piece_idx = this->piece - i - 1;
+			if (piece[piece_idx].key != EMPTY) {
+				if (previous_key) {
+					*previous_key = piece[piece_idx].key;
+				}
+				*previous_key_exists = true;
+				return;
+			}
+		}
+	}
+	*previous_key_exists = false;
 }
 
 static ofm rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
