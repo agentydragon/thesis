@@ -1,14 +1,14 @@
-#ifndef HASHTABLE_PRIVATE_DATA_H
-#define HASHTABLE_PRIVATE_DATA_H
+#ifndef HTABLE_PRIVATE_DATA_H
+#define HTABLE_PRIVATE_DATA_H
 
 #include <stdint.h>
 #include <stdbool.h>
 
-const uint32_t HASHTABLE_KEYS_WITH_HASH_MAX;
+const uint32_t HTABLE_KEYS_WITH_HASH_MAX;
 
 // je to velke 56 bytu. keys_with_hash muze byt jenom uint32_t
 // a je tam moc prazdneho prostoru :(
-struct hashtable_block {
+struct htable_block {
 	uint64_t keys[3];
 	uint64_t values[3];
 	bool occupied[3];
@@ -17,8 +17,8 @@ struct hashtable_block {
 	uint8_t _unused[8]; // padded to 64 bytes
 };
 
-struct hashtable_data {
-	struct hashtable_block* blocks;
+struct htable_data {
+	struct htable_block* blocks;
 	uint64_t blocks_size;
 	uint64_t pair_count;
 

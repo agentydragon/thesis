@@ -1,6 +1,6 @@
-#include "hashtable/test/delete.h"
-#include "hashtable/test/helper.h"
-#include "hashtable/private/delete.h"
+#include "htable/test/delete.h"
+#include "htable/test/helper.h"
+#include "htable/private/delete.h"
 
 #include <assert.h>
 #include <string.h>
@@ -90,7 +90,7 @@ static void test_shortening_chains() {
 		{ .keys = {}, .values = {}, .occupied = {} }
 	};
 
-	hashtable this = (hashtable) {
+	htable this = {
 		.blocks = blocks,
 		.blocks_size = 7,
 		.pair_count = 11,
@@ -99,7 +99,7 @@ static void test_shortening_chains() {
 		.hash_fn_override_opaque = hash_pairs
 	};
 
-	assert(hashtable_delete(&this, 11) == 0);
+	assert(htable_delete(&this, 11) == 0);
 	assert(this.pair_count == 10);
 
 	const block expected[4] = {
@@ -138,6 +138,6 @@ static void test_shortening_chains() {
 	assert_block(&blocks[3], expected[3]);
 }
 
-void hashtable_test_delete() {
+void htable_test_delete() {
 	test_shortening_chains();
 }

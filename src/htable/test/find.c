@@ -1,26 +1,26 @@
-#include "hashtable/test/find.h"
-#include "hashtable/test/helper.h"
-#include "hashtable/private/find.h"
+#include "htable/test/find.h"
+#include "htable/test/helper.h"
+#include "htable/private/find.h"
 
 #include <assert.h>
 #include <stdlib.h>
 
 #include "log/log.h"
 
-static void assert_found(hashtable* this, uint64_t key, uint64_t value) {
+static void assert_found(htable* this, uint64_t key, uint64_t value) {
 	uint64_t _value;
 	bool _found;
-	assert(hashtable_find(this, key, &_value, &_found) == 0);
+	assert(htable_find(this, key, &_value, &_found) == 0);
 	assert(_found && _value == value);
 }
 
-static void assert_not_found(hashtable* this, uint64_t key) {
+static void assert_not_found(htable* this, uint64_t key) {
 	bool _found;
-	assert(hashtable_find(this, key, NULL, &_found) == 0);
+	assert(htable_find(this, key, NULL, &_found) == 0);
 	assert(!_found);
 }
 
-void hashtable_test_find() {
+void htable_test_find() {
 	uint64_t hash_pairs[] = {
 		100, 1,
 		101, 1,
@@ -56,7 +56,7 @@ void hashtable_test_find() {
 		}
 	};
 
-	hashtable this = {
+	htable this = {
 		.blocks = blocks,
 		.blocks_size = 4,
 		.pair_count = 7,

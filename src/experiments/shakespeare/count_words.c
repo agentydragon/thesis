@@ -6,7 +6,7 @@
 #include <assert.h>
 
 #include "hash/hash.h"
-#include "hash_hashtable/hash_hashtable.h"
+#include "hash_htable/hash_htable.h"
 #include "log/log.h"
 #include "measurement/stopwatch.h"
 
@@ -43,15 +43,15 @@ static void add_word(char* word) {
 
 	bool found;
 	uint64_t value;
-	assert(!hash_find(word_count, key, &value, &found));
+	assert(!dict_find(word_count, key, &value, &found));
 	// hash_dump(word_count);
 	if (found) {
 		// printf("[%s]: %" PRIx64 " -> %" PRIu64 "\n", normalized, key, value + 1);
-		assert(!hash_delete(word_count, key));
-		assert(!hash_insert(word_count, key, value + 1));
+		assert(!dict_delete(word_count, key));
+		assert(!dict_insert(word_count, key, value + 1));
 	} else {
 		// printf("[%s]: %" PRIx64 " = 1 (not found yet)\n", normalized, key);
-		assert(!hash_insert(word_count, key, 1));
+		assert(!dict_insert(word_count, key, 1));
 	}
 
 	free(normalized);
@@ -71,7 +71,7 @@ static void report_count(const char* word) {
 
 	bool found;
 	uint64_t value;
-	assert(!hash_find(word_count, key, &value, &found));
+	assert(!dict_find(word_count, key, &value, &found));
 	if (found) {
 		printf("%s: found %" PRIu64 " times\n", word, value);
 	} else {
@@ -84,7 +84,7 @@ static void report_count(const char* word) {
 int main(int argc, char** argv) {
 	(void) argc; (void) argv;
 
-	assert(!hash_init(&word_count, &hash_hashtable, NULL));
+	assert(!dict_init(&word_count, &dict_htable, NULL));
 
 	FILE* f = fopen(PATH, "r");
 	if (!f) {

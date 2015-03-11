@@ -1,24 +1,24 @@
-#include "hashtable/private/insertion.h"
+#include "htable/private/insertion.h"
 
 #include <inttypes.h>
 
 #include "log/log.h"
-#include "hashtable/private/hash.h"
-#include "hashtable/private/traversal.h"
-#include "hashtable/private/helper.h"
+#include "htable/private/hash.h"
+#include "htable/private/traversal.h"
+#include "htable/private/helper.h"
 
-int8_t hashtable_insert_internal(hashtable* this, uint64_t key, uint64_t value) {
+int8_t htable_insert_internal(htable* this, uint64_t key, uint64_t value) {
 	const uint64_t key_hash = hash_of(this, key);
 	block* const home_block = &this->blocks[key_hash];
 
-	if (home_block->keys_with_hash == HASHTABLE_KEYS_WITH_HASH_MAX) {
+	if (home_block->keys_with_hash == HTABLE_KEYS_WITH_HASH_MAX) {
 		log_error("cannot insert - overflow in maximum bucket size");
 		return 1;
 	}
 
 	for (uint64_t i = 0, index = key_hash, traversed = 0;
 			traversed < this->blocks_size;
-			index = hashtable_next_index(this, index), traversed++) {
+			index = htable_next_index(this, index), traversed++) {
 		block* current_block = &this->blocks[index];
 
 		for (int8_t slot = 0; slot < 3; slot++) {
@@ -48,6 +48,6 @@ int8_t hashtable_insert_internal(hashtable* this, uint64_t key, uint64_t value) 
 	}
 
 	// Went over all blocks...
-	log_error("hashtable is completely full (shouldn't happen)");
+	log_error("htable is completely full (shouldn't happen)");
 	return 1;
 }

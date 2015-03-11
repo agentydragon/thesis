@@ -3,7 +3,7 @@ CC=gcc
 
 SOURCES = \
 	  ../../experiments/shakespeare/*.c ../../hash/*.c \
-	  ../../hash_hashtable/*.c ../../hash_hashtable/private/*.c \
+	  ../../dict_htable/*.c ../../dict_htable/private/*.c \
 	  ../../stopwatch/*.c ../../util/*.c
 
 shakespeare: $(SOURCES)

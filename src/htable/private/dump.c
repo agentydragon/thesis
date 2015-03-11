@@ -1,19 +1,19 @@
-#include "hashtable/private/dump.h"
+#include "htable/private/dump.h"
 
 #include <assert.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "hashtable/private/data.h"
-#include "hashtable/private/hash.h"
-#include "hashtable/private/traversal.h"
+#include "htable/private/data.h"
+#include "htable/private/hash.h"
+#include "htable/private/traversal.h"
 #include "log/log.h"
 #include "util/average.h"
 #include "util/unused.h"
 
 /*
-static void calculate_bucket_sizes(hashtable* this, int bucket_sizes[100]) {
+static void calculate_bucket_sizes(htable* this, int bucket_sizes[100]) {
 	memset(bucket_sizes, 0, sizeof(int) * 100);
 	for (uint64_t i = 0; i < this->table_size; i++) {
 		uint64_t bucket_size = this->table[i].keys_with_hash;
@@ -22,10 +22,10 @@ static void calculate_bucket_sizes(hashtable* this, int bucket_sizes[100]) {
 	}
 }
 
-void hashtable_dump(void* _this) {
-	hashtable* this = _this;
+void htable_dump(void* _this) {
+	htable* this = _this;
 
-	log_plain("hashtable table_size=%ld pair_count=%ld",
+	log_plain("htable table_size=%ld pair_count=%ld",
 		this->table_size,
 		this->pair_count);
 
@@ -44,7 +44,7 @@ void hashtable_dump(void* _this) {
 */
 
 // Used for debugging. TODO: remove?
-static void UNUSED dump_block(hashtable* this, uint64_t index, block* block) {
+static void UNUSED dump_block(htable* this, uint64_t index, block* block) {
 	char buffer[256], buffer2[256];
 	snprintf(buffer, sizeof(buffer),
 			"[%04" PRIx64 "] keys_with_hash=%" PRIu32,
@@ -70,13 +70,13 @@ static void UNUSED dump_block(hashtable* this, uint64_t index, block* block) {
 	log_plain("%s", buffer);
 }
 
-static void UNUSED dump_blocks(hashtable* this) {
+static void UNUSED dump_blocks(htable* this) {
 	for (uint64_t i = 0; i < this->blocks_size; i++) {
 		dump_block(this, i, &this->blocks[i]);
 	}
 }
 
-static void calculate_distances(hashtable* this, int distances[100]) {
+static void calculate_distances(htable* this, int distances[100]) {
 	memset(distances, 0, sizeof(int) * 100);
 	// TODO: optimize?
 	for (uint64_t i = 0; i < this->blocks_size; i++) {
@@ -97,7 +97,7 @@ static void calculate_distances(hashtable* this, int distances[100]) {
 	}
 }
 
-static void dump_distances(hashtable* this) {
+static void dump_distances(htable* this) {
 	if (this->blocks_size > 0) {
 		int distances[100] = { 0 };
 		calculate_distances(this, distances);
@@ -110,10 +110,10 @@ static void dump_distances(hashtable* this) {
 	}
 }
 
-void hashtable_dump(void* _this) {
-	hashtable* this = _this;
+void htable_dump(void* _this) {
+	htable* this = _this;
 
-	log_plain("hashtable blocks:%ld pair_count:%ld",
+	log_plain("htable blocks:%ld pair_count:%ld",
 			this->blocks_size, this->pair_count);
 
 	// dump_blocks(this);

@@ -1,4 +1,4 @@
-#include "dict/hashtable.h"
+#include "dict/htable.h"
 
 #include <assert.h>
 #include <inttypes.h>
@@ -9,17 +9,17 @@
 
 #include "log/log.h"
 
-#include "hashtable/private/data.h"
-#include "hashtable/private/dump.h"
-#include "hashtable/private/hash.h"
-#include "hashtable/private/traversal.h"
-#include "hashtable/private/resizing.h"
-#include "hashtable/private/insertion.h"
-#include "hashtable/private/find.h"
-#include "hashtable/private/delete.h"
+#include "htable/private/data.h"
+#include "htable/private/dump.h"
+#include "htable/private/hash.h"
+#include "htable/private/traversal.h"
+#include "htable/private/resizing.h"
+#include "htable/private/insertion.h"
+#include "htable/private/find.h"
+#include "htable/private/delete.h"
 
 /*
-static void check_invariants(struct hashtable_data* this) {
+static void check_invariants(struct htable_data* this) {
 	uint64_t total = 0;
 	for (uint64_t i = 0; i < this->blocks_size; i++) {
 		for (int subindex1 = 0; subindex1 < 3; subindex1++) {
@@ -30,7 +30,7 @@ static void check_invariants(struct hashtable_data* this) {
 		for (uint64_t j = 0; j < this->blocks_size; j++) {
 			for (int subindex = 0; subindex < 3; subindex++) {
 				if (this->blocks[j].occupied[subindex] &&
-						hashtable_hash_of(this, this->blocks[j].keys[subindex]) == i) {
+						htable_hash_of(this, this->blocks[j].keys[subindex]) == i) {
 					count++;
 				}
 			}
@@ -50,13 +50,13 @@ static void check_invariants(struct hashtable_data* this) {
 static int8_t init(void** _this, void* args_unused) {
 	(void) args_unused;
 
-	struct hashtable_data* this = malloc(sizeof(struct hashtable_data));
+	struct htable_data* this = malloc(sizeof(struct htable_data));
 	if (!this) {
-		log_error("cannot allocate new hashtable");
+		log_error("cannot allocate new htable");
 		return 1;
 	}
 
-	*this = (struct hashtable_data) {
+	*this = (struct htable_data) {
 		.blocks = NULL,
 		.blocks_size = 0,
 		.pair_count = 0
@@ -67,7 +67,7 @@ static int8_t init(void** _this, void* args_unused) {
 
 static void destroy(void** _this) {
 	if (_this) {
-		struct hashtable_data* this = *_this;
+		struct htable_data* this = *_this;
 		if (this) {
 			free(this->blocks);
 		}
@@ -76,35 +76,35 @@ static void destroy(void** _this) {
 	}
 }
 
-const uint32_t HASHTABLE_KEYS_WITH_HASH_MAX = (1LL << 32LL) - 1;
+const uint32_t HTABLE_KEYS_WITH_HASH_MAX = (1LL << 32LL) - 1;
 
 static int8_t insert(void* _this, uint64_t key, uint64_t value) {
-	struct hashtable_data* this = _this;
+	struct htable_data* this = _this;
 
 	log_info("insert(%" PRIx64 ", %" PRIx64 ")", key, value);
 
-	if (hashtable_resize_to_fit(this, this->pair_count + 1)) {
+	if (htable_resize_to_fit(this, this->pair_count + 1)) {
 		log_error("failed to resize to fit one more element");
 		return 1;
 	}
 
-	return hashtable_insert_internal(this, key, value);
+	return htable_insert_internal(this, key, value);
 }
 
 static int8_t delete(void* _this, uint64_t key) {
-	struct hashtable_data* this = _this;
-	return hashtable_delete(this, key);
+	struct htable_data* this = _this;
+	return htable_delete(this, key);
 }
 
-const dict_api dict_hashtable = {
+const dict_api dict_htable = {
 	.init = init,
 	.destroy = destroy,
 
-	.find = hashtable_find,
+	.find = htable_find,
 	.insert = insert,
 	.delete = delete,
 
-	.dump = hashtable_dump,
+	.dump = htable_dump,
 
-	.name = "dict_hashtable"
+	.name = "dict_htable"
 };

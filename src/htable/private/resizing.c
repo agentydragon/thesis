@@ -1,4 +1,4 @@
-#include "hashtable/private/resizing.h"
+#include "htable/private/resizing.h"
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -11,9 +11,9 @@
 #define NO_LOG_INFO
 #include "log/log.h"
 
-#include "hashtable/private/insertion.h"
-#include "hashtable/private/helper.h"
-#include "hashtable/private/data.h"
+#include "htable/private/insertion.h"
+#include "htable/private/helper.h"
+#include "htable/private/data.h"
 
 static const uint64_t MIN_SIZE = 2;
 
@@ -53,9 +53,9 @@ static uint64_t next_smaller_size(uint64_t x) {
 	return i / 2;
 }
 
-static int8_t resize(hashtable* this, uint64_t new_blocks_size);
+static int8_t resize(htable* this, uint64_t new_blocks_size);
 
-int8_t hashtable_resize_to_fit(hashtable* this, uint64_t to_fit) {
+int8_t htable_resize_to_fit(htable* this, uint64_t to_fit) {
 	uint64_t new_blocks_size = this->blocks_size;
 
 	while (too_sparse(to_fit, new_blocks_size)) {
@@ -85,7 +85,7 @@ int8_t hashtable_resize_to_fit(hashtable* this, uint64_t to_fit) {
 
 // TODO: make public?
 // TODO: allow break?
-static int8_t foreach(hashtable* this,
+static int8_t foreach(htable* this,
 		int8_t (*iterate)(void*, uint64_t key, uint64_t value),
 		void* opaque) {
 	for (uint64_t i = 0; i < this->blocks_size; i++) {
@@ -107,10 +107,10 @@ static int8_t foreach(hashtable* this,
 }
 
 static int8_t insert_internal_wrap(void* this, uint64_t key, uint64_t value) {
-	return hashtable_insert_internal(this, key, value);
+	return htable_insert_internal(this, key, value);
 }
 
-static int8_t resize(hashtable* this, uint64_t new_blocks_size) {
+static int8_t resize(htable* this, uint64_t new_blocks_size) {
 	if (new_blocks_size * 3 < this->pair_count) {
 		log_error("cannot resize: %" PRIu64 " blocks don't fit %" PRIu64 " pairs",
 			new_blocks_size, this->pair_count);
@@ -119,7 +119,7 @@ static int8_t resize(hashtable* this, uint64_t new_blocks_size) {
 	// TODO: try new hash function?
 
 	// Cannot use realloc, because this can both upscale and downscale.
-	hashtable new_this = {
+	htable new_this = {
 		// Disabled because Precise.
 		// .blocks = aligned_alloc(64, sizeof(block) * new_blocks_size),
 		.blocks_size = new_blocks_size,

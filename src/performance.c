@@ -4,7 +4,7 @@
 #include "dict/array.h"
 #include "dict/btree.h"
 #include "dict/cobt.h"
-#include "dict/hashtable.h"
+#include "dict/htable.h"
 #include "dict/splay.h"
 #include "log/log.h"
 #include "performance/random_read.h"
@@ -18,7 +18,7 @@ void run_performance_tests() {
 	log_info("Hash table");
 	for (uint64_t size = 10000; size < 20 * 1024ULL * 1024ULL;
 			size *= 2) {
-		time_random_reads(&dict_hashtable, size, size);
+		time_random_reads(&dict_htable, size, size);
 	}
 
 	log_info("B+ tree");

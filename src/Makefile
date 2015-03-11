@@ -5,7 +5,7 @@ LIBS=-lm -lrt
 SOURCES= \
 	btree/*.c \
 	cobt/*.c \
-	hashtable/private/*.c hashtable/test/*.c \
+	htable/private/*.c htable/test/*.c \
 	dict/*.c \
 	dict/test/*.c \
 	log/*.c \

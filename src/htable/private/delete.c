@@ -1,4 +1,4 @@
-#include "hashtable/private/delete.h"
+#include "htable/private/delete.h"
 
 #include <inttypes.h>
 
@@ -6,12 +6,12 @@
 
 #include "log/log.h"
 
-#include "hashtable/private/data.h"
-#include "hashtable/private/hash.h"
-#include "hashtable/private/resizing.h"
-#include "hashtable/private/traversal.h"
+#include "htable/private/data.h"
+#include "htable/private/hash.h"
+#include "htable/private/resizing.h"
+#include "htable/private/traversal.h"
 
-int8_t hashtable_delete(hashtable* this, uint64_t key) {
+int8_t htable_delete(htable* this, uint64_t key) {
 	log_info("delete(%" PRIx64 ")", key);
 
 	if (this->pair_count == 0) {
@@ -19,17 +19,17 @@ int8_t hashtable_delete(hashtable* this, uint64_t key) {
 		return 1;
 	}
 
-	if (hashtable_resize_to_fit(this, this->pair_count - 1)) {
+	if (htable_resize_to_fit(this, this->pair_count - 1)) {
 		log_error("failed to resize to fit one less element");
 		return 1;
 	}
 
 	const uint64_t key_hash = hash_of(this, key);
 
-	struct hashtable_slot_pointer to_delete, last;
+	struct htable_slot_pointer to_delete, last;
 	bool _found;
 
-	if (hashtable_scan(this, key, &to_delete, &last, &_found)) {
+	if (htable_scan(this, key, &to_delete, &last, &_found)) {
 		return 1;
 	}
 
