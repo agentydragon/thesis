@@ -57,6 +57,9 @@ bin/xft: $(SOURCES) xft/xft.c
 test: bin/test
 	bin/test
 
+bin/xft_test: $(SOURCES) xft/xft.c xft/test.c xft/test_main.c
+	$(CC) -g $(CFLAGS) $(SOURCES) xft/xft.c xft/test.c xft/test_main.c -o $@ $(LIBS)
+
 test_coverage: bin/test_coverage
 	bin/test_coverage
 	lcov --capture --directory . --output-file coverage.info
