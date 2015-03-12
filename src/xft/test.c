@@ -29,8 +29,16 @@ static void test_contains() {
 	xft_destroy(&trie);
 }
 
+static void test_prefix() {
+	assert(xft_prefix(0xDEADBEEF0BADF00D, 0) == 0);
+	assert(xft_prefix(0xDEADBEEF0BADF00D, 15) == 0xDEAC000000000000);
+	assert(xft_prefix(0xDEADBEEF0BADF00D, 17) == 0xDEAD800000000000);
+	assert(xft_prefix(0xDEADBEEF0BADF00D, 64) == 0xDEADBEEF0BADF00D);
+}
+
 void test_xft() {
 	test_init_destroy();
 	test_contains();
+	test_prefix();
 	log_info("xft ok");
 }

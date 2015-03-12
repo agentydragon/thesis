@@ -33,10 +33,14 @@ bool xft_contains(xft* this, xft_key k) {
 	return found;
 }
 
-/*
-static xft_key get_prefix(xft_key key, uint64_t prefix_length) {
-	TODO
+xft_key xft_prefix(xft_key key, uint8_t length) {
+	if (length == 0) {
+		return 0;
+	}
+	return key & ~((1LL << (uint64_t)(BITSOF(xft_key) - length)) - 1);
 }
+
+/*
 
 static xft_node* find_lowest_ancestor(xft* this, xft_key k) {
 	uint64_t min = 0, max = BITSOF(xft_key);
