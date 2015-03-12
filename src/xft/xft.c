@@ -40,14 +40,13 @@ xft_key xft_prefix(xft_key key, uint8_t length) {
 	return key & ~((1LL << (uint64_t)(BITSOF(xft_key) - length)) - 1);
 }
 
-/*
-
-static xft_node* find_lowest_ancestor(xft* this, xft_key k) {
+xft_node* xft_lowest_ancestor(xft* this, xft_key k) {
 	uint64_t min = 0, max = BITSOF(xft_key);
 	while (max > min + 1) {
 		uint64_t mid = (min + max) / 2;
 		bool found;
-		assert(!dict_find(this->lss[mid], get_prefix(k, mid), NULL, &found));
+		assert(!dict_find(this->lss[mid], xft_prefix(k, mid), NULL,
+				&found));
 		if (found) {
 			min = mid;
 		} else {
@@ -55,10 +54,14 @@ static xft_node* find_lowest_ancestor(xft* this, xft_key k) {
 		}
 	}
 	xft_node* ancestor;
-	assert(!dict_find(this->lss[min], get_prefix(k, min), &ancestor, &found));
+	bool found;
+	assert(!dict_find(this->lss[min], xft_prefix(k, min),
+				(uint64_t*) &ancestor, &found));
 	assert(found);
 	return ancestor;
 }
+
+/*
 
 static xft_node* prev_leaf(xft* this, key k) {
 	xft_node* ancestor = find_lowest_ancestor(this, k);

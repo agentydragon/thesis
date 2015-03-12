@@ -39,7 +39,8 @@ bool xft_contains(xft*, xft_key key);
 void xft_next(xft*, xft_key key, xft_key* next_key, bool *found);
 void xft_previous(xft*, xft_key key, xft_key* previous_key, bool *found);
 
-// Helper, exposed for test purposes.
+// Helpers, exposed for test purposes.
 xft_key xft_prefix(xft_key key, uint8_t length);
+xft_node* xft_lowest_ancestor(xft*, xft_key key);
 
 #endif
