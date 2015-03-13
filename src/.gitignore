@@ -1,5 +1,5 @@
 !bin/.gitignore
 bin/*
 
-*.gcda
-*.gcno
+# Test coverage HTML output
+coverage-out

@@ -13,6 +13,9 @@ Feel free to grab what you like, but don't sell it and keep attribution
 `text/` contains the text of the thesis. `src/` contains associated source
 code in C.
 
+I am developing this project on Linux with GCC. It may work somewhere else,
+but only accidentally.
+
 ## Running tests
 ```bash
 make test
@@ -22,13 +25,10 @@ bin/test
 ```
 
 ## Measuring test coverage
+You need GCOV and LCOV.
 ```bash
-make bin/test_coverage
-bin/test_coverage
-
-# (measure)
-
-find . -name '*.gcda' -o -name '*.gcov' | xargs rm
+make test_coverage
+# browse src/coverage-out/index.html
 ```
 
 ## Benchmarking
