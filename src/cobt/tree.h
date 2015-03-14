@@ -14,7 +14,7 @@ typedef struct {
 	uint64_t *tree;
 
 	// Helper data for van Emde Boas layout navigation.
-	struct level_data* level_data;
+	veb_level_data* level_data;
 } cobt_tree;
 
 typedef struct {

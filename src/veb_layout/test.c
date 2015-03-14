@@ -139,7 +139,7 @@ static void test_5() {
 }
 
 static void test_drilldown_level_data() {
-	struct level_data r;
+	veb_level_data r;
 	// 0 = forbidden (root) level
 	r = veb_get_level_data(2, 1);
 	assert(r.top_size == 1 && r.bottom_size == 1 && r.top_depth == 0);
@@ -186,7 +186,7 @@ static void test_drilldown_level_data() {
 
 static void test_drilldown_small() {
 	struct drilldown_track track;
-	struct level_data levels[5 + 1];
+	veb_level_data levels[5 + 1];
 	veb_prepare(5, levels);
 
 	drilldown_begin(&track);
@@ -207,7 +207,7 @@ static void test_drilldown_small() {
 
 static void test_drilldown_integration() {
 	struct drilldown_track track;
-	struct level_data levels[50 + 1];
+	veb_level_data levels[50 + 1];
 
 	for (uint64_t iteration = 0; iteration < 10000; iteration++) {
 		uint64_t height = rand() % 50 + 1;

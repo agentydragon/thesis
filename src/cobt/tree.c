@@ -36,7 +36,7 @@ void cobt_tree_init(cobt_tree* this, const uint64_t* backing_array,
 	this->tree = calloc(tree_node_count(this), sizeof(uint64_t));
 	assert(this->tree);
 
-	this->level_data = calloc(height(this), sizeof(struct level_data));
+	this->level_data = calloc(height(this), sizeof(veb_level_data));
 	assert(this->level_data);
 
 	veb_prepare(height(this), this->level_data);

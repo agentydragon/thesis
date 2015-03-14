@@ -5,13 +5,13 @@
 #include <stdint.h>
 
 // PREFERRED API:
-struct level_data {
+typedef struct {
 	uint64_t top_size;
 	uint64_t bottom_size;
 	uint64_t top_depth;
-};
-struct level_data veb_get_level_data(uint64_t height, uint64_t level);
-void veb_prepare(uint64_t height, struct level_data* levels);
+} veb_level_data;
+veb_level_data veb_get_level_data(uint64_t height, uint64_t level);
+void veb_prepare(uint64_t height, veb_level_data* levels);
 
 struct drilldown_track {
 	uint64_t pos[50];  /* TODO: maybe dynamic alloc? */
@@ -26,34 +26,36 @@ inline void drilldown_begin(struct drilldown_track* track) {
 }
 
 // add_level, drilldown_go_left, drilldown_go_right inlined for speed
-inline void add_level(const struct level_data* ld,
+inline void add_level(const veb_level_data* level_data,
 		struct drilldown_track* track) {
 	++track->depth;
-	track->pos[track->depth] = track->pos[ld[track->depth].top_depth] +
-		ld[track->depth].top_size +
-		((track->bfs + 1) & ld[track->depth].top_size) * ld[track->depth].bottom_size;
+	track->pos[track->depth] =
+		track->pos[level_data[track->depth].top_depth] +
+		level_data[track->depth].top_size +
+		((track->bfs + 1) & level_data[track->depth].top_size) *
+				level_data[track->depth].bottom_size;
 }
 
-inline void drilldown_go_left(const struct level_data* ld,
+inline void drilldown_go_left(const veb_level_data* level_data,
 		struct drilldown_track* track) {
 	track->bfs = (track->bfs << 1ULL) + 1;
-	add_level(ld, track);
+	add_level(level_data, track);
 }
 
-inline void drilldown_go_right(const struct level_data* ld,
+inline void drilldown_go_right(const veb_level_data* level_data,
 		struct drilldown_track* track) {
 	track->bfs = (track->bfs << 1ULL) + 2;
-	add_level(ld, track);
+	add_level(level_data, track);
 }
 
 // Navigates from a right child to its left sibling, but faster than
 // go_up + go_right.
-inline void drilldown_go_left_sibling(const struct level_data* ld,
+inline void drilldown_go_left_sibling(const veb_level_data* level_data,
 		struct drilldown_track* track) {
 	track->bfs--;
 	// Removed for performance:
-	//     assert(track->bfs & ld[track->depth].top_size);
-	track->pos[track->depth] -= ld[track->depth].bottom_size;
+	//     assert(track->bfs & level_data[track->depth].top_size);
+	track->pos[track->depth] -= level_data[track->depth].bottom_size;
 }
 
 // Inverse of drilldown_go_(left|right)

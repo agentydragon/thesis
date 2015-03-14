@@ -322,7 +322,7 @@ recursive_call:
 	}
 }
 
-struct level_data veb_get_level_data(uint64_t height, uint64_t level) {
+veb_level_data veb_get_level_data(uint64_t height, uint64_t level) {
 	// log_info("finding level %" PRIu64 " in height=%" PRIu64,
 	// 		level, height);
 	assert(level > 0);
@@ -334,15 +334,15 @@ struct level_data veb_get_level_data(uint64_t height, uint64_t level) {
 	if (level < top_height) {
 		return veb_get_level_data(top_height, level);
 	} else if (level == top_height) {
-		return (struct level_data) {
+		return (veb_level_data) {
 			.top_size = (1ULL << top_height) - 1,
 			.bottom_size = (1ULL << bottom_height) - 1,
 			.top_depth = 0
 		};
 	} else {
-		struct level_data r = veb_get_level_data(bottom_height,
+		veb_level_data r = veb_get_level_data(bottom_height,
 				level - top_height);
-		return (struct level_data) {
+		return (veb_level_data) {
 			.top_size = r.top_size,
 			.bottom_size = r.bottom_size,
 			.top_depth = r.top_depth + top_height
@@ -350,7 +350,7 @@ struct level_data veb_get_level_data(uint64_t height, uint64_t level) {
 	}
 }
 
-void veb_prepare(uint64_t height, struct level_data* levels) {
+void veb_prepare(uint64_t height, veb_level_data* levels) {
 	if (height >= 2) {
 		for (uint64_t depth = 1; depth < height; depth++) {
 			levels[depth] = veb_get_level_data(height, depth);
