@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "htable/private/hash.h"
-#include "htable/private/traversal.h"
+#include "htable/hash.h"
+#include "htable/traversal.h"
 #include "log/log.h"
 #include "util/average.h"
 #include "util/unused.h"
@@ -57,7 +57,7 @@ static void UNUSED dump_block(htable* this, uint64_t index,
 					"%s [%016" PRIx64 "(%04" PRIx64 ")=%016" PRIx64 "]",
 					buffer2,
 					block->keys[i],
-					hash_of(this, block->keys[i]),
+					htable_hash(this, block->keys[i]),
 					block->values[i]);
 		} else {
 			strncpy(buffer2, buffer, sizeof(buffer2) - 1);
@@ -84,7 +84,7 @@ static void calculate_distances(htable* this, int distances[100]) {
 			if (!this->blocks[i].occupied[slot]) continue;
 
 			const uint64_t should_be_at =
-				hash_of(this, this->blocks[i].keys[slot]);
+				htable_hash(this, this->blocks[i].keys[slot]);
 
 			uint64_t distance;
 			if (should_be_at <= i) {

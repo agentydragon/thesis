@@ -1,4 +1,4 @@
-#include "htable/private/resizing.h"
+#include "htable/resize.h"
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -12,7 +12,6 @@
 #include "log/log.h"
 
 #include "htable/htable.h"
-#include "htable/private/helper.h"
 
 static const uint64_t MIN_SIZE = 2;
 

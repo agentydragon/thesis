@@ -1,5 +1,5 @@
-#ifndef HTABLE_PRIVATE_RESIZING_H
-#define HTABLE_PRIVATE_RESIZING_H
+#ifndef HTABLE_RESIZE_H
+#define HTABLE_RESIZE_H
 
 #include "htable/htable.h"
 

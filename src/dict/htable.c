@@ -10,9 +10,8 @@
 #include "log/log.h"
 
 #include "htable/htable.h"
-#include "htable/private/hash.h"
-#include "htable/private/traversal.h"
-#include "htable/private/resizing.h"
+#include "htable/traversal.h"
+#include "htable/resize.h"
 
 /*
 static void check_invariants(htable* this) {
@@ -26,7 +25,7 @@ static void check_invariants(htable* this) {
 		for (uint64_t j = 0; j < this->blocks_size; j++) {
 			for (int subindex = 0; subindex < 3; subindex++) {
 				if (this->blocks[j].occupied[subindex] &&
-						htable_hash_of(this, this->blocks[j].keys[subindex]) == i) {
+						htable_hash(this, this->blocks[j].keys[subindex]) == i) {
 					count++;
 				}
 			}

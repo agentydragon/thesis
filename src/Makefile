@@ -5,16 +5,16 @@ LIBS=-lm -lrt $(shell pkg-config --libs jansson)
 SOURCES= \
 	btree/*.c \
 	cobt/*.c \
-	htable/*.c htable/private/*.c htable/test/*.c \
 	dict/*.c \
 	dict/test/*.c \
+	htable/*.c htable/test/*.c \
 	log/*.c \
 	math/*.c \
+	measurement/*.c \
 	observation/*.c \
 	performance/*.c \
 	rand/*.c \
 	splay/*.c \
-	measurement/*.c \
 	util/*.c \
 	veb_layout/*.c
 

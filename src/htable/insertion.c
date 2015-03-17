@@ -3,12 +3,11 @@
 #include <inttypes.h>
 
 #include "log/log.h"
-#include "htable/private/hash.h"
-#include "htable/private/traversal.h"
-#include "htable/private/helper.h"
+#include "htable/hash.h"
+#include "htable/traversal.h"
 
 int8_t htable_insert_internal(htable* this, uint64_t key, uint64_t value) {
-	const uint64_t key_hash = hash_of(this, key);
+	const uint64_t key_hash = htable_hash(this, key);
 	htable_block* const home_block = &this->blocks[key_hash];
 
 	if (home_block->keys_with_hash == HTABLE_KEYS_WITH_HASH_MAX) {
@@ -30,7 +29,7 @@ int8_t htable_insert_internal(htable* this, uint64_t key, uint64_t value) {
 					return 1;
 				}
 
-				if (hash_of(this, current_block->keys[slot]) == key_hash) {
+				if (htable_hash(this, current_block->keys[slot]) == key_hash) {
 					i++;
 				}
 			} else {

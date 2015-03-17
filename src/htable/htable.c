@@ -3,9 +3,9 @@
 #include <inttypes.h>
 #include <stdlib.h>
 
-#include "htable/private/hash.h"
-#include "htable/private/resizing.h"
-#include "htable/private/traversal.h"
+#include "htable/hash.h"
+#include "htable/resize.h"
+#include "htable/traversal.h"
 #include "log/log.h"
 
 const uint32_t HTABLE_KEYS_WITH_HASH_MAX = (1LL << 32LL) - 1;
@@ -23,9 +23,9 @@ int8_t htable_delete(htable* this, uint64_t key) {
 		return 1;
 	}
 
-	const uint64_t key_hash = hash_of(this, key);
+	const uint64_t key_hash = htable_hash(this, key);
 
-	struct htable_slot_pointer to_delete, last;
+	htable_slot_pointer to_delete, last;
 	bool _found;
 
 	if (htable_scan(this, key, &to_delete, &last, &_found)) {
@@ -56,7 +56,7 @@ int8_t htable_find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 	htable* this = _this;
 
 	bool _found;
-	struct htable_slot_pointer pointer;
+	htable_slot_pointer pointer;
 
 	if (htable_scan(this, key, &pointer, NULL, &_found)) {
 		return 1;
