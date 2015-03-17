@@ -5,6 +5,7 @@
 #include <math.h>
 
 #include "cobt/cobt.h"
+#include "dict/cobt.h"
 #include "dict/test/toycrypt.h"
 #include "experiments/performance/flags.h"
 #include "log/log.h"
@@ -49,7 +50,8 @@ dict* seed(const dict_api* api, uint64_t size) {
 
 struct metrics measure_working_set(const dict_api* api, uint64_t size,
 		uint64_t working_set_size) {
-	const uint64_t used_ws_size = working_set_size < size ? working_set_size : size;
+	const uint64_t used_ws_size =
+			working_set_size < size ? working_set_size : size;
 
 	dict* table = seed(api, size);
 
@@ -62,7 +64,8 @@ struct metrics measure_working_set(const dict_api* api, uint64_t size,
 		check_contains(table, make_key(k), make_value(k));
 	}
 
-	struct measurement_results results_just_find = measurement_end(measurement_just_find);
+	struct measurement_results results_just_find =
+			measurement_end(measurement_just_find);
 	dict_destroy(&table);
 
 	return (struct metrics) {
@@ -156,83 +159,72 @@ struct metrics measure_serial(const dict_api* api, uint64_t size) {
 	}
 }
 
+static void add_common_keys(json_t* point,
+		const dict_api* api, struct metrics result) {
+	json_object_set_new(point, "implementation", json_string(api->name));
+	json_object_set_new(point, "metrics",
+			measurement_results_to_json(result.measurement_results));
+	json_object_set_new(point, "time_ns", json_integer(result.time_nsec));
+}
+
 int main(int argc, char** argv) {
 	parse_flags(argc, argv);
-
-	FILE* output = fopen("experiments/performance/results.tsv", "w");
 
 	// TODO: merge with //performance.c
 	json_t* json_results = json_array();
 	for (double x = 10; x < FLAGS.maximum; x *= FLAGS.base) {
-		OFM_COUNTERS.reorganized_size = 0;
 
 		const uint64_t size = round(x);
 		log_info("size=%" PRIu64, size);
 
-		fprintf(output, "%" PRIu64 "\t", size);
-
-		struct metrics results[10];
+		struct metrics result;
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
 			SERIAL_MODE = SERIAL_BOTH;
-			results[i] = measure_serial(FLAGS.measured_apis[i], size);
-			fprintf(output, "%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t",
-					results[i].measurement_results.cache_misses,
-					results[i].measurement_results.cache_references,
-					results[i].time_nsec);
+			OFM_COUNTERS.reorganized_size = 0;
+			result = measure_serial(FLAGS.measured_apis[i], size);
 
 			json_t* point = json_object();
-			json_object_set_new(point, "experiment", json_string("serial-both"));
-			json_object_set_new(point, "metrics",
-					measurement_results_to_json(results[i].measurement_results));
+			add_common_keys(point, FLAGS.measured_apis[i], result);
+			json_object_set_new(point, "experiment",
+					json_string("serial-both"));
 			json_object_set_new(point, "size", json_integer(x));
+			if (FLAGS.measured_apis[i] == &dict_cobt) {
+				json_object_set_new(point, "ofm_reorganized",
+						json_integer(OFM_COUNTERS.reorganized_size));
+			}
 			json_array_append_new(json_results, point);
 		}
 
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
 			SERIAL_MODE = SERIAL_JUST_FIND;
-			results[i] = measure_serial(FLAGS.measured_apis[i], size);
-			fprintf(output, "%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t",
-					results[i].measurement_results.cache_misses,
-					results[i].measurement_results.cache_references,
-					results[i].time_nsec);
+			result = measure_serial(FLAGS.measured_apis[i], size);
 
 			json_t* point = json_object();
-			json_object_set_new(point, "experiment", json_string("serial-findonly"));
-			json_object_set_new(point, "metrics",
-					measurement_results_to_json(results[i].measurement_results));
+			add_common_keys(point, FLAGS.measured_apis[i], result);
+			json_object_set_new(point, "experiment",
+					json_string("serial-findonly"));
 			json_object_set_new(point, "size", json_integer(x));
 			json_array_append_new(json_results, point);
 		}
 
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
-			results[i] = measure_working_set(FLAGS.measured_apis[i], size, 1000);
-			fprintf(output, "%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t",
-					results[i].measurement_results.cache_misses,
-					results[i].measurement_results.cache_references,
-					results[i].time_nsec);
+			result = measure_working_set(FLAGS.measured_apis[i], size, 1000);
 
 			json_t* point = json_object();
+			add_common_keys(point, FLAGS.measured_apis[i], result);
 			json_object_set_new(point, "experiment", json_string("workingset"));
 			json_object_set_new(point, "working_set_size", json_integer(1000));
-			json_object_set_new(point, "metrics",
-					measurement_results_to_json(results[i].measurement_results));
 			json_object_set_new(point, "size", json_integer(x));
 			json_array_append_new(json_results, point);
 		}
 
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
-			results[i] = measure_working_set(FLAGS.measured_apis[i], size, 100000);
-			fprintf(output, "%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t",
-					results[i].measurement_results.cache_misses,
-					results[i].measurement_results.cache_references,
-					results[i].time_nsec);
-
+			result = measure_working_set(FLAGS.measured_apis[i], size, 100000);
 
 			json_t* point = json_object();
+			add_common_keys(point, FLAGS.measured_apis[i], result);
 			json_object_set_new(point, "experiment", json_string("workingset"));
 			json_object_set_new(point, "working_set_size", json_integer(100000));
-			json_object_set_new(point, "metrics",
-					measurement_results_to_json(results[i].measurement_results));
 			json_object_set_new(point, "size", json_integer(x));
 			json_array_append_new(json_results, point);
 		}
@@ -242,21 +234,14 @@ int main(int argc, char** argv) {
 			// "implements ordering"?
 			if (FLAGS.measured_apis[i]->next) {
 				results[i] = measure_ltr_scan(FLAGS.measured_apis[i], size);
-				fprintf(output, "%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t",
-						results[i].cache_misses,
-						results[i].cache_references,
-						results[i].time_nsec);
 			}
 		}
 		*/
 
-		fprintf(output, "%" PRIu64 "\n", OFM_COUNTERS.reorganized_size);
-		fflush(output);
+		assert(!json_dump_file(json_results,
+					"experiments/performance/results.json",
+					JSON_INDENT(2)));
 	}
-	assert(!json_dump_file(json_results,
-				"experiments/performance/results.json",
-				JSON_INDENT(2)));
 	json_decref(json_results);
-	fclose(output);
 	return 0;
 }
