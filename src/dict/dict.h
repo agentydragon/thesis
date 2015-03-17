@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "util/unused.h"
 
 #define DICT_RESERVED_KEY UINT64_MAX
 
@@ -27,15 +28,18 @@ typedef struct {
 	void (*check)(void*);
 } dict_api;
 
-int8_t dict_init(dict**, const dict_api* api, void* args);
+int8_t MUST_USE_RESULT dict_init(dict**, const dict_api* api, void* args);
 void dict_destroy(dict**);
 
-int8_t dict_find(dict*, uint64_t key, uint64_t *value, bool *found);
-int8_t dict_insert(dict*, uint64_t key, uint64_t value);
-int8_t dict_delete(dict*, uint64_t key);
+int8_t MUST_USE_RESULT dict_find(dict*,
+		uint64_t key, uint64_t *value, bool *found);
+int8_t MUST_USE_RESULT dict_insert(dict*, uint64_t key, uint64_t value);
+int8_t MUST_USE_RESULT dict_delete(dict*, uint64_t key);
 
-int8_t dict_next(dict*, uint64_t key, uint64_t *next_key, bool *found);
-int8_t dict_prev(dict*, uint64_t key, uint64_t *prev_key, bool *found);
+int8_t MUST_USE_RESULT dict_next(dict*,
+		uint64_t key, uint64_t *next_key, bool *found);
+int8_t MUST_USE_RESULT dict_prev(dict*,
+		uint64_t key, uint64_t *prev_key, bool *found);
 
 void dict_dump(dict*);
 void dict_check(dict*);
