@@ -1,6 +1,7 @@
 #ifndef MEASUREMENT_H
 #define MEASUREMENT_H
 
+#include <jansson.h>
 #include <stdint.h>
 
 struct measurement_results {
@@ -16,5 +17,6 @@ struct measurement {
 
 struct measurement measurement_begin();
 struct measurement_results measurement_end(struct measurement);
+json_t* measurement_results_to_json(struct measurement_results);
 
 #endif

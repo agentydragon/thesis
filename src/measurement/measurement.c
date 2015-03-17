@@ -2,21 +2,23 @@
 
 #include "log/log.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <inttypes.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/ioctl.h>
-#include <linux/perf_event.h>
 #include <asm/unistd.h>
 #include <assert.h>
+#include <inttypes.h>
+#include <jansson.h>
+#include <linux/perf_event.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
 // TODO: PERF_COUNT_SW_ALIGNMENT_FAULTS
 // TODO: use perf_event groups later?
 
-static int perf_event_open(struct perf_event_attr *hw_event, pid_t pid, int cpu, int group_fd, unsigned long flags) {
+static int perf_event_open(struct perf_event_attr *hw_event,
+		pid_t pid, int cpu, int group_fd, unsigned long flags) {
 	return syscall(__NR_perf_event_open, hw_event, pid, cpu, group_fd, flags);
 }
 
@@ -79,4 +81,13 @@ struct measurement_results measurement_end(struct measurement measurement) {
 	close(measurement.cache_misses_fd);
 
 	return results;
+}
+
+json_t* measurement_results_to_json(struct measurement_results results) {
+	json_t* result = json_object();
+	json_object_set_new(result,
+			"cache_references", json_integer(results.cache_references));
+	json_object_set_new(result,
+			"cache_misses", json_integer(results.cache_misses));
+	return result;
 }

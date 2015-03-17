@@ -16,6 +16,9 @@ code in C.
 I am developing this project on Linux with GCC. It may work somewhere else,
 but only accidentally.
 
+## Dependencies
+* [jansson](http://www.digip.org/jansson/) for JSON output
+
 ## Running tests
 ```bash
 make test
