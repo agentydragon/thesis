@@ -8,7 +8,7 @@ before_install:
         - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
         - sudo apt-get -qq update
 install:
-        - sudo apt-get -qq install g++-4.9
+        - sudo apt-get -qq install g++-4.9 libjansson-dev
 script:
         - export CC=gcc-4.9
         - cd src; make test
