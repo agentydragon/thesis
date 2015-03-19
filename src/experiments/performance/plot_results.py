@@ -81,11 +81,11 @@ data = list(filter(lambda point: point['size'] > 1000 and
                                  point['experiment'] == 'serial-both',
                    data))
 figure = pyplot.figure(1)
-# figure.set_title('OFM reorganizations in random inserts')
+# figure.set_title('PMA reorganizations in random inserts')
 # figure.set_xscale('log')
 pyplot.xscale('log')
 pyplot.ylabel('Reorganizations per element')
 pyplot.plot([point['size'] for point in data],
-            [point['ofm_reorganized'] / point['size'] for point in data], 'r-')
-pyplot.savefig('ofm-reorg.png', figsize=figsize)
+            [point['pma_reorganized'] / point['size'] for point in data], 'r-')
+pyplot.savefig('pma-reorg.png', figsize=figsize)
 pyplot.clf()

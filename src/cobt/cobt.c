@@ -18,7 +18,7 @@ typedef struct {
 	uint64_t value;
 } piece_item;
 
-static void fix_range(cob* this, ofm_range range_to_fix) {
+static void fix_range(cob* this, pma_range range_to_fix) {
 	cobt_tree_refresh(&this->tree, (cobt_tree_range) {
 		.begin = range_to_fix.begin,
 		.end = range_to_fix.begin + range_to_fix.size
@@ -34,7 +34,7 @@ static void entirely_reset_veb(cob* this) {
 static void insert_piece_before(cob* this, piece_item* piece,
 		uint64_t insert_before) {
 	const uint64_t prior_capacity = this->file.capacity;
-	ofm_range reorg_range =  ofm_insert_before(&this->file,
+	pma_range reorg_range =  pma_insert_before(&this->file,
 			piece[0].key, piece, insert_before);
 	if (this->file.capacity == prior_capacity) {
 		fix_range(this, reorg_range);
@@ -44,13 +44,13 @@ static void insert_piece_before(cob* this, piece_item* piece,
 }
 
 static piece_item* get_piece_start(cob* this, uint64_t index) {
-	return ofm_get_value(&this->file, index);
+	return pma_get_value(&this->file, index);
 }
 
 static void delete_piece(cob* this, uint64_t index) {
 	const uint64_t prior_capacity = this->file.capacity;
 	free(get_piece_start(this, index));
-	ofm_range reorg_range = ofm_delete(&this->file, index);
+	pma_range reorg_range = pma_delete(&this->file, index);
 	if (this->file.capacity == prior_capacity) {
 		fix_range(this, reorg_range);
 	} else {
@@ -114,7 +114,7 @@ static uint8_t piece_size(cob* this, piece_item* piece) {
 	return n;
 }
 
-static ofm rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece);
+static pma rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece);
 
 static void enforce_piece_policy(cob* this, uint64_t new_size) {
 	const uint8_t log = new_size == 0 ? 1 : ceil_log2(new_size);
@@ -128,8 +128,8 @@ static void enforce_piece_policy(cob* this, uint64_t new_size) {
 	if (this->piece != new_piece) {
 		log_info("%" PRIu64 " repiecing: %" PRIu8 " -> %" PRIu8,
 				new_size, this->piece, new_piece);
-		const ofm new_file = rebuild_file(this, new_size, new_piece);
-		ofm_destroy(&this->file);
+		const pma new_file = rebuild_file(this, new_size, new_piece);
+		pma_destroy(&this->file);
 		this->file = new_file;
 
 		entirely_reset_veb(this);
@@ -521,14 +521,14 @@ void cob_previous_key(cob* this, uint64_t key,
 	*previous_key_exists = false;
 }
 
-static ofm rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
-	ofm new_file = { .occupied = NULL, .keys = NULL, .values = NULL };
+static pma rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
+	pma new_file = { .occupied = NULL, .keys = NULL, .values = NULL };
 	const uint8_t preferred_piece = new_piece / 2;
 	const uint64_t piece_count = (new_size / preferred_piece) + 1;
 	log_info("preparing to store %" PRIu64 " pieces of size %" PRIu8,
 			piece_count, new_piece);
-	ofm_stream stream;
-	ofm_stream_start(&new_file, piece_count, &stream);
+	pma_stream stream;
+	pma_stream_start(&new_file, piece_count, &stream);
 
 	uint8_t buffer_size = 0;
 	piece_item* buffer = new_piece2(new_piece);
@@ -552,7 +552,7 @@ static ofm rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
 
 			if (buffer_size == preferred_piece) {
 				log_verbose(2, "flush");
-				ofm_stream_push(&stream, buffer[0].key, buffer);
+				pma_stream_push(&stream, buffer[0].key, buffer);
 				buffer_size = 0;
 				buffer = new_piece2(new_piece);
 			}
@@ -562,7 +562,7 @@ static ofm rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
 
 	if (buffer_size > 0) {
 		log_verbose(2, "final flush");
-		ofm_stream_push(&stream, buffer[0].key, buffer);
+		pma_stream_push(&stream, buffer[0].key, buffer);
 	} else {
 		free(buffer);
 	}
@@ -574,7 +574,7 @@ void cob_init(cob* this) {
 	log_info("cob_init(%p)", this);
 	this->size = 0;
 	this->piece = 4;  // Initial piece size: 4
-	ofm_init(&this->file);
+	pma_init(&this->file);
 	cobt_tree_init(&this->tree, this->file.keys, this->file.occupied,
 			this->file.capacity);
 }
@@ -585,6 +585,6 @@ void cob_destroy(cob* this) {
 			free(get_piece_start(this, i));
 		}
 	}
-	ofm_destroy(&this->file);
+	pma_destroy(&this->file);
 	cobt_tree_destroy(&this->tree);
 }

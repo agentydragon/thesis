@@ -1,4 +1,4 @@
-#include "cobt/ofm.h"
+#include "cobt/pma.h"
 
 #include <assert.h>
 #include <inttypes.h>
@@ -11,7 +11,7 @@
 #include "math/math.h"
 
 /*
-void range_describe(ofm file, ofm_range range, char* buffer) {
+void range_describe(pma file, pma_range range, char* buffer) {
 	for (uint64_t i = 0; i < range.size; i++) {
 		if (i % 8 == 0 && i > 0) {
 			buffer += sprintf(buffer, "\n");
@@ -26,32 +26,32 @@ void range_describe(ofm file, ofm_range range, char* buffer) {
 }
 */
 
-static void alloc_file(ofm* file) {
+static void alloc_file(pma* file) {
 	assert(!file->keys && !file->values && !file->occupied);
 	file->keys = calloc(file->capacity, sizeof(uint64_t));
 	if (file->keys == NULL) {
-		log_fatal("couldn't allocate %" PRIu64 " uint64 keys for ofm",
+		log_fatal("couldn't allocate %" PRIu64 " uint64 keys for pma",
 			file->capacity);
 	}
-	file->values = calloc(file->capacity, sizeof(ofm_value));
+	file->values = calloc(file->capacity, sizeof(pma_value));
 	if (file->values == NULL) {
-		log_fatal("couldn't allocate %" PRIu64 " values for ofm",
+		log_fatal("couldn't allocate %" PRIu64 " values for pma",
 				file->capacity);
 	}
 	file->occupied = calloc(file->capacity, sizeof(bool));
 	if (file->occupied == NULL) {
-		log_fatal("couldn't allocate %" PRIu64 " bools for ofm",
+		log_fatal("couldn't allocate %" PRIu64 " bools for pma",
 				file->capacity);
 	}
 }
 
-static void copy_item(ofm* target, uint64_t target_index,
-		ofm* source, uint64_t source_index) {
+static void copy_item(pma* target, uint64_t target_index,
+		pma* source, uint64_t source_index) {
 	target->keys[target_index] = source->keys[source_index];
 	target->values[target_index] = source->values[source_index];
 }
 
-void ofm_dump(ofm file) {
+void pma_dump(pma file) {
 	char buffer[65536];
 	strcpy(buffer, "");
 	uint64_t z = 0;
@@ -122,32 +122,32 @@ static struct parameters adequate_parameters(uint64_t items) {
 	};
 }
 
-static ofm_range get_leaf(ofm* file, uint64_t index) {
-	return (ofm_range) {
+static pma_range get_leaf(pma* file, uint64_t index) {
+	return (pma_range) {
 		.file = file,
 		.begin = index - (index % file->block_size),
 		.size = file->block_size
 	};
 }
 
-static bool ofm_block_full(ofm_range block) {
+static bool pma_block_full(pma_range block) {
 	for (uint64_t i = block.begin; i < block.begin + block.size; i++) {
 		if (!block.file->occupied[i]) return false;
 	}
 	return true;
 }
 
-static ofm_range block_parent(ofm_range block) {
+static pma_range block_parent(pma_range block) {
 	block.size *= 2;
 	block.begin -= block.begin % block.size;
 	return block;
 }
 
-static bool is_entire_file(ofm_range block) {
+static bool is_entire_file(pma_range block) {
 	return block.begin == 0 && block.size == block.file->capacity;
 }
 
-static void ofm_move(ofm file, uint64_t to, uint64_t from, uint64_t *watch) {
+static void pma_move(pma file, uint64_t to, uint64_t from, uint64_t *watch) {
 	log_verbose(4, "%" PRIu64 " <- %" PRIu64, to, from);
 	assert(to < file.capacity && from < file.capacity);
 	if (watch != NULL && *watch == from) {
@@ -160,22 +160,22 @@ static void ofm_move(ofm file, uint64_t to, uint64_t from, uint64_t *watch) {
 	}
 }
 
-static void ofm_compact_left(ofm_range block, uint64_t *watch) {
+static void pma_compact_left(pma_range block, uint64_t *watch) {
 	log_verbose(2, "compact_left(%" PRIu64 "+%" PRIu64 ")",
 			block.begin, block.size);
 	uint64_t to = block.begin;
 	for (uint64_t i = 0; i < block.size; i++) {
 		uint64_t from = block.begin + i;
 		if (block.file->occupied[from]) {
-			ofm_move(*block.file, to++, from, watch);
+			pma_move(*block.file, to++, from, watch);
 		}
 	}
 	IF_LOG_VERBOSE(3) {
-		ofm_dump(*block.file);
+		pma_dump(*block.file);
 	}
 }
 
-static void ofm_compact_right(ofm_range block, uint64_t *watch) {
+static void pma_compact_right(pma_range block, uint64_t *watch) {
 	log_verbose(2, "compact_right[%" PRIu64 "+%" PRIu64 "]",
 			block.begin, block.size);
 	uint64_t to = block.begin + block.size - 1;
@@ -186,15 +186,15 @@ static void ofm_compact_right(ofm_range block, uint64_t *watch) {
 			log_verbose(3, "i=%" PRIu64 " "
 					"to=%" PRIu64 " from=%" PRIu64,
 					i, to, from);
-			ofm_move(*block.file, to--, from, watch);
+			pma_move(*block.file, to--, from, watch);
 		}
 	}
 	IF_LOG_VERBOSE(3) {
-		ofm_dump(*block.file);
+		pma_dump(*block.file);
 	}
 }
 
-static uint64_t ofm_count_occupied(ofm_range block) {
+static uint64_t pma_count_occupied(pma_range block) {
 	uint64_t occupied = 0;
 	for (uint64_t i = block.begin; i < block.begin + block.size; i++) {
 		if (block.file->occupied[i]) {
@@ -204,22 +204,22 @@ static uint64_t ofm_count_occupied(ofm_range block) {
 	return occupied;
 }
 
-static void ofm_spread(ofm_range block, uint64_t *watch) {
-	log_verbose(2, "ofm_spread");
-	ofm_compact_right(block, watch);
-	const uint64_t occupied = ofm_count_occupied(block);
+static void pma_spread(pma_range block, uint64_t *watch) {
+	log_verbose(2, "pma_spread");
+	pma_compact_right(block, watch);
+	const uint64_t occupied = pma_count_occupied(block);
 	if (occupied > 0) {
 		const double gap = ((double) block.size) / occupied;
 		for (uint64_t i = 0; i < occupied; i++) {
 			uint64_t from = block.begin + block.size - occupied + i;
 			uint64_t to = block.begin + floor(gap * i);
 			assert(to <= from);
-			ofm_move(*block.file, to, from, watch);
+			pma_move(*block.file, to, from, watch);
 		}
 	}
 }
 
-static bool ofm_block_within_threshold(ofm_range block) {
+static bool pma_block_within_threshold(pma_range block) {
 	uint64_t leaf_depth = exact_log2(
 			block.file->capacity / block.file->block_size);
 	if (leaf_depth == 0) leaf_depth = 1;  // avoid 0 division
@@ -230,7 +230,7 @@ static bool ofm_block_within_threshold(ofm_range block) {
 		((double) block_depth / leaf_depth) / 4;
 	const double max_density = 3./4 +
 		((double) block_depth / leaf_depth) / 4;
-	const double density = ((double) ofm_count_occupied(block)) /
+	const double density = ((double) pma_count_occupied(block)) /
 		block.size;
 	log_verbose(2, "bs=%" PRIu64 " leaf_size=%" PRIu64 " d=%lf "
 			"min_d=%lf max_d=%lf", block.size,
@@ -239,17 +239,17 @@ static bool ofm_block_within_threshold(ofm_range block) {
 	return min_density <= density && density <= max_density;
 }
 
-static ofm_range rebalance(ofm* file, ofm_range start_block, uint64_t *watch) {
-	ofm_range range = start_block;
+static pma_range rebalance(pma* file, pma_range start_block, uint64_t *watch) {
+	pma_range range = start_block;
 
 	while (!is_entire_file(range) &&
-			!ofm_block_within_threshold(range)) {
+			!pma_block_within_threshold(range)) {
 		range = block_parent(range);
 	}
 
 	if (is_entire_file(range)) {
 		log_verbose(1, "entire file out of balance");
-		const uint64_t count = ofm_count_occupied(range);
+		const uint64_t count = pma_count_occupied(range);
 		struct parameters parameters = adequate_parameters(count);
 
 		if (parameters.capacity == file->capacity &&
@@ -257,65 +257,65 @@ static ofm_range rebalance(ofm* file, ofm_range start_block, uint64_t *watch) {
 			log_verbose(1, "ignoring, parameters are "
 					"still adequate.");
 		} else {
-			ofm new_file = {
+			pma new_file = {
 				.keys = NULL,
 				.values = NULL,
 				.occupied = NULL,
 			};
-			ofm_stream stream;
-			ofm_stream_start(&new_file, count, &stream);
+			pma_stream stream;
+			pma_stream_start(&new_file, count, &stream);
 			for (uint64_t i = 0; i < file->capacity; i++) {
 				if (file->occupied[i]) {
-					ofm_stream_push(&stream, file->keys[i],
+					pma_stream_push(&stream, file->keys[i],
 							file->values[i]);
 				}
 			}
-			ofm_destroy(file);
+			pma_destroy(file);
 			*file = new_file;
 
-			const ofm_range whole_file = {
+			const pma_range whole_file = {
 				.begin = 0,
 				.size = file->capacity,
 				.file = file,
 			};
 			log_verbose(1, "resized, new capacity=%" PRIu64 " "
 					"occupied=%" PRIu64, file->capacity,
-					ofm_count_occupied(whole_file));
+					pma_count_occupied(whole_file));
 			range = whole_file;
-			assert(ofm_block_within_threshold(range));
+			assert(pma_block_within_threshold(range));
 		}
 	} else {
-		assert(ofm_block_within_threshold(range));
+		assert(pma_block_within_threshold(range));
 	}
-	OFM_COUNTERS.reorganized_size += range.size;
+	PMA_COUNTERS.reorganized_size += range.size;
 
-	ofm_spread(range, watch);
+	pma_spread(range, watch);
 	return range;
 }
 
 // Moves every item in the block, starting with index `step_start`,
 // one slot to the right.
-static void step_right(ofm_range block, uint64_t step_start) {
+static void step_right(pma_range block, uint64_t step_start) {
 	log_verbose(2, "step_right");
 	// There needs to be some free space at the end.
 	for (uint64_t i = block.begin + block.size - 1; i > step_start; i--) {
 		assert(!block.file->occupied[i]);
-		ofm_move(*block.file, i, i - 1, NULL);
+		pma_move(*block.file, i, i - 1, NULL);
 	}
 }
 
-ofm_value ofm_get_value(ofm* file, uint64_t index) {
+pma_value pma_get_value(pma* file, uint64_t index) {
 	return file->values[index];
 }
 
-ofm_range ofm_insert_before(ofm* file, uint64_t key, const ofm_value value,
+pma_range pma_insert_before(pma* file, uint64_t key, const pma_value value,
 		uint64_t insert_before_index) {
-	// log_verbose(2, "ofm_insert_before(%" PRIu64 "=%" PRIu64 ", "
+	// log_verbose(2, "pma_insert_before(%" PRIu64 "=%" PRIu64 ", "
 	// 		"before_index=%" PRIu64 ")", item.key, item.value,
 	// 		insert_before_index);
 	assert(insert_before_index <= file->capacity);
 
-	ofm_range block;
+	pma_range block;
 	if (insert_before_index == file->capacity) {
 		// Special case. We will shift everything to the left,
 		// and then insert to the end.
@@ -328,13 +328,13 @@ ofm_range ofm_insert_before(ofm* file, uint64_t key, const ofm_value value,
 		block = get_leaf(file, insert_before_index);
 	}
 
-	while (ofm_block_full(block) && !is_entire_file(block)) {
+	while (pma_block_full(block) && !is_entire_file(block)) {
 		block = block_parent(block);
 	}
 
-	if (ofm_block_full(block) && is_entire_file(block)) {
+	if (pma_block_full(block) && is_entire_file(block)) {
 		bool was_end = (insert_before_index == file->capacity);
-		rebalance(file, (ofm_range) {
+		rebalance(file, (pma_range) {
 			.begin = 0,
 			.size = file->capacity,
 			.file = file
@@ -342,11 +342,11 @@ ofm_range ofm_insert_before(ofm* file, uint64_t key, const ofm_value value,
 		if (was_end) {
 			insert_before_index = file->capacity;
 		}
-		return ofm_insert_before(file, key, value, insert_before_index);
+		return pma_insert_before(file, key, value, insert_before_index);
 	}
 
-	assert(!ofm_block_full(block));
-	ofm_compact_left(block, &insert_before_index);
+	assert(!pma_block_full(block));
+	pma_compact_left(block, &insert_before_index);
 
 	if (insert_before_index == file->capacity) {
 		--insert_before_index;
@@ -362,13 +362,13 @@ ofm_range ofm_insert_before(ofm* file, uint64_t key, const ofm_value value,
 	return rebalance(file, block, NULL);
 }
 
-ofm_range ofm_delete(ofm* file, uint64_t index) {
+pma_range pma_delete(pma* file, uint64_t index) {
 	assert(file->occupied[index]);
 	file->occupied[index] = false;
 	return rebalance(file, get_leaf(file, index), NULL);
 }
 
-void ofm_init(ofm* file) {
+void pma_init(pma* file) {
 	// TODO: copy over?
 	// TODO: merge with new_ordered_file
 	assert(!file->keys && !file->values && !file->occupied);
@@ -380,7 +380,7 @@ void ofm_init(ofm* file) {
 	alloc_file(file);
 }
 
-void ofm_destroy(ofm* file) {
+void pma_destroy(pma* file) {
 	free(file->keys);
 	free(file->values);
 	free(file->occupied);
@@ -389,7 +389,7 @@ void ofm_destroy(ofm* file) {
 	file->occupied = NULL;
 }
 
-void ofm_stream_start(ofm* file, uint64_t size, ofm_stream* stream) {
+void pma_stream_start(pma* file, uint64_t size, pma_stream* stream) {
 	struct parameters parameters = adequate_parameters(size);
 	file->block_size = parameters.block_size;
 	file->capacity = parameters.capacity;
@@ -402,7 +402,7 @@ void ofm_stream_start(ofm* file, uint64_t size, ofm_stream* stream) {
 	stream->scratch = 0;
 }
 
-void ofm_stream_push(ofm_stream* stream, uint64_t key, const ofm_value value) {
+void pma_stream_push(pma_stream* stream, uint64_t key, const pma_value value) {
 	assert(stream->scratch < stream->allowed_capacity);
 	stream->file->occupied[stream->scratch] = true;
 	stream->file->keys[stream->scratch] = key;

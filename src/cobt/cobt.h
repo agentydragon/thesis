@@ -5,19 +5,19 @@
 
 #include <stdint.h>
 
-#include "cobt/ofm.h"
+#include "cobt/pma.h"
 #include "cobt/tree.h"
 
 #define COB_INFINITY UINT64_MAX
 
 typedef struct {
-	// The OFM stores groups of key-value pairs called "pieces".
+	// The PMA stores groups of key-value pairs called "pieces".
 	// They are keyed by their minimal keys.
 	// Piece sizes are O(log N) multiples of 4.
 
 	uint64_t size;  // Number of stored elements.
 	uint8_t piece;  // Piece size in number of key-value pairs
-	ofm file;
+	pma file;
 	cobt_tree tree;
 } cob;
 

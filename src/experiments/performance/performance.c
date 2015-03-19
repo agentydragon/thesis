@@ -181,15 +181,15 @@ int main(int argc, char** argv) {
 		struct metrics result;
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
 			SERIAL_MODE = SERIAL_BOTH;
-			OFM_COUNTERS.reorganized_size = 0;
+			PMA_COUNTERS.reorganized_size = 0;
 			result = measure_serial(FLAGS.measured_apis[i], size);
 
 			json_t* point = json_object();
 			add_common_keys(point, "serial-both", size,
 					FLAGS.measured_apis[i], result);
 			if (FLAGS.measured_apis[i] == &dict_cobt) {
-				json_object_set_new(point, "ofm_reorganized",
-						json_integer(OFM_COUNTERS.reorganized_size));
+				json_object_set_new(point, "pma_reorganized",
+						json_integer(PMA_COUNTERS.reorganized_size));
 			}
 			json_array_append_new(json_results, point);
 		}

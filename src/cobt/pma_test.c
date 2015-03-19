@@ -1,4 +1,4 @@
-#include "cobt/ofm_test.h"
+#include "cobt/pma_test.h"
 
 // TODO: clean up
 
@@ -11,7 +11,7 @@
 
 #include "log/log.h"
 #include "math/math.h"
-#include "cobt/ofm.h"
+#include "cobt/pma.h"
 
 #define COUNTOF(x) (sizeof(x) / sizeof(*(x)))
 #define NIL 0xDEADDEADDEADDEAD
@@ -85,36 +85,36 @@ static void test_parameter_policy() {
 }
 */
 
-#define ITEM(x) ((ofm_item) { .key = x, .value = (x) * 2 })
+#define ITEM(x) ((pma_item) { .key = x, .value = (x) * 2 })
 
 /*
 void test_reorganization_complexity() {
 //	for (uint64_t size = 2; size < 1000000; size += size / 2) {
 	for (uint64_t size = 2; size < 10000; size += size / 2) {
-		OFM_COUNTERS.reorganized_size = 0;
-		ofm file;
-		ofm_init(&file);
+		pma_COUNTERS.reorganized_size = 0;
+		pma file;
+		pma_init(&file);
 		uint64_t HEAD = file.capacity;
 		for (uint64_t i = size; i > 0; i--) {
-			ofm_insert_before(&file, ITEM(i), HEAD, &HEAD, NULL);
+			pma_insert_before(&file, ITEM(i), HEAD, &HEAD, NULL);
 		}
-		ofm_destroy(file);
+		pma_destroy(file);
 
 		log_info("%" PRIu64 "\t%" PRIu64,
-				size, OFM_COUNTERS.reorganized_size);
+				size, PMA_COUNTERS.reorganized_size);
 	}
 }
 */
 
 void test_functional() {
-	ofm file;
+	pma file;
 	memset(&file, 0, sizeof(file));
-	ofm_init(&file);
+	pma_init(&file);
 
 	// Fills file with (1000 => 0), (999 => 500), (998 => 1000), ...
 	for (uint64_t i = 0; i < 1000; i++) {
 		void* mock_value = (void*) (i * 500);
-		ofm_insert_before(&file, (1000 - i), mock_value, file.capacity);
+		pma_insert_before(&file, (1000 - i), mock_value, file.capacity);
 	}
 	uint64_t seen = 0;
 	for (uint64_t i = 0; i < file.capacity; i++) {
@@ -128,10 +128,10 @@ void test_functional() {
 	}
 	assert(seen == 1000);
 
-	ofm_destroy(&file);
+	pma_destroy(&file);
 }
 
-void test_ofm() {
+void test_cobt_pma() {
 	test_functional();
 //	test_parameter_policy();
 //	test_reorganization_complexity();

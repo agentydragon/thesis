@@ -2,8 +2,7 @@
 #include <stdlib.h>
 
 #include "btree/test.h"
-#include "cobt/ofm_test.h"
-#include "cobt/tree_test.h"
+#include "cobt/test.h"
 #include "dict/array.h"
 #include "dict/btree.h"
 #include "dict/cobt.h"
@@ -21,14 +20,13 @@
 #include "veb_layout/test.h"
 
 void run_unit_tests() {
-	test_cobt_tree();
+	test_cobt();
 
 	test_btree();
 
 	test_math();
 	test_rand();
 	test_veb_layout();
-	test_ofm();
 	test_observation(); // Uses hash_array.
 
 	test_htable();
