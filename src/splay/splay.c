@@ -6,7 +6,6 @@
 
 #include "log/log.h"
 
-#define COUNT_OF(x) ((sizeof(x)) / sizeof(*x))
 // TODO: remove log_fatals
 
 #define node splay_node
@@ -64,7 +63,6 @@ static node* _splay(node* current, uint64_t key) {
 void splay(splay_tree* this, uint64_t key) {
 	this->root = _splay(this->root, key);
 }
-
 
 void splay_init(splay_tree** _tree) {
 	splay_tree* tree = malloc(sizeof(splay_tree));
@@ -132,8 +130,7 @@ int8_t splay_insert(splay_tree* tree, uint64_t key, uint64_t value) {
 }
 
 
-void splay_find(splay_tree* this, uint64_t key, uint64_t *value,
-		bool *found) {
+void splay_find(splay_tree* this, uint64_t key, uint64_t *value, bool *found) {
 	if (this->root == NULL) {
 		*found = false;
 		return;
