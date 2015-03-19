@@ -11,168 +11,58 @@
 
 #define node splay_node
 
-// TODO: rewrite to stop using single global stack
-// TODO: the stack can actually be O(N) worst-case
-#define GLOBAL_STACK_SIZE 1024
-node* GLOBAL_STACK_CONTENT[GLOBAL_STACK_SIZE];
-
-typedef struct {
-	node** stack;
-	uint64_t depth;
-	uint64_t capacity;
-} splay_stack;
-
-#define GLOBAL_STACK (splay_stack) {   \
-	.stack = GLOBAL_STACK_CONTENT, \
-	.depth = 0,                    \
-	.capacity = GLOBAL_STACK_SIZE  \
-}
-
-static void zig_zig_left(node* x, node* parent, node* grandparent) {
-	node *a, *b, *c, *d;
-	a = x->left;
-	b = x->right;
-	c = parent->right;
-	d = grandparent->right;
-
-	x->left = a;
-	x->right = parent;
-	parent->left = b;
-	parent->right = grandparent;
-	grandparent->left = c;
-	grandparent->right = d;
-}
-
-static void zig_zig_right(node* x, node* parent, node* grandparent) {
-	node *a, *b, *c, *d;
-	a = grandparent->left;
-	b = parent->left;
-	c = x->left;
-	d = x->right;
-
-	x->left = parent;
-	x->right = d;
-	parent->left = grandparent;
-	parent->right = c;
-	grandparent->left = a;
-	grandparent->right = b;
-}
-
-static void zig_zag_left_right(node* x, node* parent, node* grandparent) {
-	node *a, *b, *c, *d;
-	a = parent->left;
-	b = x->left;
-	c = x->right;
-	d = grandparent->right;
-
-	x->left = parent;
-	x->right = grandparent;
-	parent->left = a;
-	parent->right = b;
-	grandparent->left = c;
-	grandparent->right = d;
-}
-
-static void zig_zag_right_left(node* x, node* parent, node* grandparent) {
-	node *a, *b, *c, *d;
-	a = grandparent->left;
-	b = x->left;
-	c = x->right;
-	d = parent->right;
-
-	x->left = grandparent;
-	x->right = parent;
-	grandparent->left = a;
-	grandparent->right = b;
-	parent->left = c;
-	parent->right = d;
-}
-
-static node* navigate(splay_tree* this, splay_key key,
-		splay_stack* stack) {
-	assert(stack);
-	node* current = this->root;
-	stack->depth = 0;
-	do {
-		assert(stack->depth < stack->capacity);
-		stack->stack[stack->depth++] = current;
-
-		if (current->key == key) {
-			break;  // Got it.
-		} else if (key < current->key) {
-			if (current->left) {
-				current = current->left;
-			} else {
+static node* _splay(node* current, uint64_t key) {
+	node root_placeholder = {
+		.left = NULL,
+		.right = NULL
+	};
+	node *left = &root_placeholder, *right = &root_placeholder;
+	while (true) {
+		if (key < current->key) {
+			if (current->left == NULL) {
 				break;
 			}
+			if (key < current->left->key) {
+				node* tmp = current->left;
+				current->left = tmp->right;
+				tmp->right = current;
+				current = tmp;
+				if (current->left == NULL) {
+					break;
+				}
+			}
+			right->left = current;
+			right = current;
+			current = current->left;
+		} else if (key > current->key) {
+			if (current->right == NULL) {
+				break;
+			}
+			if (key > current->right->key) {
+				node* tmp = current->right;
+				current->right = tmp->left;
+				tmp->left = current;
+				current = tmp;
+				if (current->right == NULL) {
+					break;
+				}
+			}
+			left->right = current;
+			left = current;
+			current = current->right;
 		} else {
-			if (current->right) {
-				current = current->right;
-			} else {
-				break;
-			}
+			break;
 		}
-	} while (true);
+	}
+	left->right = current->left;
+	right->left = current->right;
+	current->left = root_placeholder.right;
+	current->right = root_placeholder.left;
 	return current;
 }
 
-static void splay_up_stack(splay_tree* this, splay_stack* stack) {
-	while (stack->depth > 1) {
-		if (stack->depth == 2) {
-			node *parent = stack->stack[0], *x = stack->stack[1];
-			if (parent->left == x) {
-				node *b = x->right;
-				x->right = parent; parent->left = b;
-			} else if (parent->right == x) {
-				node *b = x->left;
-				x->left = parent; parent->right = b;
-			} else {
-				log_fatal("child assertion failed");
-			}
-			stack->stack[0] = x;
-			stack->depth--;
-		} else {
-			assert(stack->depth > 2);
-			node *grandparent = stack->stack[stack->depth - 3],
-					*parent = stack->stack[stack->depth - 2],
-					*x = stack->stack[stack->depth - 1];
-
-			if (grandparent->left == parent) {
-				if (parent->left == x) {
-					zig_zig_left(x, parent, grandparent);
-				} else if (parent->right == x) {
-					zig_zag_left_right(x, parent, grandparent);
-				} else {
-					log_fatal("child assertion failed");
-				}
-			} else if (grandparent->right == parent) {
-				if (parent->left == x) {
-					zig_zag_right_left(x, parent, grandparent);
-				} else if (parent->right == x) {
-					zig_zig_right(x, parent, grandparent);
-				} else {
-					log_fatal("child assertion failed");
-				}
-			} else {
-				log_fatal("child assertion failed");
-			}
-
-			if (stack->depth > 3) {
-				if (stack->stack[stack->depth - 4]->left == stack->stack[stack->depth - 3]) {
-					stack->stack[stack->depth - 4]->left = x;
-				} else if (stack->stack[stack->depth - 4]->right == stack->stack[stack->depth - 3]) {
-					stack->stack[stack->depth - 4]->right = x;
-				} else {
-					log_fatal("child assertion failed");
-				}
-			}
-
-			stack->stack[stack->depth - 3] = x;
-			stack->depth -= 2;
-		}
-	}
-
-	this->root = stack->stack[0];
+void splay(splay_tree* this, uint64_t key) {
+	this->root = _splay(this->root, key);
 }
 
 
@@ -202,48 +92,45 @@ void splay_destroy(splay_tree** _tree) {
 	}
 }
 
-int8_t splay_insert(splay_tree* tree, uint64_t key, uint64_t value) {
-	node** target;
+static node* make_node(uint64_t key, uint64_t value) {
+	node* new_node = malloc(sizeof(node));
+	*new_node = (node) {
+		.key = key,
+		.value = value
+	};
+	return new_node;
+}
 
-	splay_stack stack = GLOBAL_STACK;
+int8_t splay_insert(splay_tree* tree, uint64_t key, uint64_t value) {
+	node* new_node;
 	if (tree->root == NULL) {
-		target = &tree->root;
+		new_node = make_node(key, value);
+		new_node->left = NULL;
+		new_node->right = NULL;
 	} else {
-		node* parent = navigate(tree, key, &stack);
-		if (parent->key > key) {
-			assert(parent->left == NULL);
-			target = &parent->left;
-		} else if (parent->key < key) {
-			assert(parent->right == NULL);
-			target = &parent->right;
-		} else {
+		node* parent = _splay(tree->root, key);
+		if (parent->key == key) {
 			// Element already exists.
+			tree->root = parent;
 			return 1;
 		}
+		new_node = make_node(key, value);
+		if (key < parent->key) {
+			new_node->left = parent->left;
+			new_node->right = parent;
+			parent->left = NULL;
+		} else if (key > parent->key) {
+			new_node->right = parent->right;
+			new_node->left = parent;
+			parent->right = NULL;
+		} else {
+			log_fatal("parent->key == key handled above");
+		}
 	}
-
-	node* new_node = malloc(sizeof(node));
-	assert(new_node);
-	*new_node = (node) {
-		.key = key, .value = value, .left = NULL, .right = NULL };
-	*target = new_node;
-
-	assert(stack.depth < stack.capacity);
-	stack.stack[stack.depth++] = new_node;
-
-	splay_up_stack(tree, &stack);
+	tree->root = new_node;
 	return 0;
 }
 
-static void _splay(splay_tree* this, uint64_t key) {
-	splay_stack stack = GLOBAL_STACK;
-	navigate(this, key, &stack);
-	splay_up_stack(this, &stack);
-}
-
-void splay(splay_tree* this, uint64_t key) {
-	_splay(this, key);
-}
 
 void splay_find(splay_tree* this, uint64_t key, uint64_t *value,
 		bool *found) {
@@ -252,17 +139,14 @@ void splay_find(splay_tree* this, uint64_t key, uint64_t *value,
 		return;
 	}
 
-	_splay(this, key);
+	node* parent = _splay(this->root, key);
+	this->root = parent;
 	if (found != NULL) {
 		*found = (this->root->key == key);
 	}
 	if (this->root->key == key && value != NULL) {
 		*value = this->root->value;
 	}
-}
-
-static uint8_t count_children(node* the_node) {
-	return (the_node->left != NULL) + (the_node->right != NULL);
 }
 
 static void get_leftmost_in_right_subtree(node* current,
@@ -294,86 +178,21 @@ int8_t splay_delete(splay_tree* this, uint64_t key) {
 		return 1;
 	}
 
-	// TODO: do with a single splay up, not navigate->splay.
-	splay_stack stack = GLOBAL_STACK;
-	node* current = navigate(this, key, &stack);
-	node* parent = stack.depth > 1 ? stack.stack[stack.depth - 2] : NULL;
-
-	if (current->key != key) {
+	node* deleted = _splay(this->root, key);
+	if (deleted->key != key) {
 		return 1;
 	}
 
-	switch (count_children(current)) {
-	case 0: {
-		free(current);
-
-		if (!parent) {
-			// Deleting the root.
-			this->root = NULL;
-		} else {
-			// Fix my parent and splay him up.
-			if (parent->left == current) {
-				parent->left = NULL;
-			} else {
-				parent->right = NULL;
-			}
-			--stack.depth;
-			splay_up_stack(this, &stack);
-		}
-		break;
+	if (deleted->left == NULL) {
+		this->root = deleted->right;
+	} else {
+		// Splay up the largest node in left subtree.
+		// This node will have no right child, so we can collapse it.
+		this->root = _splay(deleted->left, key);
+		assert(this->root->right == NULL);
+		this->root->right = deleted->right;
 	}
-	case 1: {
-		// I have only one child. Swap my child with me in my parent
-		// and delete me.
-		node* child;
-		if (current->left) {
-			child = current->left;
-		} else {
-			assert(child = current->right);
-		}
-		if (parent) {
-			if (parent->left == current) {
-				parent->left = child;
-			} else {
-				assert(parent->right == current);
-				parent->right = child;
-			}
-			--stack.depth;
-			splay_up_stack(this, &stack);
-		} else {
-			this->root = child;
-		}
-		free(current);
-		break;
-	}
-	case 2: {
-		// Ooops...
-		node* lir_parent;
-		node* leftmost_in_right;
-		get_leftmost_in_right_subtree(current, &leftmost_in_right,
-				&lir_parent);
-
-		if (lir_parent->left == leftmost_in_right) {
-			lir_parent->left = NULL;
-		} else {
-			assert(lir_parent->right == leftmost_in_right);
-			lir_parent->right = NULL;
-		}
-		current->key = leftmost_in_right->key;
-		current->value = leftmost_in_right->value;
-		free(leftmost_in_right);
-		// TODO: maybe splay the parent of the actually deleted node
-		// instead? TODO: check out the proofs
-		if (parent) {
-			--stack.depth;
-			splay_up_stack(this, &stack);
-		}
-		break;
-	}
-	default: {
-		log_fatal("splay tree node has >2 children?");
-	}
-	}
+	free(deleted);
 	return 0;
 }
 
@@ -384,17 +203,21 @@ void splay_next_key(splay_tree* this, splay_key key,
 		return;
 	}
 
-	_splay(this, key);
-
+	this->root = _splay(this->root, key);
 	if (this->root->key > key) {
-		*next_key = this->root->key;
+		if (next_key) {
+			*next_key = this->root->key;
+		}
 		*found = true;
 	} else {
 		node* leftmost_in_right;
+		// TODO: splay
 		get_leftmost_in_right_subtree(this->root, &leftmost_in_right,
 				NULL);
 		if (leftmost_in_right) {
-			*next_key = leftmost_in_right->key;
+			if (next_key) {
+				*next_key = leftmost_in_right->key;
+			}
 			*found = true;
 		} else {
 			*found = false;
@@ -409,16 +232,21 @@ void splay_previous_key(splay_tree* this, splay_key key,
 		return;
 	}
 
-	_splay(this, key);
+	this->root = _splay(this->root, key);
 
 	if (this->root->key < key) {
-		*previous_key = this->root->key;
+		if (previous_key) {
+			*previous_key = this->root->key;
+		}
 		*found = true;
 	} else {
 		node* rightmost_in_left;
+		// TODO: splay
 		get_rightmost_in_left_subtree(this->root, &rightmost_in_left);
 		if (rightmost_in_left) {
-			*previous_key = rightmost_in_left->key;
+			if (previous_key) {
+				*previous_key = rightmost_in_left->key;
+			}
 			*found = true;
 		} else {
 			*found = false;
