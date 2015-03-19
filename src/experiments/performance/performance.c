@@ -11,7 +11,6 @@
 #include "log/log.h"
 #include "measurement/measurement.h"
 #include "measurement/stopwatch.h"
-#include "performance/random_read.h"
 #include "rand/rand.h"
 
 static uint64_t make_key(uint64_t i) {
@@ -89,7 +88,12 @@ static void iterate_ltr(dict* dict) {
 		(void) value;  // unused
 		assert(found);
 
-		assert(!dict_next(dict, current_key, &current_key, &found));
+		uint64_t next_key;
+		assert(!dict_next(dict, current_key, &next_key, &found));
+		if (found) {
+			assert(next_key > current_key);
+		}
+		current_key = next_key;
 	}
 }
 
