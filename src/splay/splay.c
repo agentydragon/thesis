@@ -175,6 +175,17 @@ static void splay_up_stack(splay_tree* this, splay_stack* stack) {
 	this->root = stack->stack[0];
 }
 
+static node* _splay(splay_tree* this, uint64_t key) {
+	splay_stack stack = GLOBAL_STACK;
+	navigate(this, key, &stack);
+	splay_up_stack(this, &stack);
+	return this->root;
+}
+
+void splay(splay_tree* this, uint64_t key) {
+	_splay(this, key);
+}
+
 
 void splay_init(splay_tree** _tree) {
 	splay_tree* tree = malloc(sizeof(splay_tree));
@@ -202,48 +213,44 @@ void splay_destroy(splay_tree** _tree) {
 	}
 }
 
-int8_t splay_insert(splay_tree* tree, uint64_t key, uint64_t value) {
-	node** target;
+static node* make_node(uint64_t key, uint64_t value) {
+	node* new_node = malloc(sizeof(node));
+	*new_node = (node) {
+		.key = key,
+		.value = value
+	};
+	return new_node;
+}
 
-	splay_stack stack = GLOBAL_STACK;
+int8_t splay_insert(splay_tree* tree, uint64_t key, uint64_t value) {
+	node* new_node;
 	if (tree->root == NULL) {
-		target = &tree->root;
+		new_node = make_node(key, value);
+		new_node->left = NULL;
+		new_node->right = NULL;
 	} else {
-		node* parent = navigate(tree, key, &stack);
-		if (parent->key > key) {
-			assert(parent->left == NULL);
-			target = &parent->left;
-		} else if (parent->key < key) {
-			assert(parent->right == NULL);
-			target = &parent->right;
-		} else {
+		node* parent = _splay(tree, key);
+		if (parent->key == key) {
 			// Element already exists.
 			return 1;
 		}
+		new_node = make_node(key, value);
+		if (key < parent->key) {
+			new_node->left = parent->left;
+			new_node->right = parent;
+			parent->left = NULL;
+		} else if (key > parent->key) {
+			new_node->right = parent->right;
+			new_node->left = parent;
+			parent->right = NULL;
+		} else {
+			log_fatal("parent->key == key handled above");
+		}
 	}
-
-	node* new_node = malloc(sizeof(node));
-	assert(new_node);
-	*new_node = (node) {
-		.key = key, .value = value, .left = NULL, .right = NULL };
-	*target = new_node;
-
-	assert(stack.depth < stack.capacity);
-	stack.stack[stack.depth++] = new_node;
-
-	splay_up_stack(tree, &stack);
+	tree->root = new_node;
 	return 0;
 }
 
-static void _splay(splay_tree* this, uint64_t key) {
-	splay_stack stack = GLOBAL_STACK;
-	navigate(this, key, &stack);
-	splay_up_stack(this, &stack);
-}
-
-void splay(splay_tree* this, uint64_t key) {
-	_splay(this, key);
-}
 
 void splay_find(splay_tree* this, uint64_t key, uint64_t *value,
 		bool *found) {
