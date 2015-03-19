@@ -11,173 +11,54 @@
 
 #define node splay_node
 
-// TODO: rewrite to stop using single global stack
-// TODO: the stack can actually be O(N) worst-case
-#define GLOBAL_STACK_SIZE 1024
-node* GLOBAL_STACK_CONTENT[GLOBAL_STACK_SIZE];
-
-typedef struct {
-	node** stack;
-	uint64_t depth;
-	uint64_t capacity;
-} splay_stack;
-
-#define GLOBAL_STACK (splay_stack) {   \
-	.stack = GLOBAL_STACK_CONTENT, \
-	.depth = 0,                    \
-	.capacity = GLOBAL_STACK_SIZE  \
-}
-
-static void zig_zig_left(node* x, node* parent, node* grandparent) {
-	node *a, *b, *c, *d;
-	a = x->left;
-	b = x->right;
-	c = parent->right;
-	d = grandparent->right;
-
-	x->left = a;
-	x->right = parent;
-	parent->left = b;
-	parent->right = grandparent;
-	grandparent->left = c;
-	grandparent->right = d;
-}
-
-static void zig_zig_right(node* x, node* parent, node* grandparent) {
-	node *a, *b, *c, *d;
-	a = grandparent->left;
-	b = parent->left;
-	c = x->left;
-	d = x->right;
-
-	x->left = parent;
-	x->right = d;
-	parent->left = grandparent;
-	parent->right = c;
-	grandparent->left = a;
-	grandparent->right = b;
-}
-
-static void zig_zag_left_right(node* x, node* parent, node* grandparent) {
-	node *a, *b, *c, *d;
-	a = parent->left;
-	b = x->left;
-	c = x->right;
-	d = grandparent->right;
-
-	x->left = parent;
-	x->right = grandparent;
-	parent->left = a;
-	parent->right = b;
-	grandparent->left = c;
-	grandparent->right = d;
-}
-
-static void zig_zag_right_left(node* x, node* parent, node* grandparent) {
-	node *a, *b, *c, *d;
-	a = grandparent->left;
-	b = x->left;
-	c = x->right;
-	d = parent->right;
-
-	x->left = grandparent;
-	x->right = parent;
-	grandparent->left = a;
-	grandparent->right = b;
-	parent->left = c;
-	parent->right = d;
-}
-
-static node* navigate(node* current, splay_key key,
-		splay_stack* stack) {
-	assert(stack);
-	stack->depth = 0;
-	do {
-		assert(stack->depth < stack->capacity);
-		stack->stack[stack->depth++] = current;
-
-		if (current->key == key) {
-			break;  // Got it.
-		} else if (key < current->key) {
-			if (current->left) {
-				current = current->left;
-			} else {
+static node* _splay(node* current, uint64_t key) {
+	node root_placeholder = {
+		.left = NULL,
+		.right = NULL
+	};
+	node *left = &root_placeholder, *right = &root_placeholder;
+	while (true) {
+		if (key < current->key) {
+			if (current->left == NULL) {
 				break;
 			}
-		} else {
-			if (current->right) {
-				current = current->right;
-			} else {
+			if (key < current->left->key) {
+				node* tmp = current->left;
+				current->left = tmp->right;
+				tmp->right = current;
+				current = tmp;
+				if (current->left == NULL) {
+					break;
+				}
+			}
+			right->left = current;
+			right = current;
+			current = current->left;
+		} else if (key > current->key) {
+			if (current->right == NULL) {
 				break;
 			}
-		}
-	} while (true);
-	return current;
-}
-
-static node* splay_up_stack(splay_stack* stack) {
-	while (stack->depth > 1) {
-		if (stack->depth == 2) {
-			node *parent = stack->stack[0], *x = stack->stack[1];
-			if (parent->left == x) {
-				node *b = x->right;
-				x->right = parent; parent->left = b;
-			} else if (parent->right == x) {
-				node *b = x->left;
-				x->left = parent; parent->right = b;
-			} else {
-				log_fatal("child assertion failed");
+			if (key > current->right->key) {
+				node* tmp = current->right;
+				current->right = tmp->left;
+				tmp->left = current;
+				current = tmp;
+				if (current->right == NULL) {
+					break;
+				}
 			}
-			stack->stack[0] = x;
-			stack->depth--;
+			left->right = current;
+			left = current;
+			current = current->right;
 		} else {
-			assert(stack->depth > 2);
-			node *grandparent = stack->stack[stack->depth - 3],
-					*parent = stack->stack[stack->depth - 2],
-					*x = stack->stack[stack->depth - 1];
-
-			if (grandparent->left == parent) {
-				if (parent->left == x) {
-					zig_zig_left(x, parent, grandparent);
-				} else if (parent->right == x) {
-					zig_zag_left_right(x, parent, grandparent);
-				} else {
-					log_fatal("child assertion failed");
-				}
-			} else if (grandparent->right == parent) {
-				if (parent->left == x) {
-					zig_zag_right_left(x, parent, grandparent);
-				} else if (parent->right == x) {
-					zig_zig_right(x, parent, grandparent);
-				} else {
-					log_fatal("child assertion failed");
-				}
-			} else {
-				log_fatal("child assertion failed");
-			}
-
-			if (stack->depth > 3) {
-				if (stack->stack[stack->depth - 4]->left == stack->stack[stack->depth - 3]) {
-					stack->stack[stack->depth - 4]->left = x;
-				} else if (stack->stack[stack->depth - 4]->right == stack->stack[stack->depth - 3]) {
-					stack->stack[stack->depth - 4]->right = x;
-				} else {
-					log_fatal("child assertion failed");
-				}
-			}
-
-			stack->stack[stack->depth - 3] = x;
-			stack->depth -= 2;
+			break;
 		}
 	}
-
-	return stack->stack[0];
-}
-
-static node* _splay(node* root, uint64_t key) {
-	splay_stack stack = GLOBAL_STACK;
-	navigate(root, key, &stack);
-	return splay_up_stack(&stack);
+	left->right = current->left;
+	right->left = current->right;
+	current->left = root_placeholder.right;
+	current->right = root_placeholder.left;
+	return current;
 }
 
 void splay(splay_tree* this, uint64_t key) {
