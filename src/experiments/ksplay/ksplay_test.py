@@ -139,7 +139,7 @@ def test_ksplay_trivial():
   assert splayed.keys == [10]
   assert splayed.children == ['a', 'b']
 
-def test_functional():
+def test_insert():
   tree = ksplay.Tree()
   assert not tree.contains(10)
 
@@ -156,3 +156,34 @@ def test_functional():
     tree.insert(key)
   assert all(tree.contains(key)
              for key in [5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
+
+def test_insert_and_delete():
+  def assert_contains(keys):
+    assert all(tree.contains(key) for key in keys)
+  def assert_does_not_contain(keys):
+    assert not any(tree.contains(key) for key in keys)
+
+  tree = ksplay.Tree()
+  for key in range(10):
+    tree.insert(key * 2)
+
+  for key in [6, 8, 10]:
+    tree.delete(key)
+
+  assert_contains([0, 2, 4, 12, 14, 16, 18])
+  assert_does_not_contain([6, 8, 10])
+
+  for key in [0, 12, 16]:
+    tree.delete(key)
+
+  assert_contains([2, 4, 14, 18])
+  assert_does_not_contain([0, 6, 8, 10, 12, 16])
+
+  for key in [4, 2, 18]:
+    tree.delete(key)
+
+  assert_contains([14])
+  assert_does_not_contain([0, 2, 4, 6, 8, 10, 12, 16, 18])
+
+  tree.delete(14)
+  assert_does_not_contain([14])

@@ -148,7 +148,11 @@ class Tree(object):
     self.root = self.ksplay(stack)
 
   def delete(self, key):
-    raise Exception('TODO: delete')
+    stack = self.walk_to(key)
+    target_node = stack[-1]
+    assert target_node.contains(key), "deleting nonexistant key"
+    target_node.remove(key)
+    self.root = self.ksplay(stack)
 
   def contains(self, key):
     stack = self.walk_to(key)
