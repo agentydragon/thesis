@@ -51,7 +51,7 @@ static void log_backtrace(int stripped_levels) {
 void log_fatal(const char* format, ...) {
 	va_list args;
 	va_start(args, format);
-	__log_v(" FATAL", format, args);
+	__log_v("F", format, args);
 	va_end(args);
 
 	log_backtrace(1);
