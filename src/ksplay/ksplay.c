@@ -1,7 +1,6 @@
 #include "ksplay/ksplay.h"
 
 #include <assert.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -21,11 +20,15 @@ static node* node_init() {
 }
 
 // Node.insert
-static UNUSED void node_insert(node* this, uint64_t key, uint64_t value) {
+static bool node_insert(node* this, uint64_t key, uint64_t value) {
 	assert(this->key_count < KSPLAY_MAX_NODE_KEYS);
 	uint8_t before;
 	for (before = 0; before < this->key_count; ++before) {
-		if (this->pairs[before].key >= key) {
+		if (this->pairs[before].key == key) {
+			// Duplicate key.
+			return false;
+		}
+		if (this->pairs[before].key > key) {
 			break;
 		}
 	}
@@ -36,10 +39,11 @@ static UNUSED void node_insert(node* this, uint64_t key, uint64_t value) {
 		.value = value
 	};
 	++this->key_count;
+	return true;
 }
 
 // Node.remove
-static UNUSED void node_remove(node* this, uint64_t key) {
+static bool node_remove(node* this, uint64_t key) {
 	assert(this->key_count > 0);
 	uint8_t before;
 	for (before = 0; before < this->key_count; ++before) {
@@ -47,14 +51,18 @@ static UNUSED void node_remove(node* this, uint64_t key) {
 			break;
 		}
 	}
-	CHECK(before < this->key_count, "deleting nonexistant key from node");
+	if (before == this->key_count) {
+		// No such key here.
+		return false;
+	}
 	memmove(&this->pairs[before], &this->pairs[before + 1],
 			sizeof(ksplay_pair) * (this->key_count - before - 1));
 	--this->key_count;
+	return true;
 }
 
 // Node.contains
-static UNUSED bool node_find(node* this, uint64_t key, uint64_t *value) {
+static bool node_find(node* this, uint64_t key, uint64_t *value) {
 	for (uint8_t i = 0; i < this->key_count; ++i) {
 		if (this->pairs[i].key == key) {
 			if (value) {
@@ -203,25 +211,34 @@ static UNUSED void ksplay_step(node_buffer* stack) {
 
 // Tree.ksplay
 // K-splays together the stack and returns the new root.
-static UNUSED void ksplay_ksplay(node_buffer* stack) {
+static UNUSED node* ksplay_ksplay(node_buffer* stack) {
 	(void) stack;
 	log_fatal("TODO: port over ksplay");
+	return NULL;
 }
 
 // Tree.insert
-void ksplay_insert(ksplay* this, uint64_t key, uint64_t value) {
-	(void) this; (void) key; (void) value;
-	log_fatal("TODO: port over ksplay_insert");
+int8_t ksplay_insert(ksplay* this, uint64_t key, uint64_t value) {
+	node_buffer stack = walk_to(this, key);
+	node* target_node = stack.nodes[stack.count - 1];
+	const int8_t result = node_insert(target_node, key, value) ? 0 : 1;
+	this->root = ksplay_ksplay(&stack);
+	return result;
 }
 
 // Tree.delete
-void ksplay_delete(ksplay* this, uint64_t key) {
-	(void) this; (void) key;
-	log_fatal("TODO: port over ksplay_delete");
+int8_t ksplay_delete(ksplay* this, uint64_t key) {
+	node_buffer stack = walk_to(this, key);
+	node* target_node = stack.nodes[stack.count - 1];
+	const int8_t result = node_remove(target_node, key) ? 0 : 1;
+	this->root = ksplay_ksplay(&stack);
+	return result;
 }
 
 // Tree.find
 void ksplay_find(ksplay* this, uint64_t key, uint64_t *value, bool *found) {
-	(void) this; (void) key; (void) value; (void) found;
-	log_fatal("TODO: port over ksplay_find");
+	node_buffer stack = walk_to(this, key);
+	node* target_node = stack.nodes[stack.count - 1];
+	*found = node_find(target_node, key, value);
+	this->root = ksplay_ksplay(&stack);
 }

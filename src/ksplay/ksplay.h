@@ -1,6 +1,7 @@
 #ifndef KSPLAY_KSPLAY_H
 #define KSPLAY_KSPLAY_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #define KSPLAY_K 3
@@ -32,5 +33,10 @@ typedef struct {
 
 void ksplay_init(ksplay* this);
 void ksplay_destroy(ksplay* this);
+
+int8_t ksplay_insert(ksplay* this, uint64_t key, uint64_t value);
+int8_t ksplay_delete(ksplay* this, uint64_t key);
+void ksplay_find(ksplay* this, uint64_t key, uint64_t *value, bool *found);
+// TODO: find_next, find_previous
 
 #endif
