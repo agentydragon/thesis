@@ -324,7 +324,9 @@ void splay_next_key(splay_tree* this, splay_key key,
 
 	this->root = _splay(this->root, key);
 	if (this->root->key > key) {
-		*next_key = this->root->key;
+		if (next_key) {
+			*next_key = this->root->key;
+		}
 		*found = true;
 	} else {
 		node* leftmost_in_right;
@@ -332,7 +334,9 @@ void splay_next_key(splay_tree* this, splay_key key,
 		get_leftmost_in_right_subtree(this->root, &leftmost_in_right,
 				NULL);
 		if (leftmost_in_right) {
-			*next_key = leftmost_in_right->key;
+			if (next_key) {
+				*next_key = leftmost_in_right->key;
+			}
 			*found = true;
 		} else {
 			*found = false;
@@ -350,14 +354,18 @@ void splay_previous_key(splay_tree* this, splay_key key,
 	this->root = _splay(this->root, key);
 
 	if (this->root->key < key) {
-		*previous_key = this->root->key;
+		if (previous_key) {
+			*previous_key = this->root->key;
+		}
 		*found = true;
 	} else {
 		node* rightmost_in_left;
 		// TODO: splay
 		get_rightmost_in_left_subtree(this->root, &rightmost_in_left);
 		if (rightmost_in_left) {
-			*previous_key = rightmost_in_left->key;
+			if (previous_key) {
+				*previous_key = rightmost_in_left->key;
+			}
 			*found = true;
 		} else {
 			*found = false;
