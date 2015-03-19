@@ -59,6 +59,11 @@ plot_graph(data=filter_experiment(data, experiment='serial-findonly'),
 pyplot.savefig('random-find.png', figsize=figsize)
 pyplot.clf()
 
+plot_graph(data=filter_experiment(data, experiment='ltr_scan'),
+            title='Left-to-right scan')
+pyplot.savefig('ltr-scan.png', figsize=figsize)
+pyplot.clf()
+
 plot_graph(list(filter(lambda point: point['working_set_size'] == 1000,
                         filter_experiment(data, experiment='workingset'))),
             title='Random finds in 1k working set')

@@ -74,7 +74,6 @@ struct metrics measure_working_set(const dict_api* api, uint64_t size,
 	};
 }
 
-/*
 static void iterate_ltr(dict* dict) {
 	uint64_t min = 0;
 	bool found;
@@ -93,10 +92,8 @@ static void iterate_ltr(dict* dict) {
 		assert(!dict_next(dict, current_key, &current_key, &found));
 	}
 }
-*/
 
 // TODO: measure_ltr_scan breaks the hacky implementation of splay_tree
-/*
 struct metrics measure_ltr_scan(const dict_api* api, uint64_t size) {
 	dict* table = seed(api, size);
 
@@ -119,7 +116,6 @@ struct metrics measure_ltr_scan(const dict_api* api, uint64_t size) {
 		.time_nsec = stopwatch_read_ns(watch_just_find) / K
 	};
 }
-*/
 
 enum { SERIAL_BOTH, SERIAL_JUST_FIND } SERIAL_MODE = SERIAL_BOTH;
 struct metrics measure_serial(const dict_api* api, uint64_t size) {
@@ -229,14 +225,20 @@ int main(int argc, char** argv) {
 			json_array_append_new(json_results, point);
 		}
 
-		/*
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
-			// "implements ordering"?
-			if (FLAGS.measured_apis[i]->next) {
-				results[i] = measure_ltr_scan(FLAGS.measured_apis[i], size);
+			if (!FLAGS.measured_apis[i]->next) {
+				// No implementation of ordering.
+				// TODO: Make the test more idiomatic.
+				continue;
 			}
+			result = measure_ltr_scan(FLAGS.measured_apis[i], size);
+
+			json_t* point = json_object();
+			add_common_keys(point, FLAGS.measured_apis[i], result);
+			json_object_set_new(point, "experiment", json_string("ltr_scan"));
+			json_object_set_new(point, "size", json_integer(x));
+			json_array_append_new(json_results, point);
 		}
-		*/
 
 		assert(!json_dump_file(json_results,
 					"experiments/performance/results.json",
