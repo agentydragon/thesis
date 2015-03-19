@@ -17,7 +17,9 @@ I am developing this project on Linux with GCC. It may work somewhere else,
 but only accidentally.
 
 ## Dependencies
+For benchmarking, you need:
 * [jansson](http://www.digip.org/jansson/) for JSON output
+* [matplotlib](http://matplotlib.org/) for plotting graphs
 
 ## Running tests
 ```bash
@@ -45,8 +47,8 @@ bin/experiments/performance
 ```
 
 Results are saved in `src/experiments/performance/results.tsv`. You can plot
-some interesting graphs by running:
+some interesting graphs by running;
 ```bash
 cd experiments/performance
-gnuplot plot_results.gnuplot
+./plot_results.py
 ```
