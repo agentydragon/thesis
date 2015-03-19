@@ -33,7 +33,7 @@ class Tree(object):
     stack = []
     current = self.root
 
-    while current != None:
+    while current:
       # print("at " + str(current))
       stack.append(current)
       for key, child in zip(current.keys, current.children):
@@ -109,7 +109,6 @@ class Tree(object):
   @classmethod
   def ksplay_step(cls, stack):
     """Does a single K-splaying step on the stack."""
-    #assert len(stack[-1].children) in [cls.K-1, cls.K, cls.K+1]
 
     # print("K-splaying step on the following nodes:")
     # for node in stack:
