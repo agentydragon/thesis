@@ -33,9 +33,6 @@ bin/test_coverage: test.c $(SOURCES)
 asm: bin/test
 	objdump -S bin/test > asm.dump
 
-bin/performance: performance.c $(SOURCES) performance/*.c
-	$(CC) $(CFLAGS) $(LIBS) performance.c performance/*.c $(SOURCES) -o $@
-
 # bin/experiments/performance depends on jansson
 PERFORMANCE_CFLAGS=$(CFLAGS) $(shell pkg-config --cflags jansson)
 PERFORMANCE_LIBS=$(LIBS) $(shell pkg-config --libs jansson)

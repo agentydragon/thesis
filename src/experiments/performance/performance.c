@@ -155,9 +155,11 @@ struct metrics measure_serial(const dict_api* api, uint64_t size) {
 	}
 }
 
-static void add_common_keys(json_t* point,
-		const dict_api* api, struct metrics result) {
+static void add_common_keys(json_t* point, const char* experiment,
+		int size, const dict_api* api, struct metrics result) {
+	json_object_set_new(point, "experiment", json_string(experiment));
 	json_object_set_new(point, "implementation", json_string(api->name));
+	json_object_set_new(point, "size", json_integer(size));
 	json_object_set_new(point, "metrics",
 			measurement_results_to_json(result.measurement_results));
 	json_object_set_new(point, "time_ns", json_integer(result.time_nsec));
@@ -168,8 +170,7 @@ int main(int argc, char** argv) {
 
 	// TODO: merge with //performance.c
 	json_t* json_results = json_array();
-	for (double x = 10; x < FLAGS.maximum; x *= FLAGS.base) {
-
+	for (double x = 1; x < FLAGS.maximum; x *= FLAGS.base) {
 		const uint64_t size = round(x);
 		log_info("size=%" PRIu64, size);
 
@@ -180,10 +181,8 @@ int main(int argc, char** argv) {
 			result = measure_serial(FLAGS.measured_apis[i], size);
 
 			json_t* point = json_object();
-			add_common_keys(point, FLAGS.measured_apis[i], result);
-			json_object_set_new(point, "experiment",
-					json_string("serial-both"));
-			json_object_set_new(point, "size", json_integer(x));
+			add_common_keys(point, "serial-both", size,
+					FLAGS.measured_apis[i], result);
 			if (FLAGS.measured_apis[i] == &dict_cobt) {
 				json_object_set_new(point, "ofm_reorganized",
 						json_integer(OFM_COUNTERS.reorganized_size));
@@ -196,10 +195,8 @@ int main(int argc, char** argv) {
 			result = measure_serial(FLAGS.measured_apis[i], size);
 
 			json_t* point = json_object();
-			add_common_keys(point, FLAGS.measured_apis[i], result);
-			json_object_set_new(point, "experiment",
-					json_string("serial-findonly"));
-			json_object_set_new(point, "size", json_integer(x));
+			add_common_keys(point, "serial-findonly", size,
+					FLAGS.measured_apis[i], result);
 			json_array_append_new(json_results, point);
 		}
 
@@ -207,10 +204,9 @@ int main(int argc, char** argv) {
 			result = measure_working_set(FLAGS.measured_apis[i], size, 1000);
 
 			json_t* point = json_object();
-			add_common_keys(point, FLAGS.measured_apis[i], result);
-			json_object_set_new(point, "experiment", json_string("workingset"));
+			add_common_keys(point, "workingset", size,
+					FLAGS.measured_apis[i], result);
 			json_object_set_new(point, "working_set_size", json_integer(1000));
-			json_object_set_new(point, "size", json_integer(x));
 			json_array_append_new(json_results, point);
 		}
 
@@ -218,10 +214,9 @@ int main(int argc, char** argv) {
 			result = measure_working_set(FLAGS.measured_apis[i], size, 100000);
 
 			json_t* point = json_object();
-			add_common_keys(point, FLAGS.measured_apis[i], result);
-			json_object_set_new(point, "experiment", json_string("workingset"));
+			add_common_keys(point, "workingset", size,
+					FLAGS.measured_apis[i], result);
 			json_object_set_new(point, "working_set_size", json_integer(100000));
-			json_object_set_new(point, "size", json_integer(x));
 			json_array_append_new(json_results, point);
 		}
 
@@ -234,15 +229,16 @@ int main(int argc, char** argv) {
 			result = measure_ltr_scan(FLAGS.measured_apis[i], size);
 
 			json_t* point = json_object();
-			add_common_keys(point, FLAGS.measured_apis[i], result);
-			json_object_set_new(point, "experiment", json_string("ltr_scan"));
-			json_object_set_new(point, "size", json_integer(x));
+			add_common_keys(point, "ltr_scan", size,
+					FLAGS.measured_apis[i], result);
 			json_array_append_new(json_results, point);
 		}
 
+		log_info("flushing results...");
 		assert(!json_dump_file(json_results,
 					"experiments/performance/results.json",
 					JSON_INDENT(2)));
+		log_info("done");
 	}
 	json_decref(json_results);
 	return 0;

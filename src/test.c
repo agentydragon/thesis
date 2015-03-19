@@ -16,7 +16,6 @@
 #include "log/log.h"
 #include "math/test.h"
 #include "observation/test.h"
-#include "performance/random_read.h"
 #include "rand/test.h"
 #include "splay/test.h"
 #include "veb_layout/test.h"
