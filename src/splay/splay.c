@@ -71,20 +71,24 @@ void splay_init(splay_tree** _tree) {
 	*_tree = tree;
 }
 
-static void destroy_recursive(node** _node) {
-	assert(_node);
-	if (*_node) {
-		destroy_recursive(&((*_node)->left));
-		destroy_recursive(&((*_node)->right));
-		free(*_node);
-		*_node = NULL;
+static void destroy_tree(splay_tree* this) {
+	// We can't destroy nodes by DFS, because the stack could grow up
+	// to O(N), which is too much. Let's delete from the maximum downward.
+	// Since UINT64_MAX == DICT_RESERVED_KEY, we can find the maximum node
+	// by splaying up UINT64_MAX.
+	while (this->root != NULL) {
+		this->root = _splay(this->root, UINT64_MAX);
+		assert(!this->root->right);
+		node* left = this->root->left;
+		free(this->root);
+		this->root = left;
 	}
 }
 
 void splay_destroy(splay_tree** _tree) {
 	assert(_tree);
 	if (*_tree) {
-		destroy_recursive(&(*_tree)->root);
+		destroy_tree(*_tree);
 		free(*_tree);
 		*_tree = NULL;
 	}
