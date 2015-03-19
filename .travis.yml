@@ -4,11 +4,12 @@ compiler:
 # We need to install and use a fairly recent GCC version with -std=gnu11.
 # TODO: Remove when https://github.com/travis-ci/travis-ci/issues/1379
 # is resolved.
+# TODO: Add test that other targets also build.
 before_install:
         - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
         - sudo apt-get -qq update
 install:
-        - sudo apt-get -qq install g++-4.9 libjansson-dev
+        - sudo apt-get -qq install g++-4.9
 script:
         - export CC=gcc-4.9
         - cd src; make test

@@ -1,6 +1,6 @@
 # -pedantic-errors
-CFLAGS=-std=c11 -W -Wall -Werror -O3 -rdynamic -D_GNU_SOURCE -I. $(shell pkg-config --cflags jansson)
-LIBS=-lm -lrt $(shell pkg-config --libs jansson)
+CFLAGS=-std=c11 -W -Wall -Werror -O3 -rdynamic -D_GNU_SOURCE -I.
+LIBS=-lm -lrt
 
 SOURCES= \
 	btree/*.c \
@@ -10,9 +10,7 @@ SOURCES= \
 	htable/*.c htable/test/*.c \
 	log/*.c \
 	math/*.c \
-	measurement/*.c \
 	observation/*.c \
-	performance/*.c \
 	rand/*.c \
 	splay/*.c \
 	util/*.c \
@@ -35,16 +33,21 @@ bin/test_coverage: test.c $(SOURCES)
 asm: bin/test
 	objdump -S bin/test > asm.dump
 
-bin/performance: performance.c $(SOURCES)
-	$(CC) $(CFLAGS) $(LIBS) performance.c $(SOURCES) -o $@
+bin/performance: performance.c $(SOURCES) performance/*.c
+	$(CC) $(CFLAGS) $(LIBS) performance.c performance/*.c $(SOURCES) -o $@
 
-PERFORMANCE_SOURCES=$(SOURCES) experiments/performance/performance.c experiments/performance/flags.c
+# bin/experiments/performance depends on jansson
+PERFORMANCE_CFLAGS=$(CFLAGS) $(shell pkg-config --cflags jansson)
+PERFORMANCE_LIBS=$(LIBS) $(shell pkg-config --libs jansson)
+PERFORMANCE_SOURCES=$(SOURCES) \
+	experiments/performance/*.c \
+	measurement/*.c
 
 bin/experiments/performance: $(PERFORMANCE_SOURCES)
-	$(CC) -g $(CFLAGS) $(LIBS) $(PERFORMANCE_SOURCES) -o $@
+	$(CC) -g $(PERFORMANCE_CFLAGS) $(PERFORMANCE_LIBS) $(PERFORMANCE_SOURCES) -o $@
 
 bin/experiments/performance_profile: $(PERFORMANCE_SOURCES)
-	$(CC) -pg $(CFLAGS) $(LIBS) $(PERFORMANCE_SOURCES) -o $@
+	$(CC) -pg $(PERFORMANCE_CFLAGS) $(PERFORMANCE_LIBS) $(PERFORMANCE_SOURCES) -o $@
 
 bin/experiments/veb_performance: experiments/veb_performance/veb_performance.c $(SOURCES)
 	$(CC) $(CFLAGS) $(LIBS) experiments/veb_performance/veb_performance.c $(SOURCES) -o $@
