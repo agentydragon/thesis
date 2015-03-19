@@ -117,17 +117,17 @@ def test_overfull_compose():
   assert root.children[2].keys == [50]
   assert root.children[2].children == ['e', 'f']
 
-#def test_mixed_compose():
-#  # Terminal splay
-#  ksplay.Tree.K = 3
-#  keys = [10, 20, 30, 40]
-#  children = ['a', 'b', 'c', 'd', 'e']
-#  root = ksplay.Tree.compose(keys, children)
-#  assert root.keys == [30, 40]
-#  assert root.children[0].keys == [10, 20]
-#  assert root.children[0].children == ['a', 'b', 'c']
-#  assert root.children[1] == 'd'
-#  assert root.children[2] == 'e'
+def test_mixed_compose():
+  # Terminal splay
+  ksplay.Tree.K = 3
+  keys = [10, 20, 30, 40]
+  children = ['a', 'b', 'c', 'd', 'e']
+  root = ksplay.Tree.compose(keys, children)
+  assert root.keys == [30, 40]
+  assert root.children[0].keys == [10, 20]
+  assert root.children[0].children == ['a', 'b', 'c']
+  assert root.children[1] == 'd'
+  assert root.children[2] == 'e'
 
 def test_ksplay_trivial():
   # K-splay the only node
@@ -138,3 +138,21 @@ def test_ksplay_trivial():
   splayed = ksplay.Tree.ksplay([root])
   assert splayed.keys == [10]
   assert splayed.children == ['a', 'b']
+
+def test_functional():
+  tree = ksplay.Tree()
+  assert not tree.contains(10)
+
+  tree.insert(10)
+  assert tree.contains(10)
+
+  tree.insert(20)
+  assert all(tree.contains(key) for key in [10, 20])
+
+  tree.insert(30)
+  assert all(tree.contains(key) for key in [10, 20, 30])
+
+  for key in [15, 25, 5, 50, 40, 35, 45]:
+    tree.insert(key)
+  assert all(tree.contains(key)
+             for key in [5, 10, 15, 20, 25, 30, 35, 40, 45, 50])

@@ -34,7 +34,7 @@ class Tree(object):
     current = self.root
 
     while current != None:
-      #print("at " + str(current))
+      # print("at " + str(current))
       stack.append(current)
       for key, child in zip(current.keys, current.children):
         if splayed_key == key:
@@ -76,48 +76,33 @@ class Tree(object):
     """Puts keys and children under a new framework and returns its root."""
     assert len(keys) == len(children) - 1
 
-    print("Compose(", keys, ",", children, ")")
-
     if len(children) <= cls.K:
       root = Node()
       root.keys = keys
       root.children = children
       return root
     else:
-      # Allowed operations: exact K-splay, underfull K-splay, overfull K-splay
-      # assert (len(children) == cls.K * cls.K or
-      #         len(children) == cls.K * (cls.K - 1) or
-      #         len(children) == cls.K * (cls.K + 1))
       root = Node()
       root.children = []
       while len(children) >= cls.K:
         key_slice = keys[:cls.K]
         children_slice = children[:cls.K]
 
+        lower_node = Node()
+        lower_node.children = children_slice
         if len(keys) >= cls.K:
-          lower_node = Node()
           lower_node.keys = key_slice[:-1]
-          lower_node.children = children_slice
-
-          root.keys.append(keys[cls.K-1])
+          root.keys.append(key_slice[-1])
         else:
-          lower_node = Node()
           lower_node.keys = key_slice
-          lower_node.children = children_slice
 
         root.children.append(lower_node)
 
         keys = keys[cls.K:]
         children = children[cls.K:]
 
-      # Special case for terminal splays.
-      #if len(children) % cls.K != 0:
-      #  # Append all remaining children under the root.
-      #  min_idx = len(children) - (len(children) % cls.K)
-      #  for i in range(min_idx, len(children)):
-      #    if i < len(keys):
-      #      root.keys.append(keys[i])
-      #    root.children.append(children[i])
+      root.keys += keys
+      root.children += children
 
       return root
 
@@ -126,9 +111,9 @@ class Tree(object):
     """Does a single K-splaying step on the stack."""
     #assert len(stack[-1].children) in [cls.K-1, cls.K, cls.K+1]
 
-    print("K-splaying step on the following nodes:")
-    for node in stack:
-      print("- ", node)
+    # print("K-splaying step on the following nodes:")
+    # for node in stack:
+    #   print("- ", node)
 
     suffix_length = cls.K
     if len(stack[-1].children) >= cls.K:
@@ -138,7 +123,9 @@ class Tree(object):
 
     # Handles both terminal and nonterminal cases.
     keys, children = cls.flatten(stack[-suffix_length:])
-    stack[-suffix_length:] = [cls.compose(keys, children)]
+    composition = cls.compose(keys, children)
+    # print("Composed down to:", composition)
+    stack[-suffix_length:] = [composition]
     return stack
 
   @classmethod
@@ -149,15 +136,15 @@ class Tree(object):
     else:
       while len(stack) > 1:
         stack = cls.ksplay_step(stack)
-    print("New root:", stack[0])
+    # print("New root:", stack[0])
     return stack[0]
 
   def insert(self, key):
     stack = self.walk_to(key)
     target_node = stack[-1]
-    print("Insert", key, "into", target_node)
+    # print("Insert", key, "into", target_node)
     target_node.insert(key)
-    print("Done:", target_node)
+    # print("Done:", target_node)
     self.root = self.ksplay(stack)
 
   def delete(self, key):
