@@ -9,6 +9,7 @@
 #include "dict/btree.h"
 #include "dict/cobt.h"
 #include "dict/dict.h"
+#include "dict/htable.h"
 #include "dict/splay.h"
 #include "log/log.h"
 #include "util/human.h"
@@ -16,7 +17,7 @@
 #define COUNTOF(x) (sizeof(x) / sizeof(*x))
 
 static const dict_api* ALL_APIS[] = {
-	&dict_array, &dict_btree, &dict_cobt, &dict_splay, NULL
+	&dict_array, &dict_btree, &dict_cobt, &dict_htable, &dict_splay, NULL
 };
 
 static int parse_option(int key, char *arg, struct argp_state *state) {
@@ -62,8 +63,9 @@ static void set_defaults() {
 	FLAGS.base = 1.2;
 	FLAGS.measured_apis[0] = &dict_btree;
 	FLAGS.measured_apis[1] = &dict_cobt;
-	FLAGS.measured_apis[2] = &dict_splay;
-	FLAGS.measured_apis[3] = NULL;
+	FLAGS.measured_apis[2] = &dict_htable;
+	FLAGS.measured_apis[3] = &dict_splay;
+	FLAGS.measured_apis[4] = NULL;
 }
 
 void parse_flags(int argc, char** argv) {

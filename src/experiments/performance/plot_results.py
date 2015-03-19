@@ -10,7 +10,7 @@ def load_results():
 def plot_graph(data, title):
   data = list(filter(lambda point: point['size'] > 1000, data))
   apis = set(point['implementation'] for point in data)
-  colors = ['r-', 'g-', 'b-', 'o-', 'y-', 'p-']
+  colors = ['r-', 'g-', 'b-', 'c-', 'm-', 'y-', 'k-']
 
   def sizes(api):
     return [point['size'] for point in data
