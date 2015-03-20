@@ -45,6 +45,15 @@ static void _assert_children(node* x, node** children, uint64_t child_count) {
 	} \
 } while (0)
 
+#define set_children(x,...) do { \
+	node* _node = (x); \
+	node* _children[] = { __VA_ARGS__ }; \
+	assert(COUNT_OF(_children) == _node->key_count + 1); \
+	for (uint8_t i = 0; i < COUNT_OF(_children); ++i) { \
+		_node->children[i] = _children[i]; \
+	} \
+} while (0)
+
 static void test_nonfull_compose() {
 	ksplay_pair pairs[] = { PAIR(10), PAIR(20) };
 	node* children[] = { MOCK('a'), MOCK('b'), MOCK('c') };
@@ -177,7 +186,46 @@ static void test_compose() {
 	test_mixed_compose();
 }
 
+#define assert_pairs_equal(pairs,...) do { \
+	ksplay_pair _expected[] = { __VA_ARGS__ }; \
+	for (uint64_t i = 0; i < COUNT_OF(_expected); ++i) { \
+		assert(_expected[i].key == pairs[i].key); \
+		assert(_expected[i].value == pairs[i].value); \
+	} \
+} while (0)
+
+static void test_flatten() {
+	node a, b, c;
+	set_pairs(&a, PAIR(100));
+	set_children(&a, MOCK('A'), MOCK('B'));
+
+	set_pairs(&b, PAIR(20), PAIR(50));
+	set_children(&b, MOCK('C'), MOCK('D'), &a);
+
+	set_pairs(&c, PAIR(10), PAIR(500));
+	set_children(&c, MOCK('E'), &b, MOCK('F'));
+
+	ksplay_pair* pairs;
+	node** children;
+	ksplay_node_buffer stack = {
+		.count = 3,
+		.capacity = 3,
+		.nodes = (ksplay_node*[]) { &c, &b, &a }
+	};
+	uint64_t key_count;
+	ksplay_flatten(&stack, &pairs, &children, &key_count);
+
+	assert(key_count == 5);
+	assert_pairs_equal(pairs, PAIR(10), PAIR(20), PAIR(50), PAIR(100),
+			PAIR(500));
+	assert(children[0] == MOCK('E') && children[1] == MOCK('C') &&
+			children[2] == MOCK('D') && children[3] == MOCK('A') &&
+			children[4] == MOCK('B') && children[5] == MOCK('F'));
+	free(pairs); free(children);
+}
+
 void test_ksplay() {
 	test_compose();
 	test_walk_to();
+	test_flatten();
 }

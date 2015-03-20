@@ -142,12 +142,13 @@ finished:
 // this should be doable without dynamic allocation.
 static void flatten_explore(ksplay_node_buffer* stack, node* current,
 		ksplay_pair** pairs_head, node*** children_head);
-static UNUSED void flatten(ksplay_node_buffer* stack,
-		ksplay_pair** _pairs, node*** _children) {
+void ksplay_flatten(ksplay_node_buffer* stack, ksplay_pair** _pairs,
+		node*** _children, uint64_t* _key_count) {
 	uint64_t total_keys = 0;
 	for (uint64_t i = 0; i < stack->count; ++i) {
 		total_keys += stack->nodes[i]->key_count;
 	}
+	log_info("total keys = %" PRIu64, total_keys);
 	ksplay_pair* pairs = calloc(total_keys, sizeof(ksplay_pair));
 	node** children = calloc(total_keys + 1, sizeof(node*));
 
@@ -157,6 +158,7 @@ static UNUSED void flatten(ksplay_node_buffer* stack,
 
 	*_pairs = pairs;
 	*_children = children;
+	*_key_count = total_keys;
 }
 
 static void flatten_explore(ksplay_node_buffer* stack, node* current,
@@ -176,7 +178,7 @@ static void flatten_explore(ksplay_node_buffer* stack, node* current,
 			++(*pairs_head);
 		}
 		flatten_explore(stack,
-				current->children[current->key_count - 1],
+				current->children[current->key_count],
 				pairs_head, children_head);
 	} else {
 		*(*children_head) = current;

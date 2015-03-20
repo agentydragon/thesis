@@ -46,8 +46,10 @@ typedef struct {
 } ksplay_node_buffer;
 
 // Internal methods, exposed for testing.
+ksplay_node_buffer ksplay_walk_to(ksplay* this, uint64_t key);
+void ksplay_flatten(ksplay_node_buffer* stack, ksplay_pair** _pairs,
+		ksplay_node*** _children, uint64_t* key_count);
 ksplay_node* ksplay_compose(ksplay_pair* pairs, ksplay_node** children,
 		uint64_t key_count);
-ksplay_node_buffer ksplay_walk_to(ksplay* this, uint64_t key);
 
 #endif
