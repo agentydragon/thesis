@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "log/log.h"
 #include "util/unused.h"
@@ -111,7 +112,7 @@ static void buffer_append(node_buffer* buffer, node* appended_node) {
 }
 
 // Tree.walk_to
-static UNUSED node_buffer walk_to(ksplay* this, uint64_t key) {
+static node_buffer walk_to(ksplay* this, uint64_t key) {
 	node_buffer stack = empty_buffer();
 	node* current = this->root;
 
@@ -187,9 +188,11 @@ static void flatten_explore(node_buffer* stack, node* current,
 
 // Tree.compose
 // Puts pairs and values under a new framework and returns its root.
-static UNUSED node* compose(ksplay_pair* pairs, node* children,
-		uint64_t key_count) {
+// TODO: It should be possible to write an in-place 'compose'.
+// TODO: Top-down K-splay to avoid allocating an O(N/K) stack?
+node* ksplay_compose(ksplay_pair* pairs, node** children, uint64_t key_count) {
 	node* root = node_init();
+	memset(root, 0, sizeof(node));
 	if (key_count <= KSPLAY_K) {
 		root->key_count = key_count;
 		memcpy(&root->pairs, pairs, key_count * sizeof(ksplay_pair));
@@ -197,7 +200,45 @@ static UNUSED node* compose(ksplay_pair* pairs, node* children,
 				(key_count + 1) * sizeof(node*));
 	} else {
 		root->key_count = 0;
-		log_fatal("TODO: port over pair-splitting logic");
+
+		uint64_t children_remaining = key_count + 1;
+		while (children_remaining >= KSPLAY_K) {
+			node* lower_node = node_init();
+			root->children[root->key_count] = lower_node;
+			if (children_remaining > KSPLAY_K) {
+				lower_node->key_count = KSPLAY_K - 1;
+				memcpy(lower_node->pairs, pairs,
+						(KSPLAY_K - 1) * sizeof(ksplay_pair));
+				memcpy(lower_node->children, children,
+						KSPLAY_K * sizeof(node*));
+				root->pairs[root->key_count] =
+						pairs[KSPLAY_K - 1];
+				++root->key_count;
+			} else {
+				// Last child.
+				lower_node->key_count = children_remaining - 1;
+				memcpy(lower_node->pairs, pairs,
+						(children_remaining - 1) * sizeof(ksplay_pair));
+				memcpy(lower_node->children, children,
+						children_remaining * sizeof(node*));
+			}
+			pairs += KSPLAY_K;
+			children += KSPLAY_K;
+			if (children_remaining > KSPLAY_K) {
+				children_remaining -= KSPLAY_K;
+			} else {
+				children_remaining = 0;
+			}
+		}
+
+		//assert(children_remaining == 0);
+		if (children_remaining > 0) {
+			memcpy(root->pairs + root->key_count,
+					pairs, (children_remaining - 1) * sizeof(ksplay_pair));
+			memcpy(root->children + root->key_count,
+					children, children_remaining * sizeof(node*));
+			root->key_count += children_remaining - 1;
+		}
 	}
 	return root;
 }

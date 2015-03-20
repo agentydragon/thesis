@@ -39,4 +39,8 @@ int8_t ksplay_delete(ksplay* this, uint64_t key);
 void ksplay_find(ksplay* this, uint64_t key, uint64_t *value, bool *found);
 // TODO: find_next, find_previous
 
+// Internal methods, exposed for testing.
+ksplay_node* ksplay_compose(ksplay_pair* pairs, ksplay_node** children,
+		uint64_t key_count);
+
 #endif

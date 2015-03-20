@@ -12,6 +12,7 @@
 #include "dict/test/large.h"
 #include "dict/test/ordered_dict_blackbox.h"
 #include "htable/test/test.h"
+#include "ksplay/test.h"
 #include "log/log.h"
 #include "math/test.h"
 #include "observation/test.h"
@@ -20,6 +21,7 @@
 #include "veb_layout/test.h"
 
 void run_unit_tests() {
+	test_ksplay();
 	test_cobt();
 
 	test_btree();
