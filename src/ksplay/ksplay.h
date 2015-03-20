@@ -39,8 +39,15 @@ int8_t ksplay_delete(ksplay* this, uint64_t key);
 void ksplay_find(ksplay* this, uint64_t key, uint64_t *value, bool *found);
 // TODO: find_next, find_previous
 
+typedef struct {
+	ksplay_node** nodes;
+	uint64_t count;
+	uint64_t capacity;
+} ksplay_node_buffer;
+
 // Internal methods, exposed for testing.
 ksplay_node* ksplay_compose(ksplay_pair* pairs, ksplay_node** children,
 		uint64_t key_count);
+ksplay_node_buffer ksplay_walk_to(ksplay* this, uint64_t key);
 
 #endif

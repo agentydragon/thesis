@@ -36,6 +36,15 @@ static void _assert_children(node* x, node** children, uint64_t child_count) {
 	_assert_children(x, _children, COUNT_OF(_children)); \
 } while (0)
 
+#define set_pairs(x,...) do { \
+	node* _node = (x); \
+	ksplay_pair _pairs[] = { __VA_ARGS__ }; \
+	_node->key_count = COUNT_OF(_pairs); \
+	for (uint8_t i = 0; i < COUNT_OF(_pairs); ++i) { \
+		_node->pairs[i] = _pairs[i]; \
+	} \
+} while (0)
+
 static void test_nonfull_compose() {
 	ksplay_pair pairs[] = { PAIR(10), PAIR(20) };
 	node* children[] = { MOCK('a'), MOCK('b'), MOCK('c') };
@@ -44,6 +53,31 @@ static void test_nonfull_compose() {
 	assert_pairs(root, PAIR(10), PAIR(20));
 	assert_children(root, MOCK('a'), MOCK('b'), MOCK('c'));
 	free(root);
+}
+
+static void test_walk_to() {
+	node a, b, c, root;
+	set_pairs(&a, PAIR(48), PAIR(49));
+	a.children[0] = a.children[1] = a.children[2] = NULL;
+
+	set_pairs(&b, PAIR(30), PAIR(45));
+	b.children[0] = b.children[1] = NULL; b.children[2] = &a;
+
+	set_pairs(&c, PAIR(25), PAIR(50), PAIR(75));
+	c.children[0] = NULL;
+	c.children[1] = &b;
+	c.children[2] = c.children[3] = NULL;
+
+	set_pairs(&root, PAIR(100), PAIR(200));
+	root.children[0] = &c;
+	root.children[1] = root.children[2] = root.children[3] = NULL;
+
+	ksplay tree = { .root = &root };
+	ksplay_node_buffer stack = ksplay_walk_to(&tree, 47);
+	assert(stack.count == 4);
+	assert(stack.nodes[0] == &root && stack.nodes[1] == &c &&
+			stack.nodes[2] == &b && stack.nodes[3] == &a);
+	free(stack.nodes);
 }
 
 static void test_exact_compose() {
@@ -145,4 +179,5 @@ static void test_compose() {
 
 void test_ksplay() {
 	test_compose();
+	test_walk_to();
 }
