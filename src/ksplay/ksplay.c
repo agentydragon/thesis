@@ -1,6 +1,7 @@
 #include "ksplay/ksplay.h"
 
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
@@ -11,6 +12,35 @@
 #define node ksplay_node
 
 // Port-in-progress from experiments/ksplay/ksplay.py.
+
+static void _dump_single_node(node* x, int depth) {
+	char buffer[256] = {0};
+	int r = 0;
+	for (int i = 0; i < depth; ++i) {
+		r += sprintf(buffer + r, " ");
+	}
+	r += sprintf(buffer + r, "%p (%" PRIu8 "): ", x, x->key_count);
+	for (int i = 0; i < x->key_count; ++i) {
+		r += sprintf(buffer + r, "%p <%" PRIu64 "=%" PRIu64 "> ",
+				x->children[i],
+				x->pairs[i].key, x->pairs[i].value);
+	}
+	r += sprintf(buffer + r, "%p", x->children[x->key_count]);
+	log_info("%s", buffer);
+}
+
+static void _dump_recursive(node* x, int depth) {
+	_dump_single_node(x, depth);
+	for (uint64_t i = 0; i <= x->key_count; ++i) {
+		if (x->children[i]) {
+			_dump_recursive(x->children[i], depth + 1);
+		}
+	}
+}
+
+void ksplay_dump(ksplay* tree) {
+	_dump_recursive(tree->root, 0);
+}
 
 // Node.__init__
 static node* node_init() {
@@ -40,6 +70,7 @@ static bool node_insert(node* this, uint64_t key, uint64_t value) {
 		.value = value
 	};
 	++this->key_count;
+	this->children[this->key_count] = NULL;
 	return true;
 }
 
@@ -148,7 +179,6 @@ void ksplay_flatten(ksplay_node_buffer* stack, ksplay_pair** _pairs,
 	for (uint64_t i = 0; i < stack->count; ++i) {
 		total_keys += stack->nodes[i]->key_count;
 	}
-	log_info("total keys = %" PRIu64, total_keys);
 	ksplay_pair* pairs = calloc(total_keys, sizeof(ksplay_pair));
 	node** children = calloc(total_keys + 1, sizeof(node*));
 
@@ -161,16 +191,18 @@ void ksplay_flatten(ksplay_node_buffer* stack, ksplay_pair** _pairs,
 	*_key_count = total_keys;
 }
 
-static void flatten_explore(ksplay_node_buffer* stack, node* current,
-		ksplay_pair** pairs_head, node*** children_head) {
-	bool found = false;
-	for (uint8_t i = 0; i < stack->count; ++i) {
-		if (stack->nodes[i] == current) {
-			found = true;
-			break;
+static bool buffer_contains(ksplay_node_buffer* buffer, node* x) {
+	for (uint8_t i = 0; i < buffer->count; ++i) {
+		if (buffer->nodes[i] == x) {
+			return true;
 		}
 	}
-	if (found) {
+	return false;
+}
+
+static void flatten_explore(ksplay_node_buffer* stack, node* current,
+		ksplay_pair** pairs_head, node*** children_head) {
+	if (buffer_contains(stack, current)) {
 		for (uint8_t i = 0; i < current->key_count; ++i) {
 			flatten_explore(stack, current->children[i],
 					pairs_head, children_head);
@@ -191,9 +223,22 @@ static void flatten_explore(ksplay_node_buffer* stack, node* current,
 // TODO: It should be possible to write an in-place 'compose'.
 // TODO: Top-down K-splay to avoid allocating an O(N/K) stack?
 node* ksplay_compose(ksplay_pair* pairs, node** children, uint64_t key_count) {
+	log_verbose(1, "Composing:");
+	IF_LOG_VERBOSE(1) {
+		char buffer[256] = {0};
+		int r = 0;
+		for (uint64_t i = 0; i < key_count; ++i) {
+			r += sprintf(buffer + r,
+					"%p <%" PRIu64 "=%" PRIu64 "> ",
+					children[i],
+					pairs[i].key, pairs[i].value);
+		}
+		r += sprintf(buffer + r, "%p", children[key_count]);
+		log_info("  %s", buffer);
+	}
 	node* root = node_init();
 	memset(root, 0, sizeof(node));
-	if (key_count <= KSPLAY_K) {
+	if (key_count </*=*/ KSPLAY_K) {
 		root->key_count = key_count;
 		memcpy(&root->pairs, pairs, key_count * sizeof(ksplay_pair));
 		memcpy(&root->children, children,
@@ -243,19 +288,66 @@ node* ksplay_compose(ksplay_pair* pairs, node** children, uint64_t key_count) {
 	return root;
 }
 
+static ksplay_node_buffer buffer_suffix(ksplay_node_buffer buffer,
+		uint64_t suffix_length) {
+	assert(buffer.count >= suffix_length);
+	const uint64_t skip = buffer.count - suffix_length;
+	return (ksplay_node_buffer) {
+		.nodes = buffer.nodes + skip,
+		.count = suffix_length,
+		.capacity = suffix_length
+	};
+}
+
 // Tree.ksplay_step
 // Does a single K-splaying step on the stack.
-static UNUSED void ksplay_step(ksplay_node_buffer* stack) {
-	(void) stack;
-	log_fatal("TODO: port over ksplay_step");
+static void ksplay_step(ksplay_node_buffer* stack) {
+	log_verbose(1, "K-splaying the following nodes:");
+	IF_LOG_VERBOSE(1) {
+		for (uint64_t i = 0; i < stack->count; ++i) {
+			_dump_recursive(stack->nodes[i], 2);
+		}
+	}
+	uint8_t suffix_length = KSPLAY_K;
+	if (stack->nodes[stack->count - 1]->key_count + 1 >= KSPLAY_K) {
+		++suffix_length;
+	}
+	if (stack->nodes[stack->count - 1]->key_count + 1 >= KSPLAY_K + 1) {
+		++suffix_length;
+	}
+
+	const uint8_t consumed = (suffix_length < stack->count) ?
+			suffix_length : stack->count;
+	ksplay_node_buffer consumed_suffix = buffer_suffix(*stack, consumed);
+
+	ksplay_pair* pairs;
+	node** children;
+	uint64_t key_count;
+	ksplay_flatten(&consumed_suffix, &pairs, &children, &key_count);
+
+	for (uint64_t i = 0; i < consumed; ++i) {
+		free(consumed_suffix.nodes[i]);
+	}
+
+	stack->count -= consumed - 1;
+	stack->nodes[stack->count - 1] =
+			ksplay_compose(pairs, children, key_count);
+
+	free(pairs);
+	free(children);
 }
 
 // Tree.ksplay
 // K-splays together the stack and returns the new root.
-static UNUSED node* ksplay_ksplay(ksplay_node_buffer* stack) {
-	(void) stack;
-	log_fatal("TODO: port over ksplay");
-	return NULL;
+static node* ksplay_ksplay(ksplay_node_buffer* stack) {
+	if (stack->count == 1) {
+		ksplay_step(stack);
+	} else {
+		while (stack->count > 1) {
+			ksplay_step(stack);
+		}
+	}
+	return stack->nodes[0];
 }
 
 // Tree.insert
