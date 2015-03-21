@@ -47,6 +47,7 @@ void run_unit_tests() {
 
 	test_dict_large(&dict_array, 1 << 10);
 	test_dict_large(&dict_btree, 1 << 20);
+	test_dict_large(&dict_ksplay, 1 << 20);
 	// TODO: optimize dict_cobt for better performance
 	test_dict_large(&dict_cobt, 1 << 20);
 	test_dict_large(&dict_htable, 1 << 20);

@@ -178,25 +178,27 @@ finished:
 
 // Tree.flatten
 // Returns the pairs and external nodes of a stack in BFS order.
-// TODO: 'pairs' and 'children' have a fixed maximum size of O(K^2),
-// this should be doable without dynamic allocation.
+// 'pairs' should point to a buffer of at least KSPLAY_MAX_EXPLORE_KEYS
+// ksplay_pairs. 'children' should point to at least KSPLAY_MAX_EXPLORE_KEYS + 1
+// ksplay_node*'s.
 static void flatten_explore(ksplay_node_buffer* stack, node* current,
-		ksplay_pair** pairs_head, node*** children_head);
-void ksplay_flatten(ksplay_node_buffer* stack, ksplay_pair** _pairs,
-		node*** _children, uint64_t* _key_count) {
+		ksplay_pair** pairs_head, node*** children_head,
+		uint64_t* remaining_keys);
+void ksplay_flatten(ksplay_node_buffer* stack, ksplay_pair* pairs,
+		node** children, uint64_t* _key_count) {
 	uint64_t total_keys = 0;
 	for (uint64_t i = 0; i < stack->count; ++i) {
 		total_keys += stack->nodes[i]->key_count;
 	}
-	ksplay_pair* pairs = calloc(total_keys, sizeof(ksplay_pair));
-	node** children = calloc(total_keys + 1, sizeof(node*));
+	assert(total_keys <= KSPLAY_MAX_EXPLORE_KEYS);
 
 	ksplay_pair* pairs_head = pairs;
 	node** children_head = children;
-	flatten_explore(stack, stack->nodes[0], &pairs_head, &children_head);
+	uint64_t remaining = total_keys;
+	flatten_explore(stack, stack->nodes[0], &pairs_head, &children_head,
+			&remaining);
+	assert(remaining == 0);
 
-	*_pairs = pairs;
-	*_children = children;
 	*_key_count = total_keys;
 }
 
@@ -210,17 +212,23 @@ static bool buffer_contains(ksplay_node_buffer* buffer, node* x) {
 }
 
 static void flatten_explore(ksplay_node_buffer* stack, node* current,
-		ksplay_pair** pairs_head, node*** children_head) {
+		ksplay_pair** pairs_head, node*** children_head,
+		uint64_t* remaining_keys) {
 	if (buffer_contains(stack, current)) {
 		for (uint8_t i = 0; i < current->key_count; ++i) {
+			assert(*remaining_keys > 0);
+			--(*remaining_keys);
+
 			flatten_explore(stack, current->children[i],
-					pairs_head, children_head);
+					pairs_head, children_head,
+					remaining_keys);
+
 			*(*pairs_head) = current->pairs[i];
 			++(*pairs_head);
 		}
 		flatten_explore(stack,
 				current->children[current->key_count],
-				pairs_head, children_head);
+				pairs_head, children_head, remaining_keys);
 	} else {
 		*(*children_head) = current;
 		++(*children_head);
@@ -419,10 +427,11 @@ static void ksplay_step(ksplay_node_buffer* stack) {
 	ksplay_node_buffer consumed_suffix = buffer_suffix(*stack, consumed);
 	node* old_root = consumed_suffix.nodes[0];
 
-	ksplay_pair* pairs;
-	node** children;
+	ksplay_pair pairs[KSPLAY_MAX_EXPLORE_KEYS];
+	node* children[KSPLAY_MAX_EXPLORE_KEYS + 1];;
 	uint64_t key_count;
-	ksplay_flatten(&consumed_suffix, &pairs, &children, &key_count);
+	ksplay_flatten(&consumed_suffix, pairs, children, &key_count);
+	assert(key_count <= (KSPLAY_K + 2) * (KSPLAY_K - 1) + 1);
 
 	for (uint64_t i = 0; i < consumed; ++i) {
 		free(consumed_suffix.nodes[i]);
@@ -434,8 +443,8 @@ static void ksplay_step(ksplay_node_buffer* stack) {
 			ksplay_compose(pairs, children, key_count);
 	log_info("stack after composition: %p", stack);
 
-	free(pairs);
-	free(children);
+	//free(pairs);
+	//free(children);
 
 	// Fix up possible pointers to old root.
 	if (stack->count > 1) {

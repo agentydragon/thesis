@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #define KSPLAY_K 3
+#define KSPLAY_MAX_EXPLORE_KEYS ((KSPLAY_K + 2) * (KSPLAY_K - 1) + 1)
 
 // This includes a +1 buffer pair, because nodes may temporarily overflow
 // between inserting and restoring balance.
@@ -50,8 +51,8 @@ typedef struct {
 } ksplay_node_buffer;
 
 ksplay_node_buffer ksplay_walk_to(ksplay* this, uint64_t key);
-void ksplay_flatten(ksplay_node_buffer* stack, ksplay_pair** _pairs,
-		ksplay_node*** _children, uint64_t* key_count);
+void ksplay_flatten(ksplay_node_buffer* stack, ksplay_pair* _pairs,
+		ksplay_node** _children, uint64_t* key_count);
 ksplay_node* ksplay_compose(ksplay_pair* pairs, ksplay_node** children,
 		uint64_t key_count);
 ksplay_node* ksplay_split_overfull(ksplay_node* root);

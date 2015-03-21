@@ -206,15 +206,15 @@ static void test_flatten() {
 	set_pairs(&c, PAIR(10), PAIR(500));
 	set_children(&c, MOCK('E'), &b, MOCK('F'));
 
-	ksplay_pair* pairs;
-	node** children;
+	ksplay_pair pairs[KSPLAY_MAX_EXPLORE_KEYS];
+	node* children[KSPLAY_MAX_EXPLORE_KEYS + 1];
 	ksplay_node_buffer stack = {
 		.count = 3,
 		.capacity = 3,
 		.nodes = (ksplay_node*[]) { &c, &b, &a }
 	};
 	uint64_t key_count;
-	ksplay_flatten(&stack, &pairs, &children, &key_count);
+	ksplay_flatten(&stack, pairs, children, &key_count);
 
 	assert(key_count == 5);
 	assert_pairs_equal(pairs, PAIR(10), PAIR(20), PAIR(50), PAIR(100),
@@ -222,7 +222,6 @@ static void test_flatten() {
 	assert(children[0] == MOCK('E') && children[1] == MOCK('C') &&
 			children[2] == MOCK('D') && children[3] == MOCK('A') &&
 			children[4] == MOCK('B') && children[5] == MOCK('F'));
-	free(pairs); free(children);
 }
 
 #define assert_not_found(key) do { \
