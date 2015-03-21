@@ -306,33 +306,22 @@ static node* compose_twolevel(ksplay_node_pool* pool,
 	while (children_remaining >= KSPLAY_K) {
 		node* lower_node = pool_acquire(pool);
 		root->children[root_key_count] = lower_node;
+		uint8_t keys_to_lower;
 		if (children_remaining > KSPLAY_K) {
-			memcpy(lower_node->pairs, pairs,
-					(KSPLAY_K - 1) * sizeof(ksplay_pair));
-			memcpy(lower_node->children, children,
-					KSPLAY_K * sizeof(node*));
-			assert(node_key_count(lower_node) == KSPLAY_K - 1);
+			keys_to_lower = KSPLAY_K - 1;
 			root->pairs[root_key_count] = pairs[KSPLAY_K - 1];
 			++root_key_count;
 		} else {
 			// Last child.
-			memcpy(lower_node->pairs, pairs,
-					(children_remaining - 1) * sizeof(ksplay_pair));
-			memcpy(lower_node->children, children,
-					children_remaining * sizeof(node*));
-			assert(node_key_count(lower_node) ==
-					children_remaining - 1);
+			keys_to_lower = children_remaining - 1;
 		}
+		make_node(lower_node, pairs, children, keys_to_lower);
+		assert(node_key_count(lower_node) == keys_to_lower);
 		pairs += KSPLAY_K;
 		children += KSPLAY_K;
-		if (children_remaining > KSPLAY_K) {
-			children_remaining -= KSPLAY_K;
-		} else {
-			children_remaining = 0;
-		}
+		children_remaining -= (keys_to_lower + 1);
 	}
 
-	//assert(children_remaining == 0);
 	if (children_remaining > 0) {
 		memcpy(root->pairs + root_key_count,
 				pairs, (children_remaining - 1) * sizeof(ksplay_pair));
