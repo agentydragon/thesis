@@ -54,5 +54,6 @@ void ksplay_flatten(ksplay_node_buffer* stack, ksplay_pair** _pairs,
 		ksplay_node*** _children, uint64_t* key_count);
 ksplay_node* ksplay_compose(ksplay_pair* pairs, ksplay_node** children,
 		uint64_t key_count);
+ksplay_node* ksplay_split_overfull(ksplay_node* root);
 
 #endif

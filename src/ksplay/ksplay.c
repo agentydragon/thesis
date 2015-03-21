@@ -20,13 +20,17 @@ static void _dump_single_node(node* x, int depth) {
 	for (int i = 0; i < depth; ++i) {
 		r += sprintf(buffer + r, " ");
 	}
-	r += sprintf(buffer + r, "%p (%" PRIu8 "): ", x, x->key_count);
-	for (int i = 0; i < x->key_count; ++i) {
-		r += sprintf(buffer + r, "%p <%" PRIu64 "=%" PRIu64 "> ",
-				x->children[i],
-				x->pairs[i].key, x->pairs[i].value);
+	if ((long) x < 10000) {
+		r += sprintf(buffer + r, "%p = MOCK(%ld)", x, (long) x);
+	} else {
+		r += sprintf(buffer + r, "%p (%" PRIu8 "): ", x, x->key_count);
+		for (int i = 0; i < x->key_count; ++i) {
+			r += sprintf(buffer + r, "%p <%" PRIu64 "=%" PRIu64 "> ",
+					x->children[i],
+					x->pairs[i].key, x->pairs[i].value);
+		}
+		r += sprintf(buffer + r, "%p", x->children[x->key_count]);
 	}
-	r += sprintf(buffer + r, "%p", x->children[x->key_count]);
 	log_info("%s", buffer);
 }
 
@@ -67,12 +71,16 @@ static bool node_insert(node* this, uint64_t key, uint64_t value) {
 	}
 	memmove(&this->pairs[before + 1], &this->pairs[before],
 			sizeof(ksplay_pair) * (this->key_count - before));
+	memmove(&this->children[before + 1], &this->children[before],
+			sizeof(node*) * (this->key_count - before + 1));
+	// TODO: move over all children
 	this->pairs[before] = (ksplay_pair) {
 		.key = key,
 		.value = value
 	};
+	this->children[before] = NULL;
 	++this->key_count;
-	this->children[this->key_count] = NULL;
+	//this->children[this->key_count] = NULL;
 	return true;
 }
 
@@ -311,7 +319,7 @@ static bool accepted_by_twolevel(uint64_t key_count) {
 node* ksplay_compose(ksplay_pair* pairs, node** children, uint64_t key_count) {
 	log_info("Composing:");
 	{
-		char buffer[512] = {0};
+		char buffer[1024] = {0};
 		uint64_t r = 0;
 		for (uint64_t i = 0; i < key_count; ++i) {
 			r += sprintf(buffer + r,
@@ -450,10 +458,12 @@ static void ksplay_step(ksplay_node_buffer* stack) {
 }
 
 // Splits a node under a new one-key node if it's overfull.
-static node* split_overfull(ksplay_node* root) {
+node* ksplay_split_overfull(ksplay_node* root) {
 	assert(root->key_count <= KSPLAY_K);
 	if (root->key_count == KSPLAY_K) {
-		log_info("overfull root");
+		log_info("Overfull root, splitting it:");
+		//log_info("overfull root:::");
+		_dump_single_node(root, 2);
 		// Steal the last key.
 		--root->key_count;
 
@@ -464,6 +474,9 @@ static node* split_overfull(ksplay_node* root) {
 		new_root->children[0] = root;
 		new_root->children[1] = root->children[root->key_count + 1];
 
+		log_info("Overfull root split into:");
+		_dump_single_node(new_root, 2);
+		_dump_single_node(root, 4);
 		root = new_root;
 	}
 	return root;
@@ -482,7 +495,7 @@ static node* _ksplay_ksplay(ksplay_node_buffer* stack) {
 		ksplay_step(stack);
 	}
 	// If the root is overfull, split it.
-	node* root = split_overfull(stack->nodes[0]);
+	node* root = ksplay_split_overfull(stack->nodes[0]);
 	assert(root->key_count < KSPLAY_K);
 	log_info("// K-splay done");
 
@@ -503,6 +516,7 @@ int8_t ksplay_insert(ksplay* this, uint64_t key, uint64_t value) {
 
 	ksplay_node_buffer stack = ksplay_walk_to(this, key);
 	node* target_node = stack.nodes[stack.count - 1];
+	// TODO: tohle samo o sobe fungovat nebude...
 	const int8_t result = node_insert(target_node, key, value) ? 0 : 1;
 	if (result == 0) {
 		++this->size;

@@ -10,6 +10,7 @@
 #include "dict/cobt.h"
 #include "dict/dict.h"
 #include "dict/htable.h"
+#include "dict/ksplay.h"
 #include "dict/splay.h"
 #include "log/log.h"
 #include "util/human.h"
@@ -17,7 +18,8 @@
 #define COUNTOF(x) (sizeof(x) / sizeof(*x))
 
 static const dict_api* ALL_APIS[] = {
-	&dict_array, &dict_btree, &dict_cobt, &dict_htable, &dict_splay, NULL
+	&dict_array, &dict_btree, &dict_cobt, &dict_htable, &dict_ksplay,
+	&dict_splay, NULL
 };
 
 static int parse_option(int key, char *arg, struct argp_state *state) {

@@ -18,10 +18,11 @@ static void assert_pair(node* x, uint8_t index, ksplay_pair expected_pair) {
 }
 
 #define assert_pairs(x,...) do { \
+	ksplay_node* _node = x; \
 	ksplay_pair _pairs[] = { __VA_ARGS__ }; \
-	assert(x->key_count == COUNT_OF(_pairs)); \
+	assert(_node->key_count == COUNT_OF(_pairs)); \
 	for (uint64_t i = 0; i < COUNT_OF(_pairs); ++i) { \
-		assert_pair(x, i, _pairs[i]); \
+		assert_pair(_node, i, _pairs[i]); \
 	} \
 } while (0)
 
@@ -271,9 +272,23 @@ static void test_insert() {
 	ksplay_destroy(&tree);
 }
 
+static void test_split_overfull() {
+	ksplay_node root;
+	root.key_count = 3;
+	set_pairs(&root, PAIR(10), PAIR(20), PAIR(30));
+	set_children(&root, MOCK('a'), MOCK('b'), MOCK('c'), MOCK('d'));
+
+	ksplay_node* new_root = ksplay_split_overfull(&root);
+	assert_pairs(new_root, PAIR(30));
+	assert_children(new_root, &root, MOCK('d'));
+	assert_pairs(&root, PAIR(10), PAIR(20));
+	assert_children(&root, MOCK('a'), MOCK('b'), MOCK('c'));
+}
+
 void test_ksplay() {
 	test_compose();
 	test_walk_to();
 	test_flatten();
 	test_insert();
+	test_split_overfull();
 }
