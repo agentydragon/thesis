@@ -299,7 +299,6 @@ static node* compose_twolevel(ksplay_node_pool* pool,
 			keys_to_lower = KSPLAY_K - 1;
 			// Not the last child; root eats the last key.
 			root->pairs[root_key_count] = pairs[KSPLAY_K - 1];
-			++root_key_count;
 		} else {
 			// Last child.
 			keys_to_lower = children_remaining - 1;
@@ -310,6 +309,9 @@ static node* compose_twolevel(ksplay_node_pool* pool,
 
 		pairs += KSPLAY_K;
 		children += KSPLAY_K;
+		if (children_remaining > KSPLAY_K) {
+			++root_key_count;
+		}
 		children_remaining -= (keys_to_lower + 1);
 	}
 
