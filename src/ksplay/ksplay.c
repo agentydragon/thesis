@@ -602,13 +602,7 @@ int8_t ksplay_delete(ksplay* this, uint64_t key) {
 	node* target = stack.nodes[stack.count - 1];
 
 	if (!node_contains(target, key)) {
-		// No such key here.
-		ksplay_ksplay(this, &stack);
-		IF_LOG_VERBOSE(1) {
-			log_info("after failed delete(%" PRIu64 "):", key);
-			ksplay_dump(this);
-		}
-		return 1;
+		goto no_such_key;
 	}
 
 	uint8_t index_in_target = find_key_in_node(target, key);
@@ -625,8 +619,6 @@ int8_t ksplay_delete(ksplay* this, uint64_t key) {
 			stack.nodes[stack.count - 1] = target_replacement;
 			free(target);
 		}
-		--this->size;
-		ksplay_ksplay(this, &stack);
 		goto removed;
 	} else {
 		// Dude. Not cool.
@@ -640,12 +632,20 @@ int8_t ksplay_delete(ksplay* this, uint64_t key) {
 		assert(victim->children[1] == NULL);
 		node_remove_at_simple(victim, 0);
 		target->pairs[index_in_target + 1] = victim->pairs[0];
-		--this->size;
-		ksplay_ksplay(this, &stack);
 		goto removed;
 	}
 
+no_such_key:
+	ksplay_ksplay(this, &stack);
+	IF_LOG_VERBOSE(1) {
+		log_info("after failed delete(%" PRIu64 "):", key);
+		ksplay_dump(this);
+	}
+	return 1;
+
 removed:
+	--this->size;
+	ksplay_ksplay(this, &stack);
 	IF_LOG_VERBOSE(1) {
 		log_info("after delete(%" PRIu64 "):", key);
 		ksplay_dump(this);
