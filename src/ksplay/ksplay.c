@@ -290,11 +290,13 @@ node* compose_twolevel(ksplay_pair* pairs, node** children, uint64_t key_count) 
 
 	assert(root->key_count <= KSPLAY_K && root->key_count > 0);
 
-	log_info("Two-level composition:");
-	_dump_single_node(root, 2);
-	for (uint8_t i = 0; i < root->key_count + 1; ++i) {
-		if (root->children[i]) {
-			_dump_single_node(root->children[i], 4);
+	IF_LOG_VERBOSE(1) {
+		log_info("Two-level composition:");
+		_dump_single_node(root, 2);
+		for (uint8_t i = 0; i < root->key_count + 1; ++i) {
+			if (root->children[i]) {
+				_dump_single_node(root->children[i], 4);
+			}
 		}
 	}
 
@@ -398,9 +400,11 @@ static void replace_pointer(node* haystack, node* needle, node* replacement) {
 static void ksplay_step(ksplay_node_buffer* stack) {
 	assert(stack->count > 1);
 
-	log_info("K-splaying the following nodes:");
-	for (uint64_t i = 0; i < stack->count; ++i) {
-		_dump_single_node(stack->nodes[i], 2);
+	IF_LOG_VERBOSE(1) {
+		log_info("K-splaying the following nodes:");
+		for (uint64_t i = 0; i < stack->count; ++i) {
+			_dump_single_node(stack->nodes[i], 2);
+		}
 	}
 	uint8_t suffix_length = KSPLAY_K;
 	if (stack->nodes[stack->count - 1]->key_count + 1 >= KSPLAY_K) {
@@ -441,29 +445,28 @@ static void ksplay_step(ksplay_node_buffer* stack) {
 		replace_pointer(above_root, old_root, new_root);
 	}
 
-	log_info("K-splaying result:");
-	for (uint64_t i = 0; i < stack->count; ++i) {
-		_dump_single_node(stack->nodes[i], 2);
+	IF_LOG_VERBOSE(1) {
+		log_info("K-splaying result:");
+		for (uint64_t i = 0; i < stack->count; ++i) {
+			_dump_single_node(stack->nodes[i], 2);
+		}
 	}
 
 	// Only the last node and the root may be non-exact.
 	for (uint64_t i = 1; i < stack->count - 1; ++i) {
 		assert(stack->nodes[i]->key_count == KSPLAY_K - 1);
 	}
-
-	// log_info("K-splay result:");
-	// for (uint64_t i = 0; i < stack->count; ++i) {
-	// 	_dump_single_node(stack->nodes[i], 2);
-	// }
 }
 
 // Splits a node under a new one-key node if it's overfull.
 node* ksplay_split_overfull(ksplay_node* root) {
 	assert(root->key_count <= KSPLAY_K);
 	if (root->key_count == KSPLAY_K) {
-		log_info("Overfull root, splitting it:");
-		//log_info("overfull root:::");
-		_dump_single_node(root, 2);
+		IF_LOG_VERBOSE(1) {
+			log_info("Overfull root, splitting it:");
+			//log_info("overfull root:::");
+			_dump_single_node(root, 2);
+		}
 		// Steal the last key.
 		--root->key_count;
 
@@ -474,9 +477,11 @@ node* ksplay_split_overfull(ksplay_node* root) {
 		new_root->children[0] = root;
 		new_root->children[1] = root->children[root->key_count + 1];
 
-		log_info("Overfull root split into:");
-		_dump_single_node(new_root, 2);
-		_dump_single_node(root, 4);
+		IF_LOG_VERBOSE(1) {
+			log_info("Overfull root split into:");
+			_dump_single_node(new_root, 2);
+			_dump_single_node(root, 4);
+		}
 		root = new_root;
 	}
 	return root;
@@ -485,10 +490,12 @@ node* ksplay_split_overfull(ksplay_node* root) {
 // Tree.ksplay
 // K-splays together the stack and returns the new root.
 static node* _ksplay_ksplay(ksplay_node_buffer* stack) {
-	log_info("-- starting new K-splay --");
-	log_info("K-splaying input:");
-	for (uint64_t i = 0; i < stack->count; ++i) {
-		_dump_single_node(stack->nodes[i], 2);
+	IF_LOG_VERBOSE(1) {
+		log_info("-- starting new K-splay --");
+		log_info("K-splaying input:");
+		for (uint64_t i = 0; i < stack->count; ++i) {
+			_dump_single_node(stack->nodes[i], 2);
+		}
 	}
 	while (stack->count > 1) {
 		log_info("step");
@@ -511,8 +518,10 @@ static void ksplay_ksplay(ksplay* this, ksplay_node_buffer* stack) {
 
 // Tree.insert
 int8_t ksplay_insert(ksplay* this, uint64_t key, uint64_t value) {
-	log_info("before insert(%" PRIu64 "):", key);
-	ksplay_dump(this);
+	IF_LOG_VERBOSE(1) {
+		log_info("before insert(%" PRIu64 "):", key);
+		ksplay_dump(this);
+	}
 
 	ksplay_node_buffer stack = ksplay_walk_to(this, key);
 	node* target_node = stack.nodes[stack.count - 1];
@@ -523,8 +532,10 @@ int8_t ksplay_insert(ksplay* this, uint64_t key, uint64_t value) {
 	}
 	ksplay_ksplay(this, &stack);
 
-	log_info("after insert(%" PRIu64 "):", key);
-	ksplay_dump(this);
+	IF_LOG_VERBOSE(1) {
+		log_info("after insert(%" PRIu64 "):", key);
+		ksplay_dump(this);
+	}
 
 	return result;
 }
@@ -550,8 +561,10 @@ static int8_t find_key_in_node(node* x, uint64_t key) {
 
 // Tree.delete
 int8_t ksplay_delete(ksplay* this, uint64_t key) {
-	log_info("before delete(%" PRIu64 "):", key);
-	ksplay_dump(this);
+	IF_LOG_VERBOSE(1) {
+		log_info("before delete(%" PRIu64 "):", key);
+		ksplay_dump(this);
+	}
 
 	ksplay_node_buffer stack = ksplay_walk_to(this, key);
 	node* target_node = stack.nodes[stack.count - 1];
@@ -559,8 +572,10 @@ int8_t ksplay_delete(ksplay* this, uint64_t key) {
 	if (!node_contains(target_node, key)) {
 		// No such key here.
 		ksplay_ksplay(this, &stack);
-		log_info("after failed delete(%" PRIu64 "):", key);
-		ksplay_dump(this);
+		IF_LOG_VERBOSE(1) {
+			log_info("after failed delete(%" PRIu64 "):", key);
+			ksplay_dump(this);
+		}
 		return 1;
 	}
 
@@ -600,23 +615,28 @@ int8_t ksplay_delete(ksplay* this, uint64_t key) {
 	}
 
 removed:
-	log_info("after delete(%" PRIu64 "):", key);
-	ksplay_dump(this);
+	IF_LOG_VERBOSE(1) {
+		log_info("after delete(%" PRIu64 "):", key);
+		ksplay_dump(this);
+	}
 
 	return 0;
 }
 
 // Tree.find
 void ksplay_find(ksplay* this, uint64_t key, uint64_t *value, bool *found) {
-	log_info("find(%" PRIu64 ")", key);
-	// ksplay_dump(this);
+	IF_LOG_VERBOSE(1) {
+		log_info("find(%" PRIu64 ")", key);
+		ksplay_dump(this);
+	}
 
 	ksplay_node_buffer stack = ksplay_walk_to(this, key);
 	node* target_node = stack.nodes[stack.count - 1];
 	*found = node_find(target_node, key, value);
 	ksplay_ksplay(this, &stack);
 
-	// log_info("after find(%" PRIu64 "):", key);
-	// ksplay_dump(this);
-	// log_info("");
+	IF_LOG_VERBOSE(1) {
+		log_info("after find(%" PRIu64 "):", key);
+		ksplay_dump(this);
+	}
 }
