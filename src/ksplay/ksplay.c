@@ -120,21 +120,20 @@ static bool node_insert(node* this, uint64_t key, uint64_t value) {
 
 // Node.remove
 static void node_remove_simple(node* this, uint64_t key) {
+	uint8_t i;
 	const uint8_t key_count = node_key_count(this);
-	uint8_t before;
-	for (before = 0; before < key_count; ++before) {
-		if (this->pairs[before].key >= key) {
+	for (i = 0; i < key_count; ++i) {
+		if (this->pairs[i].key == key) {
 			break;
 		}
 	}
-	assert(before < key_count);
-	assert(this->children[before + 1] == NULL);
-	memmove(&this->pairs[before], &this->pairs[before + 1],
-			sizeof(ksplay_pair) * (key_count - before - 1));
-	memmove(&this->children[before + 1], &this->children[before + 2],
-			sizeof(node*) * (key_count - before - 1));
+	CHECK(i < key_count, "removing nonpresent key %" PRIu64, key);
+	CHECK(this->children[i + 1] == NULL, "simply removing nonsimple case");
+	memmove(&this->pairs[i], &this->pairs[i + 1],
+			sizeof(ksplay_pair) * (key_count - i - 1));
+	memmove(&this->children[i + 1], &this->children[i + 2],
+			sizeof(node*) * (key_count - i - 1));
 	this->pairs[key_count - 1].key = EMPTY;
-	assert(node_key_count(this) == key_count - 1);
 }
 
 // Node.contains
