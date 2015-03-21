@@ -77,18 +77,19 @@ static void node_init(node* this) {
 // Node.insert
 static bool node_insert(node* this, uint64_t key, uint64_t value) {
 	assert(key != EMPTY);
-	const uint8_t key_count = node_key_count(this);
-	assert(key_count < KSPLAY_MAX_NODE_KEYS);
 	uint8_t before;
-	for (before = 0; before < key_count; ++before) {
+	for (before = 0; before < KSPLAY_MAX_NODE_KEYS; ++before) {
 		if (this->pairs[before].key == key) {
 			// Duplicate key.
 			return false;
 		}
 		if (this->pairs[before].key > key) {
+			// Because empty keys are UINT64_MAX, this also happens
+			// when we reach the end of a nonfull node.
 			break;
 		}
 	}
+	const uint8_t key_count = node_key_count(this);
 	memmove(&this->pairs[before + 1], &this->pairs[before],
 			sizeof(ksplay_pair) * (key_count - before));
 	memmove(&this->children[before + 1], &this->children[before],
@@ -291,7 +292,6 @@ node* compose_twolevel(ksplay_node_pool* pool,
 		node* lower_node = pool_acquire(pool);
 		root->children[root_key_count] = lower_node;
 		if (children_remaining > KSPLAY_K) {
-			// lower_node->key_count = KSPLAY_K - 1;
 			memcpy(lower_node->pairs, pairs,
 					(KSPLAY_K - 1) * sizeof(ksplay_pair));
 			memcpy(lower_node->children, children,
@@ -301,7 +301,6 @@ node* compose_twolevel(ksplay_node_pool* pool,
 			++root_key_count;
 		} else {
 			// Last child.
-			// lower_node->key_count = children_remaining - 1;
 			memcpy(lower_node->pairs, pairs,
 					(children_remaining - 1) * sizeof(ksplay_pair));
 			memcpy(lower_node->children, children,
