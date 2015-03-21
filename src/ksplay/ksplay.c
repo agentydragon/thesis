@@ -360,6 +360,37 @@ static bool accepted_by_twolevel(uint64_t key_count) {
 	return keys_needed_in_root <= KSPLAY_K;
 }
 
+static node* compose_threelevel(ksplay_node_pool *pool,
+		ksplay_pair* pairs, node** children, uint64_t key_count) {
+	uint64_t lower_level = key_count;
+	for (lower_level = key_count; lower_level > 0; --lower_level) {
+		const uint64_t child_count = lower_level + 1;
+		const uint64_t keys_needed_in_top =
+				(child_count / KSPLAY_K) - 1 + // keys between full nodes
+				(child_count % KSPLAY_K); // keys stashed in root
+		if (keys_needed_in_top < KSPLAY_K) {
+			break;
+		}
+	}
+	assert(lower_level > 0);
+	log_info("Three-level composition: %" PRIu64 " in full subtree",
+			lower_level);
+	assert(key_count - lower_level <= KSPLAY_K);
+	node* middle = compose_twolevel(pool,
+			pairs, children, lower_level);
+
+	node* root = pool_acquire(pool);
+	const uint8_t root_key_count = key_count - lower_level;
+	assert(root_key_count > 0);
+	root->children[0] = middle;
+	for (uint64_t i = lower_level; i < key_count; ++i) {
+		root->pairs[i - lower_level] = pairs[i];
+		root->children[i - lower_level + 1] = children[i + 1];
+	}
+	assert(root_key_count == node_key_count(root));
+	return root;
+}
+
 // Let N be the number of composed keys.
 // Case 1: N <= K --> it fits exactly into the root.
 // Case 2: (N+1)/K + (N%K) <= K --> two-level hierarchy.
@@ -398,33 +429,7 @@ node* ksplay_compose(ksplay_node_pool* pool, ksplay_pair* pairs, node** children
 		return compose_twolevel(pool, pairs, children, key_count);
 	} else {
 		log_info("Three-level compose");
-		uint64_t lower_level = key_count;
-		for (lower_level = key_count; lower_level > 0; --lower_level) {
-			const uint64_t child_count = lower_level + 1;
-			const uint64_t keys_needed_in_top =
-					(child_count / KSPLAY_K) - 1 + // keys between full nodes
-					(child_count % KSPLAY_K); // keys stashed in root
-			if (keys_needed_in_top < KSPLAY_K) {
-				break;
-			}
-		}
-		assert(lower_level > 0);
-		log_info("Three-level composition: %" PRIu64 " in full subtree",
-				lower_level);
-		assert(key_count - lower_level <= KSPLAY_K);
-		node* middle = compose_twolevel(pool,
-				pairs, children, lower_level);
-
-		node* root = pool_acquire(pool);
-		const uint8_t root_key_count = key_count - lower_level;
-		assert(root_key_count > 0);
-		root->children[0] = middle;
-		for (uint64_t i = lower_level; i < key_count; ++i) {
-			root->pairs[i - lower_level] = pairs[i];
-			root->children[i - lower_level + 1] = children[i + 1];
-		}
-		assert(root_key_count == node_key_count(root));
-		return root;
+		return compose_threelevel(pool, pairs, children, key_count);
 	}
 }
 
