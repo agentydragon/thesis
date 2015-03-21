@@ -78,7 +78,6 @@ void ksplay_dump(ksplay* tree) {
 	_dump_recursive(tree->root, 0);
 }
 
-// Node.__init__
 static void node_init(node* this) {
 	assert(this);
 	for (uint8_t i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
@@ -87,7 +86,6 @@ static void node_init(node* this) {
 	this->children[0] = NULL;
 }
 
-// Node.insert
 static bool node_insert(node* this, uint64_t key, uint64_t value) {
 	assert(key != EMPTY);
 	uint8_t before;
@@ -116,7 +114,6 @@ static bool node_insert(node* this, uint64_t key, uint64_t value) {
 	return true;
 }
 
-// Node.remove
 static void node_remove_simple(node* this, uint64_t key) {
 	uint8_t i;
 	const uint8_t key_count = node_key_count(this);
@@ -134,7 +131,6 @@ static void node_remove_simple(node* this, uint64_t key) {
 	this->pairs[key_count - 1].key = EMPTY;
 }
 
-// Node.contains
 static bool node_find(node* this, uint64_t key, uint64_t *value) {
 	for (uint8_t i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
 		if (this->pairs[i].key == key) {
@@ -147,7 +143,6 @@ static bool node_find(node* this, uint64_t key, uint64_t *value) {
 	return false;
 }
 
-// Tree.__init__
 void ksplay_init(ksplay* this) {
 	this->root = malloc(sizeof(node));
 	node_init(this->root);
@@ -180,7 +175,6 @@ static void buffer_append(ksplay_node_buffer* buffer, node* appended_node) {
 	++buffer->count;
 }
 
-// Tree.walk_to
 ksplay_node_buffer ksplay_walk_to(ksplay* this, uint64_t key) {
 	ksplay_node_buffer stack = empty_buffer();
 	node* current = this->root;
@@ -210,7 +204,6 @@ finished:
 	return stack;
 }
 
-// Tree.flatten
 // Returns the pairs and external nodes of a stack in BFS order.
 // 'pairs' should point to a buffer of at least KSPLAY_MAX_EXPLORE_KEYS
 // ksplay_pairs. 'children' should point to at least KSPLAY_MAX_EXPLORE_KEYS + 1
@@ -270,7 +263,6 @@ static node* make_node(node* x, ksplay_pair* pairs, node** children,
 	return x;
 }
 
-// Tree.compose
 // Puts pairs and values under a new framework and returns its root.
 // The new framework consists of at most three levels of nodes. All nodes
 // except the root have exactly K-1 keys. The root will have between 1 and K
@@ -440,7 +432,6 @@ static void replace_pointer(node* haystack, node* needle, node* replacement) {
 	assert(done);
 }
 
-// Tree.ksplay_step
 // Does a single K-splaying step on the stack.
 static void ksplay_step(ksplay_node_buffer* stack) {
 	assert(stack->count > 1);
@@ -542,7 +533,6 @@ node* ksplay_split_overfull(ksplay_node* root) {
 	return root;
 }
 
-// Tree.ksplay
 // K-splays together the stack and returns the new root.
 static void ksplay_ksplay(ksplay* this, ksplay_node_buffer* stack) {
 	IF_LOG_VERBOSE(1) {
@@ -564,7 +554,6 @@ static void ksplay_ksplay(ksplay* this, ksplay_node_buffer* stack) {
 	}
 }
 
-// Tree.insert
 int8_t ksplay_insert(ksplay* this, uint64_t key, uint64_t value) {
 	IF_LOG_VERBOSE(1) {
 		log_info("before insert(%" PRIu64 "):", key);
@@ -612,7 +601,6 @@ static int8_t find_key_in_node(node* x, uint64_t key) {
 	log_fatal("key %" PRIu64 " not in node", key);
 }
 
-// Tree.delete
 int8_t ksplay_delete(ksplay* this, uint64_t key) {
 	IF_LOG_VERBOSE(1) {
 		log_info("before delete(%" PRIu64 "):", key);
@@ -676,7 +664,6 @@ removed:
 	return 0;
 }
 
-// Tree.find
 void ksplay_find(ksplay* this, uint64_t key, uint64_t *value, bool *found) {
 	IF_LOG_VERBOSE(1) {
 		log_info("find(%" PRIu64 ")", key);
