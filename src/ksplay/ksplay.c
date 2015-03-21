@@ -51,6 +51,21 @@ static void _dump_single_node(node* x, int depth) {
 	log_info("%s", buffer);
 }
 
+static void _dump_node_and_children(node* x, int depth) {
+	_dump_single_node(x, depth);
+	for (uint8_t i = 0; i <= node_key_count(x); ++i) {
+		if (x->children[i]) {
+			_dump_single_node(x->children[i], depth + 1);
+		}
+	}
+}
+
+static void _dump_buffer(ksplay_node_buffer* buffer, int depth) {
+	for (uint64_t i = 0; i < buffer->count; ++i) {
+		_dump_single_node(buffer->nodes[i], depth);
+	}
+}
+
 static void _dump_recursive(node* x, int depth) {
 	_dump_single_node(x, depth);
 	uint8_t key_count = node_key_count(x);
@@ -331,12 +346,7 @@ node* compose_twolevel(ksplay_node_pool* pool,
 
 	IF_LOG_VERBOSE(1) {
 		log_info("Two-level composition:");
-		_dump_single_node(root, 2);
-		for (uint8_t i = 0; i <= root_key_count; ++i) {
-			if (root->children[i]) {
-				_dump_single_node(root->children[i], 4);
-			}
-		}
+		_dump_node_and_children(root, 2);
 	}
 
 	return root;
@@ -448,9 +458,7 @@ static void ksplay_step(ksplay_node_buffer* stack) {
 
 	IF_LOG_VERBOSE(1) {
 		log_info("K-splaying the following nodes:");
-		for (uint64_t i = 0; i < stack->count; ++i) {
-			_dump_single_node(stack->nodes[i], 2);
-		}
+		_dump_buffer(stack, 2);
 	}
 	uint8_t suffix_length = KSPLAY_K;
 	const uint8_t keys_in_last =
@@ -505,9 +513,7 @@ static void ksplay_step(ksplay_node_buffer* stack) {
 
 	IF_LOG_VERBOSE(1) {
 		log_info("K-splaying result:");
-		for (uint64_t i = 0; i < stack->count; ++i) {
-			_dump_single_node(stack->nodes[i], 2);
-		}
+		_dump_buffer(stack, 2);
 	}
 
 	// Only the last node and the root may be non-exact.
@@ -541,8 +547,7 @@ node* ksplay_split_overfull(ksplay_node* root) {
 
 		IF_LOG_VERBOSE(1) {
 			log_info("Overfull root split into:");
-			_dump_single_node(new_root, 2);
-			_dump_single_node(root, 4);
+			_dump_node_and_children(new_root, 2);
 		}
 		root = new_root;
 	}
@@ -555,9 +560,7 @@ static void ksplay_ksplay(ksplay* this, ksplay_node_buffer* stack) {
 	IF_LOG_VERBOSE(1) {
 		log_info("-- starting new K-splay --");
 		log_info("K-splaying input:");
-		for (uint64_t i = 0; i < stack->count; ++i) {
-			_dump_single_node(stack->nodes[i], 2);
-		}
+		_dump_buffer(stack, 2);
 	}
 	while (stack->count > 1) {
 		log_info("step");
