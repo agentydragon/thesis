@@ -304,29 +304,30 @@ static node* compose_twolevel(ksplay_node_pool* pool,
 
 	uint64_t children_remaining = key_count + 1;
 	while (children_remaining >= KSPLAY_K) {
-		node* lower_node = pool_acquire(pool);
-		root->children[root_key_count] = lower_node;
 		uint8_t keys_to_lower;
 		if (children_remaining > KSPLAY_K) {
 			keys_to_lower = KSPLAY_K - 1;
+			// Not the last child; root eats the last key.
 			root->pairs[root_key_count] = pairs[KSPLAY_K - 1];
 			++root_key_count;
 		} else {
 			// Last child.
 			keys_to_lower = children_remaining - 1;
 		}
-		make_node(lower_node, pairs, children, keys_to_lower);
-		assert(node_key_count(lower_node) == keys_to_lower);
+		node* lower_node = make_node(pool_acquire(pool),
+				pairs, children, keys_to_lower);
+		root->children[root_key_count] = lower_node;
+
 		pairs += KSPLAY_K;
 		children += KSPLAY_K;
 		children_remaining -= (keys_to_lower + 1);
 	}
 
 	if (children_remaining > 0) {
-		memcpy(root->pairs + root_key_count,
-				pairs, (children_remaining - 1) * sizeof(ksplay_pair));
-		memcpy(root->children + root_key_count,
-				children, children_remaining * sizeof(node*));
+		memcpy(root->pairs + root_key_count, pairs,
+				(children_remaining - 1) * sizeof(ksplay_pair));
+		memcpy(root->children + root_key_count, children,
+				children_remaining * sizeof(node*));
 		root_key_count += children_remaining - 1;
 	}
 
