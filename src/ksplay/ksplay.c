@@ -89,12 +89,13 @@ static bool node_insert(node* this, uint64_t key, uint64_t value) {
 			break;
 		}
 	}
-	const uint8_t key_count = node_key_count(this);
+	// Strictly speaking, we could move just (node_key_count(this) - before)
+	// keys instead of (KSPLAY_MAX_NODE_KEYS - before) keys, but that would
+	// cost us a function call and potentially some memmove optimizations.
 	memmove(&this->pairs[before + 1], &this->pairs[before],
-			sizeof(ksplay_pair) * (key_count - before));
+			sizeof(ksplay_pair) * (KSPLAY_MAX_NODE_KEYS - before));
 	memmove(&this->children[before + 1], &this->children[before],
-			sizeof(node*) * (key_count - before + 1));
-	// TODO: move over all children
+			sizeof(node*) * (KSPLAY_MAX_NODE_KEYS - before + 1));
 	this->pairs[before] = (ksplay_pair) {
 		.key = key,
 		.value = value
