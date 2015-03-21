@@ -256,6 +256,7 @@ static node* make_node(node* x, ksplay_pair* pairs, node** children,
 	return x;
 }
 
+// ----- Composition -----
 // Puts pairs and values under a new framework and returns its root.
 // The new framework consists of at most three levels of nodes. All nodes
 // except the root have exactly K-1 keys. The root will have between 1 and K
@@ -404,6 +405,7 @@ node* ksplay_compose(ksplay_node_pool* pool, ksplay_pair* pairs, node** children
 	}
 }
 
+// ----- K-splaying -----
 static ksplay_node_buffer buffer_suffix(ksplay_node_buffer buffer,
 		uint64_t suffix_length) {
 	assert(buffer.count >= suffix_length);
@@ -545,6 +547,7 @@ static void ksplay_ksplay(ksplay* this, ksplay_node_buffer* stack) {
 	}
 }
 
+// ----- Insertion and deletion -----
 int8_t ksplay_insert(ksplay* this, uint64_t key, uint64_t value) {
 	IF_LOG_VERBOSE(1) {
 		log_info("before insert(%" PRIu64 "):", key);
