@@ -295,7 +295,7 @@ static node* pool_acquire(ksplay_node_pool* pool) {
 	return x;
 }
 
-node* compose_twolevel(ksplay_node_pool* pool,
+static node* compose_twolevel(ksplay_node_pool* pool,
 		ksplay_pair* pairs, node** children, uint64_t key_count) {
 	// Split from left to right into entire nodes, then put
 	// the rest into the root. The root will have at most KSPLAY_K
@@ -377,12 +377,11 @@ static node* compose_threelevel(ksplay_node_pool *pool,
 	log_info("Three-level composition: %" PRIu64 " in full subtree",
 			lower_level);
 	assert(key_count - lower_level <= KSPLAY_K);
-	node* middle = compose_twolevel(pool,
-			pairs, children, lower_level);
+	node* middle = compose_twolevel(pool, pairs, children, lower_level);
 
-	node* root = pool_acquire(pool);
 	const uint8_t root_key_count = key_count - lower_level;
 	assert(root_key_count > 0);
+	node* root = pool_acquire(pool);
 	root->children[0] = middle;
 	for (uint64_t i = lower_level; i < key_count; ++i) {
 		root->pairs[i - lower_level] = pairs[i];
