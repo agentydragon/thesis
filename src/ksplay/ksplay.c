@@ -263,13 +263,14 @@ static void flatten_explore(ksplay_node_buffer* stack, uint64_t current_index,
 	}
 }
 
-static void make_node(node* x, ksplay_pair* pairs, node** children,
+static node* make_node(node* x, ksplay_pair* pairs, node** children,
 		uint8_t key_count) {
 	for (uint8_t i = key_count; i < KSPLAY_MAX_NODE_KEYS; ++i) {
 		x->pairs[i].key = EMPTY;
 	}
 	memcpy(x->pairs, pairs, key_count * sizeof(ksplay_pair));
 	memcpy(x->children, children, (key_count + 1) * sizeof(node*));
+	return x;
 }
 
 // Tree.compose
@@ -419,12 +420,9 @@ node* ksplay_compose(ksplay_node_pool* pool, ksplay_pair* pairs, node** children
 	if (key_count <= KSPLAY_K) {
 		// Simple case: all fits in one node.
 		log_info("One-level compose");
-		node* root = pool_acquire(pool);
-		make_node(root, pairs, children, key_count);
-		return root;
-	}
-	if (accepted_by_twolevel(key_count)) {
-		// Two-level case
+		return make_node(pool_acquire(pool),
+				pairs, children, key_count);
+	} else if (accepted_by_twolevel(key_count)) {
 		log_info("Two-level compose");
 		return compose_twolevel(pool, pairs, children, key_count);
 	} else {
@@ -534,7 +532,6 @@ node* ksplay_split_overfull(ksplay_node* root) {
 	if (key_count == KSPLAY_K) {
 		IF_LOG_VERBOSE(1) {
 			log_info("Overfull root, splitting it:");
-			//log_info("overfull root:::");
 			_dump_single_node(root, 2);
 		}
 		// Steal the last key.
