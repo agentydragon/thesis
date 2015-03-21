@@ -48,12 +48,10 @@ void ksplay_dump(ksplay* tree) {
 }
 
 // Node.__init__
-static node* node_init() {
-	node* this = malloc(sizeof(node));
+static void node_init(node* this) {
 	assert(this);
 	this->key_count = 0;
 	this->children[0] = NULL;
-	return this;
 }
 
 // Node.insert
@@ -116,7 +114,8 @@ static bool node_find(node* this, uint64_t key, uint64_t *value) {
 
 // Tree.__init__
 void ksplay_init(ksplay* this) {
-	this->root = node_init();
+	this->root = malloc(sizeof(node));
+	node_init(this->root);
 	this->size = 0;
 }
 
@@ -235,12 +234,11 @@ static void flatten_explore(ksplay_node_buffer* stack, node* current,
 	}
 }
 
-static node* make_node(ksplay_pair* pairs, node** children, uint8_t key_count) {
-	node* x = node_init();
+static void make_node(node* x, ksplay_pair* pairs, node** children,
+		uint8_t key_count) {
 	x->key_count = key_count;
 	memcpy(x->pairs, pairs, key_count * sizeof(ksplay_pair));
 	memcpy(x->children, children, (key_count + 1) * sizeof(node*));
-	return x;
 }
 
 // Tree.compose
@@ -249,17 +247,34 @@ static node* make_node(ksplay_pair* pairs, node** children, uint8_t key_count) {
 // except the root have exactly K-1 keys. The root will have between 1 and K
 // keys.
 
-node* compose_twolevel(ksplay_pair* pairs, node** children, uint64_t key_count) {
+static node* pool_acquire(ksplay_node_pool* pool) {
+	if (pool->remaining > 0) {
+		node* x = pool->nodes[0];
+		++(pool->nodes);
+		--(pool->remaining);
+		assert(x);
+		node_init(x);
+		log_info("acquired, %" PRIu64 " remaining", pool->remaining);
+		return x;
+	} else {
+		node* x = malloc(sizeof(node));
+		assert(x);
+		node_init(x);
+		log_info("allocated new node (no more left in pool)");
+		return x;
+	}
+}
+
+node* compose_twolevel(ksplay_node_pool* pool,
+		ksplay_pair* pairs, node** children, uint64_t key_count) {
 	// Split from left to right into entire nodes, then put
 	// the rest into the root. The root will have at most KSPLAY_K
 	// keys in the end.
-	node* root = node_init();
-	memset(root, 0, sizeof(node));
-	root->key_count = 0;
+	node* root = pool_acquire(pool);
 
 	uint64_t children_remaining = key_count + 1;
 	while (children_remaining >= KSPLAY_K) {
-		node* lower_node = node_init();
+		node* lower_node = pool_acquire(pool);
 		root->children[root->key_count] = lower_node;
 		if (children_remaining > KSPLAY_K) {
 			lower_node->key_count = KSPLAY_K - 1;
@@ -326,7 +341,8 @@ static bool accepted_by_twolevel(uint64_t key_count) {
 //	Stash any remaining keys under the root.
 // TODO: It should be possible to write an in-place 'compose'.
 // TODO: Top-down K-splay to avoid allocating an O(N/K) stack?
-node* ksplay_compose(ksplay_pair* pairs, node** children, uint64_t key_count) {
+node* ksplay_compose(ksplay_node_pool* pool, ksplay_pair* pairs, node** children,
+		uint64_t key_count) {
 	log_info("Composing:");
 	{
 		char buffer[1024] = {0};
@@ -344,12 +360,14 @@ node* ksplay_compose(ksplay_pair* pairs, node** children, uint64_t key_count) {
 	if (key_count <= KSPLAY_K) {
 		// Simple case: all fits in one node.
 		log_info("One-level compose");
-		return make_node(pairs, children, key_count);
+		node* root = pool_acquire(pool);
+		make_node(root, pairs, children, key_count);
+		return root;
 	}
 	if (accepted_by_twolevel(key_count)) {
 		// Two-level case
 		log_info("Two-level compose");
-		return compose_twolevel(pairs, children, key_count);
+		return compose_twolevel(pool, pairs, children, key_count);
 	} else {
 		log_info("Three-level compose");
 		uint64_t lower_level = key_count;
@@ -366,9 +384,10 @@ node* ksplay_compose(ksplay_pair* pairs, node** children, uint64_t key_count) {
 		log_info("Three-level composition: %" PRIu64 " in full subtree",
 				lower_level);
 		assert(key_count - lower_level <= KSPLAY_K);
-		node* middle = compose_twolevel(pairs, children, lower_level);
+		node* middle = compose_twolevel(pool,
+				pairs, children, lower_level);
 
-		node* root = node_init();
+		node* root = pool_acquire(pool);
 		root->key_count = key_count - lower_level;
 		assert(root->key_count > 0);
 		root->children[0] = middle;
@@ -433,21 +452,30 @@ static void ksplay_step(ksplay_node_buffer* stack) {
 	ksplay_flatten(&consumed_suffix, pairs, children, &key_count);
 	assert(key_count <= (KSPLAY_K + 2) * (KSPLAY_K - 1) + 1);
 
+	ksplay_node* nodes[100]; // TODO
+	assert(consumed < 100);
+	ksplay_node_pool pool;
+	pool.nodes = nodes;
+	pool.remaining = consumed;
 	for (uint64_t i = 0; i < consumed; ++i) {
-		free(consumed_suffix.nodes[i]);
+		pool.nodes[i] = consumed_suffix.nodes[i];
 	}
 
 	log_info("stack before composition: %p", stack);
 	stack->count -= consumed - 1;
 	stack->nodes[stack->count - 1] =
-			ksplay_compose(pairs, children, key_count);
+			ksplay_compose(&pool, pairs, children, key_count);
 	log_info("stack after composition: %p", stack);
+
+	while (pool.remaining > 0) {
+		free(pool_acquire(&pool));
+	}
 
 	//free(pairs);
 	//free(children);
 
 	// Fix up possible pointers to old root.
-	if (stack->count > 1) {
+	if (stack->count > 2) {
 		// log_info("fixing pointer");
 		node* new_root = stack->nodes[stack->count - 1];
 		node* above_root = stack->nodes[stack->count - 2];
@@ -479,7 +507,8 @@ node* ksplay_split_overfull(ksplay_node* root) {
 		// Steal the last key.
 		--root->key_count;
 
-		node* new_root = node_init();
+		node* new_root = malloc(sizeof(node));
+		node_init(new_root);
 		new_root->key_count = 1;
 		memcpy(&new_root->pairs[0], &root->pairs[root->key_count],
 				sizeof(ksplay_pair));

@@ -7,6 +7,7 @@
 #include "log/log.h"
 
 #define node ksplay_node
+#define node_pool ksplay_node_pool
 
 #define COUNT_OF(x) (sizeof(x) / sizeof(*x))
 #define PAIR(x) ((ksplay_pair) { .key = x, .value = x * 100 })
@@ -58,11 +59,19 @@ static void _assert_children(node* x, node** children, uint64_t child_count) {
 static void test_nonfull_compose() {
 	ksplay_pair pairs[] = { PAIR(10), PAIR(20) };
 	node* children[] = { MOCK('a'), MOCK('b'), MOCK('c') };
-	node* root = ksplay_compose(pairs, children, COUNT_OF(pairs));
 
+	node new_root;
+	node* pool_nodes[] = { &new_root };
+	node_pool pool;
+	pool.remaining = 1;
+	pool.nodes = pool_nodes;
+
+	node* root = ksplay_compose(&pool, pairs, children, COUNT_OF(pairs));
+
+	assert(root == &new_root);
 	assert_pairs(root, PAIR(10), PAIR(20));
 	assert_children(root, MOCK('a'), MOCK('b'), MOCK('c'));
-	free(root);
+	assert(pool.remaining == 0);
 }
 
 static void test_walk_to() {
@@ -99,7 +108,13 @@ static void test_exact_compose() {
 		MOCK('A'), MOCK('B'), MOCK('C'), MOCK('D'), MOCK('E'),
 		MOCK('F'), MOCK('G'), MOCK('H'), MOCK('I')
 	};
-	node* root = ksplay_compose(pairs, children, COUNT_OF(pairs));
+	node_pool pool;
+	pool.remaining = 4;
+	node new_root, new_left, new_middle, new_right;
+	node* pool_nodes[] = { &new_root, &new_left, &new_middle, &new_right };
+	pool.nodes = pool_nodes;
+	node* root = ksplay_compose(&pool, pairs, children, COUNT_OF(pairs));
+	assert(pool.remaining == 0);
 
 	assert_pairs(root, PAIR(30), PAIR(60));
 	node *left = root->children[0], *middle = root->children[1],
@@ -111,8 +126,6 @@ static void test_exact_compose() {
 	assert_children(middle, MOCK('D'), MOCK('E'), MOCK('F'));
 	assert_pairs(right, PAIR(70), PAIR(80));
 	assert_children(right, MOCK('G'), MOCK('H'), MOCK('I'));
-
-	free(left); free(middle); free(right); free(root);
 }
 
 static void test_underfull_compose() {
@@ -122,7 +135,12 @@ static void test_underfull_compose() {
 	node* children[] = {
 		MOCK('a'), MOCK('b'), MOCK('c'), MOCK('d'), MOCK('e'), MOCK('f')
 	};
-	node* root = ksplay_compose(pairs, children, COUNT_OF(pairs));
+	node_pool pool;
+	pool.remaining = 3;
+	node new_root, new_left, new_right;
+	node* pool_nodes[] = { &new_root, &new_left, &new_right };
+	pool.nodes = pool_nodes;
+	node* root = ksplay_compose(&pool, pairs, children, COUNT_OF(pairs));
 	assert_pairs(root, PAIR(30));
 
 	node* left = root->children[0], *right = root->children[1];
@@ -130,8 +148,6 @@ static void test_underfull_compose() {
 	assert_children(left, MOCK('a'), MOCK('b'), MOCK('c'));
 	assert_pairs(right, PAIR(40), PAIR(50));
 	assert_children(right, MOCK('d'), MOCK('e'), MOCK('f'));
-
-	free(left); free(right); free(root);
 }
 
 static void test_overfull_compose() {
@@ -144,7 +160,12 @@ static void test_overfull_compose() {
 		MOCK('f'), MOCK('g'), MOCK('h'), MOCK('i'), MOCK('j'),
 		MOCK('k'), MOCK('l')
 	};
-	node* root = ksplay_compose(pairs, children, COUNT_OF(pairs));
+	node new_root, new_a, new_b, new_c, new_d;
+	node_pool pool;
+	pool.remaining = 5;
+	node* pool_nodes[] = { &new_root, &new_a, &new_b, &new_c, &new_d };
+	pool.nodes = pool_nodes;
+	node* root = ksplay_compose(&pool, pairs, children, COUNT_OF(pairs));
 	assert_pairs(root, PAIR(30), PAIR(60), PAIR(90));
 
 	node* a = root->children[0], *b = root->children[1],
@@ -157,8 +178,6 @@ static void test_overfull_compose() {
 	assert_children(c, MOCK('g'), MOCK('h'), MOCK('i'));
 	assert_pairs(d, PAIR(100), PAIR(110));
 	assert_children(d, MOCK('j'), MOCK('k'), MOCK('l'));
-
-	free(a); free(b); free(c); free(d); free(root);
 }
 
 static void test_mixed_compose() {
@@ -169,7 +188,12 @@ static void test_mixed_compose() {
 	node* children[] = {
 		MOCK('a'), MOCK('b'), MOCK('c'), MOCK('d'), MOCK('e')
 	};
-	node* root = ksplay_compose(pairs, children, COUNT_OF(pairs));
+	node_pool pool;
+	node new_root, new_child;
+	pool.remaining = 2;
+	node* pool_nodes[] = { &new_root, &new_child };
+	pool.nodes = pool_nodes;
+	node* root = ksplay_compose(&pool, pairs, children, COUNT_OF(pairs));
 	assert_pairs(root, PAIR(30), PAIR(40));
 
 	node* child = root->children[0];
