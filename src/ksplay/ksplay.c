@@ -14,8 +14,6 @@
 
 #define EMPTY UINT64_MAX
 
-// Port-in-progress from experiments/ksplay/ksplay.py.
-
 static uint8_t node_key_count(node* x) {
 	uint8_t i;
 	for (i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
