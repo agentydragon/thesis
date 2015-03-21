@@ -8,7 +8,9 @@
 static int8_t init(void** _this, void* args_unused) {
 	(void) args_unused;
 	splay_tree* this = malloc(sizeof(splay_tree));
-	assert(this);
+	if (!this) {
+		return 1;
+	}
 	this->root = NULL;
 	*_this = this;
 	return 0;
