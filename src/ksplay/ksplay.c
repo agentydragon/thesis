@@ -180,7 +180,7 @@ finished:
 // 'pairs' should point to a buffer of at least KSPLAY_MAX_EXPLORE_KEYS
 // ksplay_pairs. 'children' should point to at least KSPLAY_MAX_EXPLORE_KEYS + 1
 // ksplay_node*'s.
-static void flatten_explore(ksplay_node_buffer* stack, node* current,
+static void flatten_explore(ksplay_node_buffer* stack, uint64_t current_index,
 		ksplay_pair** pairs_head, node*** children_head,
 		uint64_t* remaining_keys);
 void ksplay_flatten(ksplay_node_buffer* stack, ksplay_pair* pairs,
@@ -194,43 +194,33 @@ void ksplay_flatten(ksplay_node_buffer* stack, ksplay_pair* pairs,
 	ksplay_pair* pairs_head = pairs;
 	node** children_head = children;
 	uint64_t remaining = total_keys;
-	flatten_explore(stack, stack->nodes[0], &pairs_head, &children_head,
-			&remaining);
+	flatten_explore(stack, 0, &pairs_head, &children_head, &remaining);
 	assert(remaining == 0);
 
 	*_key_count = total_keys;
 }
 
-static bool buffer_contains(ksplay_node_buffer* buffer, node* x) {
-	for (uint8_t i = 0; i < buffer->count; ++i) {
-		if (buffer->nodes[i] == x) {
-			return true;
-		}
-	}
-	return false;
-}
-
-static void flatten_explore(ksplay_node_buffer* stack, node* current,
+static void flatten_explore(ksplay_node_buffer* stack, uint64_t current_index,
 		ksplay_pair** pairs_head, node*** children_head,
 		uint64_t* remaining_keys) {
-	if (buffer_contains(stack, current)) {
-		for (uint8_t i = 0; i < current->key_count; ++i) {
-			assert(*remaining_keys > 0);
-			--(*remaining_keys);
-
-			flatten_explore(stack, current->children[i],
+	node* current = stack->nodes[current_index];
+	for (uint8_t i = 0; i <= current->key_count; ++i) {
+		if (stack->count > current_index + 1 &&
+				stack->nodes[current_index + 1] == current->children[i]) {
+			flatten_explore(stack, current_index + 1,
 					pairs_head, children_head,
 					remaining_keys);
+		} else {
+			*(*children_head) = current->children[i];
+			++(*children_head);
+		}
 
+		if (i < current->key_count) {
+			assert(*remaining_keys > 0);
+			--(*remaining_keys);
 			*(*pairs_head) = current->pairs[i];
 			++(*pairs_head);
 		}
-		flatten_explore(stack,
-				current->children[current->key_count],
-				pairs_head, children_head, remaining_keys);
-	} else {
-		*(*children_head) = current;
-		++(*children_head);
 	}
 }
 
