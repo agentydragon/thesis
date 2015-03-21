@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #define KSPLAY_K 3
 #define KSPLAY_MAX_EXPLORE_KEYS ((KSPLAY_K + 2) * (KSPLAY_K - 1) + 1)
@@ -62,5 +63,6 @@ typedef struct {
 ksplay_node* ksplay_compose(ksplay_node_pool* pool,
 		ksplay_pair* pairs, ksplay_node** children, uint64_t key_count);
 ksplay_node* ksplay_split_overfull(ksplay_node* root);
+void ksplay_dump_dot(ksplay* this, FILE* output);
 
 #endif

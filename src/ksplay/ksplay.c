@@ -343,19 +343,21 @@ static bool accepted_by_twolevel(uint64_t key_count) {
 // TODO: Top-down K-splay to avoid allocating an O(N/K) stack?
 node* ksplay_compose(ksplay_node_pool* pool, ksplay_pair* pairs, node** children,
 		uint64_t key_count) {
-	log_info("Composing:");
-	{
-		char buffer[1024] = {0};
-		uint64_t r = 0;
-		for (uint64_t i = 0; i < key_count; ++i) {
-			r += sprintf(buffer + r,
-					"%p <%" PRIu64 "=%" PRIu64 "> ",
-					children[i],
-					pairs[i].key, pairs[i].value);
+	IF_LOG_VERBOSE(1) {
+		log_info("Composing:");
+		{
+			char buffer[1024] = {0};
+			uint64_t r = 0;
+			for (uint64_t i = 0; i < key_count; ++i) {
+				r += sprintf(buffer + r,
+						"%p <%" PRIu64 "=%" PRIu64 "> ",
+						children[i],
+						pairs[i].key, pairs[i].value);
+			}
+			r += sprintf(buffer + r, "%p", children[key_count]);
+			CHECK(r < sizeof(buffer), "we just smashed the stack");
+			log_info("  %s", buffer);
 		}
-		r += sprintf(buffer + r, "%p", children[key_count]);
-		CHECK(r < sizeof(buffer), "we just smashed the stack");
-		log_info("  %s", buffer);
 	}
 	if (key_count <= KSPLAY_K) {
 		// Simple case: all fits in one node.
@@ -527,7 +529,7 @@ node* ksplay_split_overfull(ksplay_node* root) {
 
 // Tree.ksplay
 // K-splays together the stack and returns the new root.
-static node* _ksplay_ksplay(ksplay_node_buffer* stack) {
+static void ksplay_ksplay(ksplay* this, ksplay_node_buffer* stack) {
 	IF_LOG_VERBOSE(1) {
 		log_info("-- starting new K-splay --");
 		log_info("K-splaying input:");
@@ -542,13 +544,8 @@ static node* _ksplay_ksplay(ksplay_node_buffer* stack) {
 	// If the root is overfull, split it.
 	node* root = ksplay_split_overfull(stack->nodes[0]);
 	assert(root->key_count < KSPLAY_K);
+	this->root = root;
 	log_info("// K-splay done");
-
-	return root;
-}
-
-static void ksplay_ksplay(ksplay* this, ksplay_node_buffer* stack) {
-	this->root = _ksplay_ksplay(stack);
 	if (this->size > 0) {
 		assert(this->root->key_count > 0);
 	}
@@ -677,4 +674,33 @@ void ksplay_find(ksplay* this, uint64_t key, uint64_t *value, bool *found) {
 		log_info("after find(%" PRIu64 "):", key);
 		ksplay_dump(this);
 	}
+}
+
+static void _dump_dot(node* current_node, FILE* output) {
+	fprintf(output, "    node%p[label = \"", current_node);
+	for (uint8_t i = 0; i < current_node->key_count; ++i) {
+		fprintf(output, "<child%d>|%" PRIu64 "|",
+				i, current_node->pairs[i].key);
+	}
+	fprintf(output, "<child%d>\"];\n", current_node->key_count);
+
+	for (uint8_t i = 0; i <= current_node->key_count; ++i) {
+		if (current_node->children[i]) {
+			fprintf(output, "    \"node%p\":child%d -> \"node%p\";\n",
+					current_node, i, current_node->children[i]);
+		}
+	}
+
+	for (uint8_t i = 0; i <= current_node->key_count; ++i) {
+		if (current_node->children[i]) {
+			_dump_dot(current_node->children[i], output);
+		}
+	}
+}
+
+void ksplay_dump_dot(ksplay* this, FILE* output) {
+	fprintf(output, "digraph ksplay {\n");
+	fprintf(output, "    node [shape = record, height = .1];\n");
+	_dump_dot(this->root, output);
+	fprintf(output, "}\n");
 }
