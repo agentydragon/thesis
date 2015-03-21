@@ -7,6 +7,7 @@
 #include "dict/btree.h"
 #include "dict/cobt.h"
 #include "dict/htable.h"
+#include "dict/ksplay.h"
 #include "dict/splay.h"
 #include "dict/test/blackbox.h"
 #include "dict/test/large.h"
@@ -38,6 +39,7 @@ void run_unit_tests() {
 	test_dict_blackbox(&dict_btree);
 	test_dict_blackbox(&dict_cobt);
 	test_dict_blackbox(&dict_htable);
+	test_dict_blackbox(&dict_ksplay);
 	test_dict_blackbox(&dict_splay);
 
 	test_ordered_dict_blackbox(&dict_cobt);

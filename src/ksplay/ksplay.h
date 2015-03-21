@@ -28,6 +28,7 @@ struct ksplay_node {
 typedef struct ksplay_node ksplay_node;
 
 typedef struct {
+	uint64_t size;
 	ksplay_node* root;
 } ksplay;
 
