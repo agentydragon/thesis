@@ -105,7 +105,6 @@ static bool node_insert(node* this, uint64_t key, uint64_t value) {
 			sizeof(ksplay_pair) * (key_count - before));
 	memmove(&this->children[before + 1], &this->children[before],
 			sizeof(node*) * (key_count - before + 1));
-	// TODO: move over all children
 	this->pairs[before] = (ksplay_pair) {
 		.key = key,
 		.value = value
@@ -114,15 +113,9 @@ static bool node_insert(node* this, uint64_t key, uint64_t value) {
 	return true;
 }
 
-static void node_remove_simple(node* this, uint64_t key) {
-	uint8_t i;
+static void node_remove_at_simple(node* this, uint8_t i) {
 	const uint8_t key_count = node_key_count(this);
-	for (i = 0; i < key_count; ++i) {
-		if (this->pairs[i].key == key) {
-			break;
-		}
-	}
-	CHECK(i < key_count, "removing nonpresent key %" PRIu64, key);
+	CHECK(i < key_count, "removing beyond end");
 	CHECK(this->children[i + 1] == NULL, "simply removing nonsimple case");
 	memmove(&this->pairs[i], &this->pairs[i + 1],
 			sizeof(ksplay_pair) * (key_count - i - 1));
@@ -482,12 +475,8 @@ static void ksplay_step(ksplay_node_buffer* stack) {
 		free(pool_acquire(&pool));
 	}
 
-	//free(pairs);
-	//free(children);
-
 	// Fix up possible pointers to old root.
 	if (stack->count > 2) {
-		// log_info("fixing pointer");
 		node* new_root = stack->nodes[stack->count - 1];
 		node* above_root = stack->nodes[stack->count - 2];
 		replace_pointer(above_root, old_root, new_root);
@@ -563,8 +552,8 @@ int8_t ksplay_insert(ksplay* this, uint64_t key, uint64_t value) {
 	}
 
 	ksplay_node_buffer stack = ksplay_walk_to(this, key);
-	node* target_node = stack.nodes[stack.count - 1];
-	const int8_t result = node_insert(target_node, key, value) ? 0 : 1;
+	node* target = stack.nodes[stack.count - 1];
+	const int8_t result = node_insert(target, key, value) ? 0 : 1;
 	if (result == 0) {
 		++this->size;
 	}
@@ -610,9 +599,9 @@ int8_t ksplay_delete(ksplay* this, uint64_t key) {
 	}
 
 	ksplay_node_buffer stack = ksplay_walk_to(this, key);
-	node* target_node = stack.nodes[stack.count - 1];
+	node* target = stack.nodes[stack.count - 1];
 
-	if (!node_contains(target_node, key)) {
+	if (!node_contains(target, key)) {
 		// No such key here.
 		ksplay_ksplay(this, &stack);
 		IF_LOG_VERBOSE(1) {
@@ -622,19 +611,19 @@ int8_t ksplay_delete(ksplay* this, uint64_t key) {
 		return 1;
 	}
 
-	uint8_t index_in_target = find_key_in_node(target_node, key);
-	if (target_node->children[index_in_target + 1] == NULL) {
+	uint8_t index_in_target = find_key_in_node(target, key);
+	if (target->children[index_in_target + 1] == NULL) {
 		// Cool.
 		log_info("delete: easy case");
-		node_remove_simple(target_node, key);
-		if (node_key_count(target_node) == 0 && this->size > 1) {
-			node* target_replacement = target_node->children[0];
+		node_remove_at_simple(target, index_in_target);
+		if (node_key_count(target) == 0 && this->size > 1) {
+			node* target_replacement = target->children[0];
 			if (stack.count > 1) {
 				replace_pointer(stack.nodes[stack.count - 2],
-						target_node, target_replacement);
+						target, target_replacement);
 			}
 			stack.nodes[stack.count - 1] = target_replacement;
-			free(target_node);
+			free(target);
 		}
 		--this->size;
 		ksplay_ksplay(this, &stack);
@@ -642,16 +631,15 @@ int8_t ksplay_delete(ksplay* this, uint64_t key) {
 	} else {
 		// Dude. Not cool.
 		// Walk to least key.
-		node* victim = target_node->children[index_in_target + 1];
+		node* victim = target->children[index_in_target + 1];
 		while (victim->children[0]) {
 			buffer_append(&stack, victim);
 			victim = victim->children[0];
 		}
 		assert(node_key_count(victim) > 0);
 		assert(victim->children[1] == NULL);
-		ksplay_pair replacement = victim->pairs[0];
-		node_remove_simple(victim, replacement.key);
-		target_node->pairs[index_in_target + 1] = replacement;
+		node_remove_at_simple(victim, 0);
+		target->pairs[index_in_target + 1] = victim->pairs[0];
 		--this->size;
 		ksplay_ksplay(this, &stack);
 		goto removed;
@@ -673,8 +661,8 @@ void ksplay_find(ksplay* this, uint64_t key, uint64_t *value, bool *found) {
 	}
 
 	ksplay_node_buffer stack = ksplay_walk_to(this, key);
-	node* target_node = stack.nodes[stack.count - 1];
-	*found = node_find(target_node, key, value);
+	node* target = stack.nodes[stack.count - 1];
+	*found = node_find(target, key, value);
 	ksplay_ksplay(this, &stack);
 
 	IF_LOG_VERBOSE(1) {
