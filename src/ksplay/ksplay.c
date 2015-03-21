@@ -12,7 +12,23 @@
 
 #define node ksplay_node
 
+#define EMPTY UINT64_MAX
+
 // Port-in-progress from experiments/ksplay/ksplay.py.
+
+static uint8_t node_key_count(node* x) {
+	uint8_t i;
+	for (i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
+		if (x->pairs[i].key == EMPTY) {
+			break;
+		}
+	}
+	return i;
+}
+
+uint8_t ksplay_node_key_count(node* x) {
+	return node_key_count(x);
+}
 
 static void _dump_single_node(node* x, int depth) {
 	char buffer[256] = {0};
@@ -23,20 +39,22 @@ static void _dump_single_node(node* x, int depth) {
 	if ((long) x < 10000) {
 		r += sprintf(buffer + r, "%p = MOCK(%ld)", x, (long) x);
 	} else {
-		r += sprintf(buffer + r, "%p (%" PRIu8 "): ", x, x->key_count);
-		for (int i = 0; i < x->key_count; ++i) {
+		const uint8_t key_count = node_key_count(x);
+		r += sprintf(buffer + r, "%p (%" PRIu8 "): ", x, key_count);
+		for (int i = 0; i < key_count; ++i) {
 			r += sprintf(buffer + r, "%p <%" PRIu64 "=%" PRIu64 "> ",
 					x->children[i],
 					x->pairs[i].key, x->pairs[i].value);
 		}
-		r += sprintf(buffer + r, "%p", x->children[x->key_count]);
+		r += sprintf(buffer + r, "%p", x->children[key_count]);
 	}
 	log_info("%s", buffer);
 }
 
 static void _dump_recursive(node* x, int depth) {
 	_dump_single_node(x, depth);
-	for (uint64_t i = 0; i <= x->key_count; ++i) {
+	uint8_t key_count = node_key_count(x);
+	for (uint64_t i = 0; i <= key_count; ++i) {
 		if (x->children[i]) {
 			_dump_recursive(x->children[i], depth + 1);
 		}
@@ -50,15 +68,19 @@ void ksplay_dump(ksplay* tree) {
 // Node.__init__
 static void node_init(node* this) {
 	assert(this);
-	this->key_count = 0;
+	for (uint8_t i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
+		this->pairs[i].key = EMPTY;
+	}
 	this->children[0] = NULL;
 }
 
 // Node.insert
 static bool node_insert(node* this, uint64_t key, uint64_t value) {
-	assert(this->key_count < KSPLAY_MAX_NODE_KEYS);
+	assert(key != EMPTY);
+	const uint8_t key_count = node_key_count(this);
+	assert(key_count < KSPLAY_MAX_NODE_KEYS);
 	uint8_t before;
-	for (before = 0; before < this->key_count; ++before) {
+	for (before = 0; before < key_count; ++before) {
 		if (this->pairs[before].key == key) {
 			// Duplicate key.
 			return false;
@@ -68,40 +90,40 @@ static bool node_insert(node* this, uint64_t key, uint64_t value) {
 		}
 	}
 	memmove(&this->pairs[before + 1], &this->pairs[before],
-			sizeof(ksplay_pair) * (this->key_count - before));
+			sizeof(ksplay_pair) * (key_count - before));
 	memmove(&this->children[before + 1], &this->children[before],
-			sizeof(node*) * (this->key_count - before + 1));
+			sizeof(node*) * (key_count - before + 1));
 	// TODO: move over all children
 	this->pairs[before] = (ksplay_pair) {
 		.key = key,
 		.value = value
 	};
 	this->children[before] = NULL;
-	++this->key_count;
-	//this->children[this->key_count] = NULL;
 	return true;
 }
 
 // Node.remove
 static void node_remove_simple(node* this, uint64_t key) {
+	const uint8_t key_count = node_key_count(this);
 	uint8_t before;
-	for (before = 0; before < this->key_count; ++before) {
+	for (before = 0; before < key_count; ++before) {
 		if (this->pairs[before].key >= key) {
 			break;
 		}
 	}
-	assert(before < this->key_count);
+	assert(before < key_count);
 	assert(this->children[before + 1] == NULL);
 	memmove(&this->pairs[before], &this->pairs[before + 1],
-			sizeof(ksplay_pair) * (this->key_count - before - 1));
+			sizeof(ksplay_pair) * (key_count - before - 1));
 	memmove(&this->children[before + 1], &this->children[before + 2],
-			sizeof(node*) * (this->key_count - before - 1));
-	--this->key_count;
+			sizeof(node*) * (key_count - before - 1));
+	this->pairs[key_count - 1].key = EMPTY;
+	assert(node_key_count(this) == key_count - 1);
 }
 
 // Node.contains
 static bool node_find(node* this, uint64_t key, uint64_t *value) {
-	for (uint8_t i = 0; i < this->key_count; ++i) {
+	for (uint8_t i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
 		if (this->pairs[i].key == key) {
 			if (value) {
 				*value = this->pairs[i].value;
@@ -155,21 +177,21 @@ next_level:
 		goto finished;
 	}
 	buffer_append(&stack, current);
-	for (uint8_t i = 0; i < current->key_count; ++i) {
+	uint8_t i;
+	for (i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
 		if (key == current->pairs[i].key) {
 			goto finished;
+		}
+		if (current->pairs[i].key == EMPTY) {
+			break;
 		}
 		if (key < current->pairs[i].key) {
 			current = current->children[i];
 			goto next_level;
 		}
 	}
-	if (current->key_count > 0) {
-		current = current->children[current->key_count];
-		goto next_level;
-	} else {
-		goto finished;
-	}
+	current = current->children[i];
+	goto next_level;
 
 finished:
 	return stack;
@@ -187,7 +209,7 @@ void ksplay_flatten(ksplay_node_buffer* stack, ksplay_pair* pairs,
 		node** children, uint64_t* _key_count) {
 	uint64_t total_keys = 0;
 	for (uint64_t i = 0; i < stack->count; ++i) {
-		total_keys += stack->nodes[i]->key_count;
+		total_keys += node_key_count(stack->nodes[i]);
 	}
 	assert(total_keys <= KSPLAY_MAX_EXPLORE_KEYS);
 
@@ -204,7 +226,8 @@ static void flatten_explore(ksplay_node_buffer* stack, uint64_t current_index,
 		ksplay_pair** pairs_head, node*** children_head,
 		uint64_t* remaining_keys) {
 	node* current = stack->nodes[current_index];
-	for (uint8_t i = 0; i <= current->key_count; ++i) {
+	const uint8_t key_count = node_key_count(current);
+	for (uint8_t i = 0; i <= key_count; ++i) {
 		if (stack->count > current_index + 1 &&
 				stack->nodes[current_index + 1] == current->children[i]) {
 			flatten_explore(stack, current_index + 1,
@@ -215,7 +238,7 @@ static void flatten_explore(ksplay_node_buffer* stack, uint64_t current_index,
 			++(*children_head);
 		}
 
-		if (i < current->key_count) {
+		if (i < key_count) {
 			assert(*remaining_keys > 0);
 			--(*remaining_keys);
 			*(*pairs_head) = current->pairs[i];
@@ -226,7 +249,9 @@ static void flatten_explore(ksplay_node_buffer* stack, uint64_t current_index,
 
 static void make_node(node* x, ksplay_pair* pairs, node** children,
 		uint8_t key_count) {
-	x->key_count = key_count;
+	for (uint8_t i = key_count; i < KSPLAY_MAX_NODE_KEYS; ++i) {
+		x->pairs[i].key = EMPTY;
+	}
 	memcpy(x->pairs, pairs, key_count * sizeof(ksplay_pair));
 	memcpy(x->children, children, (key_count + 1) * sizeof(node*));
 }
@@ -238,21 +263,19 @@ static void make_node(node* x, ksplay_pair* pairs, node** children,
 // keys.
 
 static node* pool_acquire(ksplay_node_pool* pool) {
+	node* x;
 	if (pool->remaining > 0) {
-		node* x = pool->nodes[0];
+		x = pool->nodes[0];
 		++(pool->nodes);
 		--(pool->remaining);
-		assert(x);
-		node_init(x);
 		log_info("acquired, %" PRIu64 " remaining", pool->remaining);
-		return x;
 	} else {
-		node* x = malloc(sizeof(node));
-		assert(x);
-		node_init(x);
+		x = malloc(sizeof(node));
 		log_info("allocated new node (no more left in pool)");
-		return x;
 	}
+	assert(x);
+	node_init(x);
+	return x;
 }
 
 node* compose_twolevel(ksplay_node_pool* pool,
@@ -261,27 +284,30 @@ node* compose_twolevel(ksplay_node_pool* pool,
 	// the rest into the root. The root will have at most KSPLAY_K
 	// keys in the end.
 	node* root = pool_acquire(pool);
+	uint8_t root_key_count = 0;
 
 	uint64_t children_remaining = key_count + 1;
 	while (children_remaining >= KSPLAY_K) {
 		node* lower_node = pool_acquire(pool);
-		root->children[root->key_count] = lower_node;
+		root->children[root_key_count] = lower_node;
 		if (children_remaining > KSPLAY_K) {
-			lower_node->key_count = KSPLAY_K - 1;
+			// lower_node->key_count = KSPLAY_K - 1;
 			memcpy(lower_node->pairs, pairs,
 					(KSPLAY_K - 1) * sizeof(ksplay_pair));
 			memcpy(lower_node->children, children,
 					KSPLAY_K * sizeof(node*));
-			root->pairs[root->key_count] =
-					pairs[KSPLAY_K - 1];
-			++root->key_count;
+			assert(node_key_count(lower_node) == KSPLAY_K - 1);
+			root->pairs[root_key_count] = pairs[KSPLAY_K - 1];
+			++root_key_count;
 		} else {
 			// Last child.
-			lower_node->key_count = children_remaining - 1;
+			// lower_node->key_count = children_remaining - 1;
 			memcpy(lower_node->pairs, pairs,
 					(children_remaining - 1) * sizeof(ksplay_pair));
 			memcpy(lower_node->children, children,
 					children_remaining * sizeof(node*));
+			assert(node_key_count(lower_node) ==
+					children_remaining - 1);
 		}
 		pairs += KSPLAY_K;
 		children += KSPLAY_K;
@@ -294,19 +320,20 @@ node* compose_twolevel(ksplay_node_pool* pool,
 
 	//assert(children_remaining == 0);
 	if (children_remaining > 0) {
-		memcpy(root->pairs + root->key_count,
+		memcpy(root->pairs + root_key_count,
 				pairs, (children_remaining - 1) * sizeof(ksplay_pair));
-		memcpy(root->children + root->key_count,
+		memcpy(root->children + root_key_count,
 				children, children_remaining * sizeof(node*));
-		root->key_count += children_remaining - 1;
+		root_key_count += children_remaining - 1;
 	}
 
-	assert(root->key_count <= KSPLAY_K && root->key_count > 0);
+	assert(root_key_count == node_key_count(root));
+	assert(root_key_count <= KSPLAY_K && root_key_count > 0);
 
 	IF_LOG_VERBOSE(1) {
 		log_info("Two-level composition:");
 		_dump_single_node(root, 2);
-		for (uint8_t i = 0; i < root->key_count + 1; ++i) {
+		for (uint8_t i = 0; i <= root_key_count; ++i) {
 			if (root->children[i]) {
 				_dump_single_node(root->children[i], 4);
 			}
@@ -380,13 +407,14 @@ node* ksplay_compose(ksplay_node_pool* pool, ksplay_pair* pairs, node** children
 				pairs, children, lower_level);
 
 		node* root = pool_acquire(pool);
-		root->key_count = key_count - lower_level;
-		assert(root->key_count > 0);
+		const uint8_t root_key_count = key_count - lower_level;
+		assert(root_key_count > 0);
 		root->children[0] = middle;
 		for (uint64_t i = lower_level; i < key_count; ++i) {
 			root->pairs[i - lower_level] = pairs[i];
 			root->children[i - lower_level + 1] = children[i + 1];
 		}
+		assert(root_key_count == node_key_count(root));
 		return root;
 	}
 }
@@ -404,7 +432,7 @@ static ksplay_node_buffer buffer_suffix(ksplay_node_buffer buffer,
 
 static void replace_pointer(node* haystack, node* needle, node* replacement) {
 	bool done = false;
-	for (uint64_t i = 0; i <= haystack->key_count; ++i) {
+	for (uint64_t i = 0; i <= node_key_count(haystack); ++i) {
 		if (haystack->children[i] == needle) {
 			assert(!done);
 			haystack->children[i] = replacement;
@@ -426,10 +454,12 @@ static void ksplay_step(ksplay_node_buffer* stack) {
 		}
 	}
 	uint8_t suffix_length = KSPLAY_K;
-	if (stack->nodes[stack->count - 1]->key_count + 1 >= KSPLAY_K) {
+	const uint8_t keys_in_last =
+			node_key_count(stack->nodes[stack->count - 1]);
+	if (keys_in_last + 1 >= KSPLAY_K) {
 		++suffix_length;
 	}
-	if (stack->nodes[stack->count - 1]->key_count + 1 >= KSPLAY_K + 1) {
+	if (keys_in_last + 1 >= KSPLAY_K + 1) {
 		++suffix_length;
 	}
 
@@ -483,29 +513,32 @@ static void ksplay_step(ksplay_node_buffer* stack) {
 
 	// Only the last node and the root may be non-exact.
 	for (uint64_t i = 1; i < stack->count - 1; ++i) {
-		assert(stack->nodes[i]->key_count == KSPLAY_K - 1);
+		assert(node_key_count(stack->nodes[i]) == KSPLAY_K - 1);
 	}
 }
 
 // Splits a node under a new one-key node if it's overfull.
 node* ksplay_split_overfull(ksplay_node* root) {
-	assert(root->key_count <= KSPLAY_K);
-	if (root->key_count == KSPLAY_K) {
+	const uint8_t key_count = node_key_count(root);
+	assert(key_count <= KSPLAY_K);
+	if (key_count == KSPLAY_K) {
 		IF_LOG_VERBOSE(1) {
 			log_info("Overfull root, splitting it:");
 			//log_info("overfull root:::");
 			_dump_single_node(root, 2);
 		}
 		// Steal the last key.
-		--root->key_count;
 
 		node* new_root = malloc(sizeof(node));
 		node_init(new_root);
-		new_root->key_count = 1;
-		memcpy(&new_root->pairs[0], &root->pairs[root->key_count],
+		memcpy(&new_root->pairs[0], &root->pairs[key_count - 1],
 				sizeof(ksplay_pair));
 		new_root->children[0] = root;
-		new_root->children[1] = root->children[root->key_count + 1];
+		new_root->children[1] = root->children[key_count];
+		assert(node_key_count(new_root) == 1);
+
+		root->pairs[key_count - 1].key = EMPTY;
+		assert(node_key_count(root) == key_count - 1);
 
 		IF_LOG_VERBOSE(1) {
 			log_info("Overfull root split into:");
@@ -533,11 +566,11 @@ static void ksplay_ksplay(ksplay* this, ksplay_node_buffer* stack) {
 	}
 	// If the root is overfull, split it.
 	node* root = ksplay_split_overfull(stack->nodes[0]);
-	assert(root->key_count < KSPLAY_K);
+	assert(node_key_count(root) < KSPLAY_K);
 	this->root = root;
 	log_info("// K-splay done");
 	if (this->size > 0) {
-		assert(this->root->key_count > 0);
+		assert(node_key_count(this->root) > 0);
 	}
 }
 
@@ -550,7 +583,6 @@ int8_t ksplay_insert(ksplay* this, uint64_t key, uint64_t value) {
 
 	ksplay_node_buffer stack = ksplay_walk_to(this, key);
 	node* target_node = stack.nodes[stack.count - 1];
-	// TODO: tohle samo o sobe fungovat nebude...
 	const int8_t result = node_insert(target_node, key, value) ? 0 : 1;
 	if (result == 0) {
 		++this->size;
@@ -566,9 +598,12 @@ int8_t ksplay_insert(ksplay* this, uint64_t key, uint64_t value) {
 }
 
 static int8_t node_contains(node* x, uint64_t key) {
-	for (uint8_t i = 0; i < x->key_count; ++i) {
+	for (uint8_t i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
 		if (x->pairs[i].key == key) {
 			return true;
+		}
+		if (x->pairs[i].key == EMPTY) {
+			break;
 		}
 	}
 	return false;
@@ -576,9 +611,12 @@ static int8_t node_contains(node* x, uint64_t key) {
 
 static int8_t find_key_in_node(node* x, uint64_t key) {
 	uint8_t i;
-	for (i = 0; i < x->key_count; ++i) {
+	for (i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
 		if (x->pairs[i].key == key) {
 			return i;
+		}
+		if (x->pairs[i].key == EMPTY) {
+			break;
 		}
 	}
 	log_fatal("key %" PRIu64 " not in node", key);
@@ -609,7 +647,7 @@ int8_t ksplay_delete(ksplay* this, uint64_t key) {
 		// Cool.
 		log_info("delete: easy case");
 		node_remove_simple(target_node, key);
-		if (target_node->key_count == 0 && this->size > 1) {
+		if (node_key_count(target_node) == 0 && this->size > 1) {
 			node* target_replacement = target_node->children[0];
 			if (stack.count > 1) {
 				replace_pointer(stack.nodes[stack.count - 2],
@@ -629,7 +667,7 @@ int8_t ksplay_delete(ksplay* this, uint64_t key) {
 			buffer_append(&stack, victim);
 			victim = victim->children[0];
 		}
-		assert(victim->key_count > 0);
+		assert(node_key_count(victim) > 0);
 		assert(victim->children[1] == NULL);
 		ksplay_pair replacement = victim->pairs[0];
 		node_remove_simple(victim, replacement.key);
@@ -668,20 +706,21 @@ void ksplay_find(ksplay* this, uint64_t key, uint64_t *value, bool *found) {
 
 static void _dump_dot(node* current_node, FILE* output) {
 	fprintf(output, "    node%p[label = \"", current_node);
-	for (uint8_t i = 0; i < current_node->key_count; ++i) {
+	const uint8_t key_count = node_key_count(current_node);
+	for (uint8_t i = 0; i < key_count; ++i) {
 		fprintf(output, "<child%d>|%" PRIu64 "|",
 				i, current_node->pairs[i].key);
 	}
-	fprintf(output, "<child%d>\"];\n", current_node->key_count);
+	fprintf(output, "<child%d>\"];\n", key_count);
 
-	for (uint8_t i = 0; i <= current_node->key_count; ++i) {
+	for (uint8_t i = 0; i <= key_count; ++i) {
 		if (current_node->children[i]) {
 			fprintf(output, "    \"node%p\":child%d -> \"node%p\";\n",
 					current_node, i, current_node->children[i]);
 		}
 	}
 
-	for (uint8_t i = 0; i <= current_node->key_count; ++i) {
+	for (uint8_t i = 0; i <= key_count; ++i) {
 		if (current_node->children[i]) {
 			_dump_dot(current_node->children[i], output);
 		}

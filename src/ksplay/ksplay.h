@@ -21,8 +21,10 @@ typedef struct {
 	uint64_t value;
 } ksplay_pair;
 
+// Stores pairs and children. Keys are in sorted order.
+// The number of stored keys is implicit - missing keys are at the end
+// and they are set to UINT64_MAX.
 struct ksplay_node {
-	uint8_t key_count;
 	ksplay_pair pairs[KSPLAY_MAX_NODE_KEYS];
 	struct ksplay_node* children[KSPLAY_MAX_NODE_CHILDREN + 1];
 };
@@ -64,5 +66,6 @@ ksplay_node* ksplay_compose(ksplay_node_pool* pool,
 		ksplay_pair* pairs, ksplay_node** children, uint64_t key_count);
 ksplay_node* ksplay_split_overfull(ksplay_node* root);
 void ksplay_dump_dot(ksplay* this, FILE* output);
+uint8_t ksplay_node_key_count(ksplay_node* x);
 
 #endif

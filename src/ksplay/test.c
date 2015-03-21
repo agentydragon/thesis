@@ -21,7 +21,8 @@ static void assert_pair(node* x, uint8_t index, ksplay_pair expected_pair) {
 #define assert_pairs(x,...) do { \
 	ksplay_node* _node = x; \
 	ksplay_pair _pairs[] = { __VA_ARGS__ }; \
-	assert(_node->key_count == COUNT_OF(_pairs)); \
+	const uint8_t _key_count = ksplay_node_key_count(_node); \
+	assert(_key_count == COUNT_OF(_pairs)); \
 	for (uint64_t i = 0; i < COUNT_OF(_pairs); ++i) { \
 		assert_pair(_node, i, _pairs[i]); \
 	} \
@@ -41,16 +42,21 @@ static void _assert_children(node* x, node** children, uint64_t child_count) {
 #define set_pairs(x,...) do { \
 	node* _node = (x); \
 	ksplay_pair _pairs[] = { __VA_ARGS__ }; \
-	_node->key_count = COUNT_OF(_pairs); \
-	for (uint8_t i = 0; i < COUNT_OF(_pairs); ++i) { \
-		_node->pairs[i] = _pairs[i]; \
+	for (uint8_t i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) { \
+		if (i < COUNT_OF(_pairs)) { \
+			_node->pairs[i] = _pairs[i]; \
+		} else { \
+			_node->pairs[i].key = UINT64_MAX; \
+		} \
 	} \
+	assert(ksplay_node_key_count(_node) == COUNT_OF(_pairs)); \
 } while (0)
 
 #define set_children(x,...) do { \
 	node* _node = (x); \
 	node* _children[] = { __VA_ARGS__ }; \
-	assert(COUNT_OF(_children) == _node->key_count + 1); \
+	const uint8_t _key_count = ksplay_node_key_count(_node); \
+	assert(COUNT_OF(_children) == _key_count + 1); \
 	for (uint8_t i = 0; i < COUNT_OF(_children); ++i) { \
 		_node->children[i] = _children[i]; \
 	} \
@@ -297,7 +303,6 @@ static void test_insert() {
 
 static void test_split_overfull() {
 	ksplay_node root;
-	root.key_count = 3;
 	set_pairs(&root, PAIR(10), PAIR(20), PAIR(30));
 	set_children(&root, MOCK('a'), MOCK('b'), MOCK('c'), MOCK('d'));
 
