@@ -43,6 +43,7 @@ void run_unit_tests() {
 	test_dict_blackbox(&dict_splay);
 
 	test_ordered_dict_blackbox(&dict_cobt);
+	test_ordered_dict_blackbox(&dict_ksplay);
 	test_ordered_dict_blackbox(&dict_splay);
 
 	test_dict_large(&dict_array, 1 << 10);
