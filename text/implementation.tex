@@ -147,11 +147,20 @@ void example_btree() {
 }
 \end{lstlisting}
 
+Finally, we have decided to reserve one key for internal purposes.
+This key is defined in \texttt{dict/dict.h} as the macro
+\texttt{DICT\_RESERVED\_KEY} and its value is \texttt{UINT64\_MAX}.
+Inserting this key into a dictionary or deleting it will result in an error.
+Reserving this value is useful for representing unused slots in B-tree
+and $k$-splay tree nodes.
+
 We have implemented the following dictionary data structures:
 \begin{itemize}
-\item \texttt{dict\_cobt}, declared in \texttt{dict/cobt.h}.
-	This data structure is a cache-oblivious B-tree as described
-	TODO.
+\item \texttt{dict\_cobt}, declared in \texttt{dict/cobt.h}:
+	a cache-oblivious B-tree as described TODO.
+\item \texttt{dict\_splay}, declared in \texttt{dict/splay.h}:
+	a splay tree.
+% TODO: btree, ksplay, htable
 \end{itemize}
 
 \section{Performance measurement}
