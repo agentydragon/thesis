@@ -46,7 +46,7 @@ make bin/experiments/performance
 bin/experiments/performance
 ```
 
-Results are saved in `src/experiments/performance/results.tsv`. You can plot
+Results are saved in `src/experiments/performance/results.json`. You can plot
 some interesting graphs by running;
 ```bash
 cd experiments/performance
