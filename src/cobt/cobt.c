@@ -566,7 +566,7 @@ static pma rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
 	} else {
 		free(buffer);
 	}
-	log_verbose(1, "rebuilt file to piece %" PRIu64, new_piece);
+	log_verbose(1, "rebuilt file to piece %" PRIu8, new_piece);
 	return new_file;
 }
 

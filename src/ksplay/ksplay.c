@@ -766,7 +766,7 @@ void ksplay_find(ksplay* this, uint64_t key, uint64_t *value, bool *found) {
 void ksplay_next_key(ksplay* this, uint64_t key,
 		uint64_t *next_key, bool *found) {
 	IF_LOG_VERBOSE(1) {
-		log_info("next(%" PRIu64 ")");
+		log_info("next(%" PRIu64 ")", key);
 		ksplay_dump(this);
 	}
 
@@ -796,7 +796,7 @@ void ksplay_next_key(ksplay* this, uint64_t key,
 void ksplay_previous_key(ksplay* this, uint64_t key,
 		uint64_t *previous_key, bool *found) {
 	IF_LOG_VERBOSE(1) {
-		log_info("prev(%" PRIu64 ")");
+		log_info("prev(%" PRIu64 ")", key);
 		ksplay_dump(this);
 	}
 

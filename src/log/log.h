@@ -1,7 +1,8 @@
 #ifndef LOG_H_INCLUDED
 #define LOG_H_INCLUDED
 
-void __log_basic(const char* tag, const char* format, ...);
+void __log_basic(const char* tag, const char* format, ...)
+		__attribute__((format (printf, 2, 3)));
 void log_fatal(const char* format, ...) __attribute__((noreturn));
 // TODO: log_q(uiet)fatal?
 

@@ -169,7 +169,7 @@ int8_t btree_insert(btree* this, uint64_t key, uint64_t value) {
 	do {
 		if ((nt_is_leaf(node) && get_n_leaf_keys(node.persisted) == LEAF_MAX_KEYS) ||
 				(!nt_is_leaf(node) && get_n_internal_keys(node.persisted) == INTERNAL_MAX_KEYS)) {
-			log_verbose(1, "splitting %p", node);
+			log_verbose(1, "splitting %p", node.persisted);
 			// We need to split the node now.
 			btree_node_persisted* new_right_sibling;
 			uint64_t middle_key;
