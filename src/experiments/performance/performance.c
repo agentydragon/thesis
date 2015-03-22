@@ -22,7 +22,7 @@ static uint64_t make_value(uint64_t i) {
 }
 
 struct metrics {
-	struct measurement_results measurement_results;
+	measurement_results* results;
 	uint64_t time_nsec;
 };
 
@@ -54,7 +54,7 @@ struct metrics measure_working_set(const dict_api* api, uint64_t size,
 
 	dict* table = seed(api, size);
 
-	struct measurement measurement_just_find = measurement_begin();
+	measurement* measurement_just_find = measurement_begin();
 	stopwatch watch_just_find = stopwatch_start();
 
 	rand_generator generator = { .state = 0 };
@@ -63,12 +63,12 @@ struct metrics measure_working_set(const dict_api* api, uint64_t size,
 		check_contains(table, make_key(k), make_value(k));
 	}
 
-	struct measurement_results results_just_find =
+	measurement_results* results_just_find =
 			measurement_end(measurement_just_find);
 	dict_destroy(&table);
 
 	return (struct metrics) {
-		.measurement_results = results_just_find,
+		.results = results_just_find,
 		.time_nsec = stopwatch_read_ns(watch_just_find)
 	};
 }
@@ -101,34 +101,31 @@ static void iterate_ltr(dict* dict) {
 struct metrics measure_ltr_scan(const dict_api* api, uint64_t size) {
 	dict* table = seed(api, size);
 
-	struct measurement measurement_just_find = measurement_begin();
-	stopwatch watch_just_find = stopwatch_start();
-
-	const int K = 5;  // for cache warmup
+	const int K = 3;  // for cache warmup
 	for (int i = 0; i < K; i++) {
 		iterate_ltr(table);
 	}
 
-	struct measurement_results results_just_find = measurement_end(measurement_just_find);
+	measurement* measurement_just_find = measurement_begin();
+	stopwatch watch_just_find = stopwatch_start();
+	iterate_ltr(table);
+	measurement_results* results_just_find = measurement_end(measurement_just_find);
 	dict_destroy(&table);
 
 	return (struct metrics) {
-		.measurement_results = {
-			.cache_misses = results_just_find.cache_misses / K,
-			.cache_references = results_just_find.cache_references / K
-		},
-		.time_nsec = stopwatch_read_ns(watch_just_find) / K
+		.results = results_just_find,
+		.time_nsec = stopwatch_read_ns(watch_just_find)
 	};
 }
 
 enum { SERIAL_BOTH, SERIAL_JUST_FIND } SERIAL_MODE = SERIAL_BOTH;
 struct metrics measure_serial(const dict_api* api, uint64_t size) {
-	struct measurement measurement = measurement_begin();
+	measurement* measurement_both = measurement_begin();
 	stopwatch watch = stopwatch_start();
 
 	dict* table = seed(api, size);
 
-	struct measurement measurement_just_find = measurement_begin();
+	measurement* measurement_just_find = measurement_begin();
 	stopwatch watch_just_find = stopwatch_start();
 
 	rand_generator generator = { .state = 0 };
@@ -139,19 +136,21 @@ struct metrics measure_serial(const dict_api* api, uint64_t size) {
 		check_contains(table, make_key(k), make_value(k));
 	}
 
-	struct measurement_results results_combined = measurement_end(measurement),
-				   results_just_find = measurement_end(measurement_just_find);
+	measurement_results *results_combined = measurement_end(measurement_both),
+			*results_just_find = measurement_end(measurement_just_find);
 	dict_destroy(&table);
 
 	switch (SERIAL_MODE) {
 	case SERIAL_BOTH:
+		measurement_results_release(results_just_find);
 		return (struct metrics) {
-			.measurement_results = results_combined,
+			.results = results_combined,
 			.time_nsec = stopwatch_read_ns(watch)
 		};
 	case SERIAL_JUST_FIND:
+		measurement_results_release(results_combined);
 		return (struct metrics) {
-			.measurement_results = results_just_find,
+			.results = results_just_find,
 			.time_nsec = stopwatch_read_ns(watch_just_find)
 		};
 	default:
@@ -165,7 +164,7 @@ static void add_common_keys(json_t* point, const char* experiment,
 	json_object_set_new(point, "implementation", json_string(api->name));
 	json_object_set_new(point, "size", json_integer(size));
 	json_object_set_new(point, "metrics",
-			measurement_results_to_json(result.measurement_results));
+			measurement_results_to_json(result.results));
 	json_object_set_new(point, "time_ns", json_integer(result.time_nsec));
 }
 
@@ -192,6 +191,7 @@ int main(int argc, char** argv) {
 						json_integer(PMA_COUNTERS.reorganized_size));
 			}
 			json_array_append_new(json_results, point);
+			measurement_results_release(result.results);
 		}
 
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
@@ -202,6 +202,7 @@ int main(int argc, char** argv) {
 			add_common_keys(point, "serial-findonly", size,
 					FLAGS.measured_apis[i], result);
 			json_array_append_new(json_results, point);
+			measurement_results_release(result.results);
 		}
 
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
@@ -212,6 +213,7 @@ int main(int argc, char** argv) {
 					FLAGS.measured_apis[i], result);
 			json_object_set_new(point, "working_set_size", json_integer(1000));
 			json_array_append_new(json_results, point);
+			measurement_results_release(result.results);
 		}
 
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
@@ -222,6 +224,7 @@ int main(int argc, char** argv) {
 					FLAGS.measured_apis[i], result);
 			json_object_set_new(point, "working_set_size", json_integer(100000));
 			json_array_append_new(json_results, point);
+			measurement_results_release(result.results);
 		}
 
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
@@ -236,6 +239,7 @@ int main(int argc, char** argv) {
 			add_common_keys(point, "ltr_scan", size,
 					FLAGS.measured_apis[i], result);
 			json_array_append_new(json_results, point);
+			measurement_results_release(result.results);
 		}
 
 		log_info("flushing results...");

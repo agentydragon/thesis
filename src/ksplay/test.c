@@ -5,11 +5,11 @@
 
 #include "ksplay/ksplay.h"
 #include "log/log.h"
+#include "util/count_of.h"
 
 #define node ksplay_node
 #define node_pool ksplay_node_pool
 
-#define COUNT_OF(x) (sizeof(x) / sizeof(*x))
 #define PAIR(x) ((ksplay_pair) { .key = x, .value = x * 100 })
 #define MOCK(x) ((node*) x)
 

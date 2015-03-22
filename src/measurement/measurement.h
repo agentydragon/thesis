@@ -4,19 +4,15 @@
 #include <jansson.h>
 #include <stdint.h>
 
-struct measurement_results {
-	uint64_t cache_misses;
-	uint64_t cache_references;
-};
+struct measurement;
+typedef struct measurement measurement;
 
-// private
-struct measurement {
-	int cache_misses_fd;
-	int cache_references_fd;
-};
+struct measurement_results;
+typedef struct measurement_results measurement_results;
 
-struct measurement measurement_begin();
-struct measurement_results measurement_end(struct measurement);
-json_t* measurement_results_to_json(struct measurement_results);
+measurement* measurement_begin();
+measurement_results* measurement_end(measurement*);
+json_t* measurement_results_to_json(measurement_results*);
+void measurement_results_release(measurement_results*);
 
 #endif

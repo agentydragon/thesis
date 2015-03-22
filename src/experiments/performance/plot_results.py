@@ -43,6 +43,34 @@ def plot_graph(data, title):
   pyplot.xlabel('Inserted items')
   pyplot.grid(True)
 
+def plot_mispredicts(data, title):
+  data = list(filter(lambda point: point['size'] > 1000, data))
+  apis = set(point['implementation'] for point in data)
+  colors = ['r-', 'g-', 'b-', 'c-', 'm-', 'y-', 'k-']
+
+  def sizes(api):
+    return [point['size'] for point in data
+                          if point['implementation'] == api and
+                             point['metrics']['branches']]
+  def mispredicts(api):
+    result = []
+    for point in data:
+      if point['implementation'] == api and point['metrics']['branches']:
+        result.append(point['metrics']['branch_mispredicts'] /
+                      point['metrics']['branches'])
+    return result
+
+  figure = pyplot.figure(1)
+  subplot = pyplot.subplot(211)
+  subplot.set_title(title)
+  subplot.set_xscale('log')
+  for api, color in zip(apis, colors):
+    pyplot.plot(sizes(api), mispredicts(api), color, linewidth=2.0, label=api)
+  pyplot.legend(loc='upper left')
+  pyplot.ylabel('Branch mispredict ratio')
+  # pyplot.xlabel('Inserted items')
+  pyplot.grid(True)
+
 def filter_experiment(data, experiment):
   return list(filter(lambda point: point['experiment'] == experiment, data))
 
@@ -74,6 +102,11 @@ plot_graph(list(filter(lambda point: point['working_set_size'] == 100000,
                         filter_experiment(data, experiment='workingset'))),
             title='Random finds in 100k working set')
 pyplot.savefig('ws-100k-find.png', figsize=figsize)
+pyplot.clf()
+
+plot_mispredicts(data=filter_experiment(data, experiment='serial-findonly'),
+                 title='Mispredicts (random find)')
+pyplot.savefig('random-mispredict.png', figsize=figsize)
 pyplot.clf()
 
 data = list(filter(lambda point: point['size'] > 1000 and
