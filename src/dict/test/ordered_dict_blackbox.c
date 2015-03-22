@@ -34,7 +34,8 @@ static void assert_next_key(dict* instance,
 					"%" PRIu64, key, next_key);
 		assert(next_key == found_key);
 	} else {
-		assert(!found);
+		CHECK(!found, "found next key %" PRIu64 " for %" PRIu64 ", "
+				"expecting none", next_key, key);
 	}
 }
 

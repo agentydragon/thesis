@@ -42,7 +42,10 @@ void ksplay_destroy(ksplay* this);
 int8_t ksplay_insert(ksplay* this, uint64_t key, uint64_t value);
 int8_t ksplay_delete(ksplay* this, uint64_t key);
 void ksplay_find(ksplay* this, uint64_t key, uint64_t *value, bool *found);
-// TODO: find_next, find_previous
+void ksplay_next_key(ksplay* this, uint64_t key,
+		uint64_t* next_key, bool *found);
+void ksplay_previous_key(ksplay* this, uint64_t key,
+		uint64_t* previous_key, bool *found);
 
 void ksplay_dump(ksplay* tree);
 

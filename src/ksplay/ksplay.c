@@ -197,6 +197,96 @@ finished:
 	return stack;
 }
 
+static bool node_has_key_gt(node* x, uint64_t key) {
+	for (uint64_t i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
+		if (x->pairs[i].key == EMPTY) {
+			break;
+		}
+		if (x->pairs[i].key > key) {
+			return true;
+		}
+	}
+	return false;
+}
+
+static ksplay_node_buffer ksplay_walk_to_next(ksplay* this, uint64_t key,
+		uint64_t *good_prefix) {
+	ksplay_node_buffer stack = empty_buffer();
+	node* current = this->root;
+
+next_level:
+	if (current == NULL) {
+		goto drilldown_finished;
+	}
+	buffer_append(&stack, current);
+	uint8_t i;
+	for (i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
+		if (current->pairs[i].key == EMPTY) {
+			break;
+		}
+		if (key < current->pairs[i].key) {
+			current = current->children[i];
+			goto next_level;
+		}
+	}
+	current = current->children[i];
+	goto next_level;
+
+drilldown_finished:
+	for (i = 0; i < stack.count; ++i) {
+		if (node_has_key_gt(stack.nodes[stack.count - 1 - i], key)) {
+			break;
+		}
+	}
+	*good_prefix = stack.count - i;
+	return stack;
+}
+
+static bool node_has_key_lt(node* x, uint64_t key) {
+	for (uint64_t i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
+		if (x->pairs[i].key < key) {
+			return true;
+		}
+	}
+	return false;
+}
+
+static ksplay_node_buffer ksplay_walk_to_previous(ksplay* this, uint64_t key,
+		uint64_t *good_prefix) {
+	ksplay_node_buffer stack = empty_buffer();
+	node* current = this->root;
+
+next_level:
+	if (current == NULL) {
+		goto drilldown_finished;
+	}
+	buffer_append(&stack, current);
+	uint8_t i;
+	for (i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
+		const uint64_t idx = KSPLAY_MAX_NODE_KEYS - i - 1;
+		if (current->pairs[idx].key < key) {
+			current = current->children[idx + 1];
+			goto next_level;
+		}
+	}
+	current = current->children[0];
+	goto next_level;
+
+drilldown_finished:
+	IF_LOG_VERBOSE(1) {
+		log_info("stack in walk_to_previous:");
+		_dump_buffer(&stack, 2);
+	}
+	for (i = 0; i < stack.count; ++i) {
+		if (node_has_key_lt(stack.nodes[stack.count - 1 - i], key)) {
+			break;
+		}
+	}
+	log_verbose(1, "good prefix: %" PRIu64, stack.count - i);
+	*good_prefix = stack.count - i;
+	return stack;
+}
+
 // Returns the pairs and external nodes of a stack in BFS order.
 // 'pairs' should point to a buffer of at least KSPLAY_MAX_EXPLORE_KEYS
 // ksplay_pairs. 'children' should point to at least KSPLAY_MAX_EXPLORE_KEYS + 1
@@ -268,7 +358,7 @@ static node* pool_acquire(ksplay_node_pool* pool) {
 		x = pool->nodes[0];
 		++(pool->nodes);
 		--(pool->remaining);
-		log_info("acquired, %" PRIu64 " remaining", pool->remaining);
+		log_verbose(1, "acquired, %" PRIu64 " remaining", pool->remaining);
 	} else {
 		x = malloc(sizeof(node));
 		log_info("allocated new node (no more left in pool)");
@@ -671,6 +761,65 @@ void ksplay_find(ksplay* this, uint64_t key, uint64_t *value, bool *found) {
 		log_info("after find(%" PRIu64 "):", key);
 		ksplay_dump(this);
 	}
+}
+
+void ksplay_next_key(ksplay* this, uint64_t key,
+		uint64_t *next_key, bool *found) {
+	IF_LOG_VERBOSE(1) {
+		log_info("next(%" PRIu64 ")");
+		ksplay_dump(this);
+	}
+
+	uint64_t good_prefix;
+	ksplay_node_buffer stack = ksplay_walk_to_next(this, key, &good_prefix);
+	if (good_prefix == 0) {
+		log_info("good prefix empty; next not found");
+		*found = false;
+	} else {
+		node* good_node = stack.nodes[good_prefix - 1];
+		uint64_t i;
+		for (i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
+			if (good_node->pairs[i].key == EMPTY) {
+				continue;
+			}
+			if (good_node->pairs[i].key > key) {
+				break;
+			}
+		}
+		assert(i < KSPLAY_MAX_NODE_KEYS);
+		*next_key = good_node->pairs[i].key;
+		*found = true;
+	}
+	ksplay_ksplay(this, &stack);
+}
+
+void ksplay_previous_key(ksplay* this, uint64_t key,
+		uint64_t *previous_key, bool *found) {
+	IF_LOG_VERBOSE(1) {
+		log_info("prev(%" PRIu64 ")");
+		ksplay_dump(this);
+	}
+
+	uint64_t good_prefix;
+	ksplay_node_buffer stack = ksplay_walk_to_previous(this, key,
+			&good_prefix);
+	if (good_prefix == 0) {
+		*found = false;
+	} else {
+		node* good_node = stack.nodes[good_prefix - 1];
+		uint64_t i;
+		for (i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
+			const uint64_t idx = KSPLAY_MAX_NODE_KEYS - i - 1;
+			if (good_node->pairs[idx].key < key) {
+				break;
+			}
+		}
+		assert(i < KSPLAY_MAX_NODE_KEYS);
+		*previous_key = good_node->pairs[
+				KSPLAY_MAX_NODE_KEYS - i - 1].key;
+		*found = true;
+	}
+	ksplay_ksplay(this, &stack);
 }
 
 static void _dump_dot(node* current_node, FILE* output) {
