@@ -78,7 +78,7 @@ static uint64_t event_fd_read(int fd) {
 }
 
 measurement* measurement_begin() {
-	measurement* m = malloc(sizeof(measurement));;
+	measurement* m = malloc(sizeof(measurement));
 	m->fds = calloc(COUNT_OF(counters), sizeof(int));
 	assert(m->fds);
 	for (uint64_t i = 0; i < COUNT_OF(counters); ++i) {
