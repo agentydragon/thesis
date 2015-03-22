@@ -33,10 +33,10 @@ very large inputs. One significant source of this discrepancy is the assumption
 that all memory accesses cost the same $\O(1)$ time. In today's computers,
 the difference between accessing 1 kB cached in L1 cache and accessing
 another 1 kB stored on swapped memory is so large that it cannot be ignored.
+
+\section{Memory hierarchies}
 % TODO: latency numbers everyone should know
-
 % TODO: list-array experiment
-
 There are two major types of RAM: \textit{static} and \textit{dynamic}.
 While static RAM stores information as states of logic gates, dynamic RAM
 uses capacitors, which lose charge over time. To avoid losing information,
@@ -46,13 +46,13 @@ charge from capacitors, which must then be returned to keep the data.
 In general, static RAM is fast and expensive, while dynamic RAM is slow,
 cheap and more space-efficient. Main memories are usually dynamic.
 
-CPU speeds are growing faster than speeds of dynamic RAM. A fast CPU needs to
-wait several hundred cycles to perform a RAM access. TODO: source "several hundred"
+CPU speeds are growing faster (60\% per year) than speeds of memory (10\% per
+year)\cite{ailamaki05}. A fast CPU needs to wait several hundred cycles
+to perform a RAM access. TODO: source "several hundred"
 To alleviate the costs of memory transfers, several levels of static RAM
-caches (usually at least L1 and L2) are inserted between the CPU and
-the main memory. The caches are progressively smaller and faster the closer
-they are to the CPU. The difference between speeds of memory levels reaches
-several orders of magnitude. TODO: source
+caches are inserted between the CPU and the main memory. The caches are
+progressively smaller and faster the closer they are to the CPU. The difference
+between speeds of memory levels reaches several orders of magnitude. TODO: source
 
 Larger and slower memories are also faster when accessing data physically
 close to recently accessed data. The hard disk is the most apparent example
@@ -68,9 +68,43 @@ store, it is wise to ask for a lot of data at once. Imagine an HTTP connection
 moving a 10 MB file across the Atlantic: the time to compose and send the HTTP
 request and to parse a response dwarfs the latency of the connection.
 Memory hierarchies transport data between memories in \textit{blocks}.
-In the context of L1 and L2 caches and main memory, these blocks are called
+In the context of caches and main memory, these blocks are called
 \textit{cache lines} and their usual size is 64 B.
 A traditional block size for disk I/O is 4 kB.
+
+\begin{figure}
+\begin{itemize}
+\item Processor registers. Their latency is usually one CPU cycle.
+	The installed Intel Core i5-3230M CPU has 16 64-bit general-purpose
+	registers and 32 512-bit registers for vector operations (ZMM0 up to
+	ZMM31).
+	% TODO: check registers
+\item Level 1 (L1) cache, which has a latency of several CPU cycles.
+	It is divided into a data section and an instruction section,
+	both of them 32 kB in size.
+\item Level 2 (L2) cache, 256 kB in size.
+	It is an order of magnitude slower than the L1 cache.
+\item Level 3 (L3) cache, 3 MB in size.
+	The latency is higher than that of the L2 cache.
+\item Main memory, 6 GB.
+\item Disks: a 120 GB SSD and a 500 GB HDD.
+\end{itemize}
+\caption{The memory hierarchy of a Lenovo X230 laptop}
+\end{figure}
+
+While programs may explicitly control transfers between the disk and main
+memory, the L1, L2 and L3 caches are under control of hardware.
+It is possible to advise the processor via special instructions about some
+characteristics of memory access (e.g. by requesting prefetching), but programs
+cannot explicitly set which memory blocks should be stored in caches.
+
+Caches are usually $m$-way associative: for every line in main memory, there
+are $m$ possible places where it can be stored in cache. If all $m$ possible
+slots are already occupied by other lines, one of the loaded line gets evicted
+to make space for newly requested data. The node that gets evicted is determined
+according to the \textit{cache replacement policy}. The most common cache
+replacement policy is LRU (\textit{least recently used}), which evicts
+the memory line that was accessed least recently.
 
 Programs which have \textit{spatial} and \textit{temporal locality of reference}
 will perform better on computers with hierarchical memory. Several models have
@@ -84,28 +118,46 @@ the \textit{cache} and the \textit{disk}\footnote{
 	or an "external memory" in relation to a cache.
 }. The motivation for omitting all other levels is that for practical purposes,
 only one gap between memory levels is usually the bottleneck. For example,
-the bottleneck in a 10 TB database would probably be disk I/O. If the time
-to make a query is 10 ms, optimizing transfers between L2 cache and RAM would
-be unlikely to help.
+the bottleneck in a 10 TB database would probably be disk I/O, because
+only a negligible part of the database would fit into main memory and
+lower cache levels. If the time to make a query is 30 ms, optimizing transfers
+between L2 cache and RAM would be unlikely to help.
 
 The cache and the disk are divided to blocks of size $B$. The size of the cache 
 in bytes is fixed and is denoted $M$.
-In the external memory model, we allow free RAM computation on the cache.
-The time complexity is measured in the number of \textit{block transfers},
-which read or write an entire block to the disk. The space complexity is
-the index of the last overwritten block.
+In the external memory model, we allow free computation on data
+stored in the cache. The time complexity is measured in the number of
+\textit{block transfers}, which read or write an entire block to the disk.
+Algorithms are allowed to explicitly transfer blocks, which corresponds
+to the boundary between main memory and disks in computers.
+The space complexity is the index of the last overwritten block.
 The parameters $B$ and $M$ are known to the program.
 
 TODO: writeup, cite source
 TODO: $B<N$
 
 \section{Cache-oblivious algorithms}
-Cache-oblivious algorithms run on a machine with external memory, but they are
-not allowed access to $M$ and $B$. The algorithm must perform well on all
-possible values of $M$ and $B$.
-On a machine with multiple cache levels, this means that the algorithm performs
-well on every cache boundary at the same time.
+% TODO: cite frigo et al. 1999
+Cache-oblivious algorithms run on a machine with a two-level memory hierarchy.
+Unlike algorithms in the external memory model, cache-oblivious algorithms
+are not allowed access to $M$ and $B$. They may only assume the existence
+of a main memory and a cache.
+The algorithm must perform well independent of the values of $M$ and $B$.
+On a machine with multiple levels of memory hierarchy, this means that
+the algorithm performs well on every cache boundary at the same time.
+Thanks to this property, cache-oblivious algorithms need little tuning to the
+computer they run on.
+
+The cache is assumed to be tall (with number of blocks $>> B^2$) and
+the algorithm cannot control block transfers between the cache and the memory.
+This is similar to real computers: L1, L2 and L3 caches are also out
+of the program's control.
+Cache-oblivious algorithms assume a slightly unrealistic cache model:
+the cache is fully associative (memory blocks can be stored anywhere in the
+cache) and the replacement policy is optimal (the cache evicts the memory
+block that will be used the farthest in the future).
+Fortunately, fully associative caches with optimal replacement can be simulated
+with a linear slowdown on less ideal caches, so results obtained in
+the cache-oblivious model also apply to the real world.
 
 TODO: basic bounds
-
-TODO: tall cache assumption?
