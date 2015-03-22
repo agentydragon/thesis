@@ -603,6 +603,7 @@ int8_t ksplay_delete(ksplay* this, uint64_t key) {
 
 	ksplay_node_buffer stack = ksplay_walk_to(this, key);
 	node* target = stack.nodes[stack.count - 1];
+	node* victim;
 
 	if (!node_contains(target, key)) {
 		goto no_such_key;
@@ -610,31 +611,20 @@ int8_t ksplay_delete(ksplay* this, uint64_t key) {
 
 	uint8_t index_in_target = find_key_in_node(target, key);
 	if (target->children[index_in_target + 1] == NULL) {
-		// Cool.
-		log_info("delete: easy case");
+		// Easy case - we can simply remove the key and be done.
 		node_remove_at_simple(target, index_in_target);
-		if (node_key_count(target) == 0 && this->size > 1) {
-			node* target_replacement = target->children[0];
-			if (stack.count > 1) {
-				replace_pointer(stack.nodes[stack.count - 2],
-						target, target_replacement);
-			}
-			stack.nodes[stack.count - 1] = target_replacement;
-			free(target);
-		}
+		victim = target;
 		goto removed;
 	} else {
-		// Dude. Not cool.
-		// Walk to least key.
-		node* victim = target->children[index_in_target + 1];
+		// Hard case - replace key with minimum of affected subtree,
+		// then delete the old minimum.
+		victim = target->children[index_in_target + 1];
 		while (victim->children[0]) {
 			buffer_append(&stack, victim);
 			victim = victim->children[0];
 		}
-		assert(node_key_count(victim) > 0);
-		assert(victim->children[1] == NULL);
-		node_remove_at_simple(victim, 0);
 		target->pairs[index_in_target + 1] = victim->pairs[0];
+		node_remove_at_simple(victim, 0);
 		goto removed;
 	}
 
@@ -647,6 +637,15 @@ no_such_key:
 	return 1;
 
 removed:
+	if (node_key_count(victim) == 0 && this->size > 1) {
+		node* replacement = victim->children[0];
+		if (stack.count > 1) {
+			replace_pointer(stack.nodes[stack.count - 2],
+					victim, replacement);
+		}
+		stack.nodes[stack.count - 1] = replacement;
+		free(victim);
+	}
 	--this->size;
 	ksplay_ksplay(this, &stack);
 	IF_LOG_VERBOSE(1) {
