@@ -379,7 +379,8 @@ static node* pool_acquire(ksplay_node_pool* pool) {
 		log_verbose(1, "acquired, %" PRIu64 " remaining", pool->remaining);
 	} else {
 		x = malloc(sizeof(node));
-		log_info("allocated new node (no more left in pool)");
+		// TODO: should this ever happen?
+		// log_info("allocated new node (no more left in pool)");
 	}
 	assert(x);
 	node_init(x);
@@ -601,6 +602,8 @@ static void ksplay_step(ksplay_node_buffer* stack) {
 	for (uint64_t i = 1; i < stack->count - 1; ++i) {
 		assert(node_key_count(stack->nodes[i]) == KSPLAY_K - 1);
 	}
+
+	++KSPLAY_COUNTERS.ksplay_steps;
 }
 
 // Splits a node under a new one-key node if it's overfull.

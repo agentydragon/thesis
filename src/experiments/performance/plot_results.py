@@ -109,6 +109,7 @@ plot_mispredicts(data=filter_experiment(data, experiment='serial-findonly'),
 pyplot.savefig('random-mispredict.png', figsize=figsize)
 pyplot.clf()
 
+data = load_results()
 data = list(filter(lambda point: point['size'] > 1000 and
                                  point['implementation'] == 'dict_cobt' and
                                  point['experiment'] == 'serial-both',
@@ -121,4 +122,19 @@ pyplot.ylabel('Reorganizations per element')
 pyplot.plot([point['size'] for point in data],
             [point['pma_reorganized'] / point['size'] for point in data], 'r-')
 pyplot.savefig('pma-reorg.png', figsize=figsize)
+pyplot.clf()
+
+data = load_results()
+data = list(filter(lambda point: point['size'] > 1000 and
+                                 point['implementation'] == 'dict_ksplay' and
+                                 point['experiment'] == 'ltr_scan',
+                   data))
+figure = pyplot.figure(1)
+# figure.set_title('PMA reorganizations in random inserts')
+# figure.set_xscale('log')
+pyplot.xscale('log')
+pyplot.ylabel('K-splay steps per element')
+pyplot.plot([point['size'] for point in data],
+            [point['ksplay_steps'] / point['size'] for point in data], 'r-')
+pyplot.savefig('ltr-ksplays.png', figsize=figsize)
 pyplot.clf()

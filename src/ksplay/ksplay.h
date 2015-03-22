@@ -16,6 +16,10 @@
 
 struct ksplay_node;
 
+struct {
+	uint64_t ksplay_steps;
+} KSPLAY_COUNTERS;
+
 typedef struct {
 	uint64_t key;
 	uint64_t value;

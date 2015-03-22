@@ -6,8 +6,10 @@
 
 #include "cobt/cobt.h"
 #include "dict/cobt.h"
+#include "dict/ksplay.h"
 #include "dict/test/toycrypt.h"
 #include "experiments/performance/flags.h"
+#include "ksplay/ksplay.h"
 #include "log/log.h"
 #include "measurement/measurement.h"
 #include "measurement/stopwatch.h"
@@ -97,7 +99,6 @@ static void iterate_ltr(dict* dict) {
 	}
 }
 
-// TODO: measure_ltr_scan breaks the hacky implementation of splay_tree
 struct metrics measure_ltr_scan(const dict_api* api, uint64_t size) {
 	dict* table = seed(api, size);
 
@@ -233,11 +234,16 @@ int main(int argc, char** argv) {
 				// TODO: Make the test more idiomatic.
 				continue;
 			}
+			KSPLAY_COUNTERS.ksplay_steps = 0;
 			result = measure_ltr_scan(FLAGS.measured_apis[i], size);
 
 			json_t* point = json_object();
 			add_common_keys(point, "ltr_scan", size,
 					FLAGS.measured_apis[i], result);
+			if (FLAGS.measured_apis[i] == &dict_ksplay) {
+				json_object_set_new(point, "ksplay_steps",
+						json_integer(KSPLAY_COUNTERS.ksplay_steps));
+			}
 			json_array_append_new(json_results, point);
 			measurement_results_release(result.results);
 		}
