@@ -256,41 +256,41 @@ static void test_flatten() {
 
 #define assert_not_found(key) do { \
 	bool _found; \
-	ksplay_find(&tree, key, NULL, &_found); \
+	ksplay_find(tree, key, NULL, &_found); \
 	assert(!_found); \
 } while (0)
 
 #define assert_found(key,value) do { \
 	bool _found; \
 	uint64_t _found_value; \
-	ksplay_find(&tree, key, &_found_value, &_found); \
+	ksplay_find(tree, key, &_found_value, &_found); \
 	assert(_found && _found_value == value); \
 } while (0)
 
 static void test_insert() {
-	ksplay tree;
-	ksplay_init(&tree);
+	ksplay *tree = malloc(sizeof(ksplay));
+	ksplay_init(tree);
 	assert_not_found(10);
-	//ksplay_dump(&tree);
+	//ksplay_dump(tree);
 
-	ksplay_insert(&tree, 10, 100);
-	//ksplay_dump(&tree);
+	ksplay_insert(tree, 10, 100);
+	//ksplay_dump(tree);
 	assert_found(10, 100);
 
-	ksplay_insert(&tree, 20, 200);
-	//ksplay_dump(&tree);
+	ksplay_insert(tree, 20, 200);
+	//ksplay_dump(tree);
 	assert_found(10, 100);
 	assert_found(20, 200);
 
-	ksplay_insert(&tree, 30, 300);
-	//ksplay_dump(&tree);
+	ksplay_insert(tree, 30, 300);
+	//ksplay_dump(tree);
 	assert_found(10, 100);
 	assert_found(20, 200);
 	assert_found(30, 300);
 
 	uint64_t keys[] = {15, 25, 5, 50, 40, 35, 45};
 	for (uint64_t i = 0; i < COUNT_OF(keys); ++i) {
-		ksplay_insert(&tree, keys[i], keys[i] * 10);
+		ksplay_insert(tree, keys[i], keys[i] * 10);
 	}
 
 	uint64_t found_keys[] = {5, 10, 15, 20, 25, 30, 35, 40, 45, 50};
@@ -298,7 +298,7 @@ static void test_insert() {
 		assert_found(found_keys[i], found_keys[i] * 10);
 	}
 
-	ksplay_destroy(&tree);
+	ksplay_destroy(tree);
 }
 
 static void test_split_overfull() {

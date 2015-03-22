@@ -14,6 +14,9 @@
 
 #define EMPTY UINT64_MAX
 
+// TODO: It would be nice to have top-down K-splaying to avoid allocating
+// huge stacks.
+
 static uint8_t node_key_count(node* x) {
 	uint8_t i;
 	for (i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
@@ -142,9 +145,24 @@ void ksplay_init(ksplay* this) {
 	this->size = 0;
 }
 
+static void destroy_recursive(node** x) {
+	node* p = *x;
+	*x = NULL;
+	// TODO: wat? copak to nekdy je cyklicke?
+	const uint8_t key_count = node_key_count(p);
+	for (uint8_t i = 0; i <= key_count; ++i) {
+		if (p->children[i] != NULL) {
+			destroy_recursive(&p->children[i]);
+		}
+	}
+	//log_info("destroy %p", *x);
+	free(p);
+}
+
 void ksplay_destroy(ksplay* this) {
-	(void) this;
-	log_error("TODO: implement ksplay_destroy");
+	log_info("ksplay_destroy(%p)", this);
+	destroy_recursive(&this->root);
+	log_info("ksplay_destroy done");
 }
 
 static ksplay_node_buffer empty_buffer() {
