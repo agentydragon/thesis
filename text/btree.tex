@@ -4,8 +4,8 @@ B-trees are particularly useful where the external memory model is accurate,
 because all information in every transferred block is actively used
 in searching. For example, the ext4, Btrfs and NTFS filesystems use B-trees
 to store directory contents and the MongoDB and MariaDB databases use B-trees
-as indexes. Red-black trees, which are (up to a small detail) isomorphic to
-B-trees for $b=4$, are commonly used to maintain in-memory dictionaries,
+as indexes. Red-black trees, which are (in the left-leaning variant) isomorphic
+to B-trees for $b=4$, are commonly used to maintain in-memory dictionaries,
 for example in the GNU ISO C++ Library as the implementation of the
 \texttt{std::map} STL template.
 B-trees are also an optimal sorted dictionary data structure
@@ -75,7 +75,7 @@ yielding $\Theta(\log_B N)$ block transfers per operation.
 
 This is optimal assuming the only allowed operation
 on keys is comparison: reading a block of $\Theta(B)$ keys will only
-give us $\log B$ bits of information, since we can only compare the
-sought key $K$ with every key we retrieved. We need $\log N$ bits
-to represent the index of the correct value, so we need at least
-$\frac{\log N}{\log B}=\log_B N$ block transfers.
+give us $\log B$ bits of information, since the only useful operation
+can be comparing the sought key $K$ with every key we retrieved.
+We need $\log N$ bits to represent the index of the key-value pair we found,
+so we need at least $\frac{\log N}{\log B}=\log_B N$ block transfers.

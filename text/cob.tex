@@ -28,8 +28,6 @@ Finally, we will combine the two previous parts with \textit{indirection} to
 obtain the desired $\Theta(\log_B N)$ time to \textsc{Find}, \textsc{Insert}
 and \textsc{Delete}.
 
-% TODO: better solutions - O(log N/B) atd.
-
 \section{The van Emde Boas layout}
 The van Emde Boas layout is a way of mapping the nodes of a full binary
 tree of height $h$ to indices $0\ldots 2^h-2$. Other layouts of full binary
@@ -183,7 +181,7 @@ The van Emde Boas layout thus makes a fine data structure for querying static
 data, but it does not allow inserting or deleting nodes. We will need
 to combine it with another data structure to allow updates.
 
-\subsection{Efficient implementation concerns}
+\subsection{Efficient implementation of implicit pointers}
 A useful property of the van Emde Boas layout is that it is fully specified
 by $h$ of the tree, so there is no need to keep pointers to child nodes.
 The positions of left and right children of a node can be calculated from
@@ -389,8 +387,6 @@ $\Theta(\frac{\log^2 N}{B})$ in block transfers. The proof of the deletion
 cost is analogous.
 \end{proof}
 
-TODO: other approaches to ordered file maintenance?
-
 \section{Cache-oblivious B-tree}
 The first step of constructing a cache-oblivious B-tree is a bootstrapping
 structure, which is a combination of a full binary tree in
@@ -473,3 +469,10 @@ This new piece will also be updated only after $\Theta(P)$ more updates.
 Thus, we can charge each update $\Theta(\frac{1}{\log N}{\log^2 N}{B})$
 for splits and merges, which gives us $\Theta(\log_B N+\frac{\log N}{B})=
 \Theta(\log_B N)$ amortized time for updates.
+
+An alternative deamortized ordered file maintenance data structure
+developed by Willard\cite{willard92} performs $\Theta(\frac{\log^2 N}{B})$
+block transfers in the worst case. A cache-oblivious B-tree backed by this
+structure would limit the worst-case number of block transfers from
+$\Theta(\frac{N}{\log N})$ to just $\Theta(\frac{\log^2 N}{B}+\log_B N)$ while
+keeping the amortized bound at $\Theta(\log_B N)$.

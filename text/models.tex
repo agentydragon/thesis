@@ -37,12 +37,22 @@ another 1 kB stored on swapped memory is so large that it cannot be ignored.
 
 % TODO: list-array experiment
 
-CPU speeds are growing faster than speeds of cheap RAM. A fast CPU needs to
+There are two major types of RAM: \textit{static} and \textit{dynamic}.
+While static RAM stores information as states of logic gates, dynamic RAM
+uses capacitors, which lose charge over time. To avoid losing information,
+contents of dynamic RAM must be periodically refreshed by "reading" the data
+and writing it back. Dynamic RAM also has destructive reads: a read removes
+charge from capacitors, which must then be returned to keep the data.
+In general, static RAM is fast and expensive, while dynamic RAM is slow,
+cheap and more space-efficient. Main memories are usually dynamic.
+
+CPU speeds are growing faster than speeds of dynamic RAM. A fast CPU needs to
 wait several hundred cycles to perform a RAM access. TODO: source "several hundred"
-To alleviate the costs of memory transfers, several levels of caches (usually
-at least L1 and L2) are inserted between the CPU and the main memory.
-The caches are progressively smaller and faster the closer they are to the CPU.
-The difference between speeds of memory levels reaches several orders of magnitude. TODO: source
+To alleviate the costs of memory transfers, several levels of static RAM
+caches (usually at least L1 and L2) are inserted between the CPU and
+the main memory. The caches are progressively smaller and faster the closer
+they are to the CPU. The difference between speeds of memory levels reaches
+several orders of magnitude. TODO: source
 
 Larger and slower memories are also faster when accessing data physically
 close to recently accessed data. The hard disk is the most apparent example
@@ -58,8 +68,9 @@ store, it is wise to ask for a lot of data at once. Imagine an HTTP connection
 moving a 10 MB file across the Atlantic: the time to compose and send the HTTP
 request and to parse a response dwarfs the latency of the connection.
 Memory hierarchies transport data between memories in \textit{blocks}.
-In the context of L1 and L2 caches, these blocks are called \textit{cache lines}
-and their usual size is 64 B. A traditional block size for disk I/O is 4 kB.
+In the context of L1 and L2 caches and main memory, these blocks are called
+\textit{cache lines} and their usual size is 64 B.
+A traditional block size for disk I/O is 4 kB.
 
 Programs which have \textit{spatial} and \textit{temporal locality of reference}
 will perform better on computers with hierarchical memory. Several models have
