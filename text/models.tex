@@ -76,9 +76,8 @@ A traditional block size for disk I/O is 4 kB.
 \begin{itemize}
 \item Processor registers. Their latency is usually one CPU cycle.
 	The installed Intel Core i5-3230M CPU has 16 64-bit general-purpose
-	registers and 32 512-bit registers for vector operations (ZMM0 up to
-	ZMM31).
-	% TODO: check registers
+	registers (plus some registers for specific purposes, e.g. vector
+	operations).
 \item Level 1 (L1) cache, which has a latency of several CPU cycles.
 	It is divided into a data section and an instruction section,
 	both of them 32 kB in size.

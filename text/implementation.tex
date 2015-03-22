@@ -1,0 +1,160 @@
+\chapter{Implementation}
+To measure the performance of various data structures, we implemented them
+in the C programming language (using the C11 revision).
+We have chosen this language for several reasons:
+\begin{itemize}
+\item The language is low-level, which enables a high degree of tuning by hand.
+	Our data structures are also not slowed down by common features of
+	high-level languages, such as garbage collection.
+\item C toolchains, including the GCC compiler we used, are mature, and they
+	can be expected to optimize code well.
+\item The C language is very portable and most other languages can
+	call C functions. This enables our data structures to be potentially
+	easily used in other projects.
+\end{itemize}
+All dictionaries assume 64-bit keys and values (represented as the
+\texttt{uint64\_t} type). It would be easy to allow keys and values of arbitrary
+size, but such a choice would be likely to slow down operations on
+the data structures, because a range of compiler optimizations would
+be impossible in code assuming general lengths. For example, copying
+keys and values would need to be a general loop or
+\texttt{memcpy}/\texttt{memmove} call, while assuming a constant key/value
+size of 64 bits lets us copy in one CPU instruction. Using the C++ language,
+we could potentially use templates to make our data structures both general
+and optimized. If we are willing to sacrifice some code style, we could
+make the C code behave similarly by moving the implementation into a header
+file, which could be configured to generate a general data structure
+tuned to specific parameters prior to inclusion, as in the following example:
+\begin{lstlisting}
+struct my_value {
+	uint64_t stuff[32];
+};
+#define IMPLEMENTATION_PREFIX myimpl
+#define IMPLEMENTATION_KEY_TYPE uint64_t
+#define IMPLEMENTATION_VALUE_TYPE struct my_value
+#include "btree/general.impl.h"
+
+void usage() {
+	dict* btree;
+	dict_init(&btree, &dict_myimpl_btree);
+	// ...
+}
+\end{lstlisting}
+We have decided to forgo generality to keep the code clean and readable.
+
+\section{General dictionary API}
+All implemented data structures can be used through a common API defined
+in \texttt{dict/dict.h}. To encapsulate implementation details from
+users of the API, we have used a common C "trick", where we represent
+dictionaries as "virtual table pointers" and "private data".
+The common API represents a dictionary as a pointer to an opaque structure.
+The type pointed to is declared in \texttt{dict/dict.h} as:
+\begin{lstlisting}[language=C]
+typedef struct dict_s dict;
+\end{lstlisting}
+
+The \texttt{struct dict\_s} structure is defined in \texttt{dict/dict.c}
+to prevent exposure of implementation details from users including
+\texttt{dict/dict.h}:
+\begin{lstlisting}[language=C]
+struct dict_s {
+	void* opaque;
+	const dict_api* api;
+};
+\end{lstlisting}
+
+The \texttt{opaque} pointer is maintained by the concrete implementation.
+\texttt{dict\_api} is a "virtual method table" type defined in
+\texttt{dict/dict.h}:
+
+\begin{lstlisting}[language=C]
+typedef struct {
+	int8_t (*init)(void**);
+	void (*destroy)(void**);
+
+	int8_t (*find)(void*, uint64_t key,
+			uint64_t *value, bool *found);
+	int8_t (*insert)(void*, uint64_t key, uint64_t value);
+	int8_t (*delete)(void*, uint64_t key);
+
+	const char* name;
+
+	// More function pointers.
+} dict_api;
+\end{lstlisting}
+
+The \texttt{init} and \texttt{destroy} functions are passed a pointer to the
+\texttt{opaque} pointer and they respecively initialize and deinitialize it.
+The \texttt{name} field is a human-readable name of the data structure.
+Other fields are given the \texttt{opaque} pointer as the first argument
+and they act as implementations of their respective general versions operating
+on general dictionaries declared in \texttt{dict/dict.h}:
+
+\begin{lstlisting}[language=C]
+int8_t dict_find(dict*, uint64_t key,
+		uint64_t *value, bool *found);
+int8_t dict_insert(dict*, uint64_t key, uint64_t value);
+int8_t dict_delete(dict*, uint64_t key);
+\end{lstlisting}
+
+Dictionary data structures may optionally implement successor and predecessor
+lookups. The public API consists of the functions \texttt{dict\_next} and
+\texttt{dict\_prev}. If the data structure does not implement these operations,
+it may set the appropriate fields in \texttt{dict\_api} to \texttt{NULL},
+in which case the public functions will return an error and do nothing.
+\begin{lstlisting}[language=C]
+int8_t dict_next(dict*, uint64_t key,
+		uint64_t *next_key, bool *found);
+int8_t dict_prev(dict*, uint64_t key,
+		uint64_t *prev_key, bool *found);
+\end{lstlisting}
+
+Every data structure implementation exposes a global variable of type
+\texttt{const dict\_api} named \texttt{dict\_mydatastructure}. For example,
+a B-tree can be used as follows:
+
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+
+#include "dict/btree.h"
+#include "dict/dict.h"
+
+void example_btree() {
+	dict* btree;
+	if (dict_init(&btree, &dict_btree) != 0) {
+		printf("Error initializing B-tree.\n");
+		return;
+	}
+	if (dict_insert(btree, 1, 100) != 0) {
+		printf("Error inserting 1 -> 100.\n");
+	}
+	// ...
+	if (dict_find(btree, 42, &value, &found) != 0) {
+		printf("Error looking for key 42.\n");
+	} else {
+		if (found) {
+			printf("Found 42 -> \%" PRIu64 ".\n",
+					value);
+		} else {
+			printf("No value for 42.\n");
+		}
+	}
+	// ...
+	if (dict_delete(btree, 1) != 0) {
+		printf("Failed to remove key 1.\n");
+	}
+	dict_destroy(&btree);
+}
+\end{lstlisting}
+
+We have implemented the following dictionary data structures:
+\begin{itemize}
+\item \texttt{dict\_cobt}, declared in \texttt{dict/cobt.h}.
+	This data structure is a cache-oblivious B-tree as described
+	TODO.
+\end{itemize}
+
+\section{Performance measurement}
+
+TODO: RAM
+TODO: perf
