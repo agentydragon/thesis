@@ -145,24 +145,46 @@ void ksplay_init(ksplay* this) {
 	this->size = 0;
 }
 
-static void destroy_recursive(node** x) {
-	node* p = *x;
-	*x = NULL;
-	// TODO: wat? copak to nekdy je cyklicke?
-	const uint8_t key_count = node_key_count(p);
-	for (uint8_t i = 0; i <= key_count; ++i) {
-		if (p->children[i] != NULL) {
-			destroy_recursive(&p->children[i]);
-		}
-	}
-	//log_info("destroy %p", *x);
-	free(p);
-}
+// TODO: refactor destroying
+typedef struct {
+	node* x;
+	uint8_t i;
+} destroy_stack_item;
 
 void ksplay_destroy(ksplay* this) {
 	log_info("ksplay_destroy(%p)", this);
-	destroy_recursive(&this->root);
-	log_info("ksplay_destroy done");
+
+	node* xx = this->root;
+	this->root = NULL;
+
+	uint64_t size = 0;
+	uint64_t cap = 8;
+	destroy_stack_item *stack = malloc(sizeof(destroy_stack_item) * cap);
+	stack[size].x = xx;
+	stack[size].i = 0;
+	++size;
+
+	while (size > 0) {
+		node* top = stack[size - 1].x;
+		const uint8_t key_count = node_key_count(top);
+		if (stack[size - 1].i <= key_count) {
+			node* child = top->children[stack[size - 1].i];
+			stack[size - 1].i++;
+			if (child != NULL) {
+				if (size == cap) {
+					cap *= 2;
+					stack = realloc(stack, sizeof(destroy_stack_item) * cap);
+				}
+				stack[size].x = child;
+				stack[size].i = 0;
+				++size;
+			}
+		} else {
+			free(top);
+			--size;
+		}
+	}
+	free(stack);
 }
 
 static ksplay_node_buffer empty_buffer() {
@@ -568,8 +590,7 @@ static void ksplay_step(ksplay_node_buffer* stack) {
 	ksplay_flatten(&consumed_suffix, pairs, children, &key_count);
 	assert(key_count <= (KSPLAY_K + 2) * (KSPLAY_K - 1) + 1);
 
-	ksplay_node* nodes[100]; // TODO
-	assert(consumed < 100);
+	ksplay_node* nodes[consumed];
 	ksplay_node_pool pool;
 	pool.nodes = nodes;
 	pool.remaining = consumed;
