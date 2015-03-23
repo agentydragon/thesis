@@ -71,7 +71,8 @@ static void set_defaults() {
 	FLAGS.measured_apis[1] = &dict_cobt;
 	FLAGS.measured_apis[2] = &dict_htable;
 	FLAGS.measured_apis[3] = &dict_splay;
-	FLAGS.measured_apis[4] = NULL;
+	FLAGS.measured_apis[4] = &dict_ksplay;
+	FLAGS.measured_apis[5] = NULL;
 }
 
 void parse_flags(int argc, char** argv) {

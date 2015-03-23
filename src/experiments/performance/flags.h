@@ -7,7 +7,7 @@
 struct {
 	uint64_t maximum;
 	double base;
-	const dict_api* measured_apis[10];
+	const dict_api* measured_apis[20];
 } FLAGS;
 
 void parse_flags(int argc, char** argv);
