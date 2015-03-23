@@ -78,13 +78,16 @@ A traditional block size for disk I/O is 4 kB.
 	The installed Intel Core i5-3230M CPU has 16 64-bit general-purpose
 	registers (plus some registers for specific purposes, e.g. vector
 	operations).
-\item Level 1 (L1) cache, which has a latency of several CPU cycles.
+\item Level 1 (L1) cache, 8-way associative. The latency is several CPU cycles.
 	It is divided into a data section and an instruction section,
-	both of them 32 kB in size.
-\item Level 2 (L2) cache, 256 kB in size.
-	It is an order of magnitude slower than the L1 cache.
-\item Level 3 (L3) cache, 3 MB in size.
-	The latency is higher than that of the L2 cache.
+	both of them 32 kB in size. There are two L1 caches, one for each CPU
+	core.
+\item Level 2 (L2) cache, 8-way associative, 256 kB in size.
+	It is an order of magnitude slower than the L1 cache. Again, each
+	CPU core has a separate L2 cache.
+\item Level 3 (L3) cache, 12-way associative, 3 MB in size.
+	The latency is higher than that of the L2 cache. Shared between CPU
+	cores.
 \item Main memory, 6 GB.
 \item Disks: a 120 GB SSD and a 500 GB HDD.
 \end{itemize}
