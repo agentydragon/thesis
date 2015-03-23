@@ -299,6 +299,7 @@ static void test_insert() {
 	}
 
 	ksplay_destroy(tree);
+	free(tree);
 }
 
 static void test_split_overfull() {
@@ -311,6 +312,7 @@ static void test_split_overfull() {
 	assert_children(new_root, &root, MOCK('d'));
 	assert_pairs(&root, PAIR(10), PAIR(20));
 	assert_children(&root, MOCK('a'), MOCK('b'), MOCK('c'));
+	free(new_root);
 }
 
 void test_ksplay() {
