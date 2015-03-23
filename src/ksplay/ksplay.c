@@ -173,7 +173,10 @@ void ksplay_destroy(ksplay* this) {
 			if (child != NULL) {
 				if (size == cap) {
 					cap *= 2;
-					stack = realloc(stack, sizeof(destroy_stack_item) * cap);
+					stack = realloc(stack,
+							sizeof(destroy_stack_item) * cap);
+					CHECK(stack, "failed to alloc %" PRIu64 " "
+							"stack items", cap);
 				}
 				stack[size].x = child;
 				stack[size].i = 0;
@@ -203,6 +206,8 @@ static void buffer_append(ksplay_node_buffer* buffer, node* appended_node) {
 		buffer->capacity *= 2;
 		buffer->nodes = realloc(buffer->nodes,
 				sizeof(node*) * buffer->capacity);
+		CHECK(buffer->nodes, "Failed to allocate %" PRIu64 " nodes",
+				buffer->capacity);
 	}
 	buffer->nodes[buffer->count] = appended_node;
 	++buffer->count;
