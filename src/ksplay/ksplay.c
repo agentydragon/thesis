@@ -621,9 +621,10 @@ static void ksplay_step(ksplay_node_buffer* stack) {
 	}
 
 	// Only the last node and the root may be non-exact.
-	for (uint64_t i = 1; i < stack->count - 1; ++i) {
-		assert(node_key_count(stack->nodes[i]) == KSPLAY_K - 1);
-	}
+	// We skip this check, because it's very expensive.
+	// for (uint64_t i = 1; i < stack->count - 1; ++i) {
+	// 	assert(node_key_count(stack->nodes[i]) == KSPLAY_K - 1);
+	// }
 
 	++KSPLAY_COUNTERS.ksplay_steps;
 }
