@@ -460,7 +460,6 @@ static node* compose_twolevel(ksplay_node_pool* pool,
 		log_info("Two-level composition:");
 		_dump_node_and_children(root, 2);
 	}
-
 	return root;
 }
 
@@ -485,7 +484,7 @@ static node* compose_threelevel(ksplay_node_pool *pool,
 		}
 	}
 	assert(lower_level > 0);
-	log_info("Three-level composition: %" PRIu64 " in full subtree",
+	log_verbose(1, "Three-level composition: %" PRIu64 " in full subtree",
 			lower_level);
 	assert(key_count - lower_level <= KSPLAY_K);
 	node* middle = compose_twolevel(pool, pairs, children, lower_level);
@@ -530,14 +529,14 @@ node* ksplay_compose(ksplay_node_pool* pool, ksplay_pair* pairs, node** children
 	}
 	if (key_count <= KSPLAY_K) {
 		// Simple case: all fits in one node.
-		log_info("One-level compose");
+		log_verbose(1, "One-level compose");
 		return make_node(pool_acquire(pool),
 				pairs, children, key_count);
 	} else if (accepted_by_twolevel(key_count)) {
-		log_info("Two-level compose");
+		log_verbose(1, "Two-level compose");
 		return compose_twolevel(pool, pairs, children, key_count);
 	} else {
-		log_info("Three-level compose");
+		log_verbose(1, "Three-level compose");
 		return compose_threelevel(pool, pairs, children, key_count);
 	}
 }
@@ -603,11 +602,17 @@ static void ksplay_step(ksplay_node_buffer* stack) {
 		pool.nodes[i] = consumed_suffix.nodes[i];
 	}
 
-	log_info("stack before composition: %p", stack);
+	IF_LOG_VERBOSE(1) {
+		log_info("stack before composition:");
+		_dump_buffer(stack, 2);
+	}
 	stack->count -= consumed - 1;
 	stack->nodes[stack->count - 1] =
 			ksplay_compose(&pool, pairs, children, key_count);
-	log_info("stack after composition: %p", stack);
+	IF_LOG_VERBOSE(1) {
+		log_info("stack after composition:");
+		_dump_buffer(stack, 2);
+	}
 
 	while (pool.remaining > 0) {
 		free(pool_acquire(&pool));
@@ -673,14 +678,12 @@ static void ksplay_ksplay(ksplay* this, ksplay_node_buffer* stack) {
 		_dump_buffer(stack, 2);
 	}
 	while (stack->count > 1) {
-		log_info("step");
 		ksplay_step(stack);
 	}
 	// If the root is overfull, split it.
 	node* root = ksplay_split_overfull(stack->nodes[0]);
 	assert(node_key_count(root) < KSPLAY_K);
 	this->root = root;
-	log_info("// K-splay done");
 	if (this->size > 0) {
 		assert(node_key_count(this->root) > 0);
 	}
@@ -823,7 +826,7 @@ void ksplay_next_key(ksplay* this, uint64_t key,
 	uint64_t good_prefix;
 	ksplay_node_buffer stack = ksplay_walk_to_next(this, key, &good_prefix);
 	if (good_prefix == 0) {
-		log_info("good prefix empty; next not found");
+		log_verbose(1, "good prefix empty; next not found");
 		*found = false;
 	} else {
 		node* good_node = stack.nodes[good_prefix - 1];
