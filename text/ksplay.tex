@@ -18,9 +18,11 @@ pairs and $k$ child pointers. All nodes except the root are \textit{complete}
 
 B-tree operations take $\Theta(\log_b N)$ node accesses. It can be proven that
 $k$-splay tree operations need at most $\O(\log N)$ amortized node accesses,
-which matches ordinary splay trees, but unfortunately it is not known whether
-does the optimal $\O(\log_k N)$ bound apply to $k$-splay trees.
-% TODO: check?
+which matches ordinary splay trees, but unfortunately $k$-splay trees
+do not match the optimal $\O(\log_k N)$ bound given by B-trees. In particular,
+McClurkin and Georgakopoulos\cite{ksplay-nonopt} found a family
+of counterexample trees, in which repeatedly $k$-splaying deepest nodes
+requires $\log_2 N$ node accesses.
 
 The $k$-splaying operation is conceptually similar to splaying in the original
 splay trees of Sleator and Tarjan, but $k$-splaying for $k=2$ differs from
