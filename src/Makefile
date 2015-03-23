@@ -1,5 +1,5 @@
 # -pedantic-errors
-CFLAGS=-std=c11 -W -Wall -Werror -O3 -rdynamic -D_GNU_SOURCE -I.
+CFLAGS=-std=c11 -W -Wall -Werror -O3 -rdynamic -D_GNU_SOURCE -I. -march=native
 LIBS=-lm -lrt
 
 SOURCES= \
