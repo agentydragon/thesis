@@ -484,6 +484,7 @@ static node* compose_threelevel(ksplay_node_pool *pool,
 // TODO: Top-down K-splay to avoid allocating an O(N/K) stack?
 node* ksplay_compose(ksplay_node_pool* pool, ksplay_pair* pairs, node** children,
 		uint64_t key_count) {
+	KSPLAY_COUNTERS.composed_keys += key_count;
 	IF_LOG_VERBOSE(1) {
 		log_info("Composing:");
 		{

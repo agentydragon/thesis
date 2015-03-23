@@ -235,6 +235,7 @@ int main(int argc, char** argv) {
 				continue;
 			}
 			KSPLAY_COUNTERS.ksplay_steps = 0;
+			KSPLAY_COUNTERS.composed_keys = 0;
 			result = measure_ltr_scan(FLAGS.measured_apis[i], size);
 
 			json_t* point = json_object();
@@ -243,6 +244,8 @@ int main(int argc, char** argv) {
 			if (FLAGS.measured_apis[i] == &dict_ksplay) {
 				json_object_set_new(point, "ksplay_steps",
 						json_integer(KSPLAY_COUNTERS.ksplay_steps));
+				json_object_set_new(point, "ksplay_composed_keys",
+						json_integer(KSPLAY_COUNTERS.composed_keys));
 			}
 			json_array_append_new(json_results, point);
 			measurement_results_release(result.results);

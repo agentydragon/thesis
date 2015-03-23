@@ -138,3 +138,19 @@ pyplot.plot([point['size'] for point in data],
             [point['ksplay_steps'] / point['size'] for point in data], 'r-')
 pyplot.savefig('ltr-ksplays.png', figsize=figsize)
 pyplot.clf()
+
+
+data = load_results()
+data = list(filter(lambda point: point['size'] > 1000 and
+                                 point['implementation'] == 'dict_ksplay' and
+                                 point['experiment'] == 'ltr_scan',
+                   data))
+figure = pyplot.figure(1)
+# figure.set_title('PMA reorganizations in random inserts')
+# figure.set_xscale('log')
+pyplot.xscale('log')
+pyplot.ylabel('K-splay composed keys per element')
+pyplot.plot([point['size'] for point in data],
+            [point['ksplay_composed_keys'] / point['size'] for point in data], 'r-')
+pyplot.savefig('ltr-composes.png', figsize=figsize)
+pyplot.clf()
