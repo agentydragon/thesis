@@ -684,6 +684,7 @@ static void ksplay_ksplay(ksplay* this, ksplay_node_buffer* stack) {
 	if (this->size > 0) {
 		assert(node_key_count(this->root) > 0);
 	}
+	free(stack->nodes);
 }
 
 // ----- Insertion and deletion -----
