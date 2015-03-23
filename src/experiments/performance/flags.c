@@ -1,9 +1,13 @@
 #include "experiments/performance/flags.h"
 
 #include <assert.h>
-#include <argp.h>
 #include <stdlib.h>
 #include <string.h>
+
+// NOTE: <argp.h> MUST be included after <string.h>.
+// Including <string.h> after <argp.h> creates infinite-loop memcpy/memmove
+// and friends on lab computers for some reason.
+#include <argp.h>
 
 #include "dict/array.h"
 #include "dict/btree.h"
