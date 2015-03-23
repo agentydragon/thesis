@@ -23,9 +23,9 @@ does the optimal $\O(\log_k N)$ bound apply to $k$-splay trees.
 % TODO: check?
 
 The $k$-splaying operation is conceptually similar to splaying in the original
-splay trees of Steator and Tarjan, but $k$-splaying for $k=2$ differs from
+splay trees of Sleator and Tarjan, but $k$-splaying for $k=2$ differs from
 splaying in original splay trees. To disambiguate these terms, we will
-reserve the term \textit{splaying} for Steator and Tarjan's splay trees and
+reserve the term \textit{splaying} for Sleator and Tarjan's splay trees and
 we will only use \textit{$k$-splaying} to denote the operation
 on $k$-ary splay trees.
 
@@ -37,7 +37,7 @@ Because splay trees store one key per node, it is not necessary to distinguish
 between splaying a node and splaying a key. In $k$-ary splay trees, we always
 $k$-splay nodes.
 
-As with Steator and Tarjan's splaying, $k$-splaying is done in steps.
+As with Sleator and Tarjan's splaying, $k$-splaying is done in steps.
 All splaying steps involve 3 nodes connected by 2 edges, except for the final
 step, which may involve the root node and one of its children connected by
 an edge. In every step, the splayed node (or key) moves from the bottom
