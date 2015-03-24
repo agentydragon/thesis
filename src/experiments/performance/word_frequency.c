@@ -31,6 +31,7 @@ static char* read_file(const char* path) {
 		strcpy(content + content_size, buffer);
 		content_size += strlen(buffer);
 	}
+	fclose(fp);
 	return content;
 }
 

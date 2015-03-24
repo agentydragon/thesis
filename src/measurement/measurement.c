@@ -102,9 +102,6 @@ measurement_results* measurement_end(measurement* m) {
 	assert(results->counters);
 	for (uint64_t i = 0; i < COUNT_OF(counters); ++i) {
 		results->counters[i] = event_fd_read(m->fds[i]);
-		// TODO: For some reasons, this doesn't seem to release the FD.
-		// After we open 1024 FDs, the program dies failing to open
-		// another perf_event fd. Why doesn't close work?
 		close(m->fds[i]);
 	}
 
