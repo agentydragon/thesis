@@ -2,6 +2,7 @@
 
 #include <asm/unistd.h>
 #include <assert.h>
+#include <errno.h>
 #include <inttypes.h>
 #include <jansson.h>
 #include <linux/perf_event.h>
@@ -56,7 +57,7 @@ static int event_fd_open(int perf_type, int config) {
 	int fd = perf_event_open(&event, 0, -1, -1, 0);
 
 	if (fd == -1) {
-		log_fatal("Cannot open perf_event fd");
+		log_fatal("cannot open perf_event fd: %s", strerror(errno));
 	}
 
 	return fd;
@@ -101,6 +102,9 @@ measurement_results* measurement_end(measurement* m) {
 	assert(results->counters);
 	for (uint64_t i = 0; i < COUNT_OF(counters); ++i) {
 		results->counters[i] = event_fd_read(m->fds[i]);
+		// TODO: For some reasons, this doesn't seem to release the FD.
+		// After we open 1024 FDs, the program dies failing to open
+		// another perf_event fd. Why doesn't close work?
 		close(m->fds[i]);
 	}
 
