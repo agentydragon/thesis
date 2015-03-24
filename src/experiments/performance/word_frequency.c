@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "dict/ksplay.h"
+#include "ksplay/ksplay.h"
 #include "log/log.h"
 #include "measurement/stopwatch.h"
 
@@ -59,15 +61,11 @@ static void add_word(dict* dict, char* word) {
 	bool found;
 	uint64_t count;
 	assert(!dict_find(dict, key, &count, &found));
-	if (found) {
-		log_info("delete(%s = %" PRIu64 ")", word, key);
-		assert(!dict_delete(dict, key));
 
-		log_info("insert(%s = %" PRIu64 ", %" PRIu64 ")",
-				word, key, count + 1);
+	if (found) {
+		assert(!dict_delete(dict, key));
 		assert(!dict_insert(dict, key, count + 1));
 	} else {
-		log_info("insert(%s = %" PRIu64 ", 1)", word, key);
 		assert(!dict_insert(dict, key, 1));
 	}
 }

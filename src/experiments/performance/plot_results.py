@@ -77,6 +77,11 @@ def filter_experiment(data, experiment):
 data = load_results()
 figsize = (12, 12)
 
+plot_graph(data=filter_experiment(data, experiment='word_frequency'),
+            title='Word frequency')
+pyplot.savefig('word-frequency.png', figsize=figsize)
+pyplot.clf()
+
 plot_graph(data=filter_experiment(data, experiment='serial-both'),
             title='Random insert+find')
 pyplot.savefig('random-insert-find.png', figsize=figsize)

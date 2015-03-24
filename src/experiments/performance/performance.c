@@ -110,9 +110,9 @@ int main(int argc, char** argv) {
 			measurement_results_release(result.results);
 		}
 
-		/*
-		// TODO: reenable after fixing bugs that happen here.
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
+			// TODO: Only measure if there are enough words
+			// in the file.
 			result = measure_word_frequency(FLAGS.measured_apis[i],
 					size);
 
@@ -122,7 +122,6 @@ int main(int argc, char** argv) {
 			json_array_append_new(json_results, point);
 			measurement_results_release(result.results);
 		}
-		*/
 
 		log_info("flushing results...");
 		assert(!json_dump_file(json_results,
