@@ -876,13 +876,14 @@ void ksplay_previous_key(ksplay* this, uint64_t key,
 }
 
 static void _dump_dot(node* current_node, FILE* output) {
-	fprintf(output, "    node%p[label = \"", current_node);
+	fprintf(output, "    node%p[label = \"{%p|{",
+			current_node, current_node);
 	const uint8_t key_count = node_key_count(current_node);
 	for (uint8_t i = 0; i < key_count; ++i) {
 		fprintf(output, "<child%d>|%" PRIu64 "|",
 				i, current_node->pairs[i].key);
 	}
-	fprintf(output, "<child%d>\"];\n", key_count);
+	fprintf(output, "<child%d>}}\"];\n", key_count);
 
 	for (uint8_t i = 0; i <= key_count; ++i) {
 		if (current_node->children[i]) {
