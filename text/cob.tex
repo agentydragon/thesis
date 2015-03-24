@@ -299,7 +299,15 @@ incrementing the depth $d$ and calculating the new $Pos[d]$.
 We can also return one level higher by reversing the update of $i$ and
 decrementing $d$.
 
-TODO: go-to-left-sibling optimization removing multiplication
+In our root-to-leaf traversals, reading the value of a non-leaf node $N$ will be
+followed by reading the value of its right child $R$. Based on the value in
+$R$, we will then either descend further below $R$, or we will descent into
+the subtree below $N$'s left child $L$.
+We slightly optimize this access pattern by calculating $Pos[d]$ for $L$
+from $Pos[d]$ for $R$ by simply subtracting $T[d]$, because $B[d]$ will
+decrease by 1. This saves us one relatively expensive \texttt{imulq}
+instruction whenever moving to the left sibling.
+
 TODO: graf
 
 \section{Ordered file maintenance}
