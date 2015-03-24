@@ -9,7 +9,7 @@ def load_results():
 
 def plot_graph(data, title):
   data = list(filter(lambda point: point['size'] > 1000, data))
-  apis = set(point['implementation'] for point in data)
+  apis = sorted(set(point['implementation'] for point in data))
   colors = ['r-', 'g-', 'b-', 'c-', 'm-', 'y-', 'k-']
 
   def sizes(api):
@@ -45,7 +45,7 @@ def plot_graph(data, title):
 
 def plot_mispredicts(data, title):
   data = list(filter(lambda point: point['size'] > 1000, data))
-  apis = set(point['implementation'] for point in data)
+  apis = sorted(set(point['implementation'] for point in data))
   colors = ['r-', 'g-', 'b-', 'c-', 'm-', 'y-', 'k-']
 
   def sizes(api):
