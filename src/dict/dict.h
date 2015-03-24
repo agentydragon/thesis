@@ -37,6 +37,10 @@ int8_t dict_delete(dict*, uint64_t key);
 int8_t dict_next(dict*, uint64_t key, uint64_t *next_key, bool *found);
 int8_t dict_prev(dict*, uint64_t key, uint64_t *prev_key, bool *found);
 
+// Provides access to implementation pointer. Explicitly disallows modification.
+const void* dict_get_implementation(dict*);
+const dict_api* dict_get_api(dict*);
+
 void dict_dump(dict*);
 void dict_check(dict*);
 

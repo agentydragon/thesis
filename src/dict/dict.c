@@ -84,3 +84,11 @@ int8_t dict_prev(dict* this, uint64_t key, uint64_t *prev_key, bool *found) {
 		return 1;
 	}
 }
+
+const void* dict_get_implementation(dict* this) {
+	return this->opaque;
+}
+
+const dict_api* dict_get_api(dict* this) {
+	return this->api;
+}
