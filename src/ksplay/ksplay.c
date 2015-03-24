@@ -6,7 +6,6 @@
 #include <string.h>
 #include <inttypes.h>
 
-#define NO_LOG_INFO
 #include "log/log.h"
 #include "util/unused.h"
 
@@ -199,14 +198,14 @@ static ksplay_node_buffer empty_buffer() {
 }
 
 static void buffer_append(ksplay_node_buffer* buffer, node* appended_node) {
-	if (buffer->count == buffer->capacity) {
+	while (buffer->count >= buffer->capacity) {
 		if (buffer->capacity < 1) {
 			buffer->capacity = 1;
 		}
 		buffer->capacity *= 2;
 		buffer->nodes = realloc(buffer->nodes,
 				sizeof(node*) * buffer->capacity);
-		CHECK(buffer->nodes, "Failed to allocate %" PRIu64 " nodes",
+		CHECK(buffer->nodes, "failed to allocate %" PRIu64 " nodes",
 				buffer->capacity);
 	}
 	buffer->nodes[buffer->count] = appended_node;
@@ -589,7 +588,7 @@ static void ksplay_step(ksplay_node_buffer* stack) {
 	node* old_root = consumed_suffix.nodes[0];
 
 	ksplay_pair pairs[KSPLAY_MAX_EXPLORE_KEYS];
-	node* children[KSPLAY_MAX_EXPLORE_KEYS + 1];;
+	node* children[KSPLAY_MAX_EXPLORE_KEYS + 1];
 	uint64_t key_count;
 	ksplay_flatten(&consumed_suffix, pairs, children, &key_count);
 	assert(key_count <= (KSPLAY_K + 2) * (KSPLAY_K - 1) + 1);
