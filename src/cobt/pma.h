@@ -38,7 +38,7 @@ pma_range pma_delete(pma* file, uint64_t index);
 void pma_init(pma* file);
 void pma_destroy(pma* file);
 
-pma_value pma_get_value(pma* file, uint64_t index);
+pma_value pma_get_value(const pma* file, uint64_t index);
 
 typedef struct {
 	pma* file;

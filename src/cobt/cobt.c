@@ -8,7 +8,6 @@
 
 #include "log/log.h"
 #include "math/math.h"
-#include "util/unused.h"
 #include "veb_layout/veb_layout.h"
 
 #define EMPTY UINT64_MAX
@@ -43,7 +42,7 @@ static void insert_piece_before(cob* this, piece_item* piece,
 	}
 }
 
-static piece_item* get_piece_start(cob* this, uint64_t index) {
+static piece_item* get_piece_start(const cob* this, uint64_t index) {
 	return pma_get_value(&this->file, index);
 }
 
@@ -58,7 +57,7 @@ static void delete_piece(cob* this, uint64_t index) {
 	}
 }
 
-static void UNUSED describe_piece(char* buffer, cob* this, uint64_t index) {
+static void describe_piece(char* buffer, const cob* this, uint64_t index) {
 	piece_item* piece = get_piece_start(this, index);
 	uint8_t z = 0;
 	z += sprintf(buffer + z, "[%" PRIu64 " =%p %s key=%" PRIu64 "]: ",
@@ -75,7 +74,7 @@ static void UNUSED describe_piece(char* buffer, cob* this, uint64_t index) {
 	}
 }
 
-static void UNUSED internal_check(cob* this) {
+void cob_check_invariants(const cob* this) {
 	for (uint64_t i = 0; i < this->file.capacity; i++) {
 		if (this->file.occupied[i]) {
 			char description[1024];
@@ -95,7 +94,7 @@ static void UNUSED internal_check(cob* this) {
 	// Possibly add more checks later.
 }
 
-static void UNUSED dump_all(cob* this) {
+void cob_dump(const cob* this) {
 	for (uint64_t i = 0; i < this->file.capacity; i++) {
 		char description[1024];
 		describe_piece(description, this, i);
@@ -126,7 +125,7 @@ static void enforce_piece_policy(cob* this, uint64_t new_size) {
 		new_piece -= 4;
 	}
 	if (this->piece != new_piece) {
-		log_info("%" PRIu64 " repiecing: %" PRIu8 " -> %" PRIu8,
+		log_verbose(1, "%" PRIu64 " repiecing: %" PRIu8 " -> %" PRIu8,
 				new_size, this->piece, new_piece);
 		const pma new_file = rebuild_file(this, new_size, new_piece);
 		pma_destroy(&this->file);
@@ -138,18 +137,24 @@ static void enforce_piece_policy(cob* this, uint64_t new_size) {
 }
 
 static void refresh_piece_key(cob* this, uint64_t index) {
-	// char description[1024];
-	// describe_piece(description, this, index);
-	// log_info("refresh_piece_key(%s)", buffer);
+	IF_LOG_VERBOSE(2) {
+		char description[1024];
+		describe_piece(description, this, index);
+		log_info("refresh_piece_key(%s)", description);
+	}
 	piece_item* piece = get_piece_start(this, index);
 	if (this->file.keys[index] == piece[0].key) {
-		// log_info("no need to update piece key %" PRIu64, index);
+		log_verbose(2, "no need to update piece key %" PRIu64, index);
 	} else {
-		// log_info("updating piece %" PRIu64 " key from %" PRIu64 " to %" PRIu64,
-		// 		index, this->file.keys[index], piece[0].key);
-		// char buffer[1024];
-		// describe_piece(buffer, this, index);
-		// log_info("piece: %s", buffer);
+		IF_LOG_VERBOSE(2) {
+			log_info("updating piece %" PRIu64 " key "
+					"from %" PRIu64 " to %" PRIu64,
+					index, this->file.keys[index],
+					piece[0].key);
+			char buffer[1024];
+			describe_piece(buffer, this, index);
+			log_info("piece: %s", buffer);
+		}
 		this->file.keys[index] = piece[0].key;
 		cobt_tree_refresh(&this->tree, (cobt_tree_range) {
 			.begin = index,
@@ -227,7 +232,7 @@ static void split_piece(cob* this, uint64_t index) {
 		return;
 	}
 
-	// log_info("splitting piece %" PRIu64, index);
+	log_verbose(2, "splitting piece %" PRIu64, index);
 
 	piece_item* piece = new_piece(this);
 	const uint8_t start = this->piece / 2;
@@ -247,8 +252,10 @@ static void split_piece(cob* this, uint64_t index) {
 	}
 	insert_piece_before(this, piece, after);
 
-	// log_info("After split:");
-	// dump_all(this);
+	IF_LOG_VERBOSE(2) {
+		log_verbose(2, "After split:");
+		cob_dump(this);
+	}
 }
 
 int8_t cob_insert(cob* this, uint64_t key, uint64_t value) {
@@ -363,9 +370,9 @@ static void merge_piece(cob* this, uint64_t piece_index) {
 			right_neighbour_index < this->file.capacity;
 			right_neighbour_index++) {
 		if (this->file.occupied[right_neighbour_index]) {
-			// log_info("will merge piece %" PRIu64 " "
-			// 		"with right: %" PRIu64,
-			// 		piece_index, right_neighbour_index);
+			log_verbose(2, "will merge piece %" PRIu64 " "
+					"with right: %" PRIu64,
+					piece_index, right_neighbour_index);
 			merge_pieces(this, piece_index, right_neighbour_index);
 			return;
 		}
@@ -375,9 +382,9 @@ static void merge_piece(cob* this, uint64_t piece_index) {
 	for (uint64_t i = 0; i < piece_index; i++) {
 		left_neighbour_index = piece_index - 1 - i;
 		if (this->file.occupied[left_neighbour_index]) {
-			// log_info("will merge piece %" PRIu64 " "
-			// 		"with left: %" PRIu64,
-			// 		piece_index, left_neighbour_index);
+			log_verbose(2, "will merge piece %" PRIu64 " "
+					"with left: %" PRIu64,
+					piece_index, left_neighbour_index);
 			merge_pieces(this, left_neighbour_index, piece_index);
 			return;
 		}
@@ -391,7 +398,7 @@ static void merge_piece(cob* this, uint64_t piece_index) {
 }
 
 int8_t cob_delete(cob* this, uint64_t key) {
-	// log_info("cob_delete(%" PRIu64 ") begin", key);
+	log_verbose(1, "cob_delete(%" PRIu64 ") begin", key);
 	validate_key(key);
 	if (this->size >= 1) {
 		enforce_piece_policy(this, this->size - 1);
@@ -407,15 +414,14 @@ int8_t cob_delete(cob* this, uint64_t key) {
 		goto no_such_key;
 	}
 
-	// log_info("updating piece key to reflect deletion of %" PRIu64, key);
+	log_verbose(2, "updating piece key to reflect deletion of %" PRIu64,
+			key);
 	refresh_piece_key(this, index);
 
-	// log_info("merging piece with neighbours");
+	log_verbose(2, "merging piece with neighbours");
 	merge_piece(this, index);
 	--this->size;
 	log_verbose(1, "cob_delete(%" PRIu64 "): done", key);
-	// dump_all(this);
-	// internal_check(this);
 	return 0;
 
 no_such_key:
@@ -525,7 +531,7 @@ static pma rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
 	pma new_file = { .occupied = NULL, .keys = NULL, .values = NULL };
 	const uint8_t preferred_piece = new_piece / 2;
 	const uint64_t piece_count = (new_size / preferred_piece) + 1;
-	log_info("preparing to store %" PRIu64 " pieces of size %" PRIu8,
+	log_verbose(1, "preparing to store %" PRIu64 " pieces of size %" PRIu8,
 			piece_count, new_piece);
 	pma_stream stream;
 	pma_stream_start(&new_file, piece_count, &stream);

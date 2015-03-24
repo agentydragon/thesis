@@ -32,4 +32,7 @@ void cob_previous_key(cob* this, uint64_t key,
 		bool *previous_key_exists, uint64_t *previous_key);
 void cob_check(cob* this);
 
+void cob_dump(const cob* this);
+void cob_check_invariants(const cob* this);
+
 #endif

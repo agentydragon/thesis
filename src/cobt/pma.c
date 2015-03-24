@@ -304,7 +304,7 @@ static void step_right(pma_range block, uint64_t step_start) {
 	}
 }
 
-pma_value pma_get_value(pma* file, uint64_t index) {
+pma_value pma_get_value(const pma* file, uint64_t index) {
 	return file->values[index];
 }
 

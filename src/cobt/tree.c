@@ -11,11 +11,11 @@
 
 static const uint64_t INFINITY = UINT64_MAX;
 
-static uint8_t height(cobt_tree* this) {
+static uint8_t height(const cobt_tree* this) {
 	return ceil_log2(this->backing_array_size) + 1;
 }
 
-static uint64_t tree_node_count(cobt_tree* this) {
+static uint64_t tree_node_count(const cobt_tree* this) {
 	return (1 << height(this)) - 1;
 }
 
@@ -163,7 +163,7 @@ void cobt_tree_refresh(cobt_tree* this, cobt_tree_range refresh) {
 	refresh_recursive(this, refresh, entire_tree(this), &track);
 }
 
-void cobt_tree_dump(cobt_tree* this) {
+void cobt_tree_dump(const cobt_tree* this) {
 	char buffer[4096];
 	uint64_t z = 0;
 	for (uint64_t i = 0; i < tree_node_count(this); i++) {
