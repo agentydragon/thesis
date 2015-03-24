@@ -899,9 +899,25 @@ static void _dump_dot(node* current_node, FILE* output) {
 	}
 }
 
-void ksplay_dump_dot(ksplay* this, FILE* output) {
+void ksplay_dump_dot(const ksplay* this, FILE* output) {
 	fprintf(output, "digraph ksplay {\n");
 	fprintf(output, "    node [shape = record, height = .1];\n");
 	_dump_dot(this->root, output);
 	fprintf(output, "}\n");
+}
+
+static void _check_invariants(ksplay_node* node, uint64_t depth) {
+	if (depth > 0) {
+		assert(node_key_count(node) == KSPLAY_K - 1);
+	}
+	assert(depth < 256);
+	for (uint8_t i = 0; i < node_key_count(node); ++i) {
+		if (node->children[i]) {
+			_check_invariants(node->children[i], depth + 1);
+		}
+	}
+}
+
+void ksplay_check_invariants(const ksplay* this) {
+	_check_invariants(this->root, 0);
 }

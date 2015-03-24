@@ -73,7 +73,8 @@ typedef struct {
 ksplay_node* ksplay_compose(ksplay_node_pool* pool,
 		ksplay_pair* pairs, ksplay_node** children, uint64_t key_count);
 ksplay_node* ksplay_split_overfull(ksplay_node* root);
-void ksplay_dump_dot(ksplay* this, FILE* output);
+void ksplay_dump_dot(const ksplay* this, FILE* output);
 uint8_t ksplay_node_key_count(ksplay_node* x);
+void ksplay_check_invariants(const ksplay* this);
 
 #endif
