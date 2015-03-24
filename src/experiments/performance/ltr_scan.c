@@ -14,8 +14,13 @@ static void iterate_ltr(dict* dict) {
 
 	uint64_t current_key = min;
 	while (found) {
-		// assert(!dict_find(dict, current_key, NULL, &found));
-		// assert(found);
+		uint64_t value;
+		assert(!dict_find(dict, current_key, &value, &found));
+		assert(found);
+		// We don't really care what value did we get, but we
+		// still don't want to pass NULL, because we want
+		// the dictionary to fetch us the value.
+		(void) value;
 
 		uint64_t next_key;
 		assert(!dict_next(dict, current_key, &next_key, &found));
