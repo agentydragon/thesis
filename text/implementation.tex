@@ -161,10 +161,69 @@ We have implemented the following dictionary data structures:
 	a cache-oblivious B-tree as described TODO.
 \item \texttt{dict\_splay}, declared in \texttt{dict/splay.h}:
 	a splay tree.
-% TODO: btree, ksplay, htable
+\item \texttt{dict\_ksplay}, declared in \texttt{dict/ksplay.h}:
+	a K-splay tree. % TODO: which K?
+% TODO: btree, htable
 \end{itemize}
 
 \section{Performance measurement}
+
+% TODO: measure memory
+Our goal is to have fast data structures with reasonable memory usage.
+We measure the performance of the various dictionary implementations
+on several experimental setups. Each such setup has a tunable \textit{size} $S$
+(i.e. the maximum number of stored key-value pairs needed by the experiment).
+The setups include:
+\begin{itemize}
+\item
+	\textit{Random inserts and finds}: We generate pseudorandom key-value
+	pairs by applying two deterministic invertible functions $k(i)$
+	and $v(i)$ for $i$ between 0 and $S-1$.
+	These simple functions use a Feistel network to provide
+	"sufficiently randomly behaving" key-value pairs while letting us
+	derive $i$ from $k(i)$ or $v(i)$, which aids debugging.
+
+	After the pairs are inserted, they are read in an order determined
+	by a simple pseudorandom generator with a fixed seed.
+
+	On this experiment, we separately measure the performance of deletions
+	and finds.
+
+\item
+	\textit{Left-to-right scans}: We seed the structure with $S$ items
+	as above. Then we traverse the dictionary from the minimum key to
+	the maximum key, reading the values as we go. We don't include
+	the seeding in our measurements.
+	Left-to-right scans are only available on implementations that
+	allow predecessor and successor queries.
+
+\item
+	\textit{Working set patterns}: The working set experiment needs
+	a fixed integer parameter $W<S$. We again randomly seed the dictionary
+	with $S$ items. Finally, $S$ times we access the key-value pair
+	with key $k(i)$, where $i$ is picked pseudorandomly from
+	$\{0,\ldots,W-1\}$.
+	This access pattern is intended to simulate datasets, which have
+	a mostly-static ununiform access probability distribution.
+
+\item
+	\textit{Word frequency counting}: We load a large text document
+	and we tokenize it into words. Each word is then normalized
+	to lowercase and transformed into a 64-bit integer via a simple
+	hash function $h$. We create a dictionary storing counts of word
+	occurrences keyed by word hashes. Each word $w$ is inserted into
+	the dictionary by either inserting a new $\langle h(w), 1\rangle$ pair,
+	or deleting an existing pair for $h(w)$ and inserting a new one
+	with an incremented value.
+	This usage pattern approximates building a search index on the document.
+	TODO: which document?
+\end{itemize}
+
+We tracked the time it took to conduct each experiment using the POSIX function
+\texttt{clock\_gettime}. To better understand the bottlenecks, we also
+tracked certain hardware events of interest using the \texttt{perf} API of
+the Linux kernel. The \texttt{perf} API queries performance counter registers
+built into the CPU.
 
 TODO: RAM
 TODO: perf
