@@ -126,6 +126,16 @@ static void node_remove_at_simple(node* this, uint8_t i) {
 	this->pairs[key_count - 1].key = EMPTY;
 }
 
+static void node_remove_first(node* this) {
+	const uint8_t key_count = node_key_count(this);
+	CHECK(this->children[0] == NULL, "removing first key with child");
+	memmove(&this->pairs[0], &this->pairs[1],
+			sizeof(ksplay_pair) * (key_count - 1));
+	memmove(&this->children[0], &this->children[1],
+			sizeof(node*) * (key_count));
+	this->pairs[key_count - 1].key = EMPTY;
+}
+
 static bool node_find(node* this, uint64_t key, uint64_t *value) {
 	for (uint8_t i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
 		if (this->pairs[i].key == key) {
@@ -608,6 +618,13 @@ static void ksplay_step(ksplay_node_buffer* stack) {
 	stack->count -= consumed - 1;
 	stack->nodes[stack->count - 1] =
 			ksplay_compose(&pool, pairs, children, key_count);
+
+	for (uint64_t i = 0; i < consumed - pool.remaining; ++i) {
+		if (nodes[i] != stack->nodes[stack->count - 1]) {
+			assert(node_key_count(nodes[i]) == KSPLAY_K - 1);
+		}
+	}
+
 	IF_LOG_VERBOSE(1) {
 		log_info("stack after composition:");
 		_dump_buffer(stack, 2);
@@ -765,8 +782,9 @@ int8_t ksplay_delete(ksplay* this, uint64_t key) {
 			buffer_append(&stack, victim);
 			victim = victim->children[0];
 		}
-		target->pairs[index_in_target + 1] = victim->pairs[0];
-		node_remove_at_simple(victim, 0);
+		buffer_append(&stack, victim);
+		target->pairs[index_in_target] = victim->pairs[0];
+		node_remove_first(victim);
 		goto removed;
 	}
 
@@ -781,7 +799,7 @@ no_such_key:
 removed:
 	if (node_key_count(victim) == 0 && this->size > 1) {
 		node* replacement = victim->children[0];
-		if (stack.count > 1) {
+		if (stack.count >= 2) {
 			replace_pointer(stack.nodes[stack.count - 2],
 					victim, replacement);
 		}
