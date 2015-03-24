@@ -1,0 +1,4 @@
+csplainnat.bst:
+	Forked from http://repo.or.cz/w/csplainnat.git.
+	Has a few custom changed: I changed "s." in a few places to "pages",
+	since my thesis is in English.
