@@ -26,8 +26,11 @@
 % \setlength\headheight{0mm}
 % \let\openright=\cleardoublepage
 
-%% Character encoding: usually latin2, cp1250 or utf8:
 \usepackage[utf8]{inputenc}
+
+%% Bibliography
+\usepackage{natbib}
+\usepackage{url}
 
 %% Further packages
 \usepackage{graphicx}
@@ -39,7 +42,6 @@
 \usepackage{algorithmicx}
 \usepackage{algpseudocode}
 \usepackage{listings}
-\usepackage{color}
 \lstset{
 	basicstyle=\footnotesize\ttfamily,
 	frame=single
@@ -103,7 +105,6 @@ TODO: abstract; recommended length ~80-200 words.
 \hypersetup{pdftitle={\ThesisTitle}}
 \hypersetup{pdfauthor={\ThesisAuthor}}
 \hypersetup{pdfkeywords=\Keywords}
-
 
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}

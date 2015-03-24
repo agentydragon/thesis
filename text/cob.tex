@@ -2,7 +2,7 @@
 % TODO: assume B > 1
 % TODO: usual => good? best?
 % TODO: reference to B-tree article
-The \textit{cache-oblivious B-tree} introduced by \cite{demaine00}
+The \textit{cache-oblivious B-tree} introduced by \cite{cobt}
 is a data structure which replicates the asymptotic performance of B-trees
 in a cache-oblivious setting.
 \textsc{Find}s and updates on cache-oblivious B-trees require $\Theta(\log_B N)$
@@ -15,18 +15,21 @@ Scanning a range of $t$ keys also takes $\Theta(\log_B N+t/B)$ time.
 This matches the performance of B-trees for $B=\Omega(\log N\log\log N)$.
 % TODO: unfortunately not common for internal memory
 
-The cache-oblivious B-tree is composed of three components.
+The original cache-oblivious B-tree as described in \cite{cobt} used
+weight-balanced B-trees. We implement a simplified version of the structure
+introduced in \cite{brodal01}, which is composed of three components.
 The \textit{van Emde Boas layout} of binary trees is a way of cache-obliviously
 maintaining full binary trees in memory such that reading or updating any
-root-to-leaf path in order takes $\Theta(\log_B N)$ block transfers.
+root-to-leaf path in root-to-leaf or leaf-to-root order takes $\Theta(\log_B N)$
+block transfers.
 Then, the \textit{packed memory array} lets us store a "cache-oblivious linked
 list". The items of this "linked list" will represent key-value pairs.
 The packed memory array has fast updates in the amortized sense. Inserting
 and deleting items overwrites $\Theta(\frac{\log^2 N}{B})$ amortized memory
 blocks.
-Finally, we will combine the two previous parts with \textit{indirection} to
-obtain the desired $\Theta(\log_B N)$ time to \textsc{Find}, \textsc{Insert}
-and \textsc{Delete}.
+Finally, we combine the two previous parts with \textit{indirection} to obtain
+the desired $\Theta(\log_B N)$ time to \textsc{Find}, \textsc{Insert} and
+\textsc{Delete}.
 
 \section{The van Emde Boas layout}
 The van Emde Boas layout is a way of mapping the nodes of a full binary
@@ -471,7 +474,7 @@ for splits and merges, which gives us $\Theta(\log_B N+\frac{\log N}{B})=
 \Theta(\log_B N)$ amortized time for updates.
 
 An alternative deamortized ordered file maintenance data structure
-developed by Willard\cite{willard92} performs $\Theta(\frac{\log^2 N}{B})$
+developed \cite{willard92} performs $\Theta(\frac{\log^2 N}{B})$
 block transfers in the worst case. A cache-oblivious B-tree backed by this
 structure would limit the worst-case number of block transfers from
 $\Theta(\frac{N}{\log N})$ to just $\Theta(\frac{\log^2 N}{B}+\log_B N)$ while
