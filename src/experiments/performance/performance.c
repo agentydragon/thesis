@@ -8,9 +8,10 @@
 #include "dict/cobt.h"
 #include "dict/ksplay.h"
 #include "experiments/performance/flags.h"
-#include "experiments/performance/serial.h"
-#include "experiments/performance/working_set.h"
 #include "experiments/performance/ltr_scan.h"
+#include "experiments/performance/serial.h"
+#include "experiments/performance/word_frequency.h"
+#include "experiments/performance/working_set.h"
 #include "ksplay/ksplay.h"
 #include "log/log.h"
 #include "measurement/measurement.h"
@@ -108,6 +109,20 @@ int main(int argc, char** argv) {
 			json_array_append_new(json_results, point);
 			measurement_results_release(result.results);
 		}
+
+		/*
+		// TODO: reenable after fixing bugs that happen here.
+		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
+			result = measure_word_frequency(FLAGS.measured_apis[i],
+					size);
+
+			json_t* point = json_object();
+			add_common_keys(point, "word_frequency", size,
+					FLAGS.measured_apis[i], result);
+			json_array_append_new(json_results, point);
+			measurement_results_release(result.results);
+		}
+		*/
 
 		log_info("flushing results...");
 		assert(!json_dump_file(json_results,
