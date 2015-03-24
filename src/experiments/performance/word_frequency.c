@@ -60,13 +60,14 @@ static void add_word(dict* dict, char* word) {
 	uint64_t count;
 	assert(!dict_find(dict, key, &count, &found));
 	if (found) {
-		log_info("delete(%" PRIu64 ")", key);
+		log_info("delete(%s = %" PRIu64 ")", word, key);
 		assert(!dict_delete(dict, key));
 
-		log_info("insert(%" PRIu64 ", %" PRIu64 ")", key, count + 1);
+		log_info("insert(%s = %" PRIu64 ", %" PRIu64 ")",
+				word, key, count + 1);
 		assert(!dict_insert(dict, key, count + 1));
 	} else {
-		log_info("insert(%" PRIu64 ", 1)", key);
+		log_info("insert(%s = %" PRIu64 ", 1)", word, key);
 		assert(!dict_insert(dict, key, 1));
 	}
 }
