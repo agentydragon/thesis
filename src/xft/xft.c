@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -14,7 +15,8 @@ void xft_init(xft* this) {
 	}
 	this->root = malloc(sizeof(xft_node));
 	this->root->prefix = 0;
-	assert(!dict_insert(this->lss[BITSOF(xft_key) - 1], 0, (uint64_t) this->root));
+	log_info("root = %p", this->root);
+	assert(!dict_insert(this->lss[0], 0, (uint64_t) this->root));
 }
 
 void xft_destroy(xft* this) {
@@ -45,17 +47,22 @@ xft_node* xft_lowest_ancestor(xft* this, xft_key k) {
 	while (max > min + 1) {
 		uint64_t mid = (min + max) / 2;
 		bool found;
-		assert(!dict_find(this->lss[mid], xft_prefix(k, mid), NULL,
-				&found));
+		const uint64_t prefix = xft_prefix(k, mid);
+		log_info("look at level %" PRIu64 " for %" PRIx64, mid, prefix);
+		assert(!dict_find(this->lss[mid], prefix, NULL, &found));
 		if (found) {
+			log_info(" -> found");
 			min = mid;
 		} else {
+			log_info(" -> not found");
 			max = mid;
 		}
 	}
 	xft_node* ancestor;
 	bool found;
-	assert(!dict_find(this->lss[min], xft_prefix(k, min),
+	const uint64_t prefix = xft_prefix(k, min);
+	log_info("fine. look at level %" PRIu64 " for %" PRIx64, min, prefix);
+	assert(!dict_find(this->lss[min], prefix,
 				(uint64_t*) &ancestor, &found));
 	assert(found);
 	return ancestor;
