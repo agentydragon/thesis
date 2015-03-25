@@ -8,6 +8,7 @@ SOURCES= \
 	dict/*.c \
 	dict/test/*.c \
 	htable/*.c htable/test/*.c \
+	kforest/*.c \
 	ksplay/*.c \
 	log/*.c \
 	math/*.c \

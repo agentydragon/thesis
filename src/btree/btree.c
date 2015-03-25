@@ -45,7 +45,6 @@ static void append_internal(btree_node_persisted* target, uint64_t appended_key,
 		const btree_node_persisted* source);
 static void append_leaf(btree_node_persisted* target,
 		btree_node_persisted* source);
-static uint8_t get_n_leaf_keys(const btree_node_persisted* node);
 static uint8_t get_n_internal_keys(const btree_node_persisted* node);
 static void find_siblings(btree_node_persisted* node,
 		btree_node_persisted* parent,
@@ -61,16 +60,11 @@ static void find_siblings(btree_node_persisted* node,
 // B-tree "meta-algorithm":
 enum side_preference { LEFT, RIGHT };
 
-typedef struct {
-	uint8_t levels_above_leaves;
-	btree_node_persisted* persisted;
-} btree_node_traversed;
-
-static bool nt_is_leaf(btree_node_traversed node) {
+bool nt_is_leaf(btree_node_traversed node) {
 	return node.levels_above_leaves == 0;
 }
 
-static btree_node_traversed nt_root(btree* tree) {
+btree_node_traversed nt_root(btree* tree) {
 	return (btree_node_traversed) {
 		.persisted = tree->root,
 		.levels_above_leaves = tree->levels_above_leaves
@@ -631,7 +625,7 @@ static void append_leaf(btree_node_persisted* target,
 	rebalance_leaves(target, source, total_keys, 0, NULL);
 }
 
-static uint8_t get_n_leaf_keys(const btree_node_persisted* node) {
+uint8_t get_n_leaf_keys(const btree_node_persisted* node) {
 	for (uint8_t i = 0; i < LEAF_MAX_KEYS; i++) {
 		if (node->leaf.keys[i] == SLOT_UNUSED &&
 				node->leaf.values[i] == SLOT_UNUSED) {

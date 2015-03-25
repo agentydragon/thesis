@@ -55,4 +55,13 @@ void btree_destroy(btree*);
 
 // TODO: implement _next, _prev
 
+typedef struct {
+	uint8_t levels_above_leaves;
+	btree_node_persisted* persisted;
+} btree_node_traversed;
+
+bool nt_is_leaf(btree_node_traversed node);
+btree_node_traversed nt_root(btree* tree);
+uint8_t get_n_leaf_keys(const btree_node_persisted* node);
+
 #endif
