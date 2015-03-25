@@ -83,18 +83,24 @@ static void report_count(dict* dict, const char* word) {
 	}
 }
 
-struct metrics measure_word_frequency(const dict_api* api, uint64_t size) {
-	// TODO: Load once, reuse later.
-	char* content = read_file(PATH);
+static char* content;
 
+void init_word_frequency() {
+	content = read_file(PATH);
+}
+
+void deinit_word_frequency() {
+	free(content);
+}
+
+struct metrics measure_word_frequency(const dict_api* api, uint64_t size) {
 	const char* delimiters = " ,.?!*<>()[]:;'\n";
 	uint64_t words = 0;
-	char* ptr = strtok(content, delimiters);
+	char* content_copy = strdup(content);
+	char* ptr = strtok(content_copy, delimiters);
 
 	measurement* measurement = measurement_begin();
 	stopwatch watch = stopwatch_start();
-
-	log_info("testing on %s", api->name);
 
 	dict* dict;
 	CHECK(!dict_init(&dict, api, NULL), "cannot init dict");
@@ -112,12 +118,14 @@ struct metrics measure_word_frequency(const dict_api* api, uint64_t size) {
 	measurement_results* results = measurement_end(measurement);
 	uint64_t time_nsec = stopwatch_read_ns(watch);
 
-	free(content);
+	IF_LOG_VERBOSE(1) {
+		report_count(dict, "the");
+		report_count(dict, "obsequious");
+		report_count(dict, "hello");
+		report_count(dict, "world");
+	}
 
-	report_count(dict, "the");
-	report_count(dict, "obsequious");
-	report_count(dict, "hello");
-	report_count(dict, "world");
+	free(content_copy);
 
 	return (struct metrics) {
 		.results = results,

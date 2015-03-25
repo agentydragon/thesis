@@ -30,6 +30,7 @@ static void add_common_keys(json_t* point, const char* experiment,
 
 int main(int argc, char** argv) {
 	parse_flags(argc, argv);
+	init_word_frequency();
 
 	// TODO: merge with //performance.c
 	json_t* json_results = json_array();
@@ -123,12 +124,13 @@ int main(int argc, char** argv) {
 			measurement_results_release(result.results);
 		}
 
-		log_info("flushing results...");
+		log_verbose(1, "flushing results...");
 		assert(!json_dump_file(json_results,
 					"experiments/performance/results.json",
 					JSON_INDENT(2)));
-		log_info("done");
+		log_verbose(1, "done");
 	}
+	deinit_word_frequency();
 	json_decref(json_results);
 	return 0;
 }
