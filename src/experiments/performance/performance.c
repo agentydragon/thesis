@@ -126,7 +126,7 @@ int main(int argc, char** argv) {
 
 		log_verbose(1, "flushing results...");
 		assert(!json_dump_file(json_results,
-					"experiments/performance/results.json",
+					"experiments/performance/output/results.json",
 					JSON_INDENT(2)));
 		log_verbose(1, "done");
 	}

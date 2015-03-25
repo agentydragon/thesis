@@ -74,12 +74,12 @@ def plot_mispredicts(data, title):
 CACHED_DATA_FROM_FILE = None
 
 def save_to(filename):
-  pyplot.savefig(filename, figsize=(12, 12))
+  pyplot.savefig('output/' + filename, figsize=(12, 12))
 
 def load_data(discard_trivial=True, **filters):
   global CACHED_DATA_FROM_FILE
   if not CACHED_DATA_FROM_FILE:
-    with open('results.json') as results_file:
+    with open('output/results.json') as results_file:
       CACHED_DATA_FROM_FILE = json.load(results_file)
 
   def point_is_good(point):
