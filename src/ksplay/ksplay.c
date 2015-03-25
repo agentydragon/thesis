@@ -161,7 +161,7 @@ typedef struct {
 } destroy_stack_item;
 
 void ksplay_destroy(ksplay* this) {
-	log_info("ksplay_destroy(%p)", this);
+	log_verbose(1, "ksplay_destroy(%p)", this);
 
 	node* xx = this->root;
 	this->root = NULL;
