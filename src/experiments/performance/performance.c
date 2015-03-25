@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include <perfmon/pfmlib.h>
 #include <math.h>
 
 #include "cobt/cobt.h"
@@ -31,6 +32,27 @@ static void add_common_keys(json_t* point, const char* experiment,
 int main(int argc, char** argv) {
 	parse_flags(argc, argv);
 	init_word_frequency();
+	assert(pfm_initialize() == PFM_SUCCESS);
+
+	/*
+	pfm_pmu_info_t pinfo;
+	log_info("Supported PMU models:");
+	for (uint64_t i = 0; i < PFM_PMU_MAX; i++) {
+		if (pfm_get_pmu_info(i, &pinfo) != PFM_SUCCESS) {
+			continue;
+		}
+		log_info("    [%" PRIu64 ", %s, \"%s\"]", i, pinfo.name, pinfo.desc);
+	}
+	log_info("Detected PMU models:");
+	for (uint64_t i = 0; i < PFM_PMU_MAX; i++) {
+		if (pfm_get_pmu_info(i, &pinfo)!= PFM_SUCCESS)
+			continue;
+		if (pinfo.is_present) {
+			log_info("    [%" PRIu64 ", %s, \"%s\"]\n", i, pinfo.name, pinfo.desc);
+		}
+	}
+	sleep(10);
+	*/
 
 	// TODO: merge with //performance.c
 	json_t* json_results = json_array();

@@ -6,6 +6,7 @@
 #include <inttypes.h>
 #include <jansson.h>
 #include <linux/perf_event.h>
+#include <perfmon/pfmlib.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>

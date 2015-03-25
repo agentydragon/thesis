@@ -20,6 +20,7 @@ but only accidentally.
 For benchmarking, you need:
 * [jansson](http://www.digip.org/jansson/) for JSON output
 * [matplotlib](http://matplotlib.org/) for plotting graphs
+* [libpfm4](http://perfmon2.sourceforge.net/) for measuring hardware events
 
 ## Running tests
 ```bash

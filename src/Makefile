@@ -36,7 +36,7 @@ asm: bin/test
 
 # bin/experiments/performance depends on jansson
 PERFORMANCE_CFLAGS=$(CFLAGS) $(shell pkg-config --cflags jansson)
-PERFORMANCE_LIBS=$(LIBS) $(shell pkg-config --libs jansson)
+PERFORMANCE_LIBS=$(LIBS) $(shell pkg-config --libs jansson) -lpfm
 PERFORMANCE_SOURCES=$(SOURCES) \
 	experiments/performance/*.c \
 	measurement/*.c
