@@ -577,7 +577,7 @@ static pma rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
 }
 
 void cob_init(cob* this) {
-	log_info("cob_init(%p)", this);
+	log_verbose(1, "cob_init(%p)", this);
 	this->size = 0;
 	this->piece = 4;  // Initial piece size: 4
 	pma_init(&this->file);
