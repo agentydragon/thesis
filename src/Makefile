@@ -50,8 +50,8 @@ bin/experiments/performance_profile: $(PERFORMANCE_SOURCES)
 bin/experiments/veb_performance: experiments/veb_performance/veb_performance.c $(SOURCES)
 	$(CC) $(CFLAGS) $(LIBS) experiments/veb_performance/veb_performance.c $(SOURCES) -o $@
 
-bin/xft: $(SOURCES) xft/xft.c
-	$(CC) -g $(CFLAGS) $(SOURCES) xft/xft.c -o $@ $(LIBS)
+bin/xft: $(SOURCES) xft/*.c
+	$(CC) -g $(CFLAGS) $(SOURCES) xft/*.c -o $@ $(LIBS)
 
 # Continuous integration target
 test: bin/test
