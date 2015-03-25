@@ -17,12 +17,12 @@ def apis_with_colors(data):
              ['r-', 'g-', 'b-', 'c-', 'm-', 'y-', 'k-'])
 
 def plot_graph(data, title):
-  def sizes(api):
-    return [point['size'] for point in data]
-  def times(api):
-    return [point['time_ns'] / point['size'] for point in data]
-  def misses(api):
-    return [point['metrics']['cache_misses'] / point['size'] for point in data]
+  def sizes(api_data):
+    return [point['size'] for point in api_data]
+  def times(api_data):
+    return [point['time_ns'] / point['size'] for point in api_data]
+  def misses(api_data):
+    return [point['metrics']['cache_misses'] / point['size'] for point in api_data]
 
   pyplot.figure(1)
   subplot = pyplot.subplot(211)
@@ -76,8 +76,21 @@ CACHED_DATA_FROM_FILE = None
 def save_to(filename):
   pyplot.savefig('output/' + filename, figsize=(12, 12))
 
+def point_fits_filters(point, filters):
+  for key in filters:
+    if key in point:
+      if point[key] != filters[key]:
+        return False
+    elif key in point['metrics']:
+      if point['metrics'][key] != filters[key]:
+        return False
+    else:
+      return False
+  return True
+
 def load_data(discard_trivial=True, **filters):
   global CACHED_DATA_FROM_FILE
+
   if not CACHED_DATA_FROM_FILE:
     with open('output/results.json') as results_file:
       CACHED_DATA_FROM_FILE = json.load(results_file)
@@ -85,7 +98,7 @@ def load_data(discard_trivial=True, **filters):
   def point_is_good(point):
     if discard_trivial and point['size'] < 1000:
       return False
-    return all([point[key] == filters[key] for key in filters])
+    return point_fits_filters(point, filters)
 
   return list(filter(point_is_good, CACHED_DATA_FROM_FILE))
 
@@ -143,6 +156,8 @@ def plot_pma_counters():
   pyplot.clf()
 
 def main():
+  plot_all_experiments()
+
   plot_mispredicts(data=load_data(experiment='serial-findonly'),
                    title='Mispredicts (random find)')
   save_to('random-mispredict.png')
