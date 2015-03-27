@@ -13,13 +13,13 @@
 static void format_time(char* buffer, uint64_t capacity) {
 	time_t t = time(NULL);
 	struct tm *tmp = localtime(&t);
-	assert(tmp);
-	assert(strftime(buffer, capacity, "%F %T", tmp) != 0);
+	ASSERT(tmp);
+	ASSERT(strftime(buffer, capacity, "%F %T", tmp) != 0);
 }
 
 void __log_v(const char* tag, const char* format, va_list args) {
 	char* message;
-	assert(vasprintf(&message, format, args) >= 0);
+	ASSERT(vasprintf(&message, format, args) >= 0);
 
 	char time[20];
 	format_time(time, sizeof(time));

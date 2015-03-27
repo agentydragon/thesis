@@ -34,21 +34,21 @@ static void set_node(void* _veb_buffer, uint64_t node,
 }
 
 #define check_nonleaf(veb_index) do { \
-	assert(!veb_is_leaf(veb_index, HEIGHT)); \
+	ASSERT(!veb_is_leaf(veb_index, HEIGHT)); \
 } while (0)
 
 #define check_leaf_number(leaf_index,veb_index) do { \
-	assert(veb_get_leaf_number(leaf_index, HEIGHT) == veb_index); \
-	assert(veb_get_leaf_index_of_leaf(veb_index, HEIGHT) == leaf_index); \
-	assert(veb_is_leaf(veb_index, HEIGHT)); \
+	ASSERT(veb_get_leaf_number(leaf_index, HEIGHT) == veb_index); \
+	ASSERT(veb_get_leaf_index_of_leaf(veb_index, HEIGHT) == leaf_index); \
+	ASSERT(veb_is_leaf(veb_index, HEIGHT)); \
 } while (0)
 
 #define check(index,left_n,right_n) do { \
 	const persisted_node node = NODE_POOL[index]; \
-	assert(node.left == left_n && node.right == right_n); \
+	ASSERT(node.left == left_n && node.right == right_n); \
 	veb_pointer lx, rx; \
 	veb_get_children(index, HEIGHT, &lx, &rx); \
-	assert(veb_pointer_to_id(lx) == left_n && veb_pointer_to_id(rx) == right_n); \
+	ASSERT(veb_pointer_to_id(lx) == left_n && veb_pointer_to_id(rx) == right_n); \
 } while (0)
 
 static void build_with_height(uint64_t height) {
@@ -142,13 +142,13 @@ static void test_drilldown_level_data() {
 	veb_level_data r;
 	// 0 = forbidden (root) level
 	r = veb_get_level_data(2, 1);
-	assert(r.top_size == 1 && r.bottom_size == 1 && r.top_depth == 0);
+	ASSERT(r.top_size == 1 && r.bottom_size == 1 && r.top_depth == 0);
 
 	// 0 = forbidden (root) level
 	r = veb_get_level_data(3, 1);
-	assert(r.top_size == 1 && r.bottom_size == 3 && r.top_depth == 0);
+	ASSERT(r.top_size == 1 && r.bottom_size == 3 && r.top_depth == 0);
 	r = veb_get_level_data(3, 2);
-	assert(r.top_size == 1 && r.bottom_size == 1 && r.top_depth == 1);
+	ASSERT(r.top_size == 1 && r.bottom_size == 1 && r.top_depth == 1);
 
 	// 0 = forbidden (root) level
 	//

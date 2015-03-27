@@ -54,8 +54,8 @@ static void doesnt_delete_at_first(const dict_api* api) {
 	dict* table;
 	init(&table, api);
 
-	assert(dict_delete(table, 1));
-	assert(dict_delete(table, 2));
+	ASSERT(dict_delete(table, 1));
+	ASSERT(dict_delete(table, 2));
 
 	dict_destroy(&table);
 }
@@ -66,16 +66,16 @@ static void check_equivalence(dict* instance, uint64_t N,
 	for (uint64_t i = 0; i < N; i++) {
 		uint64_t value;
 		bool key_present;
-		assert(!dict_find(instance, keys[i], &value, &key_present));
+		ASSERT(!dict_find(instance, keys[i], &value, &key_present));
 		if (present[i]) {
 			CHECK(key_present, "expected to find %" PRIu64 "=%" PRIu64 ", "
 						"but no such key found",
 						keys[i], values[i]);
 		} else {
-			assert(!key_present);
+			ASSERT(!key_present);
 		}
 		if (key_present) {
-			assert(value == values[i]);
+			ASSERT(value == values[i]);
 		}
 	}
 }

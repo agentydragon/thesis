@@ -52,7 +52,8 @@ static int parse_option(int key, char *arg, struct argp_state *state) {
 			if (found == NULL) {
 				log_fatal("no such dict api: %s", token);
 			}
-			assert(i < COUNTOF(FLAGS.measured_apis));
+			CHECK(i < COUNTOF(FLAGS.measured_apis),
+					"too many APIs to measure");
 			FLAGS.measured_apis[i] = found;
 		}
 		FLAGS.measured_apis[i] = NULL;
@@ -97,5 +98,5 @@ void parse_flags(int argc, char** argv) {
 		.args_doc = NULL, .doc = NULL, .children = NULL,
 		.help_filter = NULL, .argp_domain = NULL
 	};
-	assert(!argp_parse(&argp, argc, argv, 0, 0, 0));
+	CHECK(!argp_parse(&argp, argc, argv, 0, 0, 0), "argp failed");
 }

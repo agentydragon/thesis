@@ -9,14 +9,14 @@
 static void assert_found(htable* this, uint64_t key, uint64_t value) {
 	uint64_t _value;
 	bool _found;
-	assert(htable_find(this, key, &_value, &_found) == 0);
-	assert(_found && _value == value);
+	ASSERT(htable_find(this, key, &_value, &_found) == 0);
+	ASSERT(_found && _value == value);
 }
 
 static void assert_not_found(htable* this, uint64_t key) {
 	bool _found;
-	assert(htable_find(this, key, NULL, &_found) == 0);
-	assert(!_found);
+	ASSERT(htable_find(this, key, NULL, &_found) == 0);
+	ASSERT(!_found);
 }
 
 void htable_test_find() {

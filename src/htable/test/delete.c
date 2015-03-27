@@ -16,11 +16,11 @@ static void assert_block_internal(const char* header, const htable_block* found,
 					found->keys[slot], expected.keys[slot]);
 		}
 	}
-	assert(memcmp(found->values, expected.values,
+	ASSERT(memcmp(found->values, expected.values,
 				sizeof(expected.values)) == 0);
-	assert(memcmp(found->occupied, expected.occupied,
+	ASSERT(memcmp(found->occupied, expected.occupied,
 				sizeof(expected.occupied)) == 0);
-	assert(found->keys_with_hash == expected.keys_with_hash);
+	ASSERT(found->keys_with_hash == expected.keys_with_hash);
 }
 
 #define assert_block(found,expected) do { \
@@ -98,8 +98,8 @@ static void test_shortening_chains() {
 		.hash_fn_override_opaque = hash_pairs
 	};
 
-	assert(htable_delete(&this, 11) == 0);
-	assert(this.pair_count == 10);
+	ASSERT(htable_delete(&this, 11) == 0);
+	ASSERT(this.pair_count == 10);
 
 	const htable_block expected[4] = {
 		{

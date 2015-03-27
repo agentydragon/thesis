@@ -14,15 +14,15 @@
 #define MOCK(x) ((node*) x)
 
 static void assert_pair(node* x, uint8_t index, ksplay_pair expected_pair) {
-	assert(x->pairs[index].key == expected_pair.key);
-	assert(x->pairs[index].value == expected_pair.value);
+	ASSERT(x->pairs[index].key == expected_pair.key);
+	ASSERT(x->pairs[index].value == expected_pair.value);
 }
 
 #define assert_pairs(x,...) do { \
 	ksplay_node* _node = x; \
 	ksplay_pair _pairs[] = { __VA_ARGS__ }; \
 	const uint8_t _key_count = ksplay_node_key_count(_node); \
-	assert(_key_count == COUNT_OF(_pairs)); \
+	ASSERT(_key_count == COUNT_OF(_pairs)); \
 	for (uint64_t i = 0; i < COUNT_OF(_pairs); ++i) { \
 		assert_pair(_node, i, _pairs[i]); \
 	} \
@@ -30,7 +30,7 @@ static void assert_pair(node* x, uint8_t index, ksplay_pair expected_pair) {
 
 static void _assert_children(node* x, node** children, uint64_t child_count) {
 	for (uint64_t i = 0; i < child_count; ++i) {
-		assert(x->children[i] == children[i]);
+		ASSERT(x->children[i] == children[i]);
 	}
 }
 
@@ -49,14 +49,14 @@ static void _assert_children(node* x, node** children, uint64_t child_count) {
 			_node->pairs[i].key = UINT64_MAX; \
 		} \
 	} \
-	assert(ksplay_node_key_count(_node) == COUNT_OF(_pairs)); \
+	ASSERT(ksplay_node_key_count(_node) == COUNT_OF(_pairs)); \
 } while (0)
 
 #define set_children(x,...) do { \
 	node* _node = (x); \
 	node* _children[] = { __VA_ARGS__ }; \
 	const uint8_t _key_count = ksplay_node_key_count(_node); \
-	assert(COUNT_OF(_children) == _key_count + 1); \
+	ASSERT(COUNT_OF(_children) == _key_count + 1); \
 	for (uint8_t i = 0; i < COUNT_OF(_children); ++i) { \
 		_node->children[i] = _children[i]; \
 	} \
@@ -74,10 +74,10 @@ static void test_nonfull_compose() {
 
 	node* root = ksplay_compose(&pool, pairs, children, COUNT_OF(pairs));
 
-	assert(root == &new_root);
+	ASSERT(root == &new_root);
 	assert_pairs(root, PAIR(10), PAIR(20));
 	assert_children(root, MOCK('a'), MOCK('b'), MOCK('c'));
-	assert(pool.remaining == 0);
+	ASSERT(pool.remaining == 0);
 }
 
 static void test_walk_to() {
@@ -99,8 +99,8 @@ static void test_walk_to() {
 
 	ksplay tree = { .root = &root };
 	ksplay_node_buffer stack = ksplay_walk_to(&tree, 47);
-	assert(stack.count == 4);
-	assert(stack.nodes[0] == &root && stack.nodes[1] == &c &&
+	ASSERT(stack.count == 4);
+	ASSERT(stack.nodes[0] == &root && stack.nodes[1] == &c &&
 			stack.nodes[2] == &b && stack.nodes[3] == &a);
 	free(stack.nodes);
 }
@@ -120,7 +120,7 @@ static void test_exact_compose() {
 	node* pool_nodes[] = { &new_root, &new_left, &new_middle, &new_right };
 	pool.nodes = pool_nodes;
 	node* root = ksplay_compose(&pool, pairs, children, COUNT_OF(pairs));
-	assert(pool.remaining == 0);
+	ASSERT(pool.remaining == 0);
 
 	assert_pairs(root, PAIR(30), PAIR(60));
 	node *left = root->children[0], *middle = root->children[1],
@@ -205,8 +205,8 @@ static void test_mixed_compose() {
 	node* child = root->children[0];
 	assert_pairs(child, PAIR(10), PAIR(20));
 	assert_children(child, MOCK('a'), MOCK('b'), MOCK('c'));
-	assert(root->children[1] == MOCK('d'));
-	assert(root->children[2] == MOCK('e'));
+	ASSERT(root->children[1] == MOCK('d'));
+	ASSERT(root->children[2] == MOCK('e'));
 }
 
 static void test_compose() {
@@ -220,8 +220,8 @@ static void test_compose() {
 #define assert_pairs_equal(pairs,...) do { \
 	ksplay_pair _expected[] = { __VA_ARGS__ }; \
 	for (uint64_t i = 0; i < COUNT_OF(_expected); ++i) { \
-		assert(_expected[i].key == pairs[i].key); \
-		assert(_expected[i].value == pairs[i].value); \
+		ASSERT(_expected[i].key == pairs[i].key); \
+		ASSERT(_expected[i].value == pairs[i].value); \
 	} \
 } while (0)
 
@@ -246,10 +246,10 @@ static void test_flatten() {
 	uint64_t key_count;
 	ksplay_flatten(&stack, pairs, children, &key_count);
 
-	assert(key_count == 5);
+	ASSERT(key_count == 5);
 	assert_pairs_equal(pairs, PAIR(10), PAIR(20), PAIR(50), PAIR(100),
 			PAIR(500));
-	assert(children[0] == MOCK('E') && children[1] == MOCK('C') &&
+	ASSERT(children[0] == MOCK('E') && children[1] == MOCK('C') &&
 			children[2] == MOCK('D') && children[3] == MOCK('A') &&
 			children[4] == MOCK('B') && children[5] == MOCK('F'));
 }
@@ -257,14 +257,14 @@ static void test_flatten() {
 #define assert_not_found(key) do { \
 	bool _found; \
 	ksplay_find(tree, key, NULL, &_found); \
-	assert(!_found); \
+	ASSERT(!_found); \
 } while (0)
 
 #define assert_found(key,value) do { \
 	bool _found; \
 	uint64_t _found_value; \
 	ksplay_find(tree, key, &_found_value, &_found); \
-	assert(_found && _found_value == value); \
+	ASSERT(_found && _found_value == value); \
 } while (0)
 
 static void test_insert() {

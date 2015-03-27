@@ -2,30 +2,31 @@
 
 #include <assert.h>
 
+#include "log/log.h"
 #include "measurement/stopwatch.h"
 
 static void iterate_ltr(dict* dict) {
 	uint64_t min = 0;
 	bool found;
-	assert(!dict_find(dict, min, NULL, &found));
+	ASSERT(!dict_find(dict, min, NULL, &found));
 	if (!found) {
-		assert(!dict_next(dict, min, &min, &found));
+		ASSERT(!dict_next(dict, min, &min, &found));
 	}
 
 	uint64_t current_key = min;
 	while (found) {
 		uint64_t value;
-		assert(!dict_find(dict, current_key, &value, &found));
-		assert(found);
+		ASSERT(!dict_find(dict, current_key, &value, &found));
+		ASSERT(found);
 		// We don't really care what value did we get, but we
 		// still don't want to pass NULL, because we want
 		// the dictionary to fetch us the value.
 		(void) value;
 
 		uint64_t next_key;
-		assert(!dict_next(dict, current_key, &next_key, &found));
+		ASSERT(!dict_next(dict, current_key, &next_key, &found));
 		if (found) {
-			assert(next_key > current_key);
+			ASSERT(next_key > current_key);
 		}
 		current_key = next_key;
 	}

@@ -87,14 +87,14 @@ static void event_fd_stop(int fd) {
 
 static uint64_t event_fd_read(int fd) {
 	uint64_t result;
-	assert(read(fd, &result, sizeof(result)) == sizeof(result));
+	ASSERT(read(fd, &result, sizeof(result)) == sizeof(result));
 	return result;
 }
 
 measurement* measurement_begin() {
 	measurement* m = malloc(sizeof(measurement));
 	m->fds = calloc(COUNT_OF(counters), sizeof(int));
-	assert(m->fds);
+	ASSERT(m->fds);
 	for (uint64_t i = 0; i < COUNT_OF(counters); ++i) {
 		int fd = event_fd_open(counters[i].perf_type,
 				counters[i].perf_config);
@@ -115,9 +115,9 @@ measurement_results* measurement_end(measurement* m) {
 		event_fd_stop(m->fds[i]);
 	}
 	measurement_results* results = malloc(sizeof(measurement_results));
-	assert(results);
+	ASSERT(results);
 	results->counters = calloc(COUNT_OF(counters), sizeof(uint64_t));
-	assert(results->counters);
+	ASSERT(results->counters);
 	for (uint64_t i = 0; i < COUNT_OF(counters); ++i) {
 		results->counters[i] = event_fd_read(m->fds[i]);
 		close(m->fds[i]);

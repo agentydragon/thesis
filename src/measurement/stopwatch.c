@@ -1,10 +1,10 @@
-#include "stopwatch.h"
+#include "measurement/stopwatch.h"
 
-#include <assert.h>
+#include "log/log.h"
 
 stopwatch stopwatch_start() {
 	stopwatch this;
-	assert(clock_gettime(CLOCK_REALTIME, &this.started_at) == 0);
+	ASSERT(clock_gettime(CLOCK_REALTIME, &this.started_at) == 0);
 	return this;
 }
 
@@ -16,7 +16,7 @@ static uint64_t timespec_diff_ns(struct timespec t1, struct timespec t2) {
 
 uint64_t stopwatch_read_ns(stopwatch this) {
 	struct timespec now;
-	assert(clock_gettime(CLOCK_REALTIME, &now) == 0);
+	ASSERT(clock_gettime(CLOCK_REALTIME, &now) == 0);
 	return timespec_diff_ns(now, this.started_at);
 }
 

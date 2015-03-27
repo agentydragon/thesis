@@ -41,4 +41,17 @@ void log_fatal(const char* format, ...) __attribute__((noreturn));
 	} \
 } while (0)
 
+#include "util/likeliness.h"
+
+// A bit like assert(x), but evaluated even with NDEBUG.
+#ifdef NDEBUG
+#define ASSERT(x) do { \
+	if (unlikely(!(x))) { \
+		log_fatal("ASSERT(%s) failed: %s:%d", #x, __FILE__, __LINE__); \
+	} \
+} while (0)
+#else
+#define ASSERT(x) assert(x)
+#endif
+
 #endif

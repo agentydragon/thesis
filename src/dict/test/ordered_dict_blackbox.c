@@ -11,7 +11,7 @@
 static void assert_map(dict* instance, uint64_t key, uint64_t value) {
 	bool _found;
 	uint64_t _found_value;
-	assert(!dict_find(instance, key, &_found_value, &_found));
+	ASSERT(!dict_find(instance, key, &_found_value, &_found));
 	if (!_found) {
 		log_fatal("expected to find %" PRIu64 "=%" PRIu64 ", "
 				"but no such key found",
@@ -28,11 +28,11 @@ static void assert_next_key(dict* instance,
 		uint64_t key, uint64_t next_key) {
 	bool found;
 	uint64_t found_key;
-	assert(!dict_next(instance, key, &found_key, &found));
+	ASSERT(!dict_next(instance, key, &found_key, &found));
 	if (next_key != NIL) {
 		CHECK(found, "no next key for %" PRIu64 ", expected "
 					"%" PRIu64, key, next_key);
-		assert(next_key == found_key);
+		ASSERT(next_key == found_key);
 	} else {
 		CHECK(!found, "found next key %" PRIu64 " for %" PRIu64 ", "
 				"expecting none", next_key, key);
@@ -43,13 +43,13 @@ static void assert_previous_key(dict* instance,
 		uint64_t key, uint64_t previous_key) {
 	bool found;
 	uint64_t found_key;
-	assert(!dict_prev(instance, key, &found_key, &found));
+	ASSERT(!dict_prev(instance, key, &found_key, &found));
 	if (previous_key != NIL) {
 		CHECK(found, "no previous key for %" PRIu64 ", expected "
 					"%" PRIu64, key, previous_key);
-		assert(previous_key == found_key);
+		ASSERT(previous_key == found_key);
 	} else {
-		assert(!found);
+		ASSERT(!found);
 	}
 }
 
@@ -64,7 +64,7 @@ static void check_equivalence(dict* instance, uint64_t N,
 		} else {
 			bool found;
 			uint64_t found_value;
-			assert(!dict_find(instance,
+			ASSERT(!dict_find(instance,
 					keys[i], &found_value, &found));
 			CHECK(!found, "Expected not to find key %" PRIu64 ", "
 					"but it has value %" PRIu64 ".",
@@ -90,7 +90,7 @@ static void check_equivalence(dict* instance, uint64_t N,
 
 static void test_with_maximum_size(const dict_api* api, uint64_t N) {
 	dict* instance;
-	assert(!dict_init(&instance, api, NULL));
+	ASSERT(!dict_init(&instance, api, NULL));
 
 	srand(0);
 	uint64_t *keys = calloc(N, sizeof(uint64_t));
@@ -114,7 +114,7 @@ static void test_with_maximum_size(const dict_api* api, uint64_t N) {
 			for (uint64_t i = 0; ; i = (i + 1) % N) {
 				if (present[i] && rand() % current_size == 0) {
 					// log_info("delete %" PRIu64, keys[i]);
-					assert(!dict_delete(instance, keys[i]));
+					ASSERT(!dict_delete(instance, keys[i]));
 					present[i] = false;
 					--current_size;
 					break;
@@ -125,7 +125,7 @@ static void test_with_maximum_size(const dict_api* api, uint64_t N) {
 			for (uint64_t i = 0; ; i = (i + 1) % N) {
 				if (!present[i] && rand() % (N - current_size) == 0) {
 					values[i] = rand();
-					assert(!dict_insert(instance, keys[i], values[i]));
+					ASSERT(!dict_insert(instance, keys[i], values[i]));
 					// log_info("add %" PRIu64 "=%" PRIu64, keys[i], values[i]);
 					present[i] = true;
 					++current_size;

@@ -5,25 +5,35 @@
 #include <stdlib.h>
 
 #include "log/log.h"
+#include "util/likeliness.h"
 
-static void expand(kforest* this) {
+static int8_t expand(kforest* this) {
 	uint64_t old_capacity = this->tree_capacity;
+	uint64_t new_capacity = this->tree_capacity;
 
-	if (this->tree_capacity < 4) {
-		this->tree_capacity = 4;
+	if (new_capacity < 4) {
+		new_capacity = 4;
 	} else {
-		this->tree_capacity *= 2;
+		new_capacity *= 2;
 	}
-	this->trees = realloc(this->trees, sizeof(btree) * this->tree_capacity);
-	assert(this->trees);
-	this->tree_sizes = realloc(this->tree_sizes, sizeof(uint64_t) *
+	btree* new_trees = realloc(this->trees, sizeof(btree) * new_capacity);
+	if (unlikely(!new_trees)) {
+		return 1;
+	}
+	this->trees = new_trees;
+
+	uint64_t* new_tree_sizes = realloc(this->tree_sizes, sizeof(uint64_t) *
 			this->tree_capacity);
-	assert(this->tree_sizes);
+	if (unlikely(!this->tree_sizes)) {
+		return 1;
+	}
+	this->tree_sizes = new_tree_sizes;
 
 	for (uint64_t i = old_capacity; i < this->tree_capacity; ++i) {
 		btree_init(&this->trees[i]);
 		this->tree_sizes[i] = 0;
 	}
+	return 0;
 }
 
 static uint64_t tree_capacity(uint64_t tree_index) {
@@ -67,16 +77,19 @@ static void check_invariants(kforest* this) {
 }
 */
 
-void kforest_init(kforest* this) {
+int8_t kforest_init(kforest* this) {
 	log_info("kforest_init(%p)", this);
 
 	this->tree_capacity = 0;
 	this->trees = NULL;
 	this->tree_sizes = NULL;
-	expand(this);
+	if (expand(this)) {
+		return 1;
+	}
 
 	// Seed RNG.
 	this->rng.state = 42;
+	return 0;
 }
 
 void kforest_destroy(kforest* this) {
@@ -116,7 +129,7 @@ static void get_random_pair(rand_generator* generator, btree* tree,
 static void drop_random_pair(rand_generator* generator, btree* tree,
 		uint64_t *dropped_key, uint64_t *dropped_value) {
 	get_random_pair(generator, tree, dropped_key, dropped_value);
-	assert(btree_delete(tree, *dropped_key) == 0);
+	ASSERT(btree_delete(tree, *dropped_key) == 0);
 }
 
 static void make_space(kforest* this) {
@@ -136,7 +149,7 @@ static void make_space(kforest* this) {
 		//log_info("moving %" PRIu64 "=%" PRIu64 " from tree %" PRIu64 " "
 		//		"to tree %" PRIu64, key, value, tree, tree + 1);
 
-		assert(btree_insert(&this->trees[tree + 1], key, value) == 0);
+		ASSERT(btree_insert(&this->trees[tree + 1], key, value) == 0);
 		++this->tree_sizes[tree + 1];
 
 		//max_touched = tree + 2;
@@ -163,13 +176,13 @@ tree_found:
 		*value = value_found;
 	}
 
-	assert(btree_delete(&this->trees[tree], key) == 0);
+	ASSERT(btree_delete(&this->trees[tree], key) == 0);
 	--this->tree_sizes[tree];
 
 	make_space(this);
 
 	// Promote to tree 0.
-	assert(btree_insert(&this->trees[0], key, value_found) == 0);
+	ASSERT(btree_insert(&this->trees[0], key, value_found) == 0);
 	++this->tree_sizes[0];
 
 	//dump(this);
@@ -193,7 +206,7 @@ int8_t kforest_insert(kforest* this, uint64_t key, uint64_t value) {
 
 	make_space(this);
 
-	assert(btree_insert(&this->trees[0], key, value) == 0);
+	ASSERT(btree_insert(&this->trees[0], key, value) == 0);
 	++this->tree_sizes[0];
 
 	//btree_dump_dot(&this->trees[0], stdout);
@@ -214,7 +227,7 @@ int8_t kforest_delete(kforest* this, uint64_t key) {
 		return 1;
 	}
 
-	assert(btree_delete(&this->trees[0], key) == 0);
+	ASSERT(btree_delete(&this->trees[0], key) == 0);
 	--this->tree_sizes[0];
 
 	for (uint64_t tree = 0; tree + 1 < this->tree_capacity; ++tree) {
@@ -223,7 +236,7 @@ int8_t kforest_delete(kforest* this, uint64_t key) {
 			drop_random_pair(&this->rng, &this->trees[tree + 1],
 					&shift_key, &shift_value);
 			--this->tree_sizes[tree + 1];
-			assert(btree_insert(&this->trees[tree], shift_key,
+			ASSERT(btree_insert(&this->trees[tree], shift_key,
 						shift_value) == 0);
 			++this->tree_sizes[tree];
 		}

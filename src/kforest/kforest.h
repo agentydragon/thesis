@@ -24,7 +24,8 @@ typedef struct {
 	rand_generator rng;
 } kforest;
 
-void kforest_init(kforest*);
+// TODO: "must_use_result"
+int8_t kforest_init(kforest*);
 void kforest_destroy(kforest*);
 
 void kforest_find(kforest*, uint64_t key, uint64_t *value, bool *found);

@@ -218,7 +218,6 @@ static void __attribute__((unused)) veb_get_children_UNCACHED(uint64_t node, uin
 		const uint64_t nodes_in_bottom_block =
 			m_exp2(bottom_height) - 1;
 		const uint64_t leaves_per_bottom_block = m_exp2(bottom_height);
-		const uint64_t number_of_bottom_blocks = m_exp2(top_height);
 
 		if (node < node_start + nodes_in_top_block) {
 			height = top_height;
@@ -230,7 +229,7 @@ static void __attribute__((unused)) veb_get_children_UNCACHED(uint64_t node, uin
 
 			const uint64_t bottom_block_index =
 					(node - node_start) / nodes_in_bottom_block;
-			assert(bottom_block_index < number_of_bottom_blocks);
+			assert(bottom_block_index < m_exp2(top_height));
 			height = bottom_height;
 			node_start += nodes_in_bottom_block * bottom_block_index;
 			leaf_source.node += leaf_stride * leaves_per_bottom_block * bottom_block_index;
@@ -251,7 +250,6 @@ recursive_call:
 		split_height(height, &bottom_height, &top_height);
 
 		const uint64_t nodes_in_top_block = m_exp2(top_height) - 1;
-		const uint64_t number_of_bottom_blocks = m_exp2(top_height);
 		const uint64_t nodes_in_bottom_block =
 			m_exp2(bottom_height) - 1;
 
@@ -262,7 +260,7 @@ recursive_call:
 
 		// TODO: Optimize away this loop.
 		const uint64_t bottom_block_index = (node - node_start) / nodes_in_bottom_block;
-		assert(bottom_block_index < number_of_bottom_blocks);
+		assert(bottom_block_index < m_exp2(top_height));
 		node_start += nodes_in_bottom_block * bottom_block_index;
 		height = bottom_height;
 		goto recursive_call;

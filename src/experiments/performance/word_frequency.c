@@ -61,13 +61,13 @@ static void add_word(dict* dict, char* word) {
 
 	bool found;
 	uint64_t count;
-	assert(!dict_find(dict, key, &count, &found));
+	ASSERT(!dict_find(dict, key, &count, &found));
 
 	if (found) {
-		assert(!dict_delete(dict, key));
-		assert(!dict_insert(dict, key, count + 1));
+		ASSERT(!dict_delete(dict, key));
+		ASSERT(!dict_insert(dict, key, count + 1));
 	} else {
-		assert(!dict_insert(dict, key, 1));
+		ASSERT(!dict_insert(dict, key, 1));
 	}
 }
 
@@ -75,7 +75,7 @@ static void report_count(dict* dict, const char* word) {
 	uint64_t key = hash_word(word);
 	bool found;
 	uint64_t value;
-	assert(!dict_find(dict, key, &value, &found));
+	ASSERT(!dict_find(dict, key, &value, &found));
 	if (found) {
 		log_info("%s: found %" PRIu64 " times", word, value);
 	} else {

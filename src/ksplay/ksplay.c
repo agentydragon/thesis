@@ -498,15 +498,19 @@ static node* compose_threelevel(ksplay_node_pool *pool,
 	assert(key_count - lower_level <= KSPLAY_K);
 	node* middle = compose_twolevel(pool, pairs, children, lower_level);
 
+#ifndef NDEBUG
 	const uint8_t root_key_count = key_count - lower_level;
 	assert(root_key_count > 0);
+#endif
 	node* root = pool_acquire(pool);
 	root->children[0] = middle;
 	for (uint64_t i = lower_level; i < key_count; ++i) {
 		root->pairs[i - lower_level] = pairs[i];
 		root->children[i - lower_level + 1] = children[i + 1];
 	}
+#ifndef NDEBUG
 	assert(root_key_count == node_key_count(root));
+#endif
 	return root;
 }
 
@@ -563,15 +567,23 @@ static ksplay_node_buffer buffer_suffix(ksplay_node_buffer buffer,
 }
 
 static void replace_pointer(node* haystack, node* needle, node* replacement) {
+#ifndef NDEBUG
 	bool done = false;
+#endif
 	for (uint64_t i = 0; i <= node_key_count(haystack); ++i) {
 		if (haystack->children[i] == needle) {
-			assert(!done);
 			haystack->children[i] = replacement;
-			done = true;
+			#ifndef NDEBUG
+				assert(!done);
+				done = true;
+			#else
+				return;
+			#endif
 		}
 	}
+#ifndef NDEBUG
 	assert(done);
+#endif
 }
 
 // Does a single K-splaying step on the stack.

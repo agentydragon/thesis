@@ -1,14 +1,16 @@
 #ifndef RAND_C
 #define RAND_C
 
-#include "rand.h"
+#include "rand/rand.h"
+
+#include "log/log.h"
 
 #include <assert.h>
 #include <time.h>
 
 void rand_seed_with_time(rand_generator* generator) {
 	struct timespec now;
-	assert(clock_gettime(CLOCK_REALTIME, &now) == 0);
+	ASSERT(clock_gettime(CLOCK_REALTIME, &now) == 0);
 	generator->state = now.tv_sec * 1000000000LL + now.tv_nsec;
 }
 

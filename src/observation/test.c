@@ -16,16 +16,16 @@ static void run_events(observation* observation) {
 	dict* tapped_dict;
 	observation_tap(observation, example, &tapped_dict);
 
-	assert(!dict_find(tapped_dict, 1, NULL, NULL));
-	assert(!dict_find(tapped_dict, 2, NULL, NULL));
-	assert(!dict_insert(tapped_dict, 1, 100));
-	assert(!dict_insert(tapped_dict, 2, 250));
-	assert(!dict_find(tapped_dict, 2, NULL, NULL));
-	assert(!dict_delete(tapped_dict, 2));
-	assert(!dict_insert(tapped_dict, 2, 200));
-	assert(!dict_find(tapped_dict, 2, NULL, NULL));
-	assert(!dict_insert(tapped_dict, 3, 300));
-	assert(!dict_delete(tapped_dict, 3));
+	ASSERT(!dict_find(tapped_dict, 1, NULL, NULL));
+	ASSERT(!dict_find(tapped_dict, 2, NULL, NULL));
+	ASSERT(!dict_insert(tapped_dict, 1, 100));
+	ASSERT(!dict_insert(tapped_dict, 2, 250));
+	ASSERT(!dict_find(tapped_dict, 2, NULL, NULL));
+	ASSERT(!dict_delete(tapped_dict, 2));
+	ASSERT(!dict_insert(tapped_dict, 2, 200));
+	ASSERT(!dict_find(tapped_dict, 2, NULL, NULL));
+	ASSERT(!dict_insert(tapped_dict, 3, 300));
+	ASSERT(!dict_delete(tapped_dict, 3));
 
 	dict_destroy(&tapped_dict);
 	dict_destroy(&example);
@@ -41,12 +41,12 @@ static void replay_events(observation* observation) {
 
 	uint64_t value;
 	bool found;
-	assert(!dict_find(replay_on, 1, &value, &found));
-	assert(found && value == 100);
-	assert(!dict_find(replay_on, 2, &value, &found));
-	assert(found && value == 200);
-	assert(!dict_find(replay_on, 3, &value, &found));
-	assert(!found);
+	ASSERT(!dict_find(replay_on, 1, &value, &found));
+	ASSERT(found && value == 100);
+	ASSERT(!dict_find(replay_on, 2, &value, &found));
+	ASSERT(found && value == 200);
+	ASSERT(!dict_find(replay_on, 3, &value, &found));
+	ASSERT(!found);
 
 	dict_destroy(&replay_on);
 }

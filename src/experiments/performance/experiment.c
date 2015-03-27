@@ -23,8 +23,8 @@ static void insert(dict* dict, uint64_t key, uint64_t value) {
 void check_contains(dict* dict, uint64_t key, uint64_t value) {
 	uint64_t found_value;
 	bool found;
-	assert(!dict_find(dict, key, &found_value, &found));
-	assert(found && found_value == value);
+	ASSERT(!dict_find(dict, key, &found_value, &found));
+	ASSERT(found && found_value == value);
 }
 
 dict* seed(const dict_api* api, uint64_t size) {
