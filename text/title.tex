@@ -1,34 +1,3 @@
-%%% Title page of the thesis and other mandatory pages
-
-%%% Minor tweaks of style
-
-% These macros employ a little dirty trick to convince LaTeX to typeset
-% chapter headings sanely, without lots of empty space above them.
-% Feel free to ignore.
-\makeatletter
-\def\@makechapterhead#1{
-  {\parindent \z@ \raggedright \normalfont
-   \Huge\bfseries \thechapter. #1
-   \par\nobreak
-   \vskip 20\p@
-}}
-\def\@makeschapterhead#1{
-  {\parindent \z@ \raggedright \normalfont
-   \Huge\bfseries #1
-   \par\nobreak
-   \vskip 20\p@
-}}
-\makeatother
-
-% This macro defines a chapter, which is not numbered, but is included
-% in the table of contents.
-\def\chapwithtoc#1{
-\chapter*{#1}
-\addcontentsline{toc}{chapter}{#1}
-}
-
-\begin{document}
-
 % Somewhat relaxed hyphenation
 \lefthyphenmin=2
 \righthyphenmin=2

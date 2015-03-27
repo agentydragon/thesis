@@ -33,7 +33,10 @@ Every tree, with the possible exception of the last one, is kept full,
 so tree $T_1$ has height 1, $T_2$ has height 2, $T_3$ has height 4, and so on.
 Each key-value pair inserted into the data structure is always kept in one
 tree $T_i$. The self-adjusting operation moves elements between trees to
-keep more recently or more frequently accessed elements in lower, smaller trees.
+keep more recently accessed elements in lower, smaller trees.
+A deterministic version of this operation keeps the $s(1)$ most recently
+accessed items in tree $T_1$, then the next $s(2)$ most recently accessed
+items in $T_2$, and so on.
 
 To \textsc{Find} a key, we scan the trees $T_i$ in increasing order of $i$.
 If we scan all trees and find no matches, the search is unsuccessful.
@@ -58,4 +61,4 @@ until the forest is fixed.
 \textsc{Delete} finds the pair in its tree $T_i$ and removes it, and
 then promotes items from all trees $T_{i+1},T_{i+2},\ldots$
 
-
+% TODO: theorems about speeds of finds, inserts, deletes
