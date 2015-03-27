@@ -31,3 +31,55 @@ Integrace:
 - MMAP na disk - jsou tam vetsi bloky a vic zabavy
 - existuje neco jako "paralelne precti 2 mista v pameti"?
 	- z experimentu s nahodnym ctenim to tak vypadalo...
+
+===========
+
+- potrebuju vedet, jakou mam ted rychlost:
+	- at je velikost 5 000 000
+
+	=> kolik se provede prumerne cache missu na read?
+
+- potrebuju vedet, jakou mam spotrebu prostoru:
+	- at je velikost 5 000 000
+
+	=> kolik prumerne bytu zabiram na jeden par klic-hodnota?
+
+- implicit assertion: 64 B staci na pointer
+
+TODO: one-pass distribution
+TODO: scrapegoat tree, AVL tree
+
+TODO: cache-oblivious priority queue
+
+TODO: cache-line-aligned COBT? (neco jako 8-cestny implicitni strom)
+
+specify alignment of ptrs?
+align to cache line?
+
+vector ops
+
+TODO: custom allocator
+TODO: SIMD hledani v B-stromu
+TODO: hashovani - urcite kukackove
+
+TODO instrumentovat nejaky projekt
+TODO zacit podporovat rank/select? (mohly by se pro to najit nejake aplikace)
+
+TODO: musim delat updaty v poradi post-order
+
+https://bitbucket.org/coriolan/van-emde-boas-layout/src/e553e4612da2c24dfdab1367836facc5a15ba1f4/veb.c?at=default
+https://github.com/bcopeland/em_misc/blob/master/cobtree_sh.c
+http://www.cs.utexas.edu/~pingali/CS395T/2013fa/lectures/MemoryOptimizations_2013.pdf
+http://supertech.csail.mit.edu/cacheObliviousBTree.html
+
+a density control algorithm for doing insertions and deletions in a sequentially ordered file in good worst-case time
+
+TODO: oficialni performance countery v procesoru (ne nutne ty, co exposuje perf)
+TODO: pridat do zdrojaku par restrictu
+
+- jaky programovaci jazyk?
+
+- zalezi na tom, kdyz budu vracet krome prev_key/next_key i pozici, kde ten klic je?
+	- mozna bych tim usporil nejaky procesorovy cas pri dalsim hledani
+
+- ofm by mel realokovat, ne alokovat cely novy soubor
