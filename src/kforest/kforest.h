@@ -4,6 +4,8 @@
 #include "btree/btree.h"
 #include "rand/rand.h"
 
+// TODO: Optimize - don't delete when match is in tree 1.
+
 // We want the individual trees in the forest to be k-ary,
 // so we are bound to B-trees.
 // TODO: Can we genericize this?

@@ -18,6 +18,7 @@ This matches the performance of B-trees for $B=\Omega(\log N\log\log N)$.
 The original cache-oblivious B-tree as described in \cite{cobt} used
 weight-balanced B-trees. We implement a simplified version of the structure
 introduced in \cite{brodal01}, which is composed of three components.
+% TODO: nevadi ze tady jsou data obracene?
 The \textit{van Emde Boas layout} of binary trees is a way of cache-obliviously
 maintaining full binary trees in memory such that reading or updating any
 root-to-leaf path in root-to-leaf or leaf-to-root order takes $\Theta(\log_B N)$
