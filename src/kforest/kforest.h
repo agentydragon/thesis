@@ -13,6 +13,9 @@ typedef struct {
 	uint8_t tree_capacity;
 
 	// The capacity of tree [i] is KFOREST_K^(2^i) - 1.
+	// TODO: All B-trees but the last one are full, so we could probably
+	// drop the pointers to get faster searches. That might mean some
+	// more trouble with replacing, through.
 	btree* trees;
 	uint64_t* tree_sizes;
 

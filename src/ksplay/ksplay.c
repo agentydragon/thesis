@@ -917,7 +917,7 @@ static void _dump_dot(node* current_node, FILE* output) {
 }
 
 void ksplay_dump_dot(const ksplay* this, FILE* output) {
-	fprintf(output, "digraph ksplay {\n");
+	fprintf(output, "digraph ksplay_%p {\n", this);
 	fprintf(output, "    node [shape = record, height = .1];\n");
 	_dump_dot(this->root, output);
 	fprintf(output, "}\n");

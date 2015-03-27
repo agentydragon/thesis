@@ -363,7 +363,9 @@ void btree_find(btree* this, uint64_t key, uint64_t *value, bool *found) {
 	for (uint8_t i = 0; i < get_n_leaf_keys(node.persisted); i++) {
 		if (node.persisted->leaf.keys[i] == key) {
 			*found = true;
-			*value = node.persisted->leaf.values[i];
+			if (value) {
+				*value = node.persisted->leaf.values[i];
+			}
 			return;
 		}
 	}
@@ -658,4 +660,57 @@ static void find_siblings(btree_node_persisted* node,
 		}
 		log_fatal("node not found in parent when looking for sibling");
 	}
+}
+
+static void _dump_dot(btree_node_traversed node, FILE* output) {
+	fprintf(output, "    node%p[label = \"{%p|{",
+			node.persisted, node.persisted);
+
+	if (nt_is_leaf(node)) {
+		for (uint8_t i = 0; i < get_n_leaf_keys(node.persisted); ++i) {
+			if (i != 0) {
+				fprintf(output, "|");
+			}
+			fprintf(output, "%" PRIu64 "=%" PRIu64,
+					node.persisted->leaf.keys[i],
+					node.persisted->leaf.values[i]);
+		}
+	} else {
+		for (uint8_t i = 0; i < get_n_internal_keys(node.persisted);
+				++i) {
+			fprintf(output, "<child%d>|%" PRIu64 "|",
+					i, node.persisted->internal.keys[i]);
+		}
+		fprintf(output, "<child%d>}}\"];\n", get_n_internal_keys(node.persisted));
+	}
+	fprintf(output, "}}\"];\n");
+
+	if (!nt_is_leaf(node)) {
+		for (uint8_t i = 0; i < get_n_internal_keys(node.persisted);
+				++i) {
+			fprintf(output, "    \"node%p\":child%d -> \"node%p\";\n",
+					node.persisted, i, node.persisted->internal.pointers[i]);
+		}
+
+		for (uint8_t i = 0; i < get_n_internal_keys(node.persisted);
+				++i) {
+			btree_node_traversed child = {
+				.persisted = node.persisted->internal.pointers[i],
+				.levels_above_leaves = node.levels_above_leaves - 1
+			};
+			_dump_dot(child, output);
+		}
+	}
+}
+
+void btree_dump_dot(const btree* this, FILE* output) {
+	fprintf(output, "digraph btree_%p {\n", this);
+	fprintf(output, "    node [shape = record, height = .1];\n");
+	// TODO: constness trouble and all, can't use nt_root here :(
+	btree_node_traversed root = {
+		.persisted = this->root,
+		.levels_above_leaves = this->levels_above_leaves
+	};
+	_dump_dot(root, output);
+	fprintf(output, "}\n");
 }

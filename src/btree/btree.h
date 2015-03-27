@@ -1,8 +1,9 @@
 #ifndef BTREE_H
 #define BTREE_H
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
 
 // Enhancement ideas:
 //   - Pointers are aligned, we can drop the ends.
@@ -63,5 +64,7 @@ typedef struct {
 bool nt_is_leaf(btree_node_traversed node);
 btree_node_traversed nt_root(btree* tree);
 uint8_t get_n_leaf_keys(const btree_node_persisted* node);
+
+void btree_dump_dot(const btree* this, FILE* output);
 
 #endif
