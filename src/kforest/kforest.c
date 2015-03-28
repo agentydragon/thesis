@@ -18,21 +18,25 @@ static int8_t expand(kforest* this) {
 	}
 	btree* new_trees = realloc(this->trees, sizeof(btree) * new_capacity);
 	if (unlikely(!new_trees)) {
+		log_error("failed to expand K-forest trees");
 		return 1;
+	}
+	for (uint64_t i = old_capacity; i < new_capacity; ++i) {
+		btree_init(&new_trees[i]);
 	}
 	this->trees = new_trees;
 
 	uint64_t* new_tree_sizes = realloc(this->tree_sizes, sizeof(uint64_t) *
-			this->tree_capacity);
-	if (unlikely(!this->tree_sizes)) {
+			new_capacity);
+	if (unlikely(!new_tree_sizes)) {
+		log_error("failed to expand K-forest tree sizes");
 		return 1;
 	}
-	this->tree_sizes = new_tree_sizes;
-
-	for (uint64_t i = old_capacity; i < this->tree_capacity; ++i) {
-		btree_init(&this->trees[i]);
-		this->tree_sizes[i] = 0;
+	for (uint64_t i = old_capacity; i < new_capacity; ++i) {
+		new_tree_sizes[i] = 0;
 	}
+	this->tree_sizes = new_tree_sizes;
+	this->tree_capacity = new_capacity;
 	return 0;
 }
 
@@ -78,12 +82,12 @@ static void check_invariants(kforest* this) {
 */
 
 int8_t kforest_init(kforest* this) {
-	log_info("kforest_init(%p)", this);
-
 	this->tree_capacity = 0;
 	this->trees = NULL;
 	this->tree_sizes = NULL;
-	if (expand(this)) {
+	if (unlikely(expand(this))) {
+		free(this->trees);
+		free(this->tree_sizes);
 		return 1;
 	}
 
@@ -139,7 +143,7 @@ static void make_space(kforest* this) {
 					this->tree_sizes[tree] > tree_capacity(tree);
 			++tree) {
 		while (tree + 1 >= this->tree_capacity) {
-			expand(this);
+			ASSERT(expand(this) == 0);
 		}
 		uint64_t key, value;
 		assert(this->tree_sizes[tree] > 0);

@@ -9,11 +9,19 @@ static int8_t init(void** _this, void* args_unused) {
 	(void) args_unused;
 	kforest* this = malloc(sizeof(kforest));
 	if (!this) {
+		goto err_1;
 		return 1;
 	}
-	kforest_init(this);
+	if (kforest_init(this)) {
+		goto err_2;
+	}
 	*_this = this;
 	return 0;
+
+err_2:
+	free(this);
+err_1:
+	return 1;
 }
 
 static void destroy(void** _this) {
