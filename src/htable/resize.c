@@ -123,8 +123,9 @@ static int8_t resize(htable* this, uint64_t new_blocks_size) {
 		.blocks_size = new_blocks_size,
 		.pair_count = 0
 	};
-	assert(posix_memalign((void**) &new_this.blocks, 64,
-				sizeof(htable_block) * new_blocks_size) == 0);
+	CHECK(posix_memalign((void**) &new_this.blocks, 64,
+			sizeof(htable_block) * new_blocks_size) == 0,
+			"couldn't allocate aligned memory for htable");
 
 	log_info("resizing to %" PRIu64, new_this.blocks_size);
 

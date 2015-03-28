@@ -125,9 +125,9 @@ int main(int argc, char** argv) {
 		}
 
 		log_verbose(1, "flushing results...");
-		assert(!json_dump_file(json_results,
+		CHECK(!json_dump_file(json_results,
 					"experiments/performance/output/results.json",
-					JSON_INDENT(2)));
+					JSON_INDENT(2)), "cannot dump results");
 		log_verbose(1, "done");
 	}
 	deinit_word_frequency();
