@@ -92,7 +92,7 @@ static int8_t foreach(htable* this,
 		for (uint8_t slot = 0; slot < 3; slot++) {
 			if (current_block->occupied[slot]) {
 				const uint64_t key = current_block->keys[slot],
-					      value = current_block->values[slot];
+						value = current_block->values[slot];
 				if (iterate(opaque, key, value)) {
 					log_error("foreach iteration failed on %ld=%ld",
 							key, value);
