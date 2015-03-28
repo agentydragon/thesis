@@ -16,6 +16,13 @@ code in C.
 I am developing this project on Linux with GCC. It may work somewhere else,
 but only accidentally.
 
+## Documentation
+There is a very little bit of documentation on `doc/`. You can [read it
+online](http://prvak-thesis.readthedocs.org) at
+[http://prvak-thesis.readthedocs.org](http://prvak-thesis.readthedocs.org).
+Depending on how much time do I have when I'm done implementing everything
+I want, I might write some more.
+
 ## Dependencies
 For benchmarking, you need:
 * [jansson](http://www.digip.org/jansson/) for JSON output
