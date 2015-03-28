@@ -44,6 +44,7 @@ void log_fatal(const char* format, ...) __attribute__((noreturn));
 #include "util/likeliness.h"
 
 // A bit like assert(x), but evaluated even with NDEBUG.
+// TODO: Maybe a better name? Something like "MUST_BE_TRUE" might be better.
 #ifdef NDEBUG
 #define ASSERT(x) do { \
 	if (unlikely(!(x))) { \

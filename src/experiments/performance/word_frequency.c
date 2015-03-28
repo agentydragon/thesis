@@ -125,6 +125,7 @@ struct metrics measure_word_frequency(const dict_api* api, uint64_t size) {
 		report_count(dict, "world");
 	}
 
+	dict_destroy(&dict);
 	free(content_copy);
 
 	return (struct metrics) {
