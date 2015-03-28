@@ -111,8 +111,7 @@ struct metrics measure_word_frequency(const dict_api* api, uint64_t size) {
 	}
 
 	if (!ptr) {
-		log_error("ran out of words in word_frequency, "
-				"give me a larger corpus.");
+		log_error("ran out of words, give me a larger corpus.");
 	}
 
 	measurement_results* results = measurement_end(measurement);
