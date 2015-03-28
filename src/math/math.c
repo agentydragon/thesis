@@ -11,6 +11,6 @@ uint64_t ceil_div(uint64_t a, uint64_t b) {
 }
 
 uint8_t exact_log2(uint64_t x) {
-	CHECK(is_pow2(x), "Exact log2 of %" PRIu64 " doesn't exist.");
+	CHECK(is_pow2(x), "Exact log2 of %" PRIu64 " doesn't exist.", x);
 	return floor_log2(x);
 }

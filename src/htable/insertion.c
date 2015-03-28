@@ -23,7 +23,7 @@ int8_t htable_insert_internal(htable* this, uint64_t key, uint64_t value) {
 		for (int8_t slot = 0; slot < 3; slot++) {
 			if (current_block->occupied[slot]) {
 				if (current_block->keys[slot] == key) {
-					log_error("duplicate in bucket %" PRIu64 " "
+					log_verbose(1, "duplicate in bucket %" PRIu64 " "
 						"when inserting %" PRIu64 "=%" PRIu64,
 						index, key, value);
 					return 1;

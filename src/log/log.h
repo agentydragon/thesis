@@ -1,32 +1,39 @@
 #ifndef LOG_H_INCLUDED
 #define LOG_H_INCLUDED
 
-void __log_basic(const char* tag, const char* format, ...)
-		__attribute__((format (printf, 2, 3)));
-void log_fatal(const char* format, ...) __attribute__((noreturn));
+#include <stdlib.h>
+
+void __log_basic(const char* tag, const char* func, const char* file, int line,
+		const char* format, ...) __attribute__((format (printf, 5, 6)));
+void __log_backtrace(int stripped_levels);
 // TODO: log_q(uiet)fatal?
 
-#define CHECK(assertion,message,...) do { \
+#define __log_invoke(tag,fmt,...) do { \
+	__log_basic(tag, __func__, __FILE__, __LINE__, fmt, ##__VA_ARGS__); \
+} while (0)
+
+#define log_fatal(fmt,...) do { \
+	__log_invoke("F", fmt, ##__VA_ARGS__); \
+	__log_backtrace(1); \
+	abort(); \
+} while (0)
+
+
+#define CHECK(assertion,fmt,...) do { \
 	if (!(assertion)) { \
-		log_fatal(message, ##__VA_ARGS__); \
+		log_fatal(fmt, ##__VA_ARGS__); \
 	} \
 } while (0)
 
-#define log_plain(fmt,...) do { \
-	__log_basic(" ", fmt, ##__VA_ARGS__); \
-} while (0)
+#define log_plain(fmt,...) __log_invoke(" ", fmt, ##__VA_ARGS__)
 
 #ifndef NO_LOG_INFO
-#define log_info(fmt,...) do { \
-	__log_basic("i", fmt, ##__VA_ARGS__); \
-} while (0)
+#define log_info(fmt,...) __log_invoke("i", fmt, ##__VA_ARGS__)
 #else
 #define log_info(...) (void)(0)
 #endif
 
-#define log_error(fmt,...) do { \
-	__log_basic("E", fmt, ##__VA_ARGS__); \
-} while (0)
+#define log_error(fmt,...) __log_invoke("E", fmt, ##__VA_ARGS__)
 
 #ifndef LOG_VERBOSITY
 #define LOG_VERBOSITY 0
@@ -37,7 +44,7 @@ void log_fatal(const char* format, ...) __attribute__((noreturn));
 // TODO: other header
 #define log_verbose(level,fmt,...) do { \
 	if (LOG_VERBOSITY >= level) { \
-		__log_basic(" INFO", fmt, ##__VA_ARGS__); \
+		__log_invoke("v", fmt, ##__VA_ARGS__); \
 	} \
 } while (0)
 
@@ -48,7 +55,7 @@ void log_fatal(const char* format, ...) __attribute__((noreturn));
 #ifdef NDEBUG
 #define ASSERT(x) do { \
 	if (unlikely(!(x))) { \
-		log_fatal("ASSERT(%s) failed: %s:%d", #x, __FILE__, __LINE__); \
+		log_fatal("ASSERT(%s) failed", #x); \
 	} \
 } while (0)
 #else

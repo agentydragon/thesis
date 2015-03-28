@@ -47,7 +47,6 @@ void insert_pointer(btree_node_persisted* node, uint64_t key,
 int8_t insert_key_value_pair(btree_node_persisted* node,
 		uint64_t key, uint64_t value);
 
-void btree_dump(btree*);
 void btree_init(btree*);
 int8_t btree_insert(btree*, uint64_t key, uint64_t value);
 int8_t btree_delete(btree*, uint64_t key);

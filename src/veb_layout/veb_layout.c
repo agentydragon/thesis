@@ -133,7 +133,8 @@ void veb_build_cache() {
 		max_cached_height = height;  // OK, cached
 	}
 done:
-	log_info("VEB cache built for heights 1..%" PRIu8, max_cached_height);
+	log_verbose(1, "VEB cache built for heights 1..%" PRIu8,
+			max_cached_height);
 }
 
 void veb_get_children(uint64_t node, uint64_t height,

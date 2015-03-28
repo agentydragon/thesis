@@ -146,7 +146,6 @@ static void test_with_maximum_size(const dict_api* api, uint64_t N) {
 }
 
 void test_ordered_dict_blackbox(const dict_api* api) {
-	log_info("testing ordered dict blackbox");
 	test_with_maximum_size(api, 10);
 	test_with_maximum_size(api, 100);
 	test_with_maximum_size(api, 1000);

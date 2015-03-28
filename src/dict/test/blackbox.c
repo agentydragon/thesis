@@ -165,7 +165,7 @@ static void fails_on_duplicate_insertion(const dict_api* api) {
 }
 
 void test_dict_blackbox(const dict_api* api) {
-	log_info("performing blackbox test on %s", api->name);
+	log_info("testing %s", api->name);
 	has_no_elements_at_first(api);
 	doesnt_delete_at_first(api);
 	fails_on_duplicate_insertion(api);

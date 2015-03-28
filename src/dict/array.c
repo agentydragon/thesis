@@ -76,7 +76,7 @@ static int8_t insert(void* _this, uint64_t key, uint64_t value) {
 	}
 
 	if (found) {
-		log_error("key %ld already present when inserting %ld=%ld",
+		log_verbose(1, "key %ld already present when inserting %ld=%ld",
 				key, key, value);
 		goto err_1;
 	}

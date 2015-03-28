@@ -124,29 +124,6 @@ void btree_destroy(btree* tree) {
 	tree->root = NULL;
 }
 
-static void dump_node_content(btree_node_traversed node, int depth) {
-	(void) node; (void) depth;
-	// TODO: make dumping work again
-	printf("dumping doesn't work\n");
-}
-
-static void dump_recursive(btree_node_traversed node, int depth) {
-	dump_node_content(node, depth);
-	if (!nt_is_leaf(node)) {
-		FOR_EACH_INTERNAL_POINTER(node.persisted, {
-			btree_node_traversed subnode = node;
-			--subnode.levels_above_leaves;
-			subnode.persisted = pointer;
-
-			dump_recursive(subnode, depth + 1);
-		});
-	}
-}
-
-void btree_dump(btree* this) {
-	dump_recursive(nt_root(this), 0);
-}
-
 static void set_new_root(btree* this, uint64_t middle_key,
 		btree_node_persisted* left, btree_node_persisted* right) {
 	this->root = new_fork_node(middle_key, left, right);
@@ -225,14 +202,6 @@ int8_t btree_delete(btree* this, uint64_t key) {
 
 	// TODO: maybe something ultraspecial when deleting pivotal nodes?
 	do {
-		IF_LOG_VERBOSE(1) {
-			log_info("parent:");
-			//if (parent) {
-				//dump_recursive(parent, 0);
-			//}
-			log_info("node:");
-			dump_recursive(node, 1);
-		}
 		if (parent && ((nt_is_leaf(node) && get_n_leaf_keys(node.persisted) == LEAF_MIN_KEYS) ||
 				(!nt_is_leaf(node) && get_n_internal_keys(node.persisted) == INTERNAL_MIN_KEYS))) {
 			uint8_t right_index;
@@ -319,11 +288,6 @@ int8_t btree_delete(btree* this, uint64_t key) {
 						node.persisted = right;
 					}
 				}
-			}
-
-			IF_LOG_VERBOSE(1) {
-				log_info("node after transforming:");
-				dump_recursive(node, 0);
 			}
 		}
 		if (nt_is_leaf(node)) {

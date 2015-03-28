@@ -30,7 +30,6 @@ static void test_internal_splitting() {
 	assert(new_right_sibling.internal.keys[0] == 300);
 	assert(new_right_sibling.internal.pointers[0] == MOCK(250) &&
 			new_right_sibling.internal.pointers[1] == MOCK(350));
-	log_info("internal splitting ok");
 }
 
 /*
@@ -125,7 +124,6 @@ static void test_inserting() {
 	btree_insert(&tree, 2, 20);
 	btree_insert(&tree, 6, 60);
 	btree_insert(&tree, 7, 70);
-	btree_dump(&tree);
 	btree_destroy(&tree);
 }
 
