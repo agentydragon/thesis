@@ -150,8 +150,9 @@ static void make_space(kforest* this) {
 		drop_random_pair(&this->rng, &this->trees[tree], &key, &value);
 		--this->tree_sizes[tree];
 
-		//log_info("moving %" PRIu64 "=%" PRIu64 " from tree %" PRIu64 " "
-		//		"to tree %" PRIu64, key, value, tree, tree + 1);
+		log_verbose(2, "moving %" PRIu64 "=%" PRIu64 " "
+				"from tree %" PRIu64 " to tree %" PRIu64,
+				key, value, tree, tree + 1);
 
 		ASSERT(btree_insert(&this->trees[tree + 1], key, value) == 0);
 		++this->tree_sizes[tree + 1];
@@ -161,7 +162,7 @@ static void make_space(kforest* this) {
 }
 
 void kforest_find(kforest* this, uint64_t key, uint64_t *value, bool *found) {
-	//log_info("kforest_find(%" PRIu64 ")", key);
+	log_verbose(1, "kforest_find(%" PRIu64 ")", key);
 
 	uint64_t tree;
 	uint64_t value_found;
@@ -200,7 +201,7 @@ not_found:
 }
 
 int8_t kforest_insert(kforest* this, uint64_t key, uint64_t value) {
-	//log_info("kforest_insert(%" PRIu64 "=%" PRIu64 ")", key, value);
+	log_verbose(1, "kforest_insert(%" PRIu64 "=%" PRIu64 ")", key, value);
 
 	bool exists;
 	kforest_find(this, key, NULL, &exists);
@@ -223,7 +224,7 @@ int8_t kforest_insert(kforest* this, uint64_t key, uint64_t value) {
 }
 
 int8_t kforest_delete(kforest* this, uint64_t key) {
-	//log_info("kforest_delete(%" PRIu64 ")", key);
+	log_verbose(1, "kforest_delete(%" PRIu64 ")", key);
 
 	bool found;
 	kforest_find(this, key, NULL, &found);
