@@ -483,7 +483,7 @@ for splits and merges, which gives us $\Theta(\log_B N+\frac{\log N}{B})=
 \Theta(\log_B N)$ amortized time for updates.
 
 An alternative deamortized ordered file maintenance data structure
-developed \cite{willard92} performs $\Theta(\frac{\log^2 N}{B})$
+developed by \cite{willard92} performs $\Theta(\frac{\log^2 N}{B})$
 block transfers in the worst case. A cache-oblivious B-tree backed by this
 structure would limit the worst-case number of block transfers from
 $\Theta(\frac{N}{\log N})$ to just $\Theta(\frac{\log^2 N}{B}+\log_B N)$ while
