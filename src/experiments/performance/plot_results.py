@@ -155,18 +155,8 @@ def plot_pma_counters():
   save_to('pma-reorg.png')
   pyplot.clf()
 
-def main():
-  plot_all_experiments()
-
-  plot_mispredicts(data=load_data(experiment='serial-findonly'),
-                   title='Mispredicts (random find)')
-  save_to('random-mispredict.png')
-  pyplot.clf()
-
-  plot_pma_counters()
-  plot_ksplay_ltr_counters()
-
-  data = load_data(implementation='dict_cobt', experiment='serial-both')
+def plot_cache_events(implementation, experiment):
+  data = load_data(implementation=implementation, experiment=experiment)
   pyplot.figure(1)
   pyplot.xscale('log')
   pyplot.ylabel('Cache misses per element')
@@ -180,7 +170,28 @@ def main():
                 select_metric_per_element(data, metric), color, label=label)
   pyplot.legend(loc='upper left')
   pyplot.grid(True)
+
+def main():
+  plot_all_experiments()
+
+  plot_mispredicts(data=load_data(experiment='serial-findonly'),
+                   title='Mispredicts (random find)')
+  save_to('random-mispredict.png')
+  pyplot.clf()
+
+  plot_pma_counters()
+  plot_ksplay_ltr_counters()
+
+  plot_cache_events(implementation='dict_cobt', experiment='serial-both')
   save_to('cobt-cache.png')
+  pyplot.clf()
+
+  plot_cache_events(implementation='dict_htable', experiment='serial-findonly')
+  save_to('htable-cache-findonly.png')
+  pyplot.clf()
+
+  plot_cache_events(implementation='dict_htable', experiment='serial-both')
+  save_to('htable-cache-both.png')
   pyplot.clf()
 
 main()
