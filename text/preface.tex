@@ -4,8 +4,7 @@
 It is a well-known fact that there is a widening gap between
 the performance of CPUs and memory. As an optimization of memory accesses,
 modern computers include several small and fast caches between the CPU and
-main memory.
-However, if programs access data mostly randomly, I/O can become
+main memory. However, if programs access data mostly randomly, I/O can become
 the performance bottleneck, even for programs running in main memory.
 
 Standard models of computation only measure the performance of algorithms
@@ -25,6 +24,8 @@ property, they need little tuning for efficient implementation.
 Modern CPU architectures perform various optimizations that can change
 the effective size of a block, so tuning an algorithm by setting a good block
 size might be difficult.
+The external memory model and cache-oblivious algorithms are introduced futher
+in chapter \ref{chapter:models}.
 
 This thesis explores the performance implications of memory hierarchies
 on data structures implementing dictionaries or sorted dictionaries.
@@ -33,4 +34,53 @@ by modern programming languages, which commonly have a dedicated built-in
 data type for unsorted dictionaries (e.g. \texttt{std::unordered\_map} in C++,
 \texttt{dict} in Python, or hashes in Perl).
 
-TODO: all logs are $\log_2$
+Dictionaries maintain a set of key-value pairs with distinct keys.
+The \textsc{Find} operation find the value associated with a given key, or
+it reports that no such value exists. \textsc{Insert} inserts a new
+key-value pair and \textsc{Delete} removes a key-value pair given its key.
+Sorted dictionaries additionally maintain an ordering on the keys and they
+allow \textsc{FindNext} and \textsc{FindPrevious} operations.
+Given a key $k$, which may or may not be present in the dictionary,
+\textsc{FindNext} and \textsc{FindPrevious} find the closest larger or smaller
+key present in the dictionary.
+
+The most common data structure implementing an unsorted dictionary is a hash
+table. Most hash tables have expected $\O(1)$ time for all operations, which
+makes them quite practical. On the other hand, there is no simple way to
+implement sorted dictionaries efficiently via hash tables. Additionally,
+hash table accesses can be expected to always take the same time, whether
+we are reading a randomly chosen key or a key very close to the last key we
+accessed.
+
+Ordered dictionaries are usually maintained in search trees. Common variants
+of search trees include AVL trees, red-black trees, B-trees or splay trees.
+AVL trees, red-black trees and B-trees are \textit{balanced} -- a design
+invariant maintains their height low, which makes operations cost $\O(h)$, where
+$h$ is the height of the tree. AVL trees and red-black trees are binary,
+so $h=\O(\log N)$ (all logarithms in this thesis are in base 2, unless stated
+otherwise). B-trees store $b\geq 2$ keys per node, so operations on B-trees
+touch $\O(\log_b N)$ nodes.
+
+Splay trees are binary search trees with a self-adjusting rule.
+The structure of a splay tree depends not only on the sequence of
+\textsc{Insert}s and \textsc{Delete}s, but also on executed \textsc{Find}s.
+The self-adjusting rule (\textit{splaying}) puts recently accessed nodes
+near the root, so \textsc{Find}s on frequently or recently accessed keys
+are faster than in balanced trees. On the other hand, splaying can put
+the splay tree in a degenerate state, in which accessing an unlucky node can
+cost up to $\O(N)$ node reads. Fortunately, the amortized number of node
+reads per \textsc{Find} turns out to be $\O(\log N)$.
+
+Splay trees are good at storing nonuniformly accessed dictionaries, but
+the expected number of nodes read to \textsc{Find} a key is generally a factor
+of $\O(\log b)$ higher than in B-trees. We explore and implement two
+data structures designed to both perform well on non-uniform access patterns
+and to perform less I/O: \textit{$k$-splay trees} in chapter
+\ref{chapter:ksplay} and \textit{$k$-forests} in chapter \ref{chapter:kforest}.
+
+In chapter \ref{chapter:cob}, we describe \textit{cache-oblivious B-trees}.
+The number of memory operations for cache-oblivious B-tree operations
+is within a constant factor of the bounds given by a B-tree optimally tuned
+for the memory hierarchy. In practice, we found the performance of
+cache-oblivious B-trees to be quite competitive, especially on large datasets
+with uniform access patterns.
