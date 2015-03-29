@@ -1,4 +1,36 @@
 \chapter*{Introduction}
 \addcontentsline{toc}{chapter}{Introduction}
 
+It is a well-known fact that there is a widening gap between
+the performance of CPUs and memory. As an optimization of memory accesses,
+modern computers include several small and fast caches between the CPU and
+main memory.
+However, if programs access data mostly randomly, I/O can become
+the performance bottleneck, even for programs running in main memory.
+
+Standard models of computation only measure the performance of algorithms
+in the number of CPU instructions executed and the number of memory cells used.
+These models aren't well suited for environments where different memory cells
+may have vastly different access speeds, for example depending on which caches
+currently hold the memory cell. The \textit{external memory model} is a simple
+extension of the RAM model that add a \textit{block transfer} measure, which
+is the number of \textit{blocks} transferred between a fast cache and a slow
+\textit{external memory}. While this model was originally developed
+in the context of accessing data stored or hard disks, it is also useful
+for reasoning about data transfers between the CPU and main memory.
+
+\textit{Cache-oblivious algorithms} are a class of external memory algorithms
+that perform equally well given any cache size and block size. Thanks to this
+property, they need little tuning for efficient implementation.
+Modern CPU architectures perform various optimizations that can change
+the effective size of a block, so tuning an algorithm by setting a good block
+size might be difficult.
+
+This thesis explores the performance implications of memory hierarchies
+on data structures implementing dictionaries or sorted dictionaries.
+Especially unsorted dictionaries are very common in practice, as illustrated
+by modern programming languages, which commonly have a dedicated built-in
+data type for unsorted dictionaries (e.g. \texttt{std::unordered\_map} in C++,
+\texttt{dict} in Python, or hashes in Perl).
+
 TODO: all logs are $\log_2$
