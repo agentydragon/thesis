@@ -6,12 +6,20 @@ We have chosen this language for several reasons:
 \item The language is low-level, which enables a high degree of tuning by hand.
 	Our data structures are also not slowed down by common features of
 	high-level languages, such as garbage collection.
-\item C toolchains, including the GCC compiler we used, are mature, and they
-	can be expected to optimize code well.
+\item C toolchains are mature and they can be expected to optimize code well.
 \item The C language is very portable and most other languages can
 	call C functions. This enables our data structures to be potentially
 	easily used in other projects.
 \end{itemize}
+
+Our code was developed using the GNU C Compiler (version 4.9.2) on Linux.
+We used the Git version control system, with our repository hosted at
+\url{https://github.com/MichalPokorny/thesis}. The code includes a test suite,
+which tests implementation details of particular data structures as well
+as general fuzz tests for checking that implemented data structures behave
+like proper dictionaries. We used Travis CI (\url{https://travis-ci.org/})
+to automatically test our code after submission.
+
 All dictionaries assume 64-bit keys and values (represented as the
 \texttt{uint64\_t} type). It would be easy to allow keys and values of arbitrary
 size, but such a choice would be likely to slow down operations on
