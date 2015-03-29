@@ -9,7 +9,7 @@
 // We want the individual trees in the forest to be k-ary,
 // so we are bound to B-trees.
 // TODO: Can we genericize this?
-#define KFOREST_K INTERNAL_MAX_KEYS
+#define KFOREST_K LEAF_MAX_KEYS
 
 typedef struct {
 	uint8_t tree_capacity;

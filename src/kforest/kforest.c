@@ -40,6 +40,12 @@ static int8_t expand(kforest* this) {
 	return 0;
 }
 
+// Tree count examples:
+//     i=0 -> tree size 4
+//     i=1 -> tree size 4^2  =            16
+//     i=2 -> tree size 4^4  =           256
+//     i=3 -> tree size 4^8  =        65 536
+//     i=4 -> tree size 4^16 = 4 294 967 296
 static uint64_t tree_capacity(uint64_t tree_index) {
 	uint64_t base = 1;
 	for (uint64_t i = 0; i < (1ULL << tree_index); ++i) {
