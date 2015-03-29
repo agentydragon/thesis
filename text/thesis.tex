@@ -37,7 +37,7 @@
 \usepackage{amsthm}
 \usepackage{amsmath} % \text{} in mathmode
 \usepackage{tikz}  % must be top
-\usetikzlibrary{calc, shapes, fit}
+\usetikzlibrary{calc, shapes, fit, positioning}
 \usepackage{ucs}
 \usepackage{algorithmicx}
 \usepackage{algpseudocode}
@@ -89,8 +89,8 @@ TODO: abstract; recommended length ~80-200 words.
 }
 
 % 3 to 5 keywords (recommended), each enclosed in curly braces
-\def\Keywords{% TODO: recommended 3-5
-{key} {words} {TODO}
+\def\Keywords{
+	{cache oblivious algorithms}, {data structures}, {dictionaries}
 }
 
 % package nath incompatible with tikz

@@ -38,7 +38,36 @@ the left-to-right order of nodes in the binary search tree.
 
 \begin{figure}
 \centering
-TODO: figure jako splay-trees.pdf (see page 4)
+\tikzset{
+  splay_node/.style = {align=center, inner sep=0pt, text centered, circle,
+	  font=\sffamily, draw=black, text width=1.2em},
+  triangle/.style = {regular polygon, regular polygon sides=3, scale=0.8},
+  splay_placeholder/.style = {align=center, inner sep=0pt, text centered,
+	  triangle, font=\sffamily, draw=black, text width=1.2em},
+}
+\begin{tikzpicture}[->]
+\node [splay_node] at (0, 0) (NodeX-before) {X}
+child { node [splay_node] (NodeY-before) {Y}
+	child { node [splay_placeholder] (Ph1-b) {1} }
+	child { node [splay_placeholder] (Ph2-b) {2} }
+}
+child { node [splay_placeholder] (Ph3-b) {3} };
+
+\node [fit=(NodeX-before) (NodeY-before) (Ph1-b) (Ph2-b) (Ph3-b)] (Before) {};
+
+\node [splay_node] at (6, 0) (NodeX-after) {Y}
+child { node [splay_placeholder] (Ph1-a) {1} }
+child { node [splay_node] (NodeY-after) {X}
+	child { node [splay_placeholder] (Ph2-a) {2} }
+	child { node [splay_placeholder] (Ph3-a) {3} }
+};
+
+\node [fit=(NodeX-after) (NodeY-after) (Ph1-a) (Ph2-a) (Ph3-a)] (After) {};
+\path ($(Before.east) + (+.5,+.5)$) edge node [above] {rotate right} ($(After.west)
++ (-.5,+.5)$);
+\path ($(After.west) - (+.5,+.5)$) edge node [below] {rotate left} ($(Before.east)
+- (-.5,+.5)$);
+\end{tikzpicture}
 \caption{Left and right rotation of the edge between $x$ and $y$.}
 %\label{fig:rotation}
 \end{figure}
