@@ -322,13 +322,13 @@ recursive_call:
 }
 
 veb_level_data veb_get_level_data(uint64_t height, uint64_t level) {
-	// log_info("finding level %" PRIu64 " in height=%" PRIu64,
-	// 		level, height);
+	log_verbose(1, "finding level %" PRIu64 " in height=%" PRIu64,
+			level, height);
 	assert(level > 0);
 	uint64_t bottom_height, top_height;
 	split_height(height, &bottom_height, &top_height);
-	// log_info("height %" PRIu64 " => top=%" PRIu64 " bottom=%" PRIu64,
-	// 		height, top_height, bottom_height);
+	log_verbose(1, "height %" PRIu64 " => top=%" PRIu64 " bottom=%" PRIu64,
+			height, top_height, bottom_height);
 
 	if (level < top_height) {
 		return veb_get_level_data(top_height, level);
