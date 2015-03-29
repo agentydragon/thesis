@@ -157,13 +157,16 @@ and $k$-splay tree nodes.
 
 We have implemented the following dictionary data structures:
 \begin{itemize}
+\item \texttt{dict\_btree}, declared in \texttt{dict/btree.h}:
+	a B-tree with nodes aligned to 64 B cache lines
+	(Chapter~\ref{chapter:btree}).
 \item \texttt{dict\_cobt}, declared in \texttt{dict/cobt.h}:
-	a cache-oblivious B-tree as described TODO.
+	a cache-oblivious B-tree (Chapter~\ref{chapter:cob}).
 \item \texttt{dict\_splay}, declared in \texttt{dict/splay.h}:
-	a splay tree.
+	a splay tree (Chapter~\ref{chapter:splay}).
 \item \texttt{dict\_ksplay}, declared in \texttt{dict/ksplay.h}:
-	a K-splay tree. % TODO: which K?
-% TODO: btree, htable
+	a K-splay tree (Chapter~\ref{chapter:ksplay}). % TODO: which K?
+% TODO: htable
 \end{itemize}
 
 \section{Performance measurement}
