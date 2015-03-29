@@ -1,6 +1,7 @@
 #ifndef LOG_H_INCLUDED
 #define LOG_H_INCLUDED
 
+#include <assert.h>
 #include <stdlib.h>
 
 void __log_basic(const char* tag, const char* func, const char* file, int line,
