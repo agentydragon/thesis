@@ -48,8 +48,9 @@ bin/experiments/performance: $(PERFORMANCE_SOURCES)
 bin/experiments/performance_profile: $(PERFORMANCE_SOURCES)
 	$(CC) -pg $(PERFORMANCE_CFLAGS) $(PERFORMANCE_SOURCES) $(PERFORMANCE_LIBS) -o $@
 
-bin/experiments/veb_performance: experiments/veb_performance/veb_performance.c $(SOURCES)
-	$(CC) $(CFLAGS) experiments/veb_performance/veb_performance.c $(SOURCES) $(LIBS) -o $@
+VEB_PERFORMANCE_SOURCES=$(SOURCES) measurement/measurement.c measurement/stopwatch.c experiments/veb_performance/veb_performance.c
+bin/experiments/veb_performance: $(VEB_PERFORMANCE_SOURCES)
+	$(CC) $(CFLAGS) $(VEB_PERFORMANCE_SOURCES) $(LIBS) -ljansson -o $@
 
 # Continuous integration target
 test: bin/test

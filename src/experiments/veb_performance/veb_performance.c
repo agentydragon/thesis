@@ -5,25 +5,22 @@
 #include <stdlib.h>
 
 #include "log/log.h"
-#include "measurement/measurement.h"
 #include "measurement/stopwatch.h"
 #include "rand/rand.h"
 #include "veb_layout/veb_layout.h"
 
-struct metrics {
-	uint64_t cache_misses;
-	uint64_t cache_references;
-	uint64_t time_nsec;
-};
+// Forces the compiler not to optimize a value away.
+void consume(uint64_t value) {
+	__asm__ volatile ("" : : "r" (value));
+}
 
-struct metrics measure_random_for(uint64_t height, uint64_t N) {
+uint64_t measure_random_for(uint64_t height, uint64_t N) {
 	uint64_t tree_size = 1 << (height - 1);
 	uint64_t* indices = calloc(N, sizeof(uint64_t));
 	for (uint64_t i = 0; i < N; i++) {
 		indices[i] = rand() % tree_size;
 	}
 
-	struct measurement measurement = measurement_begin();
 	stopwatch watch = stopwatch_start();
 
 	for (uint64_t i = 0; i < N; i++) {
@@ -31,22 +28,15 @@ struct metrics measure_random_for(uint64_t height, uint64_t N) {
 		veb_get_children(indices[i], height, &left, &right);
 	}
 
-	struct measurement_results results = measurement_end(measurement);
-	struct metrics tr = {
-		.cache_misses = results.cache_misses,
-		.cache_references = results.cache_references,
-		.time_nsec = stopwatch_read_ns(watch)
-	};
-	return tr;
+	return stopwatch_read_ns(watch);
 }
 
-struct metrics measure_drilldown_for(uint64_t height, uint64_t N) {
+uint64_t measure_drilldown_for(uint64_t height, uint64_t N) {
 	bool* random_decisions = calloc(N * height, sizeof(bool));
 	for (uint64_t i = 0; i < N * height; i++) {
 		random_decisions[i] = rand() % 2;
 	}
 
-	struct measurement measurement = measurement_begin();
 	stopwatch watch = stopwatch_start();
 
 	for (uint64_t i = 0; i < N; i++) {
@@ -62,27 +52,21 @@ struct metrics measure_drilldown_for(uint64_t height, uint64_t N) {
 				node = right.node;
 			}
 		}
+		consume(node);
 	}
 
-	struct measurement_results results = measurement_end(measurement);
-	struct metrics tr = {
-		.cache_misses = results.cache_misses,
-		.cache_references = results.cache_references,
-		.time_nsec = stopwatch_read_ns(watch)
-	};
-	return tr;
+	return stopwatch_read_ns(watch);
 }
 
-struct metrics measure_hyperdrilldown_for(uint64_t height, uint64_t N) {
+uint64_t measure_hyperdrilldown_for(uint64_t height, uint64_t N) {
 	bool* random_decisions = calloc(N * height, sizeof(bool));
 	for (uint64_t i = 0; i < N * height; i++) {
 		random_decisions[i] = rand() % 2;
 	}
 
-	struct level_data ld[60];
+	veb_level_data ld[60];
 	veb_prepare(height, ld);
 
-	struct measurement measurement = measurement_begin();
 	stopwatch watch = stopwatch_start();
 
 	for (uint64_t i = 0; i < N; i++) {
@@ -98,15 +82,10 @@ struct metrics measure_hyperdrilldown_for(uint64_t height, uint64_t N) {
 				node = track.pos[track.depth];
 			}
 		}
+		consume(node);
 	}
 
-	struct measurement_results results = measurement_end(measurement);
-	struct metrics tr = {
-		.cache_misses = results.cache_misses,
-		.cache_references = results.cache_references,
-		.time_nsec = stopwatch_read_ns(watch)
-	};
-	return tr;
+	return stopwatch_read_ns(watch);
 }
 
 int main(int argc, char** argv) {
@@ -118,14 +97,9 @@ int main(int argc, char** argv) {
 	const uint64_t N = 500000;
 
 	for (uint64_t height = 1; height < 50; height++) {
-		struct metrics results = measure_random_for(height, N);
-
-		fprintf(output,
-				"%" PRIu64 "\t%" PRIu64 "\t"
-				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
-				"\n",
-				height, N,
-				results.cache_misses, results.cache_references, results.time_nsec);
+		uint64_t time_ns = measure_random_for(height, N);
+		fprintf(output, "%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t\n",
+				height, N, time_ns);
 		fflush(output);
 	}
 
@@ -135,14 +109,10 @@ int main(int argc, char** argv) {
 	output = fopen("experiments/veb_performance/results-drilldown.csv", "w");
 
 	for (uint64_t height = 1; height < 50; height++) {
-		struct metrics results = measure_drilldown_for(height, N);
+		uint64_t time_ns = measure_drilldown_for(height, N);
 
-		fprintf(output,
-				"%" PRIu64 "\t%" PRIu64 "\t"
-				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
-				"\n",
-				height, N,
-				results.cache_misses, results.cache_references, results.time_nsec);
+		fprintf(output, "%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t\n",
+				height, N, time_ns);
 		fflush(output);
 	}
 
@@ -152,14 +122,9 @@ int main(int argc, char** argv) {
 	output = fopen("experiments/veb_performance/results-hyperdrilldown.csv", "w");
 
 	for (uint64_t height = 1; height < 50; height++) {
-		struct metrics results = measure_hyperdrilldown_for(height, N);
-
-		fprintf(output,
-				"%" PRIu64 "\t%" PRIu64 "\t"
-				"%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t"
-				"\n",
-				height, N,
-				results.cache_misses, results.cache_references, results.time_nsec);
+		uint64_t time_ns = measure_hyperdrilldown_for(height, N);
+		fprintf(output, "%" PRIu64 "\t%" PRIu64 "\t%" PRIu64 "\t\n",
+				height, N, time_ns);
 		fflush(output);
 	}
 
