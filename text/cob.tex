@@ -273,8 +273,24 @@ For every depth $d\in[2;h]$, let us precompute the size $B[d]$ of
 bottom trees rooted in depth $d$, the size $T[d]$ of the corresponding
 top tree and the depth $D[d]$ of the top tree's root. The data takes $\O(\log
 N)$ memory and it can be computed in $\O(\log N)$ time by an iterative procedure.
+Table \ref{tab:depth-data-example} shows the values of these arrays
+for the 5-level van Emde Boas layout shown in figure \ref{fig:veb_layout_5}.
 
-TODO: example pro figure
+\begin{table}[h]
+	\centering
+	\begin{tabular}{r|r|r|r}
+		$d$ & $B[d]$ & $T[d]$ & $D[d]$ \\
+		\hline
+		0   & --     & --     & --     \\
+		1   & 15     & 1      & 0      \\
+		2   & 1      & 1      & 1      \\
+		3   & 3      & 3      & 1      \\
+		4   & 1      & 1      & 3
+	\end{tabular}
+	\label{tab:depth-data-example}
+	\caption{$B[d]$, $T[d]$ and $D[d]$ for the 5-level van Emde
+	Boas layout.}
+\end{table}
 
 While traversing a root-to-leaf path, we shall maintain the depth
 $d$ of the current node $X$, the index $i$ of the current node in BFS order
