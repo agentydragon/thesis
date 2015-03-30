@@ -83,3 +83,9 @@ TODO: pridat do zdrojaku par restrictu
 	- mozna bych tim usporil nejaky procesorovy cas pri dalsim hledani
 
 - ofm by mel realokovat, ne alokovat cely novy soubor
+
+cache-sensitive b+ trees
+	(increase tree fanout by eliminating pointers)
+
+Opravit: je to 'good worst-case algorithms for inserting and deleting records in
+dense sequential files'
