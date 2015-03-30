@@ -482,9 +482,33 @@ Thus, we can charge each update $\Theta(\frac{1}{\log N}{\log^2 N}{B})$
 for splits and merges, which gives us $\Theta(\log_B N+\frac{\log N}{B})=
 \Theta(\log_B N)$ amortized time for updates.
 
+\section{Enhancements}
 An alternative deamortized ordered file maintenance data structure
 developed by \cite{willard92} performs $\Theta(\frac{\log^2 N}{B})$
 block transfers in the worst case. A cache-oblivious B-tree backed by this
 structure would limit the worst-case number of block transfers from
 $\Theta(\frac{N}{\log N})$ to just $\Theta(\frac{\log^2 N}{B}+\log_B N)$ while
 keeping the amortized bound at $\Theta(\log_B N)$.
+
+As we observed with applying the van Emde Boas layout, removing auxilliary
+data can greatly speed up operations -- the tree in van Emde Boas layout has
+half the effective depth of a B-tree, because cache lines can fit more keys
+when pointers are implicit.
+\textit{Implicit data structures} are designed to waste as little memory on
+auxilliary information as possible. Implicit dictionaries are allowed to only
+store a permutation of the stored data and $\O(1)$ memory cells of additional
+information. Bookkeeping information, such as pointers or small integers
+of $b$ bits, is usually encoded by a pairwise permutation of $2b$ keys,
+with $x_{2i} < x_{2i+1}$ corresponding to 1 and $x_{2i} > x_{2i+1}$
+corresponding to 0.
+
+In \citeyear{implicit-cob}, \citeauthor{implicit-cob} reached the optimal
+bound of $\Theta(\log_B N)$ block transfers per search or operation in an
+implicit setting. Similarly to the simple cache-oblivious B-tree, their
+construction uses the deamortized version of the packed memory array
+in conjunction with the van Emde Boas Layout. To avoid holes in the packed
+memory array, the elements of the packed memory array are chunks of keys.
+Several other modifications are necessary to allow updates in size, which
+requires building the structure on the fly.
+We have decided not to implement the implicit cache-oblivious B-tree due
+to its large complexity.
