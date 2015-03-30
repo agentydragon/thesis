@@ -66,8 +66,9 @@ static void dump(kforest* this) {
 		dump_tree(this, i);
 	}
 }
+*/
 
-static void check_invariants(kforest* this) {
+void kforest_check_invariants(kforest* this) {
 	uint64_t tree_count = 0;
 	for (uint64_t i = 0; i < this->tree_capacity; ++i) {
 		if (this->tree_sizes[i] > 0) {
@@ -79,13 +80,13 @@ static void check_invariants(kforest* this) {
 		assert(this->tree_sizes[i] == tree_capacity(i));
 	}
 	if (tree_count > 0) {
-		assert(this->tree_sizes[tree_count - 1] <= tree_capacity(tree_count - 1));
+		assert(this->tree_sizes[tree_count - 1] <=
+				tree_capacity(tree_count - 1));
 	}
 	for (uint64_t i = tree_count; i < this->tree_capacity; ++i) {
 		assert(this->tree_sizes[i] == 0);
 	}
 }
-*/
 
 int8_t kforest_init(kforest* this) {
 	this->tree_capacity = 0;

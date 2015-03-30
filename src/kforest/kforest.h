@@ -32,4 +32,6 @@ void kforest_find(kforest*, uint64_t key, uint64_t *value, bool *found);
 int8_t kforest_insert(kforest*, uint64_t key, uint64_t value);
 int8_t kforest_delete(kforest*, uint64_t key);
 
+void kforest_check_invariants(kforest*);
+
 #endif
