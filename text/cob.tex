@@ -502,9 +502,10 @@ of $b$ bits, is usually encoded by a pairwise permutation of $2b$ keys,
 with $x_{2i} < x_{2i+1}$ corresponding to 1 and $x_{2i} > x_{2i+1}$
 corresponding to 0.
 
-In \citeyear{implicit-cob}, \citeauthor{implicit-cob} reached the optimal
-bound of $\Theta(\log_B N)$ block transfers per search or operation in an
-implicit setting. Similarly to the simple cache-oblivious B-tree, their
+\cite{implicit-btrees-survey} gives an overview of progress on implicit
+dictionaries.  In \citeyear{implicit-cob}, \citeauthor{implicit-cob} reached
+the optimal bound of $\Theta(\log_B N)$ block transfers per search or operation
+in an implicit setting. Similarly to the simple cache-oblivious B-tree, their
 construction uses the deamortized version of the packed memory array
 in conjunction with the van Emde Boas Layout. To avoid holes in the packed
 memory array, the elements of the packed memory array are chunks of keys.
