@@ -45,7 +45,7 @@ the left-to-right order of nodes in the binary search tree.
   splay_placeholder/.style = {align=center, inner sep=0pt, text centered,
 	  triangle, font=\sffamily, draw=black, text width=1.2em},
 }
-\begin{tikzpicture}[->]
+\begin{tikzpicture}[]
 \node [splay_node] at (0, 0) (NodeX-before) {X}
 child { node [splay_node] (NodeY-before) {Y}
 	child { node [splay_placeholder] (Ph1-b) {1} }
@@ -63,9 +63,9 @@ child { node [splay_node] (NodeY-after) {X}
 };
 
 \node [fit=(NodeX-after) (NodeY-after) (Ph1-a) (Ph2-a) (Ph3-a)] (After) {};
-\path ($(Before.east) + (+.5,+.5)$) edge node [above] {rotate right} ($(After.west)
+\path[->] ($(Before.east) + (+.5,+.5)$) edge node [above] {rotate right} ($(After.west)
 + (-.5,+.5)$);
-\path ($(After.west) - (+.5,+.5)$) edge node [below] {rotate left} ($(Before.east)
+\path[->] ($(After.west) - (+.5,+.5)$) edge node [below] {rotate left} ($(Before.east)
 - (-.5,+.5)$);
 \end{tikzpicture}
 \caption{Left and right rotation of the edge between $x$ and $y$.}
