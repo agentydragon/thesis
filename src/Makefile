@@ -62,3 +62,6 @@ test_coverage: bin/test_coverage
 	genhtml coverage.info --output-directory coverage-out
 	find . -name '*.gcda' -o -name '*.gcno' | xargs rm
 	rm coverage.info
+
+clean:
+	rm bin/test* bin/experiments/*
