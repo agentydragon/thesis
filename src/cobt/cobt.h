@@ -25,11 +25,11 @@ void cob_init(cob* this);
 void cob_destroy(cob* this);
 int8_t cob_insert(cob* this, uint64_t key, uint64_t value);
 int8_t cob_delete(cob* this, uint64_t key);
-void cob_find(cob* this, uint64_t key, bool *found, uint64_t *value);
+void cob_find(cob* this, uint64_t key, uint64_t *value, bool *found);
 void cob_next_key(cob* this, uint64_t key,
-		bool *next_key_exists, uint64_t *next_key);
+		uint64_t *next_key, bool *next_key_exists);
 void cob_previous_key(cob* this, uint64_t key,
-		bool *previous_key_exists, uint64_t *previous_key);
+		uint64_t *previous_key, bool *previous_key_exists);
 void cob_check(cob* this);
 
 void cob_dump(const cob* this);

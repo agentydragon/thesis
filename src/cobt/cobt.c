@@ -430,7 +430,7 @@ no_such_key:
 	return 1;
 }
 
-void cob_find(cob* this, uint64_t key, bool *found, uint64_t *value) {
+void cob_find(cob* this, uint64_t key, uint64_t *value, bool *found) {
 	validate_key(key);
 	const uint64_t index = cobt_tree_find_le(&this->tree, key);
 	if (this->file.occupied[index]) {
@@ -453,7 +453,7 @@ void cob_find(cob* this, uint64_t key, bool *found, uint64_t *value) {
 }
 
 void cob_next_key(cob* this, uint64_t key,
-		bool *next_key_exists, uint64_t* next_key) {
+		uint64_t *next_key, bool *next_key_exists) {
 	validate_key(key);
 	const uint64_t index = cobt_tree_find_le(&this->tree, key);
 
@@ -488,7 +488,7 @@ void cob_next_key(cob* this, uint64_t key,
 }
 
 void cob_previous_key(cob* this, uint64_t key,
-		bool *previous_key_exists, uint64_t* previous_key) {
+		uint64_t *previous_key, bool *previous_key_exists) {
 	validate_key(key);
 	const uint64_t index = cobt_tree_find_le(&this->tree, key);
 
