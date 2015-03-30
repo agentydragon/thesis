@@ -210,8 +210,6 @@ pointers, referencing actual nodes of the tree, or it returns \textit{external}
 indexes, which represent virtual nodes below the leaves, counted from left
 to right.
 
-TODO: figure?
-TODO: check
 \begin{algorithmic}
 \Function {GetChildren} {$n$: node van Emde Boas ID, $h$: tree height}
 	\If {$h = 1$ and $n = 0$} \Return{external (0,1)} \EndIf
