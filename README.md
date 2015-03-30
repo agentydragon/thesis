@@ -54,7 +54,7 @@ bin/experiments/performance
 ```
 
 Results are saved in `src/experiments/performance/results.json`. You can plot
-some interesting graphs by running;
+some interesting graphs by running:
 ```bash
 cd experiments/performance
 ./plot_results.py
