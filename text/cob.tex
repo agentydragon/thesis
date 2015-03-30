@@ -325,7 +325,16 @@ from $Pos[d]$ for $R$ by simply subtracting $T[d]$, because $B[d]$ will
 decrease by 1. This saves us one relatively expensive \texttt{imulq}
 instruction whenever moving to the left sibling.
 
-TODO: graf
+\begin{figure}
+\centering
+\includegraphics{img/veb-drilldown-speed}
+\caption{Average time for computing node pointers in root-to-leaf traversals
+	of van Emde Boas layouts, implemented trivially and with precomputed
+	level data.}
+\end{figure}
+As evident in figure \ref{fig:veb-drilldown-speed}, using precomputed level data
+saves a considerable amount of computation, especially with deeper van Emde Boas
+layouts.
 
 \section{Ordered file maintenance}
 The ordered file maintenance problem asks us to store an ordered list of
