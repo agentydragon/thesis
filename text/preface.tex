@@ -58,8 +58,8 @@ AVL trees, red-black trees and B-trees are \textit{balanced} -- a design
 invariant maintains their height low, which makes operations cost $\O(h)$, where
 $h$ is the height of the tree. AVL trees and red-black trees are binary,
 so $h=\O(\log N)$ (all logarithms in this thesis are in base 2, unless stated
-otherwise). B-trees store $b\geq 2$ keys per node, so operations on B-trees
-touch $\O(\log_b N)$ nodes.
+otherwise). B-trees store $b\geq 2$ keys per node and they maintain all leaves
+at the same depth, so operations on B-trees touch $\O(\log_b N)$ nodes.
 
 Splay trees are binary search trees with a self-adjusting rule.
 The structure of a splay tree depends not only on the sequence of
