@@ -9,76 +9,73 @@
 #include "util/likeliness.h"
 
 #if defined(KFOREST_BTREE)
+	#define kforest_tree_init btree_init
+	#define kforest_tree_destroy btree_destroy
+	#define kforest_tree_delete btree_delete
+	#define kforest_tree_insert btree_insert
+	#define kforest_tree_find btree_find
 
-#define kforest_tree_init btree_init
-#define kforest_tree_destroy btree_destroy
-#define kforest_tree_delete btree_delete
-#define kforest_tree_insert btree_insert
-#define kforest_tree_find btree_find
+	// This dropping algorithm would be probably biased in general, but
+	// since we are only dropping from full trees, it should be more or
+	// less OK.
+	// Implicit assumption: nodes have >1 key, pairs are in leaves.
+	static void get_random_pair(rand_generator* generator, btree* tree,
+			uint64_t *key, uint64_t *value) {
+		// log_info("drop random from tree %p", tree);
 
-// This dropping algorithm would be probably biased in general, but since we
-// are only dropping from full trees, it should be more or less OK.
-// Implicit assumption: nodes have >1 key, key-value pairs are in leaves.
-// Abuses the structure of the B-tree.
-static void get_random_pair(rand_generator* generator, btree* tree,
-		uint64_t *key, uint64_t *value) {
-	// log_info("drop random from tree %p", tree);
+		btree_node_traversed node = nt_root(tree);
+		// log_info("  root=%p", node.persisted);
+		while (!nt_is_leaf(node)) {
+			uint64_t child_index = rand_next(generator,
+					node.persisted->internal.key_count + 1);
+			node.persisted = node.persisted->internal.pointers[child_index];
+			// log_info("  ->child %" PRIu64 ": %p",
+			// 		child_index, node.persisted);
+			--node.levels_above_leaves;
+		}
 
-	btree_node_traversed node = nt_root(tree);
-	// log_info("  root=%p", node.persisted);
-	while (!nt_is_leaf(node)) {
-		uint64_t child_index = rand_next(generator,
-				node.persisted->internal.key_count + 1);
-		node.persisted = node.persisted->internal.pointers[child_index];
-		// log_info("  ->child %" PRIu64 ": %p",
-		// 		child_index, node.persisted);
-		--node.levels_above_leaves;
+		const uint8_t leaf_keys = get_n_leaf_keys(node.persisted);
+		assert(leaf_keys > 0);
+		uint64_t key_index = rand_next(generator, leaf_keys);
+		*key = node.persisted->leaf.keys[key_index];
+		*value = node.persisted->leaf.values[key_index];
 	}
-
-	const uint8_t leaf_keys = get_n_leaf_keys(node.persisted);
-	assert(leaf_keys > 0);
-	uint64_t key_index = rand_next(generator, leaf_keys);
-	*key = node.persisted->leaf.keys[key_index];
-	*value = node.persisted->leaf.values[key_index];
-}
-
 #elif defined(KFOREST_COBT)
+	#define kforest_tree_init cob_init
+	#define kforest_tree_destroy cob_destroy
+	#define kforest_tree_delete cob_delete
+	#define kforest_tree_insert cob_insert
+	#define kforest_tree_find cob_find
 
-#define kforest_tree_init cob_init
-#define kforest_tree_destroy cob_destroy
-#define kforest_tree_delete cob_delete
-#define kforest_tree_insert cob_insert
-#define kforest_tree_find cob_find
-
-// Point to random spot in the backing PMA, then find the next occupied piece.
-// Select a random key from that piece.
-// The selected key should be more or less random.
-static void get_random_pair(rand_generator* generator, cob* tree,
-		uint64_t *key, uint64_t *value) {
-	uint64_t piece_pick = rand_next(generator, tree->file.capacity);
-	uint64_t i;
-	for (i = 0; i < tree->file.capacity; ++i) {
-		if (tree->file.occupied[(piece_pick + i) % tree->file.capacity]) {
-			break;
+	// Point to random spot in the backing PMA, then find the next occupied
+	// piece. Select a random key from that piece.
+	// The selected key should be more or less random.
+	static void get_random_pair(rand_generator* generator, cob* tree,
+			uint64_t *key, uint64_t *value) {
+		uint64_t piece_pick = rand_next(generator, tree->file.capacity);
+		uint64_t i;
+		for (i = 0; i < tree->file.capacity; ++i) {
+			if (tree->file.occupied[(piece_pick + i) %
+					tree->file.capacity]) {
+				break;
+			}
 		}
-	}
-	CHECK(i < tree->file.capacity, "dropping random pair from blank cobt");
-	piece_pick = (piece_pick + i) % tree->file.capacity;
-	cob_piece_item* piece = pma_get_value(&tree->file, piece_pick);
+		CHECK(i < tree->file.capacity, "random pick from empty cobt");
+		piece_pick = (piece_pick + i) % tree->file.capacity;
+		cob_piece_item* piece = pma_get_value(&tree->file, piece_pick);
 
-	uint8_t idx = rand_next(generator, tree->piece);
-	for (i = 0; i < tree->piece; ++i) {
-		if (piece[(idx + i) % tree->piece].key != COB_EMPTY) {
-			*key = piece[(idx + i) % tree->piece].key;
-			*value = piece[(idx + i) % tree->piece].value;
-			return;
+		uint8_t idx = rand_next(generator, tree->piece);
+		for (i = 0; i < tree->piece; ++i) {
+			if (piece[(idx + i) % tree->piece].key != COB_EMPTY) {
+				*key = piece[(idx + i) % tree->piece].key;
+				*value = piece[(idx + i) % tree->piece].value;
+				return;
+			}
 		}
+		log_fatal("fetched empty piece from pma");
 	}
-	log_fatal("fetched empty piece from pma");
-}
-
 #else
-#error "No K-forest backing structure selected."
+	#error "No K-forest backing structure selected."
 #endif
 
 static int8_t expand(kforest* this) {
