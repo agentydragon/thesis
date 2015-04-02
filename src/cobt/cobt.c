@@ -10,12 +10,9 @@
 #include "math/math.h"
 #include "veb_layout/veb_layout.h"
 
-#define EMPTY UINT64_MAX
+#define EMPTY COB_EMPTY
 
-typedef struct {
-	uint64_t key;
-	uint64_t value;
-} piece_item;
+typedef cob_piece_item piece_item;
 
 static void fix_range(cob* this, pma_range range_to_fix) {
 	cobt_tree_refresh(&this->tree, (cobt_tree_range) {

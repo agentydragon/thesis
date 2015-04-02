@@ -3,9 +3,83 @@
 #include <assert.h>
 #include <inttypes.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "log/log.h"
 #include "util/likeliness.h"
+
+#if defined(KFOREST_BTREE)
+
+#define kforest_tree_init btree_init
+#define kforest_tree_destroy btree_destroy
+#define kforest_tree_delete btree_delete
+#define kforest_tree_insert btree_insert
+#define kforest_tree_find btree_find
+
+// This dropping algorithm would be probably biased in general, but since we
+// are only dropping from full trees, it should be more or less OK.
+// Implicit assumption: nodes have >1 key, key-value pairs are in leaves.
+// Abuses the structure of the B-tree.
+static void get_random_pair(rand_generator* generator, btree* tree,
+		uint64_t *key, uint64_t *value) {
+	// log_info("drop random from tree %p", tree);
+
+	btree_node_traversed node = nt_root(tree);
+	// log_info("  root=%p", node.persisted);
+	while (!nt_is_leaf(node)) {
+		uint64_t child_index = rand_next(generator,
+				node.persisted->internal.key_count + 1);
+		node.persisted = node.persisted->internal.pointers[child_index];
+		// log_info("  ->child %" PRIu64 ": %p",
+		// 		child_index, node.persisted);
+		--node.levels_above_leaves;
+	}
+
+	const uint8_t leaf_keys = get_n_leaf_keys(node.persisted);
+	assert(leaf_keys > 0);
+	uint64_t key_index = rand_next(generator, leaf_keys);
+	*key = node.persisted->leaf.keys[key_index];
+	*value = node.persisted->leaf.values[key_index];
+}
+
+#elif defined(KFOREST_COBT)
+
+#define kforest_tree_init cob_init
+#define kforest_tree_destroy cob_destroy
+#define kforest_tree_delete cob_delete
+#define kforest_tree_insert cob_insert
+#define kforest_tree_find cob_find
+
+// Point to random spot in the backing PMA, then find the next occupied piece.
+// Select a random key from that piece.
+// The selected key should be more or less random.
+static void get_random_pair(rand_generator* generator, cob* tree,
+		uint64_t *key, uint64_t *value) {
+	uint64_t piece_pick = rand_next(generator, tree->file.capacity);
+	uint64_t i;
+	for (i = 0; i < tree->file.capacity; ++i) {
+		if (tree->file.occupied[(piece_pick + i) % tree->file.capacity]) {
+			break;
+		}
+	}
+	CHECK(i < tree->file.capacity, "dropping random pair from blank cobt");
+	piece_pick = (piece_pick + i) % tree->file.capacity;
+	cob_piece_item* piece = pma_get_value(&tree->file, piece_pick);
+
+	uint8_t idx = rand_next(generator, tree->piece);
+	for (i = 0; i < tree->piece; ++i) {
+		if (piece[(idx + i) % tree->piece].key != COB_EMPTY) {
+			*key = piece[(idx + i) % tree->piece].key;
+			*value = piece[(idx + i) % tree->piece].value;
+			return;
+		}
+	}
+	log_fatal("fetched empty piece from pma");
+}
+
+#else
+#error "No K-forest backing structure selected."
+#endif
 
 static int8_t expand(kforest* this) {
 	uint64_t old_capacity = this->tree_capacity;
@@ -16,13 +90,16 @@ static int8_t expand(kforest* this) {
 	} else {
 		new_capacity *= 2;
 	}
-	btree* new_trees = realloc(this->trees, sizeof(btree) * new_capacity);
+	kforest_tree* new_trees = realloc(this->trees,
+			sizeof(kforest_tree) * new_capacity);
 	if (unlikely(!new_trees)) {
 		log_error("failed to expand K-forest trees");
 		return 1;
 	}
 	for (uint64_t i = old_capacity; i < new_capacity; ++i) {
-		btree_init(&new_trees[i]);
+		// TODO: unify zeroedness requirements
+		memset(&new_trees[i], 0, sizeof(kforest_tree));
+		kforest_tree_init(&new_trees[i]);
 	}
 	this->trees = new_trees;
 
@@ -105,42 +182,16 @@ int8_t kforest_init(kforest* this) {
 
 void kforest_destroy(kforest* this) {
 	for (uint64_t i = 0; i < this->tree_capacity; ++i) {
-		btree_destroy(&this->trees[i]);
+		kforest_tree_destroy(&this->trees[i]);
 	}
 	free(this->trees);
 	free(this->tree_sizes);
 }
 
-// This dropping algorithm would be probably biased in general, but since we
-// are only dropping from full trees, it should be more or less OK.
-// Implicit assumption: nodes have >1 key, key-value pairs are in leaves.
-// Abuses the structure of the B-tree.
-static void get_random_pair(rand_generator* generator, btree* tree,
-		uint64_t *key, uint64_t *value) {
-	// log_info("drop random from btree %p", tree);
-
-	btree_node_traversed node = nt_root(tree);
-	// log_info("  root=%p", node.persisted);
-	while (!nt_is_leaf(node)) {
-		uint64_t child_index = rand_next(generator,
-				node.persisted->internal.key_count + 1);
-		node.persisted = node.persisted->internal.pointers[child_index];
-		// log_info("  ->child %" PRIu64 ": %p",
-		// 		child_index, node.persisted);
-		--node.levels_above_leaves;
-	}
-
-	const uint8_t leaf_keys = get_n_leaf_keys(node.persisted);
-	assert(leaf_keys > 0);
-	uint64_t key_index = rand_next(generator, leaf_keys);
-	*key = node.persisted->leaf.keys[key_index];
-	*value = node.persisted->leaf.values[key_index];
-}
-
-static void drop_random_pair(rand_generator* generator, btree* tree,
+static void drop_random_pair(rand_generator* generator, kforest_tree* tree,
 		uint64_t *dropped_key, uint64_t *dropped_value) {
 	get_random_pair(generator, tree, dropped_key, dropped_value);
-	ASSERT(btree_delete(tree, *dropped_key) == 0);
+	ASSERT(kforest_tree_delete(tree, *dropped_key) == 0);
 }
 
 static void make_space(kforest* this) {
@@ -161,7 +212,8 @@ static void make_space(kforest* this) {
 				"from tree %" PRIu64 " to tree %" PRIu64,
 				key, value, tree, tree + 1);
 
-		ASSERT(btree_insert(&this->trees[tree + 1], key, value) == 0);
+		ASSERT(kforest_tree_insert(&this->trees[tree + 1], key, value)
+				== 0);
 		++this->tree_sizes[tree + 1];
 
 		//max_touched = tree + 2;
@@ -175,7 +227,8 @@ void kforest_find(kforest* this, uint64_t key, uint64_t *value, bool *found) {
 	uint64_t value_found;
 	for (tree = 0; tree < this->tree_capacity; ++tree) {
 		bool found_here;
-		btree_find(&this->trees[tree], key, &value_found, &found_here);
+		kforest_tree_find(&this->trees[tree], key,
+				&value_found, &found_here);
 		if (found_here) {
 			goto tree_found;
 		}
@@ -188,14 +241,18 @@ tree_found:
 		*value = value_found;
 	}
 
-	ASSERT(btree_delete(&this->trees[tree], key) == 0);
-	--this->tree_sizes[tree];
+	// If we found the key in the first tree, there's no need to drop keys.
+	if (tree != 0) {
+		ASSERT(kforest_tree_delete(&this->trees[tree], key) == 0);
+		--this->tree_sizes[tree];
 
-	make_space(this);
+		make_space(this);
 
-	// Promote to tree 0.
-	ASSERT(btree_insert(&this->trees[0], key, value_found) == 0);
-	++this->tree_sizes[0];
+		// Promote to tree 0.
+		ASSERT(kforest_tree_insert(&this->trees[0], key, value_found)
+				== 0);
+		++this->tree_sizes[0];
+	}
 
 	//dump(this);
 	//check_invariants(this);
@@ -218,7 +275,7 @@ int8_t kforest_insert(kforest* this, uint64_t key, uint64_t value) {
 
 	make_space(this);
 
-	ASSERT(btree_insert(&this->trees[0], key, value) == 0);
+	ASSERT(kforest_tree_insert(&this->trees[0], key, value) == 0);
 	++this->tree_sizes[0];
 
 	//btree_dump_dot(&this->trees[0], stdout);
@@ -239,7 +296,7 @@ int8_t kforest_delete(kforest* this, uint64_t key) {
 		return 1;
 	}
 
-	ASSERT(btree_delete(&this->trees[0], key) == 0);
+	ASSERT(kforest_tree_delete(&this->trees[0], key) == 0);
 	--this->tree_sizes[0];
 
 	for (uint64_t tree = 0; tree + 1 < this->tree_capacity; ++tree) {
@@ -248,8 +305,8 @@ int8_t kforest_delete(kforest* this, uint64_t key) {
 			drop_random_pair(&this->rng, &this->trees[tree + 1],
 					&shift_key, &shift_value);
 			--this->tree_sizes[tree + 1];
-			ASSERT(btree_insert(&this->trees[tree], shift_key,
-						shift_value) == 0);
+			ASSERT(kforest_tree_insert(&this->trees[tree],
+						shift_key, shift_value) == 0);
 			++this->tree_sizes[tree];
 		}
 	}

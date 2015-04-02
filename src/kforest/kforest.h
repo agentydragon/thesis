@@ -1,15 +1,34 @@
 #ifndef KFOREST_KFOREST_H
 #define KFOREST_KFOREST_H
 
-#include "btree/btree.h"
 #include "rand/rand.h"
 
-// TODO: Optimize - don't delete when match is in tree 1.
+#define KFOREST_BTREE
+// #define KFOREST_COBT
 
+#if defined(KFOREST_BTREE)
+
+#include "btree/btree.h"
+typedef btree kforest_tree;
 // We want the individual trees in the forest to be k-ary,
 // so we are bound to B-trees.
 // TODO: Can we genericize this?
 #define KFOREST_K LEAF_MAX_KEYS
+
+#elif defined(KFOREST_COBT)
+
+#include "cobt/cobt.h"
+typedef cob kforest_tree;
+
+// Arbitrary pick.
+// #define KFOREST_K 4
+#define KFOREST_K 7
+
+#else
+#error "No K-forest backing structure selected."
+#endif
+
+// TODO: Optimize - don't delete when match is in tree 1.
 
 typedef struct {
 	uint8_t tree_capacity;
@@ -18,7 +37,7 @@ typedef struct {
 	// TODO: All B-trees but the last one are full, so we could probably
 	// drop the pointers to get faster searches. That might mean some
 	// more trouble with replacing, through.
-	btree* trees;
+	kforest_tree* trees;
 	uint64_t* tree_sizes;
 
 	rand_generator rng;

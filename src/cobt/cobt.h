@@ -11,6 +11,13 @@
 #define COB_INFINITY UINT64_MAX
 
 typedef struct {
+	uint64_t key;
+	uint64_t value;
+} cob_piece_item;
+
+#define COB_EMPTY UINT64_MAX
+
+typedef struct {
 	// The PMA stores groups of key-value pairs called "pieces".
 	// They are keyed by their minimal keys.
 	// Piece sizes are O(log N) multiples of 4.
