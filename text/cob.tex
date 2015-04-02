@@ -504,7 +504,7 @@ merges too often: splitting a full piece creates two pieces of size $P/2$,
 which will be only split or merged again after $\Theta(P)$ more updates.
 Merging two pieces yields a piece with between $P/2$ and $3P/4$ items.
 This new piece will also be updated only after $\Theta(P)$ more updates.
-Thus, we can charge each update $\Theta(\frac{1}{\log N}{\log^2 N}{B})$
+Thus, we can charge each update $\Theta(\frac{1}{\log N}\frac{\log^2 N}{B})$
 for splits and merges, which gives us $\Theta(\log_B N+\frac{\log N}{B})=
 \Theta(\log_B N)$ amortized time for updates.
 
@@ -538,4 +538,7 @@ memory array, the elements of the packed memory array are chunks of keys.
 Several other modifications are necessary to allow updates in size, which
 requires building the structure on the fly.
 We have decided not to implement the implicit cache-oblivious B-tree due
-to its large complexity.
+to its large complexity. We also believe the data structure may be much
+slower on practical data sets than equivalent structures with free slots or
+pointers, since decoding auxilliary data from the implicit representation
+requires reading large permutations of keys.
