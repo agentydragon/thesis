@@ -18,6 +18,8 @@ SOURCES= \
 	util/*.c \
 	veb_layout/*.c
 
+.PHONY: asm test test_coverage clean
+
 bin/test: test.c $(SOURCES)
 	$(CC) -g $(CFLAGS) test.c $(SOURCES) $(LIBS) -o $@
 
