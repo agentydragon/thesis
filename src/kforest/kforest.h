@@ -7,25 +7,17 @@
 // #define KFOREST_COBT
 
 #if defined(KFOREST_BTREE)
-
-#include "btree/btree.h"
-typedef btree kforest_tree;
-// We want the individual trees in the forest to be k-ary,
-// so we are bound to B-trees.
-// TODO: Can we genericize this?
-#define KFOREST_K LEAF_MAX_KEYS
-
+	#include "btree/btree.h"
+	typedef btree kforest_tree;
+	// TODO: Can we genericize this?
+	#define KFOREST_K LEAF_MAX_KEYS
 #elif defined(KFOREST_COBT)
-
-#include "cobt/cobt.h"
-typedef cob kforest_tree;
-
-// Arbitrary pick.
-// #define KFOREST_K 4
-#define KFOREST_K 7
-
+	#include "cobt/cobt.h"
+	typedef cob kforest_tree;
+	// Arbitrary pick.
+	#define KFOREST_K 5
 #else
-#error "No K-forest backing structure selected."
+	#error "No K-forest backing structure selected."
 #endif
 
 // TODO: Optimize - don't delete when match is in tree 1.
