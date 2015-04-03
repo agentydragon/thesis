@@ -99,11 +99,12 @@ struct metrics measure_word_frequency(const dict_api* api, uint64_t size) {
 	char* content_copy = strdup(content);
 	char* ptr = strtok(content_copy, delimiters);
 
+	dict* dict;
+	CHECK(!dict_init(&dict, api, NULL), "cannot init dict");
+
 	measurement* measurement = measurement_begin();
 	stopwatch watch = stopwatch_start();
 
-	dict* dict;
-	CHECK(!dict_init(&dict, api, NULL), "cannot init dict");
 	while (ptr && words < size) {
 		add_word(dict, ptr);
 		ptr = strtok(NULL, delimiters);

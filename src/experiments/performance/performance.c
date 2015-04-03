@@ -9,6 +9,7 @@
 #include "dict/ksplay.h"
 #include "experiments/performance/flags.h"
 #include "experiments/performance/ltr_scan.h"
+#include "experiments/performance/playback.h"
 #include "experiments/performance/serial.h"
 #include "experiments/performance/word_frequency.h"
 #include "experiments/performance/working_set.h"
@@ -130,6 +131,30 @@ int main(int argc, char** argv) {
 					JSON_INDENT(2)), "cannot dump results");
 		log_verbose(1, "done");
 	}
+
+	// TODO: unhardcode path, maybe even move to a separate executable?
+	recording* r = load_recording("/mnt/data/prvak/hash-ops.0x7f566e3cb0e0");
+	for (int i = 0; FLAGS.measured_apis[i]; ++i) {
+		log_info("running recording on %s", FLAGS.measured_apis[i]->name);
+		struct metrics result;
+		result = measure_recording(FLAGS.measured_apis[i], r);
+
+		json_t* point = json_object();
+		// TODO: Size shouldn't be a made up integer.
+		// TODO: Experiments should be distinguished.
+		add_common_keys(point, "recording", 42,
+				FLAGS.measured_apis[i], result);
+		json_array_append_new(json_results, point);
+		measurement_results_release(result.results);
+	}
+	destroy_recording(r);
+
+	log_verbose(1, "flushing results...");
+	CHECK(!json_dump_file(json_results,
+				"experiments/performance/output/results.json",
+				JSON_INDENT(2)), "cannot dump results");
+	log_verbose(1, "done");
+
 	deinit_word_frequency();
 	json_decref(json_results);
 	return 0;
