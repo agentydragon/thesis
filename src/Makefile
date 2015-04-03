@@ -71,6 +71,7 @@ bin/experiments/veb_performance: $(VEB_PERFORMANCE_SOURCES)
 	$(CC) $(CFLAGS) $(VEB_PERFORMANCE_SOURCES) $(LIBS) -ljansson -o $@
 
 # Continuous integration target
+# TODO: Check that everything else builds, too.
 test: bin/test
 	bin/test
 
