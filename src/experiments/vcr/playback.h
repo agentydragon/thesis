@@ -1,8 +1,16 @@
-#ifndef EXPERIMENTS_PERFORMANCE_PLAYBACK_H
-#define EXPERIMENTS_PERFORMANCE_PLAYBACK_H
+#ifndef EXPERIMENTS_VCR_PLAYBACK_H
+#define EXPERIMENTS_VCR_PLAYBACK_H
 
-#include "experiments/performance/experiment.h"
+#include <stdint.h>
+
 #include "dict/dict.h"
+#include "measurement/measurement.h"
+
+// TODO: Copied from experiments/performance
+struct metrics {
+	measurement_results* results;
+	uint64_t time_nsec;
+};
 
 typedef enum { FIND, INSERT, DELETE } operation_type;
 

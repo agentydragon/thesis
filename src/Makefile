@@ -37,6 +37,8 @@ bin/test_coverage: test.c $(SOURCES)
 asm: bin/test
 	objdump -S bin/test > asm.dump
 
+# experiments/performance
+
 # bin/experiments/performance depends on jansson
 PERFORMANCE_CFLAGS=$(CFLAGS) $(shell pkg-config --cflags jansson)
 PERFORMANCE_LIBS=$(LIBS) $(shell pkg-config --libs jansson)
@@ -50,6 +52,20 @@ bin/experiments/performance: $(PERFORMANCE_SOURCES)
 bin/experiments/performance_profile: $(PERFORMANCE_SOURCES)
 	$(CC) -pg $(PERFORMANCE_CFLAGS) $(PERFORMANCE_SOURCES) $(PERFORMANCE_LIBS) -o $@
 
+# experiments/vcr
+VCR_CFLAGS=$(CFLAGS) $(shell pkg-config --cflags jansson)
+VCR_LIBS=$(LIBS) $(shell pkg-config --libs jansson)
+VCR_SOURCES=$(SOURCES) \
+	experiments/vcr/*.c \
+	measurement/*.c
+
+bin/experiments/vcr: $(VCR_SOURCES)
+	$(CC) -g $(VCR_CFLAGS) -DNDEBUG $(VCR_SOURCES) $(VCR_LIBS) -o $@
+
+bin/experiments/vcr_profile: $(VCR_SOURCES)
+	$(CC) -pg $(VCR_CFLAGS) $(VCR_SOURCES) $(VCR_LIBS) -o $@
+
+# experiments/veb_performance
 VEB_PERFORMANCE_SOURCES=$(SOURCES) measurement/measurement.c measurement/stopwatch.c experiments/veb_performance/veb_performance.c
 bin/experiments/veb_performance: $(VEB_PERFORMANCE_SOURCES)
 	$(CC) $(CFLAGS) $(VEB_PERFORMANCE_SOURCES) $(LIBS) -ljansson -o $@

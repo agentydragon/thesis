@@ -98,5 +98,5 @@ void parse_flags(int argc, char** argv) {
 		.args_doc = NULL, .doc = NULL, .children = NULL,
 		.help_filter = NULL, .argp_domain = NULL
 	};
-	CHECK(!argp_parse(&argp, argc, argv, 0, 0, 0), "argp failed");
+	CHECK(!argp_parse(&argp, argc, argv, 0, 0, 0), "argp_parse failed");
 }

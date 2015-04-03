@@ -1,4 +1,4 @@
-#include "experiments/performance/playback.h"
+#include "experiments/vcr/playback.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -6,7 +6,6 @@
 #include "log/log.h"
 #include "rand/rand.h"
 #include "measurement/stopwatch.h"
-#include "measurement/measurement.h"
 #include "util/consume.h"
 
 struct {
