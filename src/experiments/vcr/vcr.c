@@ -10,19 +10,17 @@
 int main(int argc, char** argv) {
 	parse_flags(argc, argv);
 
-	json_t* json_results = json_array();
+	recording* record = load_recording(FLAGS.recording_path);
 
-	// TODO: unhardcode path
-	recording* r = load_recording(FLAGS.recording_path); // "/mnt/data/prvak/hash-ops.0x7f566e3cb0e0");
+	json_t* json_results = json_array();
+	uint64_t times[20];
 	for (int i = 0; FLAGS.measured_apis[i]; ++i) {
 		const dict_api* api = FLAGS.measured_apis[i];
 		log_info("running recording on %s", api->name);
 		struct metrics result;
-		result = measure_recording(api, r);
+		result = measure_recording(api, record);
 
 		json_t* point = json_object();
-		// TODO: Size shouldn't be a made up integer.
-		// TODO: Experiments should be distinguished.
 		json_object_set_new(point, "implementation",
 				json_string(api->name));
 		json_object_set_new(point, "metrics",
@@ -31,15 +29,20 @@ int main(int argc, char** argv) {
 				json_integer(result.time_nsec));
 		json_array_append_new(json_results, point);
 		measurement_results_release(result.results);
-	}
-	destroy_recording(r);
 
-	log_verbose(1, "flushing results...");
+		times[i] = result.time_nsec;
+	}
+	destroy_recording(record);
+
 	CHECK(!json_dump_file(json_results,
 				"experiments/vcr/results.json",
 				JSON_INDENT(2)), "cannot dump results");
-	log_verbose(1, "done");
-
 	json_decref(json_results);
+
+	for (int i = 0; FLAGS.measured_apis[i]; ++i) {
+		log_info("%30s: %14" PRIu64 " ns", FLAGS.measured_apis[i]->name,
+				times[i]);
+	}
+
 	return 0;
 }
