@@ -19,54 +19,55 @@ Finally, the \textit{dynamic finger theorem} claims that splay trees are also
 fast when accessing keys that are numerically close to recently accessed keys.
 All of these results are implied by the unproven \textit{dynamic optimality
 conjecture}, which proposes that splay trees are dynamically optimal binary
-search trees: if a binary search tree optimally tuned for the access sequence
-$S$ needs $\mathrm{OPT}(S)$ operations to perform the access sequence $S$,
-splay trees are presumed to only need $\O(\mathrm{OPT}(x))$ steps.
+search trees: if a dynamic binary search tree optimally tuned for an access
+sequence $S$ needs $\mathrm{OPT}(S)$ operations to perform the accesses, splay
+trees are presumed to only need $\O(\mathrm{OPT}(S))$ steps.
 
-TODO: disadvantage - slow individual operations, lots of local adjustments
-
+Let us also denote stored keys as $K_1,\ldots K_N$ in sorted order.
 As binary search trees, splay trees are composed of nodes, each of which
 contains one key and its associated value. A node has up to two children,
 denoted \textit{left} and \textit{right}.
-The left subtree of a node with key $k$ contains only keys smaller than $k$ and,
-symetrically, the right subtree contains only keys larger than $k$.
+The left subtree of a node with key $K_i$ contains only keys smaller than $K_i$
+and, symetrically, the right subtree contains only keys larger than $K_i$.
 
-% To search for a key $K$, we use binary search as in usual trees:
-
-Splay trees are maintained using a heuristic called \textit{splaying}, which
-moves a specified node to the root of the tree by performing a sequence
-of edge rotations along the path from the root to this note.
-Rotations cost $\O(1)$ time each and they preserve the left-to-right order
-of nodes in the binary search tree. Rotations are defined in figure
+Splay trees are maintained via a heuristic called \textit{splaying}, which
+moves a specified node $x$ to the root of the tree by performing a sequence
+of edge rotations along the path from the root to $x$.
+Rotations cost $\O(1)$ time each and rotating any edge maintains
+the soundness of search trees. Rotations are defined by figure
 \ref{fig:rotation}.
+
+\newcommand{\hunk}[2]{ node [splay_hunk] (hunk#1-#2) {#1} }
 
 \begin{figure}
 \centering
+% TODO: DRY
 \tikzset{
   splay_node/.style = {align=center, inner sep=0pt, text centered, circle,
 	  font=\sffamily, draw=black, text width=1.2em},
   triangle/.style = {regular polygon, regular polygon sides=3, scale=0.8},
-  splay_placeholder/.style = {align=center, inner sep=0pt, text centered,
-	  triangle, font=\sffamily, draw=black, text width=1.2em},
+  % TODO: Edges shouldn't go *inside* the hunks.
+  splay_hunk/.style = {align=center, inner sep=0pt, text centered, triangle,
+	  font=\sffamily, draw=black, text width=1.2em},
 }
 \begin{tikzpicture}[]
-\node [splay_node] at (0, 0) (x-before) {x}
-child { node [splay_node] (y-before) {y}
-	child { node [splay_placeholder] (Ph1-b) {1} }
-	child { node [splay_placeholder] (Ph2-b) {2} }
+\node [splay_node] at (0, 0) (x-b) {$x$}
+child { node [splay_node] (y-b) {$y$}
+	child { \hunk{1}{b} }
+	child { \hunk{2}{b} }
 }
-child { node [splay_placeholder] (Ph3-b) {3} };
+child { \hunk{3}{b} };
 
-\node [fit=(x-before) (y-before) (Ph1-b) (Ph2-b) (Ph3-b)] (Before) {};
+\node [fit=(x-b) (y-b) (hunk1-b) (hunk2-b) (hunk3-b)] (Before) {};
 
-\node [splay_node] at (6, 0) (y-after) {y}
-child { node [splay_placeholder] (Ph1-a) {1} }
-child { node [splay_node] (x-after) {x}
-	child { node [splay_placeholder] (Ph2-a) {2} }
-	child { node [splay_placeholder] (Ph3-a) {3} }
+\node [splay_node] at (6, 0) (y-a) {$y$}
+child { \hunk{1}{a} }
+child { node [splay_node] (x-a) {$x$}
+	child { \hunk{2}{a} }
+	child { \hunk{3}{a} }
 };
 
-\node [fit=(x-after) (y-after) (Ph1-a) (Ph2-a) (Ph3-a)] (After) {};
+\node [fit=(x-a) (y-a) (hunk1-a) (hunk2-a) (hunk3-a)] (After) {};
 \path[->] ($(Before.east) + (+.5,+.5)$) edge node [above] {rotate right} ($(After.west)
 + (-.5,+.5)$);
 \path[->] ($(After.west) - (+.5,+.5)$) edge node [below] {rotate left} ($(Before.east)
@@ -76,11 +77,11 @@ child { node [splay_node] (x-after) {x}
 \label{fig:rotation}
 \end{figure}
 
-To splay a node $x$, we perform the following \textit{splaying step}
-until $x$ is the root:
+To splay a node $x$, we perform \textit{splaying steps}, which
+rotate edges between $x$, its parent $p$ and possibly its grandparent $g$
+until $x$ becomes the root. Up to left-right symmetry, there are three
+cases of splaying steps:
 
-Splaying step:
-Denote the splayed node by $x$, its parent by $p$ and its grandparent by $g$.
 \begin{itemize}
 \item[Case 1 (\textit{zig}):] If $p$ is the root, rotate the $px$ edge. (This case is terminal.)
 \item[Case 2 (\textit{zig-zig}):] If $p$ is not the root and $x$ and
@@ -93,9 +94,94 @@ Denote the splayed node by $x$, its parent by $p$ and its grandparent by $g$.
 
 \begin{figure}
 \centering
+% TODO: DRY
+\tikzset{
+  splay_node/.style = {align=center, inner sep=0pt, text centered, circle,
+	  font=\sffamily, draw=black, text width=1.2em},
+  triangle/.style = {regular polygon, regular polygon sides=3, scale=0.8},
+  splay_hunk/.style = {align=center, inner sep=0pt, text centered,
+	  triangle, font=\sffamily, draw=black, text width=1.2em},
+}
+\begin{tikzpicture}[]
+\node [splay_node] at (0, 0) (p-b) {$p$}
+child { node [splay_node] (x-b) {$x$}
+	child { \hunk{1}{b} }
+	child { \hunk{2}{b} }
+}
+child { \hunk{3}{b} };
+
+\node [draw=red, fit=(x-b) (p-b) (hunk1-b) (hunk2-b) (hunk3-b)] (Before) {};
+
+\node [splay_node] at (6, 0) (x-a) {$x$}
+child { \hunk{1}{a} }
+child { node [splay_node] (p-a) {$p$}
+	child { \hunk{2}{a} }
+	child { \hunk{3}{a} }
+};
+\node [draw=red, fit=(x-a) (p-a) (hunk1-a) (hunk2-a) (hunk3-a)] (After) {};
+% TODO: Should not need arithmetic here.
+\path[->] (Before.east) edge node [above] {zig} (After.west);
+
+\end{tikzpicture}
+
+\begin{tikzpicture}[]
+\node [splay_node] at (0, 0) (g-b) {$g$}
+child { node [splay_node] (p-b) {$p$}
+	child { node [splay_node] (x-b) {$x$}
+		child { \hunk{1}{b} }
+		child { \hunk{2}{b} }
+	}
+	child { \hunk{3}{b} }
+}
+child { \hunk{4}{b} };
+
+\node [draw=red, fit=(g-b) (p-b) (x-b) (hunk1-b) (hunk2-b) (hunk3-b) (hunk4-b)]
+	(Before) {};
+
+\node [splay_node] at (6, 0) (x-a) {$x$}
+child { \hunk{1}{a} }
+child { node [splay_node] (p-a) {$p$}
+	child { \hunk{2}{a} }
+	child { node [splay_node] (g-a) {$g$}
+		child { \hunk{3}{a} }
+		child { \hunk{4}{a} }
+	}
+};
+\node [draw=red, fit=(g-a) (x-a) (p-a) (hunk1-a) (hunk2-a) (hunk3-a) (hunk4-a)]
+	(After) {};
+\path[->] (Before.east) edge node [above] {zig-zig} (After.west);
+\end{tikzpicture}
+
+\begin{tikzpicture}[]
+\node [splay_node] at (0, 0) (g-b) {$g$}
+child { \hunk{1}{b} }
+child { node [splay_node] (p-b) {$p$}
+	child { node [splay_node] (x-b) {$x$}
+		child { \hunk{2}{b} }
+		child { \hunk{3}{b} }
+	}
+	child { \hunk{4}{b} }
+};
+
+\node [draw=red, fit=(g-b) (p-b) (x-b) (hunk1-b) (hunk2-b) (hunk3-b) (hunk4-b)]
+	(Before) {};
+
+\node [splay_node] at (6, 0) (x-a) {$x$}
+child { node [splay_node] (g-a) {$g$}
+	child { \hunk{1}{b} }
+	child { \hunk{2}{b} }
+}
+child { node [splay_node] (p-a) {$p$}
+	child { \hunk{3}{b} }
+	child { \hunk{4}{b} }
+};
+\node [draw=red, fit=(g-a) (x-a) (p-a) (hunk1-a) (hunk2-a) (hunk3-a) (hunk4-a)]
+	(After) {};
+\path[->] (Before.east) edge node [above] {zig-zag} (After.west);
+\end{tikzpicture}
+
 TODO: figure jako splay-trees.pdf (see page 5)
-\caption{The three cases of a splaying step up to left-right symmetry --
-	zig, zig-zig and zig-zag.}
+\caption{The cases of splay steps.}
 %\label{fig:splay-step}
 \end{figure}
 
@@ -130,7 +216,6 @@ a fixed positive weight $w(K)$ to every key $K$. Let us denote the subtree
 rooted at a node $x$ as $T[x]$ and the key stored in $x$ as $T(x)$.
 Define the size $s(x)$ of a node $x$ as $\sum_{y\in T[x]} w(T(y))$
 and the rank $r(x)$ as $\log s(x)$.
-Let us also denote the keys stored in $K$ as $K_1,\ldots K_N$ in sorted order.
 For amortization, let us define the potential $\Phi$ of the tree to be the sum
 of the ranks of all its nodes. Since every rotation can be performed in $\O(1)$
 pointer assignments, we will measure the time to splay a node in the number
