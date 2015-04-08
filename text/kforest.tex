@@ -63,3 +63,22 @@ until the forest is fixed.
 then promotes items from all trees $T_{i+1},T_{i+2},\ldots$
 
 % TODO: theorems about speeds of finds, inserts, deletes
+TODO: find complexity == entropy
+
+\cite{alternatives-to-splay-trees} and \cite{unified-access-bound} extend
+K-forests to build data structures with the \textit{unified property}.
+TODO: crossref s splay.tex
+TODO: unified-access-bound = K-forest + finger search tree???
+unified-access-bound-on-comparison-dicts.pdf
+
+\cite{dynamic-optimality-for-sl} uses a similar doubly exponential construction
+to build a self-adjusting skip list. Operations on this skip list take time
+$\O(\log t_i(x_j))$ TODO:fix and define vars, which matches the working set
+bound on splay trees. This structure is also shown to be dynamically optimal
+for the SL-B model, which corresponds to skip lists which allow at most
+$B$ forward moves on any level (for some fixed $B$). Skip lists in the
+SL-B model can be represented as B-trees via a construction from
+TODO: Exploring the duality between skip lists and binary search trees
+. This representation yields a B-tree that is dynamically optimal
+in the external memory model.
+TODO: overit, tohle zni zajimave
