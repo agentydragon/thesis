@@ -315,7 +315,9 @@ FUNCTION {format.url}
 { url empty$
     { "" }
     % 2015-03-12
-    { new.block "Dostupn{\'{e}}~z: $\texttt{<{" url * "}>}$" * }
+    % { new.block "Dostupn{\'{e}}~z: $\texttt{<{" url * "}>}$" * }
+    % 2015-04-08 prvak@ change to "Available at:"
+    { new.block "Available~at: $\texttt{<{" url * "}>}$" * }
   if$
 }
 
