@@ -41,6 +41,13 @@ asm: bin/test
 bin/experiments/btree-dot: $(SOURCES) experiments/btree-dot/btree-dot.c
 	$(CC) -g $(CFLAGS) $(SOURCES) experiments/btree-dot/btree-dot.c $(LIBS) -o $@
 
+# experiments/cloud
+CLOUD_SOURCES=$(SOURCES) measurement/measurement.c measurement/stopwatch.c experiments/cloud/cloud.c
+CLOUD_CFLAGS=$(CFLAGS) $(shell pkg-config --cflags jansson)
+CLOUD_LIBS=$(LIBS) $(shell pkg-config --libs jansson)
+bin/experiments/cloud: $(CLOUD_SOURCES)
+	$(CC) -g $(CLOUD_CFLAGS) -DNDEBUG $(CLOUD_SOURCES) $(CLOUD_LIBS) -o $@
+
 # experiments/performance
 
 # bin/experiments/performance depends on jansson

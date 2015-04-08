@@ -28,6 +28,12 @@ For benchmarking, you need:
 * [jansson](http://www.digip.org/jansson/) for JSON output
 * [matplotlib](http://matplotlib.org/) for plotting graphs
 
+`experiments/btree-dot` needs:
+* [graphviz](http://www.graphviz.org/) for rendering graphs
+
+`experiments/cloud` needs:
+* [urllib3](https://urllib3.readthedocs.org/) for fetching the dataset
+
 ## Running tests
 ```bash
 make test
