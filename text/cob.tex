@@ -513,8 +513,14 @@ An alternative deamortized ordered file maintenance data structure
 developed by \cite{willard92} performs $\Theta(\frac{\log^2 N}{B})$
 block transfers in the worst case. A cache-oblivious B-tree backed by this
 structure would limit the worst-case number of block transfers from
-$\Theta(\frac{N}{\log N})$ to just $\Theta(\frac{\log^2 N}{B}+\log_B N)$ while
-keeping the amortized bound at $\Theta(\log_B N)$.
+$\Theta(\frac{N}{\log N})$ to just $\Theta(\frac{\log^2 N}{B}+\log_B
+N)$ while keeping the amortized bound at $\Theta(\log_B N)$.
+
+% TODO: Should I mention this?
+% \footnote{
+% 	In a practical implementation, the worst-case bound needs an additional
+% 	$\frac{N}{B}$ term to account for necessary reallocations of
+% 	the backing array once it becomes too full.}
 
 As we observed with applying the van Emde Boas layout, removing auxilliary
 data can greatly speed up operations -- the tree in van Emde Boas layout has

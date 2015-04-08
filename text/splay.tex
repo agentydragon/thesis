@@ -3,10 +3,10 @@
 Splay trees are a well-known variant of binary search trees introduced
 by \cite{splay} that adjust their structure with every operation, including
 lookups. Splay tree operations take $\O(\log N)$ amortized time, which is
-similar to common balanced binary search trees, like AVL trees or
+similar to common binary BSTs, like AVL trees or
 red-black trees.
 
-However, unlike balanced search trees, splay trees adjust their structure
+However, unlike BSTs, splay trees adjust their structure
 according to the access pattern, and a family of theorems proves that
 various non-random access patterns are fast on splay trees.
 According to the \textit{static optimality theorem}, the running time
@@ -79,8 +79,8 @@ child { node [splay_node] (x-a) {$x$}
 
 To splay a node $x$, we perform \textit{splaying steps}, which
 rotate edges between $x$, its parent $p$ and possibly its grandparent $g$
-until $x$ becomes the root. Up to left-right symmetry, there are three
-cases of splaying steps:
+until $x$ becomes the root. Splaying a node of depth $d$ takes time $\Theta(d)$.
+Up to left-right symmetry, there are three cases of splaying steps:
 
 \begin{itemize}
 \item[Case 1 (\textit{zig}):] If $p$ is the root, rotate the $px$ edge. (This case is terminal.)
@@ -168,141 +168,141 @@ child { node [splay_node] (p-b) {$p$}
 
 \node [splay_node] at (6, 0) (x-a) {$x$}
 child { node [splay_node] (g-a) {$g$}
-	child { \hunk{1}{b} }
-	child { \hunk{2}{b} }
+	child { \hunk{1}{a} }
+	child { \hunk{2}{a} }
 }
 child { node [splay_node] (p-a) {$p$}
-	child { \hunk{3}{b} }
-	child { \hunk{4}{b} }
+	child { \hunk{3}{a} }
+	child { \hunk{4}{a} }
 };
 \node [draw=red, fit=(g-a) (x-a) (p-a) (hunk1-a) (hunk2-a) (hunk3-a) (hunk4-a)]
 	(After) {};
 \path[->] (Before.east) edge node [above] {zig-zag} (After.west);
 \end{tikzpicture}
 
-TODO: figure jako splay-trees.pdf (see page 5)
 \caption{The cases of splay steps.}
 %\label{fig:splay-step}
 \end{figure}
 
-Splaying a node $x$ of depth $d$ takes $\Theta(d)$ time, which is the same
-as the time to access $x$ from the root.
 % Splaying reduces the depth of every node along the access path by roughly
 % one half. TODO: fakt? TODO: figure
 
-To \textsc{Find} a key in a splay tree, we use binary search as in any
-binary search tree: in every node, we compare its key $k$ with $K$, and
-if $k \neq K$, we continue to the left subtree or to the right subtree.
+To \textsc{Find} a key $K_F$ in a splay tree, we use binary search as in any
+binary search tree: in every node, we compare its key $K_i$ with $K_F$, and
+if $K_i \neq K_F$, we continue to the left subtree or to the right subtree.
 If the subtree we would like to descend into is empty, the search is aborted,
-since $K$ is not present in the tree.
-In splay trees, after the search finishes (successfully or unsuccessfully),
-we splay the last visited node.
-An \textsc{Insert} is similar - we find the right place for the new node,
-insert it, and finally splay it up.
+since $K_F$ is not present in the tree.
+After the search finishes (successfully or unsuccessfully), we splay the last
+visited node. An \textsc{Insert} is similar - we find the right place for the
+new node, insert it, and finally splay it up.
 
 \textsc{Delete}s are slightly more complex. We first find and splay the node $x$
-we need to delete. If $x$ has one child after splaying, we delete it and replace
-it by its only child. One possible way to handle the case of two children is
-finding the rightmost node $x^-$ in $x$'s left subtree and splaying it just
-below $x$. By definition, $x^-$ is the largest in $x$'s left subtree, so it
-must have no right child after splaying below $x$. We delete $x$ and link
+that we need to delete. If $x$ has one child after splaying, we delete it and
+replace it by its only child. One possible way to handle the case of two
+children is finding the rightmost node $x^-$ in $x$'s left subtree and splaying
+it just below $x$. By definition, $x^-$ is the largest in $x$'s left subtree,
+so it must have no right child after splaying below $x$. We delete $x$ and link
 its right subtree below $x^-$.
 
-The amortized complexity of the splay operation is $\O(\log N)$,
-so \textsc{Find}s and updates on splay trees also have this complexity.
+For the purposes of analysis, we assign a fixed positive weight $w(K_i)$
+to every key $K_i$. Setting $w(K_i)$ to $1/N$ allows us to prove that
+the amortized complexity of the splay operation is $\O(\log N)$, which implies
+that splay tree \textsc{Find}s and updates also take amortized logarithmic time.
+Proofs of further complexity results will use the same similar analysis with
+other assignments of $w$.
 
-The performance of the \textsc{Splay} operation can be analyzed by assigning
-a fixed positive weight $w(K)$ to every key $K$. Let us denote the subtree
-rooted at a node $x$ as $T[x]$ and the key stored in $x$ as $T(x)$.
-Define the size $s(x)$ of a node $x$ as $\sum_{y\in T[x]} w(T(y))$
-and the rank $r(x)$ as $\log s(x)$.
+Let us denote the subtree rooted at a node $x$ as $T[x]$
+and the key stored in $x$ as $T(x)$. Define the size $s(x)$ of a node $x$ as
+$\sum_{y\in T[x]} w(T(y))$ and the rank $r(x)$ as $\log s(x)$.
 For amortization, let us define the potential $\Phi$ of the tree to be the sum
-of the ranks of all its nodes. Since every rotation can be performed in $\O(1)$
-pointer assignments, we will measure the time to splay a node in the number
+of the ranks of all its nodes. In a sequence of $M$ accesses, if the $i$-th
+access takes time $t_i$, define its amortized time $a_i$ to be
+$t_i+\Phi_{i-1}-\Phi_{i}$. Expanding and telescoping the total access time
+yields $\sum_{i=1}^M t_i=\Phi_0-\Phi_M+\sum_{i=1}^m a_i$.
+
+We will bound the magnitude of every $a_i$ and of the total potential drop
+$\Phi_0-\Phi_M$ to obtain an upper bound on $\sum_{i=1}^M t_i$.
+Since every rotation can be performed in $\O(1)$
+pointer assignments, we can measure the time to splay a node in the number
 of rotations performed (or 1 if no rotations are needed).
 
-% TODO: to je lemma
 \begin{lemma}
-The amortized time to splay a node $x$ in a tree with root
-$t$ is $3(r(t)-r(x))+1 = \O(\log(s(t)/s(x)))$.
+The amortized time $a$ to splay a node $x$ in a tree with root $t$
+is at most $3(r(t)-r(x))+1 = \O(\log(s(t)/s(x)))$.
 \end{lemma}
 \begin{proof}
-If $x=t$, there were no rotations and the bound is immediate.
-Thus suppose there is at least one rotation. Consider any splaying step.
+If $x=t$, we need no rotations and the cost of splaying is 1.
+Assume that  $x\neq t$, so at least one rotation is needed.
+Consider the $j$-th splaying step.
 Let $s$ and $s'$, $r$ and $r'$ denote the size and rank functions just before
-and just after the step, respectively. We show that the amortized time for
-the step is at most $3(r'(x)-r(x))+1$ in case 1 and at most $3(r'(x)-r(x))$
-in case 2 or case 3. Let $p$ be the original parent of $x$ and $g$ the original
-grandparent of $x$ (if it exists).
+and just after the step, respectively. We show that the amortized time
+$a_j$ for the step is at most $3(r'(x)-r(x))+1$ in case 1
+and at most $3(r'(x)-r(x))$ in case 2 or case 3. Let $p$ be the original parent
+of $x$ and $g$ the original grandparent of $x$ (if it exists).
 
 \begin{itemize}
 \item[Case 1 (\textit{zig}):]
 	The only needed rotation of the $px$ edge may only change the rank of
-	$x$ and $p$, so the amortized time for this step is
-	$1 + r'(x) + r'(p) - r(x) - r(p)$.
-	Because $r(p)\geq r'(p)$, the amortized time is $\leq 1+r'(x)-r(x)$.
-	Finally, since $r'(x)\geq r(x)$, the amortized time is also
-	$\leq 1+3(r'(x)-r(x))$.
+	$x$ and $p$, so $a_j=1+r'(x)+r'(p)-r(x)-r(p)$.
+	Because $r(p)\geq r'(p)$, we also have $a_j\leq 1+r'(x)-r(x)$.
+	Furthermore, $r'(x)\geq r(x)$, so $a_j\leq 1+3(r'(x)-r(x))$.
 
 \item[Case 2 (\textit{zig-zig}):]
 	The two rotations may change the rank of $x$, $p$ and $g$,
-	so the amortized time for the zig-zig step is
-	$2+r'(x)+r'(y)+r'(z)-r(x)-r(y)-r(z)$. The zig-zig step
+	so $a_j=2+r'(x)+r'(y)+r'(z)-r(x)-r(y)-r(z)$. The zig-zig step
 	moves $x$ to the original position of $g$, so $r'(x)=r(g)$.
 	Before the step, $x$ was $p$'s child, and after the step,
 	$p$ was $x$'s child, so $r(x)\leq r(p)$ and $r'(p)\leq r'(x)$.
-	Thus the amortized time for this step is at most $2+r'(x)+r'(g)-2r(x)$.
+	Thus $a_j\leq 2+r'(x)+r'(g)-2r(x)$.
 	We claim that this is at most $3(r'(x)-r(x))$, that is, that
 	$2r'(x)-r(x)-r(g)\geq 2$.
 
 	$2r'(x)-r(x)-r'(g)=-\log\frac{s(x)}{s'(x)}-\log\frac{s'(g)}{s'(x)}$.
 	We have $s(x)+s'(g)\leq s'(x)$.
 
-	If $a,b\geq 0$ and $a+b\leq 1$, $\log a + \log b$ is maximized
-	by setting $a = b = \frac{1}{2}$, which yields $\log a + \log b = -2$.
-	Thus the inequality above is correct and the amortized time is
-	at most $3(r'(x)-r(x))$.
+	If $p,q\geq 0$ and $p+q\leq 1$, $\log p+\log q$ is maximized
+	by setting $p=q=\frac{1}{2}$, which yields $\log p+\log q=-2$.
+	% TODO: which inequality above?
+	Thus $2r'(x)-r(x)-r(g)\geq 2$ and $a_j \leq 3(r'(x)-r(x))$.
 
 \item[Case 3 (\textit{zig-zag}):]
 	The amortized time of the zig-zag step is
-	$2+r'(x)+r'(p)+r'(g)-r(x)-r(p)-r(g)$. $r'(x)=r(g)$ and $r(x)\leq r(p)$,
+	$a_j=2+r'(x)+r'(p)+r'(g)-r(x)-r(p)-r(g)$. $r'(x)=r(g)$ and $r(x)\leq r(p)$,
 	so the time is $\leq 2+r'(p)+r'(g)-2r(x)$.
 	We claim that this is at most $2(r'(x)-r(x))$, i.e.
 	$2r'(x)-r'(p)-r'(g)\geq 2$. This can be proven
 	similarly to case 2 from the inequality $s'(p)+s'(g)\leq s'(x)$.
-	Thus the amortized time for a zig-zag step is at most
-	$2(r'(x)-r(x))\leq 3(r'(x)-r(x))$.
+	Thus the $a_j \leq 2(r'(x)-r(x))\leq 3(r'(x)-r(x))$.
 \end{itemize}
 
-By telescoping the sum of amortized time for all performed steps until
-$x$ becomes the root $t$, we get an upper bound of $3(r'(t)-r(x))+1$
-for the entire splaying operation.
+Telescoping $\sum a_j$ along the splayed path yields an upper bound of
+$a \leq 3(r'(t)-r(x))+1$ for the entire splaying operation.
 \end{proof}
 
-Note that over any sequence of $M$ splay operations
+Note that over any sequence of splay operations
 % TODO: key vs. node assignment: w(i)
-the total potential $\Phi$ may only drop by up to $\sum_{i=1}^N \log(W/w(K_i))$
+the potential $\Phi$ may only drop by up to $\sum_{i=1}^N \log(W/w(K_i))$
 where $W=\sum_{i=1}^N w(K_i)$, since the size of the node containing $K_i$
 must be between $w(K_i)$ and $W$.
 
-Assigning different weights $w$ yields several basic results.
-
 \begin{theorem}[Balance Theorem]
-A sequence of $M$ \textsc{Find}s on a splay tree with $N$ nodes takes time
+A sequence of $M$ splay operations on a splay tree with $N$ nodes takes time
 $\O((M+N)\log N+M)$.
 \end{theorem}
 \begin{proof}
-Assign $w(K_i) = \frac{1}{N}$ to every key $K_i$. The amortized
+Assign $w(K_i)=1/N$ to every key $K_i$. The amortized
 access time for any key is at most $3\log N+1$. We have $W=1$, so by
 the previous observation the potential drops by at most $N\log N$ over
 the access sequence. Thus the time to perform the access sequence is at most
 $(3\log N+1)M + N\log N = \O((M+N)\log N + M)$.
 \end{proof}
 
-TODO: relate Balance theorem and costs of inserts and deletes
+The balance theorem states that on a sufficiently long sequence, lookups in
+a splay tree are as efficient as in any static search tree, including
+usual balancing search trees (like AVL or red-black trees).
 
-For any key $K_i$, let $q(K_i)$ be the number of accesses to $K_i$ in an access
-sequence.
+For any key $K_i$, let $q(K_i)$ be the number of occurences of $K_i$
+in an access sequence.
 \begin{theorem}[Static Optimality Theorem]
 If every key is accessed at least once, the the total access time is
 $\O(M + \sum_{i=1}^N q(K_i)\log\frac{M}{q(K_i)})$.
@@ -310,26 +310,40 @@ $\O(M + \sum_{i=1}^N q(K_i)\log\frac{M}{q(K_i)})$.
 \begin{proof}
 Assign a weight of $q(i)/M$ to every key $i$. For any key $i$, its
 amortized time per access is $3(r(t)-r(x))+1=-3r(x)+1=-3\log(s(x))+1\leq
-	-3\log(w(x))=O(\log(M/q(i)))$.
+	-3\log(w(x))+1=O(\log(M/q(i)))$.
 Since $W=1$, the net potential drop over the sequence is at most
-$\sum_{i=1}{N}\log(M/q(i))$. The result follows.
+$\sum_{i=1}^{N}\log(M/q(i))$. The result follows.
 \end{proof}
 
-Let us denote the indices of accessed keys as $a_1, \ldots a_M$
-in the order they are accessed, where $a_i \in \{1,\ldots N\}$.
-TODO: This is pretty much wrong.
+Note that the time to perform the access sequence is equal to
+$\O(M \cdot (1 + H(P)))$, where $H(P)$ is the entropy of the access probability
+distribution defined as $P(i)=q(i)/M$. All static trees must take time
+$\Omega(M\cdot (1+H(P)))$ for the access sequence, so splay trees are statically
+optimal.
+% TODO: cite: ABRAMSON, N. Information Theory and Coding. McGraw-Hill, New York, 1983.
+
+Let us denote the indices of accessed keys in an access sequence $S$ as
+$k_1, \ldots k_M$ so that $S=(K_{k_i})_{i=1}^M$.
 
 \begin{theorem}[Static Finger Theorem]
-Fix any key $i_f$. Then the total access time is $\O(N\log N + M +
-\sum_{j=1}^M \log(|a_j-f|+1))$.
+Given any chosen key $K_f$, the total access time is
+$\O(N\log N + M + \sum_{j=1}^M \log(|k_j-f|+1))$.
 \end{theorem}
 \begin{proof}
 	% TODO: proof missing here
 \end{proof}
 
-For any access $j\in\{1,\ldots M\}$, let $t(j)$ be the number of different
-keys accessed since the last access of key $i_{a_j}$ or since the
-beginning of the access sequence.
+As proven in \cite{dynamic-finger-1} and \cite{dynamic-finger-2},
+accessing keys numerically close to recently accessed keys is also fast:
+\begin{theorem}[Dynamic Finger Theorem]
+The cost of performing an access sequence is
+$\O(N+M+\sum_{i=2}^M \log(|k_i-k_{i-1}| + 1))$.
+\end{theorem}
+
+For any $j\in\{1,\ldots M\}$, define $t(j)$ to be the number of distinct
+keys accessed since the last access of key $K_{k_j}$. If $K_{k_j}$ was not
+accessed before, $t(j)$ is picked to be the number of distinct keys accessed
+so far.
 \begin{theorem}[Working Set Theorem]
 The total access time is $\O(N\log N + M + \sum_{j=1}^M\log(t(j)+1))$.
 \end{theorem}
@@ -337,38 +351,27 @@ The total access time is $\O(N\log N + M + \sum_{j=1}^M\log(t(j)+1))$.
 	% TODO: proof missing here
 \end{proof}
 
-The balance theorem states that on a sufficiently long sequence, lookups in
-the splay tree are as efficient as in any balanced search tree. The static
-optimality theorem implies that the splay tree is as efficient as any fixed
-search tree, including the optimum tree for the given sequence, since
-it is known that any sequence of accesses on a binary search tree
-takes time at least $\Omega(M+\sum_{i=1}^N q(i)\log(M/q(i)))$.
-% TODO: cite: ABRAMSON, N. Information Theory and Coding. McGraw-Hill, New York, 1983.
-
 % TODO: Nope. That's dynamic finger theorem.
-The static finger theorem can be interpreted to mean that accessing keys
-whose value is close to a recently accessed value is fast.
-Finally, the working set theorem implies that most recently
-accessed keys (the "working set") are cheap to access, which
-makes splay trees behave well when the access pattern exhibits temporal
-locality.
+The working set theorem implies that most recently accessed keys (the
+"working set") are cheap to access, which makes splay trees behave well when
+the access pattern exhibits temporal locality.
 
-Further known results about splay trees include the \textit{dynamic finger
-theorem} proven in \cite{dynamic-finger-1} and \cite{dynamic-finger-2}:
-\begin{theorem}[Dynamic Finger Theorem]
-The cost of performing an access sequence $a_1,\ldots a_M$ is
-$\O(N+M+\sum_{i=2}^M \log(|a_i-a_{i-1}| + 1))$.
-\end{theorem}
-
-TODO: dynamic optimality conjecture
-
-It is well-known that splay trees are $\O(\log N)$-competitive.
-TODO: cite 'Dynamic Optimality - Almost' by Demaine-Harmon-Iacono-Patrascu
-(Tango trees)
-TODO: how to splay for log log N-competitiveness: Demaine et al.; Derryberry et
-al.; Georgakopoulos
-
-
+The dynamic optimality conjecture, which states that splay trees are
+$\O(1)$ competitive compared to any dynamic search tree, is an open problem.
+Since \cite{splay}, it was well-known that splay trees are
+$\O(\log N)$-competitive.
+\cite{tango} proposed building alternative search trees with small
+non-constant competitive factors, and invented the \textit{tango tree}, which
+is $\O(\log\log N)$ competitive. However, worst-case performance of tango trees
+is not very good: on pathological sequences, they underperform plain BSTs
+by a factor of $\O(\log\log N)$.
+\cite{chain-splaying} extends splaying with some housekeeping operations
+below the splayed element and proves that this \textit{chain-splay} heuristic
+in $\O(\log\log N)$ competitive.
+Finally, \cite{multisplay-trees} presents \textit{multi-splay trees},
+which are $\O(\log\log N)$ competitive. Unlike tango trees, they have
+an amortized access time of $\O(\log N)$. The worst case access time is
+even better than splay trees: $\O(\log^2 N)$.
 \section{Implementation}
 % TODO: top-down splay
 
@@ -389,7 +392,7 @@ $\O(\log_B N)$, so accessing a small working set is slower on larger
 dictionaries.
 
 \cite{alternatives-to-splay-trees} introduces a data structure based
-on $k$-forests, which we describe in chapter \ref{chapter:forest}.
+on $k$-forests, which we describe in chapter \ref{chapter:kforest}.
 This structure has the \textit{unified property}, which is a strong
 generalization of the dynamic finger property and the working set property.
 It is not known whether splay trees also have the unified property.
@@ -403,7 +406,7 @@ to be non-random. For example, splay trees are used in the FreeBSD kernel
 to store the mapping from virtual memory areas to
 addresses\cite{freebsd-vm-splay}. % TODO: The citation looks horrible.
 % TODO: The citation is also probably incorrect. Check the standard.
-Unfortunately, splay trees are much slower than balanced search trees on less
+Unfortunately, splay trees are much slower than BSTs on less
 regular access patterns: splaying always performs costly memory writes.
 For some applications (e.g. real-time systems), worst-case $\O(N)$ performance
 is also unacceptable (especially if the splay tree stores data entered by
