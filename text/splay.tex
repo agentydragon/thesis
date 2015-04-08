@@ -120,7 +120,8 @@ child { node [splay_node] (p-a) {$p$}
 };
 \node [draw=red, fit=(x-a) (p-a) (hunk1-a) (hunk2-a) (hunk3-a)] (After) {};
 % TODO: Should not need arithmetic here.
-\path[->] (Before.east) edge node [above] {zig} (After.west);
+\path[->] ($(Before.east) + (+.5,0)$) edge node [above] {zig}
+	($(After.west) - (+.5,0)$);
 
 \end{tikzpicture}
 
@@ -149,10 +150,14 @@ child { node [splay_node] (p-a) {$p$}
 };
 \node [draw=red, fit=(g-a) (x-a) (p-a) (hunk1-a) (hunk2-a) (hunk3-a) (hunk4-a)]
 	(After) {};
-\path[->] (Before.east) edge node [above] {zig-zig} (After.west);
+\path[->] ($(Before.east) + (+.5,0)$) edge node [above] {zig-zig}
+	($(After.west) - (+.5,0)$);
 \end{tikzpicture}
 
-\begin{tikzpicture}[]
+\begin{tikzpicture}[
+	level 1/.style = {sibling distance=2.5cm},
+	level 2/.style = {sibling distance=1.2cm},
+]
 \node [splay_node] at (0, 0) (g-b) {$g$}
 child { \hunk{1}{b} }
 child { node [splay_node] (p-b) {$p$}
@@ -204,6 +209,7 @@ it just below $x$. By definition, $x^-$ is the largest in $x$'s left subtree,
 so it must have no right child after splaying below $x$. We delete $x$ and link
 its right subtree below $x^-$.
 
+\section{Time complexity bounds}
 For the purposes of analysis, we assign a fixed positive weight $w(K_i)$
 to every key $K_i$. Setting $w(K_i)$ to $1/N$ allows us to prove that
 the amortized complexity of the splay operation is $\O(\log N)$, which implies
@@ -319,8 +325,7 @@ Note that the time to perform the access sequence is equal to
 $\O(M \cdot (1 + H(P)))$, where $H(P)$ is the entropy of the access probability
 distribution defined as $P(i)=q(i)/M$. All static trees must take time
 $\Omega(M\cdot (1+H(P)))$ for the access sequence, so splay trees are statically
-optimal.
-% TODO: cite: ABRAMSON, N. Information Theory and Coding. McGraw-Hill, New York, 1983.
+optimal. A proof of this lower bound is available in \cite{information-theory}.
 
 Let us denote the indices of accessed keys in an access sequence $S$ as
 $k_1, \ldots k_M$ so that $S=(K_{k_i})_{i=1}^M$.
