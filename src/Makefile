@@ -37,6 +37,10 @@ bin/test_coverage: test.c $(SOURCES)
 asm: bin/test
 	objdump -S bin/test > asm.dump
 
+# experiments/btree-dot
+bin/experiments/btree-dot: $(SOURCES) experiments/btree-dot/btree-dot.c
+	$(CC) -g $(CFLAGS) $(SOURCES) experiments/btree-dot/btree-dot.c $(LIBS) -o $@
+
 # experiments/performance
 
 # bin/experiments/performance depends on jansson

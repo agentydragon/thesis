@@ -626,18 +626,29 @@ static void find_siblings(btree_node_persisted* node,
 	}
 }
 
-static void _dump_dot(btree_node_traversed node, FILE* output) {
-	fprintf(output, "    node%p[label = \"{%p|{",
-			node.persisted, node.persisted);
+#define BTREE_DOT_POINTERS_IN_LABELS false
+#define BTREE_DOT_VALUES_IN_LABELS false
 
+static void _dump_dot(btree_node_traversed node, FILE* output) {
+	fprintf(output, "    node%p[label = \"", node.persisted);
+
+	if (BTREE_DOT_POINTERS_IN_LABELS) {
+		fprintf(output, "{%p|", node.persisted);
+	} else {
+		fprintf(output, "{");
+	}
+	fprintf(output, "{");
 	if (nt_is_leaf(node)) {
 		for (uint8_t i = 0; i < get_n_leaf_keys(node.persisted); ++i) {
 			if (i != 0) {
 				fprintf(output, "|");
 			}
-			fprintf(output, "%" PRIu64 "=%" PRIu64,
-					node.persisted->leaf.keys[i],
+			fprintf(output, "%" PRIu64,
+					node.persisted->leaf.keys[i]);
+			if (BTREE_DOT_VALUES_IN_LABELS) {
+				fprintf(output, "=%" PRIu64,
 					node.persisted->leaf.values[i]);
+			}
 		}
 	} else {
 		for (uint8_t i = 0; i < get_n_internal_keys(node.persisted);
@@ -645,18 +656,19 @@ static void _dump_dot(btree_node_traversed node, FILE* output) {
 			fprintf(output, "<child%d>|%" PRIu64 "|",
 					i, node.persisted->internal.keys[i]);
 		}
-		fprintf(output, "<child%d>}}\"];\n", get_n_internal_keys(node.persisted));
+		fprintf(output, "<child%d>",
+				get_n_internal_keys(node.persisted));
 	}
 	fprintf(output, "}}\"];\n");
 
 	if (!nt_is_leaf(node)) {
-		for (uint8_t i = 0; i < get_n_internal_keys(node.persisted);
+		for (uint8_t i = 0; i <= get_n_internal_keys(node.persisted);
 				++i) {
 			fprintf(output, "    \"node%p\":child%d -> \"node%p\";\n",
 					node.persisted, i, node.persisted->internal.pointers[i]);
 		}
 
-		for (uint8_t i = 0; i < get_n_internal_keys(node.persisted);
+		for (uint8_t i = 0; i <= get_n_internal_keys(node.persisted);
 				++i) {
 			btree_node_traversed child = {
 				.persisted = node.persisted->internal.pointers[i],
@@ -669,6 +681,7 @@ static void _dump_dot(btree_node_traversed node, FILE* output) {
 
 void btree_dump_dot(const btree* this, FILE* output) {
 	fprintf(output, "digraph btree_%p {\n", this);
+	fprintf(output, "    splines = polyline;\n");
 	fprintf(output, "    node [shape = record, height = .1];\n");
 	// TODO: constness trouble and all, can't use nt_root here :(
 	btree_node_traversed root = {
