@@ -312,3 +312,14 @@ Additionally, the new data structure improves upon splay trees by guaranteeing
 a worst-case access time of $\O(\log N)$. Unfortunately, the structure
 (as described by the author) is static and highly complex: each node of
 the structure stores 21 pointers.
+
+Splay trees are frequently used in practice where access patterns are assumed
+to be non-random. For example, splay trees are used in the FreeBSD kernel
+to store the mapping from virtual memory areas to
+addresses\cite{freebsd-vm-splay}. % TODO: The citation looks horrible.
+% TODO: The citation is also probably incorrect. Check the standard.
+Unfortunately, splay trees are much slower than balanced search trees on less
+regular access patterns: splaying always performs costly memory writes.
+For some applications (e.g. real-time systems), worst-case $\O(N)$ performance
+is also unacceptable (especially if the splay tree stores data entered by
+an adversary).
