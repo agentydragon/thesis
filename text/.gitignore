@@ -6,6 +6,6 @@
 *.log
 *.lot
 *.out
-*.pdf
+thesis.pdf
 *.ps
 *.toc
