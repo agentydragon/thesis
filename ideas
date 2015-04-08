@@ -89,3 +89,62 @@ cache-sensitive b+ trees
 
 Opravit: je to 'good worst-case algorithms for inserting and deleting records in
 dense sequential files'
+
+prefetching ve vEB?
+
+TODO: alokovat pres huge pages?
+
+cache oblivious b-tree: jde concurrent?
+
+pearson correlation coefficient (for counter-time correlation)
+
+self-organizing heuristics for implicit data structures
+implicit data structures for weighted elements
+
+todo: unit test co neprovadi tolik Findu (Findy ovlivnuji splay-like struktury)
+TODO: mam vubec v K-splay spravne left-to-right?
+
+TODO: mmap, posix_memalign; pozor na aliasing
+
+To explore:
+	- optimal B-tree branching factor
+	- speed of RTL, LTR scans in random spots
+	- B-tree allocator slowdown (possibly large)
+	- real-world dataset (where from?)
+	- key/value size
+	- 32b ptrs
+
+TODO: aligned memcpy -- muze byt rychlejsi
+-fomit-frame-pointer
+-ggdb3
+
+porovnani s libdbm?
+
+__restrict (dealias ptrs)
+
+report space usage?
+
+CSB+ trees
+http://www.cs.columbia.edu/~kar/software/csb+/readme
+
+TODO: je OK jakym zpusobem vypadaji moje reference na citace?
+
+http://pizzachili.dcc.uchile.cl/texts/nlang/
+
+TLB miss muze byt duvod dvojnasobnych cache missu
+
+http://www.researchgate.net/publication/221131616_How_to_Splay_for_loglog_N-Competitiveness
+
+source: perf_event_open
+
+edited synoptic cloud reports from ships and land stations over the globe
+	^- idea: zaindexovat (lat, long) v Z-kodovani, pro nahodne body hledat
+	   blizke reporty
+
+Enron e-mails dataset
+U.S. census
+aws.amazon.com/public-data-sets
+wikipedia snapshot
+Indiana university Click dataset (HTTP requests)
+	^- given a website, find next click on that website
+	   key = 'timestamp;website hash'
