@@ -278,3 +278,39 @@ instances with most operations.
 
 TODO: what about variable-length keys (folding)
 TODO: what about values
+
+\subsection{Geospatial database}
+To test the performance of \textsc{FindNext} and \textsc{FindPrevious}, we
+simulated the workload of a simple database of geospatial data supporting
+local searching.
+
+We used data from \textit{Extended Edited Synoptic Cloud Reports from Ships and
+Land Stations Over the Globe, 1952-2009 (NDP-026C)} (\cite{cloud-reports}).
+The main part of this dataset consists of 196 compressed plaintext files
+containing one cloud report per line. Aside from many other fields,
+each report contains the date and UTC hour, the longitude and latitude of the
+reporting ship or land station and the measured air temperature and wind speed.
+Our simulated database loads all air temperature and wind speed measurements
+and indexes them by their coordinates. Given a position on the globe, the
+database can return a set of reports taken close to the position.
+% TODO: values aren't meaningful right now!
+
+To implement this database in the context of our general dictionary API,
+we map from latitude-longitude pairs to dictionary keys via a
+locality-preserving mapping called the \textit{Z-order} (or
+\textit{Morton order} after its inventor, who introduced it in
+\cite{morton-order}). The Z-order computes a one-dimensional key from
+a position in multiple dimensions simply by interleaving the bits of
+the coordinates.
+A possible alternative would be using a \textit{Hilbert curve}
+(\cite{hilbert-curve}), which guarantees that points with adjacent
+one-dimensional representations are also adjacent in the multidimensional
+space. We decided to use the Z-order for the simplicity of its mapping function.
+Because stations at one position usually give multiple reports, the key
+for our dictionary also needs to contain a unique identifier of the report,
+which we create by counting the reports from each unique position.
+
+Queries are implemented simply by calling \texttt{dict\_prev} and
+\texttt{dict\_next} and collecting the results. A non-toy database might
+perform some additional filtering to ensure only reports within a certain
+distance are returned.
