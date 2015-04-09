@@ -282,7 +282,11 @@ TODO: what about values
 \subsection{Geospatial database}
 To test the performance of \textsc{FindNext} and \textsc{FindPrevious}, we
 simulated the workload of a simple database of geospatial data supporting
-local searching.
+local searching. The source code for this experiment is stored in
+\texttt{experiments/cloud}. It can be built by running \texttt{make
+bin/experiments/cloud}. Before running the experiment, input data must
+be downloaded by running \texttt{./download.sh} from within
+\texttt{experiments/cloud}.
 
 We used data from \textit{Extended Edited Synoptic Cloud Reports from Ships and
 Land Stations Over the Globe, 1952-2009 (NDP-026C)} (\cite{cloud-reports}).
@@ -301,14 +305,37 @@ locality-preserving mapping called the \textit{Z-order} (or
 \textit{Morton order} after its inventor, who introduced it in
 \cite{morton-order}). The Z-order computes a one-dimensional key from
 a position in multiple dimensions simply by interleaving the bits of
-the coordinates.
+the coordinates. Because stations at one position usually give multiple reports,
+the key for our dictionary also needs to contain a unique identifier of
+the report, which we create by counting the reports from each unique position
+and append after the Z-order code of the position.
+
+\begin{figure}
+\centering
+\begin{tikzpicture}
+\node at (0,0) (z_2x2) {\begin{tikzpicture}
+	\draw[step=1cm,gray,very thin] (0,0) grid (2,2);
+	% NOTE: TikZ coordinate system has (0,0) in bottom left.
+	\draw[thick] (0.5,1.5) -- (1.5,1.5) -- (0.5,0.5) -- (1.5,0.5);
+	\end{tikzpicture}
+};
+\node at (4,0) (z_4x4) {\begin{tikzpicture}
+	\draw[step=1cm,gray,very thin] (0,0) grid (4,4);
+	% NOTE: TikZ coordinate system has (0,0) in bottom left.
+	\draw[thick] (0.5,3.5) -- (1.5,3.5) -- (0.5,2.5) -- (1.5,2.5) --
+		(2.5,3.5) -- (3.5,3.5) -- (2.5,2.5) -- (3.5,2.5) --
+		(0.5,1.5) -- (1.5,1.5) -- (0.5,0.5) -- (1.5,0.5) --
+		(2.5,1.5) -- (3.5,1.5) -- (2.5,0.5) -- (3.5,0.5);
+	\end{tikzpicture}
+};
+\end{tikzpicture}
+\caption{Z-order in two dimensions}
+\end{figure}
+
 A possible alternative would be using a \textit{Hilbert curve}
 (\cite{hilbert-curve}), which guarantees that points with adjacent
 one-dimensional representations are also adjacent in the multidimensional
 space. We decided to use the Z-order for the simplicity of its mapping function.
-Because stations at one position usually give multiple reports, the key
-for our dictionary also needs to contain a unique identifier of the report,
-which we create by counting the reports from each unique position.
 
 Queries are implemented simply by calling \texttt{dict\_prev} and
 \texttt{dict\_next} and collecting the results. A non-toy database might
