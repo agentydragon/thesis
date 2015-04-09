@@ -104,9 +104,10 @@ static void test_bit_ops() {
 static parsed_record* records = NULL;
 static uint64_t records_capacity = 0;
 static uint64_t records_size = 0;
+static dict* id_map;
 
-static void load_records() {
-	FILE* input = fopen("experiments/cloud/SEP97L", "r");
+static void load_records(const char* path) {
+	FILE* input = fopen(path, "r");
 	while (!feof(input)) {
 		char line[1024];
 		fgets(line, sizeof(line) - 1, input);
@@ -125,7 +126,21 @@ static void load_records() {
 		memcpy(buffer, r.lon_x100, sizeof(r.lon_x100));
 		pr.lon_x100 = atoi(buffer);
 
-		pr.id = records_size;
+		const uint64_t position_code = build_position_code(pr.lat_x100,
+				pr.lon_x100);
+		uint64_t value;
+		bool found;
+		ASSERT(dict_find(id_map, position_code, &value, &found) == 0);
+		if (found) {
+			ASSERT(dict_delete(id_map, position_code) == 0);
+			++value;
+		} else {
+			value = 0;
+		}
+		ASSERT(dict_insert(id_map, position_code, value) == 0);
+
+		pr.id = value;
+		ASSERT(pr.id < (1ULL << 20ULL));
 
 		// log_info("time=%.10s lat_x100=%.5s lon_x100=%.5s wind_dir_deg=%.3s",
 		// 		r.time, r.lat_x100, r.lon_x100,
@@ -144,7 +159,6 @@ static void load_records() {
 		records[records_size++] = pr;
 	}
 	fclose(input);
-	log_info("loaded %" PRIu64 " records", records_size);
 }
 
 struct {
@@ -152,12 +166,10 @@ struct {
 } FLAGS;
 
 static void set_defaults() {
-	FLAGS.measured_apis[0] = &dict_btree;
-	FLAGS.measured_apis[1] = &dict_cobt;
-	FLAGS.measured_apis[2] = &dict_splay;
-	FLAGS.measured_apis[3] = &dict_kforest;
-	FLAGS.measured_apis[4] = &dict_ksplay;
-	FLAGS.measured_apis[5] = NULL;
+	FLAGS.measured_apis[0] = &dict_cobt;
+	FLAGS.measured_apis[1] = &dict_splay;
+	FLAGS.measured_apis[2] = &dict_ksplay;
+	FLAGS.measured_apis[3] = NULL;
 }
 
 void parse_flags(int argc, char** argv) {
@@ -167,21 +179,77 @@ void parse_flags(int argc, char** argv) {
 	(void) argc; (void) argv;
 }
 
+static uint64_t build_record_code(parsed_record r) {
+	const uint64_t position_code = build_position_code(
+			r.lat_x100, r.lon_x100);
+	ASSERT(position_code < (1ULL << 35ULL));
+	ASSERT(r.id < (1ULL << 20ULL));
+
+	// 35 bits: lat_code, lon_code
+	// 24 bits: record identifier
+	return (position_code << 21ULL) | r.id;
+}
+
+static void query_close_points(dict* map, const int lat, const int lon) {
+	const uint64_t position_code = build_position_code(lat, lon);
+	const uint64_t key = position_code << 24ULL;
+
+	bool got_prev = true, got_next = true;
+
+	uint64_t total = 0;
+	uint64_t count = 0;
+
+	const uint64_t CLOSE = 1000;
+
+	for (uint64_t i = 0; i < CLOSE && got_next; ++i) {
+		uint64_t next = key;
+		ASSERT(dict_next(map, next, &next, &got_next) == 0);
+		if (got_next) {
+			bool found;
+			uint64_t value;
+			++count;
+			ASSERT(dict_find(map, next, &value, &found) == 0);
+			assert(found);
+			total += value;
+		}
+	}
+	for (uint64_t i = 0; i < CLOSE && got_prev; ++i) {
+		uint64_t prev = key;
+		ASSERT(dict_prev(map, prev, &prev, &got_prev) == 0);
+		if (got_prev) {
+			bool found;
+			uint64_t value;
+			++count;
+			ASSERT(dict_find(map, prev, &value, &found) == 0);
+			assert(found);
+			total += value;
+		}
+	}
+}
+
 static void test_api(const dict_api* api) {
 	dict* map;
 	ASSERT(dict_init(&map, api, NULL) == 0);
 
-	stopwatch watch = stopwatch_start();
+	// Insert all records.
 	for (uint64_t i = 0; i < records_size; ++i) {
-		const uint64_t position_code = build_position_code(
-				records[i].lat_x100, records[i].lon_x100);
-		assert(position_code < (1ULL << 35ULL));
-
-		// 35 bits: lat_code, lon_code
-		// 24 bits: record identifier
-		const uint64_t key = (position_code << 24ULL) |
-				(records[i].id & ((1 << 24ULL) - 1));
+		// TODO: meaningful values
+		const uint64_t key = build_record_code(records[i]);
 		ASSERT(dict_insert(map, key, 4242) == 0);
+	}
+
+	stopwatch watch = stopwatch_start();
+
+	// Find closest measurements for all grid points.
+	// for (int lat = -9000; lat < 9000; lat += 100) {
+	// 	for (int lon = 0; lon < 36000; lon += 100) {
+	for (uint64_t i = 0; i < 100000; ++i) {
+		{
+			const int lat = -9000 + rand() % (9000 * 2);
+			const int lon = rand() % 36000;
+			query_close_points(map, lat, lon);
+			// log_info("[%d;%d]: %" PRIu64, lat, lon, total / count);
+		}
 	}
 
 	log_info("%20s: %20" PRIu64 " ns", api->name, stopwatch_read_ns(watch));
@@ -193,7 +261,23 @@ int main(int argc, char** argv) {
 
 	test_bit_ops();
 
-	load_records();
+	const char* MONTHS[] = {
+		"JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+		"JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
+	};
+	const int MAX_YEAR = 2009;
+	log_info("loading records");
+	ASSERT(dict_init(&id_map, &dict_splay, NULL) == 0);
+	for (int year = 1997; year <= MAX_YEAR; ++year) {
+		for (int month = 0; month < 12; ++month) {
+			char filename[100];
+			sprintf(filename, "experiments/cloud/data/%s%02dL",
+					MONTHS[month], year % 100);
+			load_records(filename);
+		}
+	}
+	dict_destroy(&id_map);
+	log_info("loaded %" PRIu64 " records", records_size);
 
 	for (uint64_t i = 0; FLAGS.measured_apis[i]; ++i) {
 		test_api(FLAGS.measured_apis[i]);
