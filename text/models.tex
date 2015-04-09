@@ -21,7 +21,7 @@ The time complexity is the number of executed instructions as a function of
 input size and the space complexity is the maximum cell index accessed during
 execution\footnote{
 	The number of overwritten cells would be a simpler definition
-	of space complexity, but that would allow unrealistic "dirty tricks"
+	of space complexity, but that would allow unrealistic ``dirty tricks''
 	like maintaining an unordered set with deterministic $\O(1)$ time
 	for both updates and lookups by interpreting the key as a memory
 	location.
@@ -41,7 +41,7 @@ another 1 kB stored on swapped memory is so large that it cannot be ignored.
 There are two major types of RAM: \textit{static} and \textit{dynamic}.
 While static RAM stores information as states of logic gates, dynamic RAM
 uses capacitors, which lose charge over time. To avoid losing information,
-contents of dynamic RAM must be periodically refreshed by "reading" the data
+contents of dynamic RAM must be periodically refreshed by ``reading'' the data
 and writing it back. Dynamic RAM also has destructive reads: a read removes
 charge from capacitors, which must then be returned to keep the data.
 In general, static RAM is fast and expensive, while dynamic RAM is slow,
@@ -117,9 +117,9 @@ been developed to benchmark algorithms designed for hierarchical memory.
 \section{The external memory model}
 The simplest model of memory hierarchies has only two levels of memory:
 the \textit{cache} and the \textit{disk}\footnote{
-	We choose this naming to avoid the ambiguous term "memory",
-	which may mean both "main memory" in relation to a disk,
-	or an "external memory" in relation to a cache.
+	We choose this naming to avoid the ambiguous term ``memory'',
+	which may mean both ``main memory'' in relation to a disk,
+	or an ``external memory'' in relation to a cache.
 }. The motivation for omitting all other levels is that for practical purposes,
 only one gap between memory levels is usually the bottleneck. For example,
 the bottleneck in a 10 TB database would probably be disk I/O, because

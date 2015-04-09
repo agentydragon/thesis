@@ -69,9 +69,9 @@ where $p_i$ is the parent of $p_{i+1}$. A non-terminal step traverses these
 nodes in DFS order and collects \textit{external children} (i.e. children
 that are not present in $\{p_0,\ldots p_k\}$) and all key-value pairs of
 $p_0,\ldots p_k$ in sorted order.
-These children and key-value pairs are \textit{fused} into a "virtual node"
+These children and key-value pairs are \textit{fused} into a ``virtual node''
 with $(k+1)\cdot (k-1)$ keys and $(k+1)\cdot(k-1) + 1$ children. Finally,
-this "virtual node" is broken down into a fully balanced $k$-ary
+this ``virtual node'' is broken down into a fully balanced $k$-ary
 search tree of depth 2. There is only one unique way to arrange this
 $k$-ary search tree, because all its nodes must be complete. The root of this
 search tree becomes the new star node and a new $k$-splay step starts.

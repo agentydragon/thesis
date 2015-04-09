@@ -24,8 +24,8 @@ The \textit{van Emde Boas layout} of binary trees is a way of cache-obliviously
 maintaining full binary trees in memory such that reading or updating any
 root-to-leaf path in root-to-leaf or leaf-to-root order takes $\Theta(\log_B N)$
 block transfers.
-Then, the \textit{packed memory array} lets us store a "cache-oblivious linked
-list". The items of this "linked list" will represent key-value pairs.
+Then, the \textit{packed memory array} lets us store a ``cache-oblivious linked
+list''. The items of this ``linked list'' will represent key-value pairs.
 The packed memory array has fast updates in the amortized sense. Inserting
 and deleting items overwrites $\Theta(\frac{\log^2 N}{B})$ amortized memory
 blocks.
@@ -372,7 +372,7 @@ and 1. If an update keeps the density of the leaf block within thresholds,
 we perform the update by rewriting all $\Theta(\log N)$ items of the leaf block.
 When a block becomes too sparse or too dense, we walk up the binary
 tree until we find a node that fits our density requirements.
-Walking up the binary tree corresponds to "multiplying the range by two"
+Walking up the binary tree corresponds to ``multiplying the range by two''
 to the left or to the right.
 
 The density requirements become stricter as we walk up the virtual tree.
@@ -491,7 +491,7 @@ in $\Theta(\frac{\log^2 (N/\log N)}{B})$ amortized transfers.
 Similarly, if the piece is too sparse, we merge the piece with one of its
 neighbours. A neighbour can be found in $\O(1)$, because the pieces are
 stored in the packed memory array, which guarantees gaps of constant size.
-If the two pieces have more than $3P/4$ items, we only "borrow" some keys from
+If the two pieces have more than $3P/4$ items, we only ``borrow'' some keys from
 the neighbour and update the bootstrapping structure in $\Theta(\log_B N)$
 to reflect new piece minima.
 If there are less than $3P/4$ items in total, the pieces get merged and one
