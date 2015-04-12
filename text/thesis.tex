@@ -42,6 +42,7 @@
 \usepackage{algorithmicx}
 \usepackage{algpseudocode}
 \usepackage{listings}
+\usepackage{authoraftertitle}
 \lstset{
 	basicstyle=\footnotesize\ttfamily,
 	frame=single
@@ -50,10 +51,9 @@
 %%% Basic information on the thesis
 
 % Thesis title in English (exactly as in the formal assignment)
-\def\ThesisTitle{Practical data structures}
-
+\title{Practical data structures}
 % Author of the thesis
-\def\ThesisAuthor{Michael Pokorný}
+\author{Michael Pokorný}
 
 % Year when the thesis is submitted
 \def\YearSubmitted{2015}
@@ -102,8 +102,8 @@ TODO: abstract; recommended length ~80-200 words.
 %% metadata to PDF (including the table of contents).
 \usepackage[pdftex,unicode]{hyperref}   % Must follow all other packages
 \hypersetup{breaklinks=true}
-\hypersetup{pdftitle={\ThesisTitle}}
-\hypersetup{pdfauthor={\ThesisAuthor}}
+\hypersetup{pdftitle={\MyTitle}}
+\hypersetup{pdfauthor={\MyAuthor}}
 \hypersetup{pdfkeywords=\Keywords}
 
 \newtheorem{theorem}{Theorem}
