@@ -4,7 +4,7 @@
 The performance of $k$-splay trees may suffer on access sequences chosen
 by an adversary, because it is known that certain access sequences must
 take $\O(\log N)$ block transfers per element.
-In \citeyear{martel}, \citeauthor{martel} developed \textit{$k$-forests} --
+In \citeyear{martel}, \citeauthor{martel} developed \emph{$k$-forests} --
 a self-adjusting dictionary data structure based on a sequence of
 $k$-ary search trees of increasing size.
 
@@ -42,16 +42,16 @@ items in $T_2$, and so on.
 To \textsc{Find} a key, we scan the trees $T_i$ in increasing order of $i$.
 If we scan all trees and find no matches, the search is unsuccessful.
 Otherwise, the key-value pair is removed from its tree $T_i$ and inserted
-into $T_0$. We then \textit{demote} one item from tree $T_0$ to $T_1$,
+into $T_0$. We then \emph{demote} one item from tree $T_0$ to $T_1$,
 then from $T_1$ to $T_2$, and so on until all trees meet their size bounds.
 
-\cite{martel} describes two implementations of \textit{demotion}.
-The first one is a deterministic implementation named \textit{LRU demotion},
+\cite{martel} describes two implementations of \emph{demotion}.
+The first one is a deterministic implementation named \emph{LRU demotion},
 which maintains information about the time of last access to elements
 in every tree. The element pushed down to the next tree is always the least
 recently accessed one, so the trees $T_1,T_2,\ldots$ are maintained in sorted
 order with respect to last access time.
-A simpler implementation without auxilliary data is \textit{random demotion},
+A simpler implementation without auxilliary data is \emph{random demotion},
 which simply selects a random key from $T_i$ to demote to $T_{i+1}$.
 Both are equivalent in the sense that the expected time bounds arising
 from random demotion equal the deteministic time bounds of LRU demotion.
@@ -66,7 +66,7 @@ then promotes items from all trees $T_{i+1},T_{i+2},\ldots$
 TODO: find complexity == entropy
 
 \cite{alternatives-to-splay-trees} and \cite{unified-access-bound} extend
-K-forests to build data structures with the \textit{unified property}.
+K-forests to build data structures with the \emph{unified property}.
 TODO: crossref s splay.tex
 TODO: unified-access-bound = K-forest + finger search tree???
 unified-access-bound-on-comparison-dicts.pdf

@@ -195,12 +195,12 @@ TODO: track RAM
 TODO: cite perf
 
 \section{Synthetic experiments}
-Each synthetic experiment setup has a tunable \textit{size} $S$
+Each synthetic experiment setup has a tunable \emph{size} $S$
 (i.e. the maximum number of stored key-value pairs needed by the experiment).
 The synthetic setups include:
 \begin{itemize}
 \item
-	\textit{Random inserts and finds}: We generate pseudorandom key-value
+	\emph{Random inserts and finds}: We generate pseudorandom key-value
 	pairs by applying two deterministic invertible functions $k(i)$
 	and $v(i)$ for $i$ between 0 and $S-1$.
 	These simple functions use a Feistel network to provide
@@ -214,7 +214,7 @@ The synthetic setups include:
 	and finds.
 
 \item
-	\textit{Left-to-right scans}: We seed the structure with $S$ items
+	\emph{Left-to-right scans}: We seed the structure with $S$ items
 	as above. Then we traverse the dictionary from the minimum key to
 	the maximum key, reading the values as we go. We don't include
 	the seeding in our measurements.
@@ -222,7 +222,7 @@ The synthetic setups include:
 	allow predecessor and successor queries.
 
 \item
-	\textit{Working set patterns}: The working set experiment needs
+	\emph{Working set patterns}: The working set experiment needs
 	a fixed integer parameter $W<S$. We again randomly seed the dictionary
 	with $S$ items. Finally, $S$ times we access the key-value pair
 	with key $k(i)$, where $i$ is picked pseudorandomly from
@@ -231,7 +231,7 @@ The synthetic setups include:
 	a mostly-static ununiform access probability distribution.
 
 \item
-	\textit{Word occurence counting}: We load a large text document
+	\emph{Word occurence counting}: We load a large text document
 	and we tokenize it into words. Each word is then normalized
 	to lowercase and transformed into a 64-bit integer via a simple
 	hash function $h$. We create a dictionary storing counts of word
@@ -288,7 +288,7 @@ bin/experiments/cloud}. Before running the experiment, input data must
 be downloaded by running \texttt{./download.sh} from within
 \texttt{experiments/cloud}.
 
-We used data from \textit{Extended Edited Synoptic Cloud Reports from Ships and
+We used data from \emph{Extended Edited Synoptic Cloud Reports from Ships and
 Land Stations Over the Globe, 1952-2009 (NDP-026C)} (\cite{cloud-reports}).
 The main part of this dataset consists of 196 compressed plaintext files
 containing one cloud report per line. Aside from many other fields,
@@ -301,8 +301,8 @@ database can return a set of reports taken close to the position.
 
 To implement this database in the context of our general dictionary API,
 we map from latitude-longitude pairs to dictionary keys via a
-locality-preserving mapping called the \textit{Z-order} (or
-\textit{Morton order} after its inventor, who introduced it in
+locality-preserving mapping called the \emph{Z-order} (or
+\emph{Morton order} after its inventor, who introduced it in
 \cite{morton-order}). The Z-order computes a one-dimensional key from
 a position in multiple dimensions simply by interleaving the bits of
 the coordinates. Because stations at one position usually give multiple reports,
@@ -332,7 +332,7 @@ and append after the Z-order code of the position.
 \caption{Z-order in two dimensions}
 \end{figure}
 
-A possible alternative would be using a \textit{Hilbert curve}
+A possible alternative would be using a \emph{Hilbert curve}
 (\cite{hilbert-curve}), which guarantees that points with adjacent
 one-dimensional representations are also adjacent in the multidimensional
 space. We decided to use the Z-order for the simplicity of its mapping function.

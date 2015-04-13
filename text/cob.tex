@@ -3,7 +3,7 @@
 % TODO: assume B > 1
 % TODO: usual => good? best?
 % TODO: reference to B-tree article
-The \textit{cache-oblivious B-tree} introduced by \cite{cobt}
+The \emph{cache-oblivious B-tree} introduced by \cite{cobt}
 is a data structure which replicates the asymptotic performance of B-trees
 in a cache-oblivious setting.
 \textsc{Find}s and updates on cache-oblivious B-trees require $\Theta(\log_B N)$
@@ -20,16 +20,16 @@ The original cache-oblivious B-tree as described in \cite{cobt} used
 weight-balanced B-trees. We implement a simplified version of the structure
 introduced in \cite{brodal01}, which is composed of three components.
 % TODO: nevadi ze tady jsou data obracene?
-The \textit{van Emde Boas layout} of binary trees is a way of cache-obliviously
+The \emph{van Emde Boas layout} of binary trees is a way of cache-obliviously
 maintaining full binary trees in memory such that reading or updating any
 root-to-leaf path in root-to-leaf or leaf-to-root order takes $\Theta(\log_B N)$
 block transfers.
-Then, the \textit{packed memory array} lets us store a ``cache-oblivious linked
+Then, the \emph{packed memory array} lets us store a ``cache-oblivious linked
 list''. The items of this ``linked list'' will represent key-value pairs.
 The packed memory array has fast updates in the amortized sense. Inserting
 and deleting items overwrites $\Theta(\frac{\log^2 N}{B})$ amortized memory
 blocks.
-Finally, we combine the two previous parts with \textit{indirection} to obtain
+Finally, we combine the two previous parts with \emph{indirection} to obtain
 the desired $\Theta(\log_B N)$ time to \textsc{Find}, \textsc{Insert} and
 \textsc{Delete}.
 
@@ -41,7 +41,7 @@ trees include the BFS or DFS order.
 TODO: reference na van emde boas layout clanek
 
 Surprisingly, the van Emde Boas layout was not invented by van Emde Boas.
-The name comes from the earlier \textit{van Emde Boas priority queue},
+The name comes from the earlier \emph{van Emde Boas priority queue},
 which was invented by \citeauthor{van-emde-boas} in \citeyear{van-emde-boas}.
 The van Emde Boas priority queue uses a height splitting scheme which inspired
 the van Emde Boas layout.
@@ -161,7 +161,7 @@ $h_1, h_2, \ldots$. For example, as seen in Figure \ref{fig:veb_layout_5}, for
 $h=5$ we have $h_1=4$, $h_2=2$ and $h_3=1$.
 
 Let us assume that the entire tree doesn't fit in a block of size $B$.
-Because we can assume that a single node fits in one block, there exists a \textit{level of
+Because we can assume that a single node fits in one block, there exists a \emph{level of
 detail} $i$ such that the $2^{h_i}-1$ nodes in $i$-th-iteration bottom trees
 fit in a block of size $B$, while bottom trees of $i-1$-th-iteration bottom
 trees do not.
@@ -198,15 +198,15 @@ For example, if we store 8-byte keys in a B-tree and if we align nodes to
 a 64-byte cache line, each node can only store up to 3 keys. In contrast,
 64 bytes of a van Emde Boas layout store 8 keys.
 % We refer to this property of the layout as allowing
-% \textit{implicit pointers}.
+% \emph{implicit pointers}.
 
 We will only use the van Emde Boas order to walk in the direction from
 the root node to a leaf or in reverse.
-Given the \textit{van Emde Boas ID} of a node (denoted as numbers
+Given the \emph{van Emde Boas ID} of a node (denoted as numbers
 inside the nodes in Figure \ref{fig:veb_layout_5}),
 we can easily calculate the van Emde Boas IDs of its children by
-a recursive procedure. This procedure either returns \textit{internal} node
-pointers, referencing actual nodes of the tree, or it returns \textit{external}
+a recursive procedure. This procedure either returns \emph{internal} node
+pointers, referencing actual nodes of the tree, or it returns \emph{external}
 indexes, which represent virtual nodes below the leaves, counted from left
 to right.
 
@@ -340,14 +340,14 @@ layouts.
 \section{Ordered file maintenance}
 The ordered file maintenance problem asks us to store an ordered list of
 $N$ keys in a given order in a contiguous array of size $\O(N)$.
-The allowed operations are \textsc{Insert}(\textit{index},\textit{key}),
+The allowed operations are \textsc{Insert}(\emph{index},\emph{key}),
 which inserts a new key before or after a given index in the array,
-and \textsc{Delete}(\textit{index}), which deletes an item at a given index.
+and \textsc{Delete}(\emph{index}), which deletes an item at a given index.
 We allow the array to contain gaps up to a constant maximum size.
 Having constant-size gaps allows scanning a range of $k$ keys using the
 optimal $\Theta(k/B)$ scans.
 
-The \textit{packed memory array} is a data structure that maintains an ordered
+The \emph{packed memory array} is a data structure that maintains an ordered
 file. Updates (\textsc{Insert}s and \textsc{Delete}s) of a packed memory array
 rewrite a contiguous range of size $\Theta(\log^2 N)$ amortized.
 Thanks to the range being contiguous, updates will incur
@@ -355,14 +355,14 @@ $\Theta(\frac{\log^2 N}{B})$ amortized block transfers.
 
 The packed memory array consists of a physical array. Each position in this
 array either contains an element, or it is empty.
-The array is divided into \textit{leaf blocks} of constant size $\O(\log N)$.
-A \textit{virtual full binary tree} is built above those leaf blocks. Every
+The array is divided into \emph{leaf blocks} of constant size $\O(\log N)$.
+A \emph{virtual full binary tree} is built above those leaf blocks. Every
 node of this binary tree represents the range covering all the leaf blocks below.
 This tree is only conceptual -- it is never stored in memory.
 
 To properly define the structure, we need to define some terms. The
-\textit{capacity} of a certain range of the array is its size and the
-\textit{density} of a range is the number of items present in the range divided
+\emph{capacity} of a certain range of the array is its size and the
+\emph{density} of a range is the number of items present in the range divided
 by its capacity.
 The data structure maintains certain bounds on the densities of subranges of
 the array.
@@ -380,7 +380,7 @@ In particular, the density of a node of depth $d$ within a tree of height $h$
 is kept between $\frac{1}{2}-\frac{1}{4}\frac{d}{h}$ and $\frac{3}{4}+\frac{1}{4}\frac{d}{h}$
 \footnote{The constants are arbitrary and control the tradeoff
 between memory consumption and time complexity of rebuilding.}.
-When we find a node that is \textit{within threshold}, we uniformly redistribute
+When we find a node that is \emph{within threshold}, we uniformly redistribute
 the items in its range. If no such node exists, we resize the entire structure
 by a constant factor, which lets us amortize the costs of this resizing to
 a multiplicative constant.
@@ -459,15 +459,15 @@ $\Theta(\frac{\log^2 N}{B})$ more than B-trees.
 This term is significant especially when $B$ is small compared to $\log N$.
 
 To remove this term, we will use this bootstrapping data structure with
-\textit{indirection} to make the final cache-oblivious B-tree.
+\emph{indirection} to make the final cache-oblivious B-tree.
 
-The final \textit{cache-oblivious B-tree} will store key-value pairs
-partitioned into \textit{pieces} in disjoint intervals. A piece is an array of
+The final \emph{cache-oblivious B-tree} will store key-value pairs
+partitioned into \emph{pieces} in disjoint intervals. A piece is an array of
 $P=\Theta(\log N)$ slots, which contains between $P/4$ and $P$ key-value pairs.
 % TODO: opravdu? ne spis 3/4P? to bych mel overit...
 Since pieces are physical arrays, reading or fully rewriting a piece
 takes $\Theta(\frac{\log N}{B})$ block transfers.
-The \textit{bootstrapping structure} stores pointers to the $\Theta(N/\log N)$
+The \emph{bootstrapping structure} stores pointers to the $\Theta(N/\log N)$
 pieces as values, keyed by their minimal keys.
 
 To \textsc{Find} a key in the cache-oblivious B-tree, we walk down the
@@ -526,7 +526,7 @@ As we observed with applying the van Emde Boas layout, removing auxilliary
 data can greatly speed up operations -- the tree in van Emde Boas layout has
 half the effective depth of a B-tree, because cache lines can fit more keys
 when pointers are implicit.
-\textit{Implicit data structures} are designed to waste as little memory on
+\emph{Implicit data structures} are designed to waste as little memory on
 auxilliary information as possible. Implicit dictionaries are allowed to only
 store a permutation of the stored data and $\O(1)$ memory cells of additional
 information. Bookkeeping information, such as pointers or small integers

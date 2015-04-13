@@ -6,15 +6,15 @@ is just binary, so walking to a node in depth $d$ takes $\O(\log d)$ block
 transfers. B-trees improve this by a factor of $\log B$ by storing more keys
 per node.
 
-Self-adjusting $k$-ary search trees (or \textit{$k$-splay trees}) developed
-by \cite{ksplay-sherk} use a heuristic named \textit{$k$-splaying}
+Self-adjusting $k$-ary search trees (or \emph{$k$-splay trees}) developed
+by \cite{ksplay-sherk} use a heuristic named \emph{$k$-splaying}
 to dynamically adjust the structure of a $k$-ary search tree according to
 the query sequence. We have decided to implement and benchmark this data
 structure because of the potential to combine self-adjustment for a specific
 search sequence with cache-friendly node sizes.
 
 Similarly to B-trees, nodes in $k$-ary splay trees store up to $k-1$ key-value
-pairs and $k$ child pointers. All nodes except the root are \textit{complete}
+pairs and $k$ child pointers. All nodes except the root are \emph{complete}
 (i.e. contain exactly $k-1$ pairs).
 
 B-tree operations take $\Theta(\log_b N)$ node accesses. It can be proven that
@@ -28,13 +28,13 @@ requires $\log N$ node accesses.
 The $k$-splaying operation is conceptually similar to splaying in the original
 splay trees of Sleator and Tarjan, but $k$-splaying for $k=2$ differs from
 splaying in original splay trees. To disambiguate these terms, we will
-reserve the term \textit{splaying} for Sleator and Tarjan's splay trees and
-we will only use \textit{$k$-splaying} to denote the operation
+reserve the term \emph{splaying} for Sleator and Tarjan's splay trees and
+we will only use \emph{$k$-splaying} to denote the operation
 on $k$-ary splay trees.
 
 In our description of $k$-splaying, we shall begin with the assumption that
 all nodes on the search path are complete, and we will later modify
-the $k$-splaying algorithm to allow \textit{incomplete} and \textit{overfull}
+the $k$-splaying algorithm to allow \emph{incomplete} and \emph{overfull}
 nodes.
 Because splay trees store one key per node, it is not necessary to distinguish
 between splaying a node and splaying a key. In $k$-ary splay trees, we always
@@ -49,7 +49,7 @@ becomes the root of the splay tree.
 
 In $k$-splay trees, $k$-splaying steps involve $k$ edges connecting
 $k+1$ nodes, except for the final step which may involve fewer edges.
-When $k$-splaying, the objective is to move a \textit{star node} to the
+When $k$-splaying, the objective is to move a \emph{star node} to the
 root of the tree. In every $k$-splaying step, we start with the star node
 at the bottom of the subtree, and we change the structure of the $k+1$
 nodes to put the star node to the root of the subtree.
@@ -60,16 +60,16 @@ pointers of involved nodes, which is why the distinction between splaying
 a node and splaying a key is significant -- after a $k$-splay step,
 the star node may no longer contain the key we were originally searching for.
 
-There are two types of $k$-splay steps: \textit{non-terminal steps} on
-$k+1$ nodes, and \textit{terminal steps} on less than $k+1$ nodes.
+There are two types of $k$-splay steps: \emph{non-terminal steps} on
+$k+1$ nodes, and \emph{terminal steps} on less than $k+1$ nodes.
 We consider first the non-terminal steps.
 
 Non-terminal $k$-splay steps start a path of $k+1$ nodes $p_0,\ldots p_{k}$,
 where $p_i$ is the parent of $p_{i+1}$. A non-terminal step traverses these
-nodes in DFS order and collects \textit{external children} (i.e. children
+nodes in DFS order and collects \emph{external children} (i.e. children
 that are not present in $\{p_0,\ldots p_k\}$) and all key-value pairs of
 $p_0,\ldots p_k$ in sorted order.
-These children and key-value pairs are \textit{fused} into a ``virtual node''
+These children and key-value pairs are \emph{fused} into a ``virtual node''
 with $(k+1)\cdot (k-1)$ keys and $(k+1)\cdot(k-1) + 1$ children. Finally,
 this ``virtual node'' is broken down into a fully balanced $k$-ary
 search tree of depth 2. There is only one unique way to arrange this

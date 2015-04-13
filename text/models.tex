@@ -3,7 +3,7 @@
 \section{RAM}
 
 The performance of algorithms is usually measured in the RAM
-(\textit{Random Access Memory} or \textit{Machine}) model.
+(\emph{Random Access Memory} or \emph{Machine}) model.
 The ideal RAM machine has an infinite memory divided into constant-size
 cells addressed by integers.
 One instruction fo the RAM machine can compute an arithmetic expression
@@ -16,7 +16,7 @@ from model to model, but a typical set would include the usual C operators
 A complete set of instructions also requires a conditional jump (based on
 the value of an expression).
 
-We benchmark RAM algorithms by their \textit{time} and \textit{space complexity}.
+We benchmark RAM algorithms by their \emph{time} and \emph{space complexity}.
 The time complexity is the number of executed instructions as a function of
 input size and the space complexity is the maximum cell index accessed during
 execution\footnote{
@@ -38,7 +38,7 @@ another 1 kB stored on swapped memory is so large that it cannot be ignored.
 \section{Memory hierarchies}
 % TODO: latency numbers everyone should know
 % TODO: list-array experiment
-There are two major types of RAM: \textit{static} and \textit{dynamic}.
+There are two major types of RAM: \emph{static} and \emph{dynamic}.
 While static RAM stores information as states of logic gates, dynamic RAM
 uses capacitors, which lose charge over time. To avoid losing information,
 contents of dynamic RAM must be periodically refreshed by ``reading'' the data
@@ -69,9 +69,9 @@ Furthermore, if we need to wait for a long time to get our data from a slow
 store, it is wise to ask for a lot of data at once. Imagine an HTTP connection
 moving a 10 MB file across the Atlantic: the time to compose and send the HTTP
 request and to parse a response dwarfs the latency of the connection.
-Memory hierarchies transport data between memories in \textit{blocks}.
+Memory hierarchies transport data between memories in \emph{blocks}.
 In the context of caches and main memory, these blocks are called
-\textit{cache lines} and their usual size is 64 B.
+\emph{cache lines} and their usual size is 64 B.
 A traditional block size for disk I/O is 4 kB.
 
 \begin{figure}
@@ -106,17 +106,17 @@ Caches are usually $m$-way associative: for every line in main memory, there
 are $m$ possible places where it can be stored in cache. If all $m$ possible
 slots are already occupied by other lines, one of the loaded line gets evicted
 to make space for newly requested data. The node that gets evicted is determined
-according to the \textit{cache replacement policy}. The most common cache
-replacement policy is LRU (\textit{least recently used}), which evicts
+according to the \emph{cache replacement policy}. The most common cache
+replacement policy is LRU (\emph{least recently used}), which evicts
 the memory line that was accessed least recently.
 
-Programs which have \textit{spatial} and \textit{temporal locality of reference}
+Programs which have \emph{spatial} and \emph{temporal locality of reference}
 will perform better on computers with hierarchical memory. Several models have
 been developed to benchmark algorithms designed for hierarchical memory.
 
 \section{The external memory model}
 The simplest model of memory hierarchies has only two levels of memory:
-the \textit{cache} and the \textit{disk}\footnote{
+the \emph{cache} and the \emph{disk}\footnote{
 	We choose this naming to avoid the ambiguous term ``memory'',
 	which may mean both ``main memory'' in relation to a disk,
 	or an ``external memory'' in relation to a cache.
@@ -131,7 +131,7 @@ The cache and the disk are divided to blocks of size $B$. The size of the cache
 in bytes is fixed and is denoted $M$.
 In the external memory model, we allow free computation on data
 stored in the cache. The time complexity is measured in the number of
-\textit{block transfers}, which read or write an entire block to the disk.
+\emph{block transfers}, which read or write an entire block to the disk.
 Algorithms are allowed to explicitly transfer blocks, which corresponds
 to the boundary between main memory and disks in computers.
 The space complexity is the index of the last overwritten block.
