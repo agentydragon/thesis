@@ -28,6 +28,11 @@
 
 \usepackage[utf8]{inputenc}
 
+\usepackage{setspace}
+% Recommended layout mentions line spacing 1.5, but this is not relevant to TeX.
+% TODO: ???
+\onehalfspacing
+
 %% Bibliography
 \usepackage{natbib}
 \usepackage{url}
@@ -139,8 +144,15 @@ TODO: abstract; recommended length ~80-200 words.
 \addcontentsline{toc}{chapter}{#1}
 }
 
+%\fontfamily{ppl}\selectfont
+% TODO: might be nice for page numbers, etc.
+% \oldstylenums{1234567890}
+% \usepackage{textcomp}
+% TODO: see http://www.khirevich.com/latex/microtype/
+\usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,spacing=true]{microtype}
 \begin{document}
 
+\fontfamily{ppl}\selectfont
 %%% Title page of the thesis and other mandatory pages
 \include{title}
 
@@ -149,6 +161,7 @@ TODO: abstract; recommended length ~80-200 words.
 %%% if any, at the beginning of the thesis instead of at its end.
 
 \tableofcontents
+%\fontfamily{phv}\selectfont
 
 %%% Each chapter is kept in a separate file
 \include{preface}
