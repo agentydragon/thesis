@@ -1,1 +1,3 @@
 - check quotes: "hello" => ``hello''
+- check nonbreaking~spaces
+- check sentence ends (non-french spacing)
