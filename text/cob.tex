@@ -470,6 +470,107 @@ takes $\Theta(\frac{\log N}{B})$ block transfers.
 The \emph{bootstrapping structure} stores pointers to the $\Theta(N/\log N)$
 pieces as values, keyed by their minimal keys.
 
+\begin{figure}
+\centering
+\newcommand{\guide}[1]{
+	\path[thin, draw=gray] (veb_#1) -- ($(#1,1)+(-0.5,0)$);
+}
+\tikzset{
+  pma_empty/.style = {very thin, draw=gray, cross out, scale=1.5},
+  veb/.style = {scale=0.8, inner sep=2pt, minimum size=0.8cm, draw, circle, align=center},
+  pma_ptr/.style = {fill, scale=0.3, circle}
+}
+\begin{tikzpicture}[
+	level 1/.style = {sibling distance=4cm},
+	level 2/.style = {sibling distance=2cm},
+	level 3/.style = {sibling distance=1cm},
+	level/.style = {level distance=1cm}
+]
+\draw[step=1cm] (0,0) grid (8,1);
+\node[pma_ptr] at (+0.5,+0.5) (pma_1) {};
+\node[pma_empty] at (+1.5,+0.5) (pma_2) {};
+\node[pma_empty] at (+2.5,+0.5) (pma_3) {};
+\node[pma_ptr] at (+3.5,+0.5) (pma_4) {};
+\node[pma_ptr] at (+4.5,+0.5) (pma_5) {};
+\node[pma_empty] at (+5.5,+0.5) (pma_6) {};
+\node[pma_ptr] at (+6.5,+0.5) (pma_7) {};
+\node[pma_ptr] at (+7.5,+0.5) (pma_8) {};
+
+\node[veb] at (4,5) {1}
+child{ node [veb] {1}
+	child { node [veb] {1}
+		child { node [veb] (veb_1) {1} }
+		child { node [veb] (veb_2) {$\infty$} }
+	}
+	child { node [veb] {6}
+		child { node [veb] (veb_3) {$\infty$} }
+		child { node [veb] (veb_4) {6} }
+	}
+}
+child{node [veb] {25}
+	child { node [veb] {25}
+		child { node [veb] (veb_5) {25} }
+		child { node [veb] (veb_6) {$\infty$} }
+	}
+	child { node [veb] {53}
+		child { node [veb] (veb_7) {53} }
+		child { node [veb] (veb_8) {102} }
+	}
+};
+
+\node[inner sep=0] at (0.5,-2) (bucket1) {
+	\begin{tikzpicture}
+	\draw[step=0.8cm] (0,0) grid (0.8,-2.401);
+	\node at (+0.4,-0.4) {1};
+	\node at (+0.4,-1.2) {3};
+	\node at (+0.4,-2.0) {5};
+	\end{tikzpicture}
+};
+
+\node[inner sep=0] at (3.5,-1.2) (bucket2) {
+	\begin{tikzpicture}
+	\draw[step=0.8cm] (0,0) grid (0.8,-0.801);
+	\node at (+0.4,-0.4) {6};
+	\end{tikzpicture}
+};
+
+\node[inner sep=0] at (4.5,-1.6) (bucket3) {
+	\begin{tikzpicture}
+	\draw[step=0.8cm] (0,0) grid (0.8,-1.601);
+	\node at (+0.4,-0.4) {25};
+	\node at (+0.4,-1.2) {41};
+	\end{tikzpicture}
+};
+
+\node[inner sep=0] at (6.5,-2.0) (bucket4) {
+	\begin{tikzpicture}
+	\draw[step=0.8cm] (0,0) grid (0.8,-2.401);
+	\node at (+0.4,-0.4) {53};
+	\node at (+0.4,-1.2) {58};
+	\node at (+0.4,-2.0) {92};
+	\end{tikzpicture}
+};
+
+\node[inner sep=0] at (7.5,-1.2) (bucket5) {
+	\begin{tikzpicture}
+	\draw[step=0.8cm] (0,0) grid (0.8,-0.801);
+	\node at (+0.4,-0.4) {102};
+	\end{tikzpicture}
+};
+
+\path[->,>=latex] (pma_1) edge (bucket1.north);
+\path[->,>=latex] (pma_4) edge (bucket2.north);
+\path[->,>=latex] (pma_5) edge (bucket3.north);
+\path[->,>=latex] (pma_7) edge (bucket4.north);
+\path[->,>=latex] (pma_8) edge (bucket5.north);
+
+\guide{1}; \guide{2}; \guide{3}; \guide{4};
+\guide{5}; \guide{6}; \guide{7}; \guide{8};
+
+\end{tikzpicture}
+\caption{Full cache-oblivious B-tree with indirection}
+\end{figure}
+
 To \textsc{Find} a key in the cache-oblivious B-tree, we walk down the
 boostrapping structure in $\Theta(\log_B (N/\log N))=\Theta(\log_B N)$
 to find the piece that may contain the key, and scan it in
