@@ -63,20 +63,19 @@ The van Emde Boas layout of a one-node tree is trivial.
 
 \begin{figure}
 \centering
-\tikzset{
-  veb_node/.style = {align=center, inner sep=0pt, text centered, circle,
-	  font=\sffamily, draw=black, text width=1.2em},
-  block_l0/.style = {rectangle, draw=black, dashed, inner sep=7pt, draw=gray},
-  block_l1/.style = {rectangle, draw=black, densely dotted, thin, inner sep=3pt, draw=gray},
-  level/.style={level distance=1.7cm}
-}
-	%level/.style={sibling distance = 6cm/#1, level distance = 1.3cm}
 \begin{tikzpicture}[
-	scale=0.7,
-	level 1/.style = {sibling distance=9.6cm},
-	level 2/.style = {sibling distance=4.6cm},
-	level 3/.style = {sibling distance=2.3cm},
-	level 4/.style = {sibling distance=1cm},
+	every node/.style={inner sep=0, outer sep=0},
+	level 1/.style = {sibling distance=7.1cm},
+	level 2/.style = {sibling distance=3.5cm},
+	level 3/.style = {sibling distance=1.7cm},
+	level 4/.style = {sibling distance=0.8cm},
+	veb_node/.style = {align=center, inner sep=0pt, text centered, circle,
+		font=\sffamily, draw=black, text width=1.2em, outer sep=0pt},
+	block_l0/.style = {rectangle, draw=black, dashed, inner sep=0.2cm,
+		draw=gray},
+	block_l1/.style = {rectangle, draw=black, densely dotted, thin, inner
+		sep=0.1cm, draw=gray},
+	level/.style={level distance=1.3cm}
 ]
 	\node [veb_node] (Node0) {0}
 	child{ node [veb_node] (Node1) {1}
@@ -475,16 +474,15 @@ pieces as values, keyed by their minimal keys.
 \newcommand{\guide}[1]{
 	\path[thin, draw=gray] (veb_#1) -- ($(#1,1)+(-0.5,0)$);
 }
-\tikzset{
-  pma_empty/.style = {very thin, draw=gray, cross out, scale=1.5},
-  veb/.style = {scale=0.8, inner sep=2pt, minimum size=0.8cm, draw, circle, align=center},
-  pma_ptr/.style = {fill, scale=0.3, circle}
-}
 \begin{tikzpicture}[
+	pma_empty/.style = {very thin, draw=gray, cross out, scale=1.5},
+	veb/.style = {scale=0.8, minimum size=0.8cm, draw, circle, align=center},
+	pma_ptr/.style = {fill, scale=0.3, circle}
+	level 0/.style = {sibling distance=8cm},
 	level 1/.style = {sibling distance=4cm},
 	level 2/.style = {sibling distance=2cm},
 	level 3/.style = {sibling distance=1cm},
-	level/.style = {level distance=1cm}
+%	level/.style = {level distance=1cm}
 ]
 \draw[step=1cm] (0,0) grid (8,1);
 \node[pma_ptr] at (+0.5,+0.5) (pma_1) {};
@@ -497,6 +495,7 @@ pieces as values, keyed by their minimal keys.
 \node[pma_ptr] at (+7.5,+0.5) (pma_8) {};
 
 \node[veb] at (4,5) {1}
+[level distance=1cm]
 child{ node [veb] {1}
 	child { node [veb] {1}
 		child { node [veb] (veb_1) {1} }
