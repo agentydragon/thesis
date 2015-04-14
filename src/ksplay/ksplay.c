@@ -273,26 +273,32 @@ next_level:
 		goto drilldown_finished;
 	}
 	buffer_append(&stack, current);
-	uint8_t i;
-	for (i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
-		if (current->pairs[i].key == EMPTY) {
-			break;
+	{
+		uint8_t i;
+		for (i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
+			if (current->pairs[i].key == EMPTY) {
+				break;
+			}
+			if (key < current->pairs[i].key) {
+				current = current->children[i];
+				goto next_level;
+			}
 		}
-		if (key < current->pairs[i].key) {
-			current = current->children[i];
-			goto next_level;
-		}
+		current = current->children[i];
 	}
-	current = current->children[i];
 	goto next_level;
 
 drilldown_finished:
-	for (i = 0; i < stack.count; ++i) {
-		if (node_has_key_gt(stack.nodes[stack.count - 1 - i], key)) {
-			break;
+	{
+		uint64_t i;
+		for (i = 0; i < stack.count; ++i) {
+			if (node_has_key_gt(stack.nodes[stack.count - 1 - i],
+						key)) {
+				break;
+			}
 		}
+		*good_prefix = stack.count - i;
 	}
-	*good_prefix = stack.count - i;
 	return stack;
 }
 
@@ -315,8 +321,7 @@ next_level:
 		goto drilldown_finished;
 	}
 	buffer_append(&stack, current);
-	uint8_t i;
-	for (i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
+	for (uint8_t i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
 		const uint64_t idx = KSPLAY_MAX_NODE_KEYS - i - 1;
 		if (current->pairs[idx].key < key) {
 			current = current->children[idx + 1];
@@ -331,13 +336,17 @@ drilldown_finished:
 		log_info("stack in walk_to_previous:");
 		_dump_buffer(&stack, 2);
 	}
-	for (i = 0; i < stack.count; ++i) {
-		if (node_has_key_lt(stack.nodes[stack.count - 1 - i], key)) {
-			break;
+	{
+		uint64_t i;
+		for (i = 0; i < stack.count; ++i) {
+			if (node_has_key_lt(stack.nodes[stack.count - 1 - i],
+						key)) {
+				break;
+			}
 		}
+		log_verbose(1, "good prefix: %" PRIu64, stack.count - i);
+		*good_prefix = stack.count - i;
 	}
-	log_verbose(1, "good prefix: %" PRIu64, stack.count - i);
-	*good_prefix = stack.count - i;
 	return stack;
 }
 

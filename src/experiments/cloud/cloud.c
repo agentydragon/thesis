@@ -252,14 +252,12 @@ static void query_close_points(dict* map, const int lat, const int lon) {
 			(got_prev || got_next)) {
 		uint64_t value;
 		if (got_next && (!got_prev || even_odd % 2 == 0)) {
-			log_info("next");
 			bool found;
 			ASSERT(dict_find(map, next, &value, &found) == 0);
 			ASSERT(found);
 
 			ASSERT(dict_next(map, next, &next, &got_next) == 0);
 		} else {
-			log_info("prev");
 			ASSERT(got_prev);
 			bool found;
 			ASSERT(dict_find(map, prev, &value, &found) == 0);
