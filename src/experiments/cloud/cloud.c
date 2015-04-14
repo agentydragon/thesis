@@ -6,6 +6,8 @@
 #include "experiments/cloud/flags.h"
 #include "log/log.h"
 #include "measurement/stopwatch.h"
+#include "rand/rand.h"
+#include "util/count_of.h"
 
 typedef struct {
 	char time[10];
@@ -314,13 +316,15 @@ static void test_api(const dict_api* api) {
 			}
 		}
 		break;
-	case SCATTER_RANDOM:
+	case SCATTER_RANDOM: {
+		rand_generator rand = { .state = 0 };
 		for (uint64_t i = 0; i < FLAGS.sample_count; ++i) {
-			const int lat = -9000 + rand() % (9000 * 2);
-			const int lon = rand() % 36000;
+			const int lat = -9000 + rand_next(&rand, 9000 * 2);
+			const int lon = rand_next(&rand, 36000);
 			query_close_points(map, lat, lon);
 		}
 		break;
+	}
 	default:
 		log_fatal("invalid scatter mode");
 	}
@@ -346,7 +350,7 @@ int main(int argc, char** argv) {
 	log_info("loading records");
 	ASSERT(dict_init(&id_map, &dict_splay, NULL) == 0);
 	for (int year = FLAGS.min_year; year <= FLAGS.max_year; ++year) {
-		for (int month = 0; month < 12; ++month) {
+		for (uint64_t month = 0; month < COUNT_OF(MONTHS); ++month) {
 			char filename[100];
 			sprintf(filename, "experiments/cloud/data/%s%02dL",
 					MONTHS[month], year % 100);
