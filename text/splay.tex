@@ -44,10 +44,9 @@ the soundness of search trees. Rotations are defined by figure
 \tikzset{
   splay_node/.style = {align=center, inner sep=0pt, text centered, circle,
 	  font=\sffamily, draw=black, text width=1.2em},
-  triangle/.style = {regular polygon, regular polygon sides=3, scale=0.8},
-  % TODO: Edges shouldn't go *inside* the hunks.
-  splay_hunk/.style = {align=center, inner sep=0pt, text centered, triangle,
-	  font=\sffamily, draw=black, text width=1.2em},
+  triangle/.style = {regular polygon, regular polygon sides=3, scale=0.8, fill=white},
+  splay_hunk/.style = {align=center, inner sep=0pt, text centered,
+	  triangle, font=\sffamily, draw=black, text width=1.2em},
 }
 \begin{tikzpicture}[]
 \node [splay_node] at (0, 0) (x-b) {$x$}
@@ -97,91 +96,90 @@ Up to left-right symmetry, there are three cases of splaying steps:
 \tikzset{
   splay_node/.style = {align=center, inner sep=0pt, text centered, circle,
 	  font=\sffamily, draw=black, text width=1.2em},
-  triangle/.style = {regular polygon, regular polygon sides=3, scale=0.8},
+  triangle/.style = {regular polygon, regular polygon sides=3, scale=0.8, fill=white},
   splay_hunk/.style = {align=center, inner sep=0pt, text centered,
 	  triangle, font=\sffamily, draw=black, text width=1.2em},
 }
 \begin{tikzpicture}[]
-\node [splay_node] at (0, 0) (p-b) {$p$}
-child { node [splay_node] (x-b) {$x$}
-	child { \hunk{1}{b} }
-	child { \hunk{2}{b} }
-}
-child { \hunk{3}{b} };
-
-\node [draw=red, fit=(x-b) (p-b) (hunk1-b) (hunk2-b) (hunk3-b)] (Before) {};
-
-\node [splay_node] at (6, 0) (x-a) {$x$}
-child { \hunk{1}{a} }
-child { node [splay_node] (p-a) {$p$}
-	child { \hunk{2}{a} }
-	child { \hunk{3}{a} }
-};
-\node [draw=red, fit=(x-a) (p-a) (hunk1-a) (hunk2-a) (hunk3-a)] (After) {};
-% TODO: Should not need arithmetic here.
-\path[->] ($(Before.east) + (+.5,0)$) edge node [above] {zig}
-	($(After.west) - (+.5,0)$);
-
-\end{tikzpicture}
-
-\begin{tikzpicture}[]
-\node [splay_node] at (0, 0) (g-b) {$g$}
-child { node [splay_node] (p-b) {$p$}
+\node at (0,0) (ZigBefore) {
+	\begin{tikzpicture}
+	\node [splay_node] at (0,0) (p-b) {$p$}
 	child { node [splay_node] (x-b) {$x$}
 		child { \hunk{1}{b} }
 		child { \hunk{2}{b} }
 	}
-	child { \hunk{3}{b} }
-}
-child { \hunk{4}{b} };
-
-\node [draw=red, fit=(g-b) (p-b) (x-b) (hunk1-b) (hunk2-b) (hunk3-b) (hunk4-b)]
-	(Before) {};
-
-\node [splay_node] at (6, 0) (x-a) {$x$}
-child { \hunk{1}{a} }
-child { node [splay_node] (p-a) {$p$}
-	child { \hunk{2}{a} }
-	child { node [splay_node] (g-a) {$g$}
-		child { \hunk{3}{a} }
-		child { \hunk{4}{a} }
-	}
+	child { \hunk{3}{b} };
+	\end{tikzpicture}
 };
-\node [draw=red, fit=(g-a) (x-a) (p-a) (hunk1-a) (hunk2-a) (hunk3-a) (hunk4-a)]
-	(After) {};
-\path[->] ($(Before.east) + (+.5,0)$) edge node [above] {zig-zig}
-	($(After.west) - (+.5,0)$);
-\end{tikzpicture}
-
-\begin{tikzpicture}[
-	level 1/.style = {sibling distance=2.5cm},
-	level 2/.style = {sibling distance=1.2cm},
-]
-\node [splay_node] at (0, 0) (g-b) {$g$}
-child { \hunk{1}{b} }
-child { node [splay_node] (p-b) {$p$}
-	child { node [splay_node] (x-b) {$x$}
-		child { \hunk{2}{b} }
+\node at (6,0) (ZigAfter) {
+	\begin{tikzpicture}
+	\node [splay_node] at (0,0) (x-a) {$x$}
+	child { \hunk{1}{a} }
+	child { node [splay_node] (p-a) {$p$}
+		child { \hunk{2}{a} }
+		child { \hunk{3}{a} }
+	};
+	\end{tikzpicture}
+};
+\path[->] (2.5,0) edge node [above] {zig} (3.5,0);
+\node at (0,-5) (ZigZigBefore) {
+	\begin{tikzpicture}[]
+	\node [splay_node] at (0,0) (g-b) {$g$}
+	child { node [splay_node] (p-b) {$p$}
+		child { node [splay_node] (x-b) {$x$}
+			child { \hunk{1}{b} }
+			child { \hunk{2}{b} }
+		}
 		child { \hunk{3}{b} }
 	}
-	child { \hunk{4}{b} }
+	child { \hunk{4}{b} };
+	\end{tikzpicture}
 };
-
-\node [draw=red, fit=(g-b) (p-b) (x-b) (hunk1-b) (hunk2-b) (hunk3-b) (hunk4-b)]
-	(Before) {};
-
-\node [splay_node] at (6, 0) (x-a) {$x$}
-child { node [splay_node] (g-a) {$g$}
+\node at (6,-5) (ZigZigAfter) {
+	\begin{tikzpicture}[]
+	\node [splay_node] at (0,0) (x-a) {$x$}
 	child { \hunk{1}{a} }
-	child { \hunk{2}{a} }
-}
-child { node [splay_node] (p-a) {$p$}
-	child { \hunk{3}{a} }
-	child { \hunk{4}{a} }
+	child { node [splay_node] (p-a) {$p$}
+		child { \hunk{2}{a} }
+		child { node [splay_node] (g-a) {$g$}
+			child { \hunk{3}{a} }
+			child { \hunk{4}{a} }
+		}
+	};
+	\end{tikzpicture}
 };
-\node [draw=red, fit=(g-a) (x-a) (p-a) (hunk1-a) (hunk2-a) (hunk3-a) (hunk4-a)]
-	(After) {};
-\path[->] (Before.east) edge node [above] {zig-zag} (After.west);
+\path[->] (2.5,-5) edge node [above] {zig-zig} (3.5,-5);
+\node at (0,-11) (ZigZagBefore) {
+	\begin{tikzpicture}[]
+	\node [splay_node] at (0,0) (g-b) {$g$}
+	child { node [splay_hunk] (hunk1-b) {1} }
+	child { node [splay_node] (p-b) {$p$}
+		child { node [splay_node] (x-b) {$x$}
+			child { \hunk{2}{b} }
+			child { \hunk{3}{b} }
+		}
+		child { \hunk{4}{b} }
+	};
+	\end{tikzpicture}
+};
+\node at (6,-11) (ZigZagAfter) {
+	\begin{tikzpicture}[]
+	%\node [splay_node] at (6,-0.75) (x-a) {$x$}
+	\node [splay_node] at (0,0) (x-a) {$x$}
+	[sibling distance=2.5cm]
+	child { node [splay_node] (g-a) {$g$}
+		[sibling distance=1.2cm]
+		child { \hunk{1}{a} }
+		child { \hunk{2}{a} }
+	}
+	child { node [splay_node] (p-a) {$p$}
+		[sibling distance=1.2cm]
+		child { \hunk{3}{a} }
+		child { \hunk{4}{a} }
+	};
+	\end{tikzpicture}
+};
+\path[->] (2.5,-11) edge node [above] {zig-zag} (3.5,-11);
 \end{tikzpicture}
 
 \caption{The cases of splay steps.}
