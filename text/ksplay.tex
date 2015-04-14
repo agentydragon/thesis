@@ -25,6 +25,9 @@ McClurkin and Georgakopoulos (\citeyear{ksplay-nonopt}) found a family
 of counterexample trees, in which repeatedly $k$-splaying deepest nodes
 requires $\log N$ node accesses.
 
+$k$-splay trees are proven in \cite{ksplay-sherk} to be $\log k$-competitive
+compared to static optimal $k$-ary search trees.
+
 The $k$-splaying operation is conceptually similar to splaying in the original
 splay trees of Sleator and Tarjan, but $k$-splaying for $k=2$ differs from
 splaying in original splay trees. To disambiguate these terms, we will
@@ -131,6 +134,15 @@ child[sibling distance=2cm] { node [ks_node] {80 \nodepart{two} 95}
 \caption{Non-terminal 3-splaying step with marked star nodes.}
 \end{figure}
 
-TODO: amortized access time
-TODO: insert
-TODO: delete
+\textsc{Delete} and \textsc{Insert} operations employ variations
+of the same procedure. We look up the node to update and we insert or
+delete the key within the node. Then, we $k$-splay the node, while allowing
+the star node to be temporarily overfull or underfull. After $k$-splaying
+the updated node, the root becomes the star node. If it has only one
+child, we merge it with the root, and if the root has more than $k$ children,
+we split it.
+
+By performing an analysis similar to splay trees, \cite{ksplay-sherk}
+shows that the number of node reads performed in a sequence of $m$
+\textsc{Find}s in a $k$-splay tree with $n$ keys is
+$\O(m\log n+\frac{n}{k}\log n)$.
