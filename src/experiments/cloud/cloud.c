@@ -110,6 +110,7 @@ static dict* id_map;
 
 static void load_records(const char* path) {
 	FILE* input = fopen(path, "r");
+	CHECK(input != NULL, "cannot open %s", path);
 	while (!feof(input)) {
 		char line[1024];
 		fgets(line, sizeof(line) - 1, input);
