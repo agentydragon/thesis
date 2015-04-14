@@ -41,14 +41,13 @@ the soundness of search trees. Rotations are defined by figure
 \begin{figure}
 \centering
 % TODO: DRY
-\tikzset{
-  splay_node/.style = {align=center, inner sep=0pt, text centered, circle,
-	  font=\sffamily, draw=black, text width=1.2em},
-  triangle/.style = {regular polygon, regular polygon sides=3, scale=0.8, fill=white},
-  splay_hunk/.style = {align=center, inner sep=0pt, text centered,
-	  triangle, font=\sffamily, draw=black, text width=1.2em},
-}
-\begin{tikzpicture}[]
+\begin{tikzpicture}[
+	splay_node/.style = {align=center, inner sep=0pt, text centered, circle,
+	font=\sffamily, draw=black, text width=1.2em},
+	triangle/.style = {regular polygon, regular polygon sides=3, scale=0.8, fill=white},
+	splay_hunk/.style = {align=center, inner sep=0pt, text centered,
+		triangle, font=\sffamily, draw=black, text width=1.2em}
+]
 \node [splay_node] at (0, 0) (x-b) {$x$}
 child { node [splay_node] (y-b) {$y$}
 	child { \hunk{1}{b} }
@@ -93,14 +92,14 @@ Up to left-right symmetry, there are three cases of splaying steps:
 \begin{figure}
 \centering
 % TODO: DRY
-\tikzset{
-  splay_node/.style = {align=center, inner sep=0pt, text centered, circle,
-	  font=\sffamily, draw=black, text width=1.2em},
-  triangle/.style = {regular polygon, regular polygon sides=3, scale=0.8, fill=white},
-  splay_hunk/.style = {align=center, inner sep=0pt, text centered,
-	  triangle, font=\sffamily, draw=black, text width=1.2em},
-}
-\begin{tikzpicture}[]
+\begin{tikzpicture}[
+	splay_node/.style = {align=center, inner sep=0pt, text centered, circle,
+		font=\sffamily, draw=black, text width=1.2em},
+	triangle/.style = {regular polygon, regular polygon sides=3, scale=0.8,
+		fill=white},
+	splay_hunk/.style = {align=center, inner sep=0pt, text centered,
+		triangle, font=\sffamily, draw=black, text width=1.2em},
+]
 \node at (0,0) (ZigBefore) {
 	\begin{tikzpicture}
 	\node [splay_node] at (0,0) (p-b) {$p$}
