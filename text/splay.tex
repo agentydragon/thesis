@@ -355,7 +355,6 @@ The total access time is $\O(N\log N + M + \sum_{j=1}^M\log(t(j)+1))$.
 	% TODO: proof missing here
 \end{proof}
 
-% TODO: Nope. That's dynamic finger theorem.
 The working set theorem implies that most recently accessed keys (the
 ``working set'') are cheap to access, which makes splay trees behave well when
 the access pattern exhibits temporal locality.
@@ -364,6 +363,8 @@ The dynamic optimality conjecture, which states that splay trees are
 $\O(1)$ competitive compared to any dynamic search tree, is an open problem.
 Since \cite{splay}, it was well-known that splay trees are
 $\O(\log N)$-competitive.
+
+\section{Alternate data structures}
 \cite{tango} proposed building alternative search trees with small
 non-constant competitive factors, and invented the \emph{tango tree}, which
 is $\O(\log\log N)$ competitive. However, worst-case performance of tango trees
@@ -372,10 +373,15 @@ by a factor of $\O(\log\log N)$.
 \cite{chain-splaying} extends splaying with some housekeeping operations
 below the splayed element and proves that this \emph{chain-splay} heuristic
 in $\O(\log\log N)$ competitive.
-Finally, \cite{multisplay-trees} presents \emph{multi-splay trees},
-which are $\O(\log\log N)$ competitive. Unlike tango trees, they have
-an amortized access time of $\O(\log N)$. The worst case access time is
-even better than splay trees: $\O(\log^2 N)$.
+
+Finally, \cite{multisplay-trees} presents \emph{multi-splay trees}.
+Multi-splay trees are $\O(\log\log N)$-competitive and they have all important
+proven properties of splay trees. They also satisfy the \emph{deque property}
+($O(M)$ time for $M$ double-ended queue operations), which is only conjectured
+to apply to splay trees.
+Unlike tango trees, they have an amortized access time of $\O(\log N)$.
+While an access in splay trees may take time up to $\O(N)$, multi-splay trees
+guarantee a more desirable worst-case access time of $\O(\log^2 N)$.
 \section{Implementation}
 % TODO: top-down splay
 
