@@ -42,7 +42,7 @@ bin/experiments/btree-dot: $(SOURCES) experiments/btree-dot/btree-dot.c
 	$(CC) -g $(CFLAGS) $(SOURCES) experiments/btree-dot/btree-dot.c $(LIBS) -o $@
 
 # experiments/cloud
-CLOUD_SOURCES=$(SOURCES) measurement/measurement.c measurement/stopwatch.c experiments/cloud/cloud.c
+CLOUD_SOURCES=$(SOURCES) measurement/measurement.c measurement/stopwatch.c experiments/cloud/cloud.c experiments/cloud/flags.c
 CLOUD_CFLAGS=$(CFLAGS) $(shell pkg-config --cflags jansson)
 CLOUD_LIBS=$(LIBS) $(shell pkg-config --libs jansson)
 bin/experiments/cloud: $(CLOUD_SOURCES)

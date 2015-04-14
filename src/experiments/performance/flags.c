@@ -16,19 +16,14 @@
 #include "dict/htable.h"
 #include "dict/kforest.h"
 #include "dict/ksplay.h"
+#include "dict/register.h"
 #include "dict/splay.h"
 #include "log/log.h"
+#include "util/count_of.h"
 #include "util/human.h"
 
-#define COUNTOF(x) (sizeof(x) / sizeof(*x))
-
-static const dict_api* ALL_APIS[] = {
-	&dict_array, &dict_btree, &dict_cobt, &dict_htable, &dict_kforest,
-	&dict_ksplay, &dict_splay, NULL
-};
-
 static int parse_option(int key, char *arg, struct argp_state *state) {
-	(void) arg; (void) state;
+	(void) state;
 	switch (key) {
 	case 'm':
 		FLAGS.maximum = parse_human_i(arg);
@@ -38,25 +33,8 @@ static int parse_option(int key, char *arg, struct argp_state *state) {
 		FLAGS.base = parse_human_d(arg);
 		break;
 	case 'a': {
-		const char comma[] = ",";
-		char* token = strtok(arg, comma);
-		uint64_t i;
-		for (i = 0; token != NULL; i++, token = strtok(NULL, comma)) {
-			const dict_api* found = NULL;
-			for (const dict_api** api = &ALL_APIS[0]; *api; ++api) {
-				if (strcmp((*api)->name, token) == 0) {
-					found = *api;
-					break;
-				}
-			}
-			if (found == NULL) {
-				log_fatal("no such dict api: %s", token);
-			}
-			CHECK(i < COUNTOF(FLAGS.measured_apis),
-					"too many APIs to measure");
-			FLAGS.measured_apis[i] = found;
-		}
-		FLAGS.measured_apis[i] = NULL;
+		dict_api_list_parse(arg, FLAGS.measured_apis,
+				COUNT_OF(FLAGS.measured_apis));
 		break;
 	}
 	case ARGP_KEY_ARG:

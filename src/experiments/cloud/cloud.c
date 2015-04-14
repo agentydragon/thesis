@@ -2,12 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "dict/btree.h"
-#include "dict/cobt.h"
-#include "dict/dict.h"
-#include "dict/kforest.h"
-#include "dict/ksplay.h"
 #include "dict/splay.h"
+#include "experiments/cloud/flags.h"
 #include "log/log.h"
 #include "measurement/stopwatch.h"
 
@@ -35,7 +31,7 @@ typedef struct {
 	char sea_level_pressure[5];
 	char wind_speed[3];
 	char wind_direction_deg[3];
-	char air_temperature_dc_x10[4];
+	char air_temp_dc_x10[4];
 	char dew_point_depression[3];
 	char elevation_sea_surface_temp[4];
 	char wind_speed_indicator[1];
@@ -43,9 +39,12 @@ typedef struct {
 } __attribute__((packed)) record;
 
 typedef struct {
-	uint64_t id;   // monotonically increasing
 	int lat_x100;  // -9000..9000
 	int lon_x100;  // 0..36000
+	uint64_t id;   // (lat,lon,id) is an unique identifier
+
+	int sea_level_pressure; // 8000..11000
+	int wind_speed;         // 0..1000
 } parsed_record;
 
 static void parse_line(char* line, record* r) {
@@ -66,7 +65,8 @@ static uint32_t expand_16(uint32_t x) {
 }
 
 static uint64_t expand_32(uint64_t x) {
-	return (((uint64_t) expand_16((x & 0xFFFF0000ULL) >> 16ULL) << 32ULL) | expand_16(x & 0x0000FFFFULL));
+	return (((uint64_t) expand_16((x & 0xFFFF0000ULL) >> 16ULL) << 32ULL) |
+			expand_16(x & 0x0000FFFFULL));
 }
 
 static uint64_t mix_32w32(uint32_t a, uint32_t b) {
@@ -126,6 +126,22 @@ static void load_records(const char* path) {
 		memcpy(buffer, r.lon_x100, sizeof(r.lon_x100));
 		pr.lon_x100 = atoi(buffer);
 
+		if (pr.sea_level_pressure <= 20000 && pr.wind_speed <= 1000 && pr.wind_speed >= 0 && pr.sea_level_pressure >= 8000) {
+			if (FLAGS.dump_averages) {
+				printf("%d\t%d\n", pr.lat_x100, pr.lon_x100);
+			}
+		}
+
+		memset(buffer, 0, sizeof(buffer));
+		memcpy(buffer, r.wind_speed, sizeof(r.wind_speed));
+		pr.wind_speed = atoi(buffer);
+		assert(pr.wind_speed >= 0 && pr.wind_speed < 1000);
+
+		memset(buffer, 0, sizeof(buffer));
+		memcpy(buffer, r.sea_level_pressure, sizeof(r.sea_level_pressure));
+		pr.sea_level_pressure = atoi(buffer);
+		assert(pr.sea_level_pressure >= 8000 && pr.sea_level_pressure < 11000);
+
 		const uint64_t position_code = build_position_code(pr.lat_x100,
 				pr.lon_x100);
 		uint64_t value;
@@ -153,30 +169,13 @@ static void load_records(const char* path) {
 			} else {
 				records_capacity *= 2;
 			}
-			records = realloc(records, sizeof(parsed_record) * records_capacity);
+			records = realloc(records, sizeof(parsed_record) *
+					records_capacity);
 			ASSERT(records);
 		}
 		records[records_size++] = pr;
 	}
 	fclose(input);
-}
-
-struct {
-	const dict_api* measured_apis[20];
-} FLAGS;
-
-static void set_defaults() {
-	FLAGS.measured_apis[0] = &dict_cobt;
-	FLAGS.measured_apis[1] = &dict_splay;
-	FLAGS.measured_apis[2] = &dict_ksplay;
-	FLAGS.measured_apis[3] = NULL;
-}
-
-void parse_flags(int argc, char** argv) {
-	set_defaults();
-
-	// TODO
-	(void) argc; (void) argv;
 }
 
 static uint64_t build_record_code(parsed_record r) {
@@ -186,45 +185,111 @@ static uint64_t build_record_code(parsed_record r) {
 	ASSERT(r.id < (1ULL << 20ULL));
 
 	// 35 bits: lat_code, lon_code
-	// 24 bits: record identifier
+	// 21 bits: record identifier
 	return (position_code << 21ULL) | r.id;
 }
 
+static uint64_t build_record_value(parsed_record r) {
+	return (((uint64_t) r.sea_level_pressure) << 32ULL) | (r.wind_speed);
+}
+
+static bool is_sane_pressure(int pressure) {
+	return pressure >= 8000 && pressure <= 20000;
+}
+
+static bool is_sane_speed(int speed) {
+	return speed >= 0 && speed <= 1000;
+}
+
+static void collect_wind_speed(const uint64_t value,
+		uint64_t* total_wind_speed, uint64_t* wind_speed_count) {
+	const uint64_t wind_speed = (value & ((1ULL << 32ULL) - 1));
+	if (is_sane_speed(wind_speed)) {
+		(*total_wind_speed) += wind_speed;
+		(*wind_speed_count)++;
+		//log_info("%" PRIu64 " => wind speed %" PRIu64 ", value,
+		//		wind_speed);
+	}
+}
+
+static void collect_sea_level_pressure(const uint64_t value,
+		uint64_t* total_sea_level_pressure,
+		uint64_t* sea_pressure_count) {
+	const uint64_t sea_level_pressure = (value >> 32ULL);
+
+	if (is_sane_pressure(sea_level_pressure)) {
+		(*total_sea_level_pressure) += sea_level_pressure;
+		(*sea_pressure_count)++;
+		//log_info("%" PRIu64 " => pressure %" PRIu64 ", value,
+		//		sea_level_pressure);
+	}
+}
+
+static FILE* averages_file;
+
 static void query_close_points(dict* map, const int lat, const int lon) {
 	const uint64_t position_code = build_position_code(lat, lon);
-	const uint64_t key = position_code << 24ULL;
+	const uint64_t key = position_code << 21ULL;
 
-	bool got_prev = true, got_next = true;
+	uint64_t wind_speed_count = 0, sea_level_pressure_count = 0;
 
-	uint64_t total = 0;
-	uint64_t count = 0;
+	const uint64_t CLOSE = FLAGS.close_point_count;
 
-	const uint64_t CLOSE = 1000;
+	uint64_t total_wind_speed = 0;
+	uint64_t total_sea_level_pressure = 0;
 
-	for (uint64_t i = 0; i < CLOSE && got_next; ++i) {
-		uint64_t next = key;
-		ASSERT(dict_next(map, next, &next, &got_next) == 0);
-		if (got_next) {
+	uint64_t next;
+	uint64_t prev;
+	bool got_prev, got_next;
+
+	ASSERT(dict_next(map, key, &next, &got_next) == 0);
+	ASSERT(dict_prev(map, key, &prev, &got_prev) == 0);
+
+	uint64_t even_odd = 0;
+	while ((wind_speed_count < CLOSE || sea_level_pressure_count < CLOSE) &&
+			(got_prev || got_next)) {
+		uint64_t value;
+		if (got_next && (!got_prev || even_odd % 2 == 0)) {
+			log_info("next");
 			bool found;
-			uint64_t value;
-			++count;
 			ASSERT(dict_find(map, next, &value, &found) == 0);
-			assert(found);
-			total += value;
-		}
-	}
-	for (uint64_t i = 0; i < CLOSE && got_prev; ++i) {
-		uint64_t prev = key;
-		ASSERT(dict_prev(map, prev, &prev, &got_prev) == 0);
-		if (got_prev) {
+			ASSERT(found);
+
+			ASSERT(dict_next(map, next, &next, &got_next) == 0);
+		} else {
+			log_info("prev");
+			ASSERT(got_prev);
 			bool found;
-			uint64_t value;
-			++count;
 			ASSERT(dict_find(map, prev, &value, &found) == 0);
-			assert(found);
-			total += value;
+			ASSERT(found);
+
+			ASSERT(dict_prev(map, prev, &prev, &got_prev) == 0);
+		}
+		if (wind_speed_count < CLOSE) {
+			collect_wind_speed(value,
+					&total_wind_speed, &wind_speed_count);
+		}
+		if (sea_level_pressure_count < CLOSE) {
+			collect_sea_level_pressure(value,
+					&total_sea_level_pressure,
+					&sea_level_pressure_count);
+		}
+		++even_odd;
+	}
+
+	if (FLAGS.dump_averages) {
+		const double pressure = (double) total_sea_level_pressure / sea_level_pressure_count;
+		const double speed = (double) total_wind_speed / wind_speed_count;
+		// log_info("%d\t%d\t%lf\t%lf", lat, lon, pressure, speed);
+		if (is_sane_pressure(pressure) && is_sane_speed(speed)) {
+			fprintf(averages_file, "%d\t%d\t%lf\t%lf\n",
+				lat, lon, pressure, speed);
 		}
 	}
+	//log_info("total sea-level pressure: %" PRIu64,
+	//		total_sea_level_pressure);
+	//log_info("total wind speed: %" PRIu64, total_wind_speed);
+	//log_info("at [%d;%d]: (sea-level pressure: %lf, wind speed: %lf)",
 }
 
 static void test_api(const dict_api* api) {
@@ -233,31 +298,44 @@ static void test_api(const dict_api* api) {
 
 	// Insert all records.
 	for (uint64_t i = 0; i < records_size; ++i) {
-		// TODO: meaningful values
 		const uint64_t key = build_record_code(records[i]);
-		ASSERT(dict_insert(map, key, 4242) == 0);
+		const uint64_t value = build_record_value(records[i]);
+		ASSERT(dict_insert(map, key, value) == 0);
 	}
 
 	stopwatch watch = stopwatch_start();
 
 	// Find closest measurements for all grid points.
-	// for (int lat = -9000; lat < 9000; lat += 100) {
-	// 	for (int lon = 0; lon < 36000; lon += 100) {
-	for (uint64_t i = 0; i < 100000; ++i) {
-		{
+	switch (FLAGS.scatter) {
+	case SCATTER_GRID:
+		for (int lat = -9000; lat < 9000; lat += FLAGS.lat_step) {
+			for (int lon = 0; lon < 36000; lon += FLAGS.lon_step) {
+				query_close_points(map, lat, lon);
+			}
+		}
+		break;
+	case SCATTER_RANDOM:
+		for (uint64_t i = 0; i < FLAGS.sample_count; ++i) {
 			const int lat = -9000 + rand() % (9000 * 2);
 			const int lon = rand() % 36000;
 			query_close_points(map, lat, lon);
-			// log_info("[%d;%d]: %" PRIu64, lat, lon, total / count);
 		}
+		break;
+	default:
+		log_fatal("invalid scatter mode");
 	}
 
-	log_info("%20s: %20" PRIu64 " ns", api->name, stopwatch_read_ns(watch));
+	log_info("%15s: %15" PRIu64 " ns", api->name, stopwatch_read_ns(watch));
 	dict_destroy(&map);
 }
 
 int main(int argc, char** argv) {
 	parse_flags(argc, argv);
+
+	if (FLAGS.dump_averages) {
+		averages_file = fopen("experiments/cloud/averages.csv", "w");
+		CHECK(averages_file, "cannot open averages.csv for writing");
+	}
 
 	test_bit_ops();
 
@@ -265,10 +343,9 @@ int main(int argc, char** argv) {
 		"JAN", "FEB", "MAR", "APR", "MAY", "JUN",
 		"JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
 	};
-	const int MAX_YEAR = 2009;
 	log_info("loading records");
 	ASSERT(dict_init(&id_map, &dict_splay, NULL) == 0);
-	for (int year = 1997; year <= MAX_YEAR; ++year) {
+	for (int year = FLAGS.min_year; year <= FLAGS.max_year; ++year) {
 		for (int month = 0; month < 12; ++month) {
 			char filename[100];
 			sprintf(filename, "experiments/cloud/data/%s%02dL",
@@ -281,6 +358,10 @@ int main(int argc, char** argv) {
 
 	for (uint64_t i = 0; FLAGS.measured_apis[i]; ++i) {
 		test_api(FLAGS.measured_apis[i]);
+	}
+
+	if (FLAGS.dump_averages) {
+		fclose(averages_file);
 	}
 
 	return 0;
