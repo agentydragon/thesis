@@ -75,7 +75,7 @@ The van Emde Boas layout of a one-node tree is trivial.
 		draw=gray},
 	block_l1/.style = {rectangle, draw=black, densely dotted, thin, inner
 		sep=0.1cm, draw=gray},
-	level/.style={level distance=1.3cm}
+	level/.style={level distance=1.2cm}
 ]
 	\node [veb_node] (Node0) {0}
 	child{ node [veb_node] (Node1) {1}
@@ -482,7 +482,6 @@ pieces as values, keyed by their minimal keys.
 	level 1/.style = {sibling distance=4cm},
 	level 2/.style = {sibling distance=2cm},
 	level 3/.style = {sibling distance=1cm},
-%	level/.style = {level distance=1cm}
 ]
 \draw[step=1cm] (0,0) grid (8,1);
 \node[pma_ptr] at (+0.5,+0.5) (pma_1) {};
