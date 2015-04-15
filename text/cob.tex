@@ -13,12 +13,11 @@ in a cache-oblivious setting.
 	$B<N$ to simplify some bounds in this section.}
 amortized block transfers, which is similar to cache-aware B-trees.
 Scanning a range of $t$ keys also takes $\Theta(\log_B N+t/B)$ time.
-This matches the performance of B-trees for $B=\Omega(\log N\log\log N)$.
 % TODO: unfortunately not common for internal memory
 
 The original cache-oblivious B-tree as described in \cite{cobt} used
 weight-balanced B-trees. We implement a simplified version of the structure
-introduced in \cite{brodal01}, which is composed of three components.
+from \cite{brodal01}, which is composed of three components.
 % TODO: nevadi ze tady jsou data obracene?
 The \emph{van Emde Boas layout} of binary trees is a way of cache-obliviously
 maintaining full binary trees in memory such that reading or updating any
@@ -455,7 +454,10 @@ This bootstrapping structure matches B-trees in the speed of \textsc{Find},
 but updates take time $\Theta(\log_B N+\frac{\log^2 N}{B})$, which is
 $\Theta(\frac{\log^2 N}{B})$ more than B-trees.
 % TODO: precisely when is this term significant?
-This term is significant especially when $B$ is small compared to $\log N$.
+This matches the performance of B-trees for $B=\Omega(\log N\log\log N)$.
+Unfortunately, this is not a realistic assumption in internal memory
+where cache lines are relatively small, so we need to remove the
+$\Theta(\frac{\log^2 N}{B})$ term to fully match B-trees.
 
 To remove this term, we will use this bootstrapping data structure with
 \emph{indirection} to make the final cache-oblivious B-tree.
@@ -607,6 +609,15 @@ Thus, we can charge each update $\Theta(\frac{1}{\log N}\frac{\log^2 N}{B})$
 for splits and merges, which gives us $\Theta(\log_B N+\frac{\log N}{B})=
 \Theta(\log_B N)$ amortized time for updates.
 
+Finally, updates may necessitate a change in piece size $P$. If $P$
+no longer fits, we pick a new $P$ by adding or subtracting a small constant
+$\Delta_P$ and we globally rebuild the structure.
+Because piece sizes need to change after the data structure increases
+or decreases in size by a factor of $2^{\Delta_P}$, we can allow
+rebuilds to take up to $\Theta(N\log_B N)$ block transfers -- the amortized
+cost of rebuilds will be $\O(1)$ per item.
+% TODO: rebuilding smart might maybe take just $\Theta(N/B)$ block transfers?
+
 \section{Enhancements}
 An alternative deamortized ordered file maintenance data structure
 developed by \cite{willard92} performs $\Theta(\frac{\log^2 N}{B})$
@@ -642,7 +653,7 @@ in conjunction with the van Emde Boas layout. To avoid holes in the packed
 memory array, the elements of the packed memory array are chunks of keys.
 Several other modifications are necessary to allow updates in size, which
 requires building the structure on the fly.
-We have decided not to implement the implicit cache-oblivious B-tree due
+We decided not to implement the implicit cache-oblivious B-tree due
 to its large complexity. We also believe the data structure may be much
 slower on practical data sets than equivalent structures with free slots or
 pointers, since decoding auxilliary data from the implicit representation
