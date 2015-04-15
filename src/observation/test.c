@@ -10,8 +10,8 @@
 static void run_events(observation* observation) {
 	dict* example;
 	// TODO: use an actual test mock that doesn't do anything?
-	if (dict_init(&example, &dict_array, NULL))
-		log_fatal("cannot init test example dict");
+	CHECK(!dict_init(&example, &dict_array, NULL),
+			"cannot init test example dict");
 
 	dict* tapped_dict;
 	observation_tap(observation, example, &tapped_dict);
@@ -34,7 +34,7 @@ static void run_events(observation* observation) {
 static void replay_events(observation* observation) {
 	dict* replay_on;
 	// TODO: use message expectations instead?
-	CHECK(dict_init(&replay_on, &dict_array, NULL),
+	CHECK(!dict_init(&replay_on, &dict_array, NULL),
 			"cannot init test replay dict");
 
 	observation_replay(observation, replay_on);
@@ -53,7 +53,7 @@ static void replay_events(observation* observation) {
 
 static void it_delegates(void) {
 	observation* observation;
-	CHECK(observation_init(&observation), "cannot init observation");
+	CHECK(!observation_init(&observation), "cannot init observation");
 
 	run_events(observation);
 	replay_events(observation);
