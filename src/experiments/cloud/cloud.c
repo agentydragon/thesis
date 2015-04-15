@@ -365,6 +365,9 @@ int main(int argc, char** argv) {
 	log_info("loaded %" PRIu64 " records", records_size);
 
 	for (uint64_t i = 0; FLAGS.measured_apis[i]; ++i) {
+		CHECK(dict_api_supports_order_queries(FLAGS.measured_apis[i]),
+				"%s does not support order queries.",
+				FLAGS.measured_apis[i]->name);
 		test_api(FLAGS.measured_apis[i]);
 	}
 

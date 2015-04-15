@@ -35,6 +35,9 @@ void dict_find(dict*, uint64_t key, uint64_t *value, bool *found);
 int8_t dict_insert(dict*, uint64_t key, uint64_t value);
 int8_t dict_delete(dict*, uint64_t key);
 
+// Optional extension: ordered dictionary.
+bool dict_api_allows_order_queries(const dict_api*);
+bool dict_allows_order_queries(const dict*);
 void dict_next(dict*, uint64_t key, uint64_t *next_key, bool *found);
 void dict_prev(dict*, uint64_t key, uint64_t *prev_key, bool *found);
 

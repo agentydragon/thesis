@@ -48,7 +48,9 @@ void usage() {
 	// ...
 }
 \end{lstlisting}
-We have decided to forgo generality to keep the code clean and readable.
+For example, the LibUCW library (\url{http://www.ucw.cz/libucw/})
+uses this pattern for generic hash tables. We have decided to forgo generality
+to keep the code clean and readable.
 
 \section{General dictionary API}
 All implemented data structures can be used through a common API defined
@@ -99,7 +101,7 @@ and they act as implementations of their respective general versions operating
 on general dictionaries declared in \texttt{dict/dict.h}:
 
 \begin{lstlisting}[language=C]
-int8_t dict_find(dict*, uint64_t key,
+void dict_find(dict*, uint64_t key,
 		uint64_t *value, bool *found);
 int8_t dict_insert(dict*, uint64_t key, uint64_t value);
 int8_t dict_delete(dict*, uint64_t key);
@@ -108,12 +110,16 @@ int8_t dict_delete(dict*, uint64_t key);
 Dictionary data structures may optionally implement successor and predecessor
 lookups. The public API consists of the functions \texttt{dict\_next} and
 \texttt{dict\_prev}. If the data structure does not implement these operations,
-it may set the appropriate fields in \texttt{dict\_api} to \texttt{NULL},
-in which case the public functions will return an error and do nothing.
+it may set the appropriate fields in \texttt{dict\_api} to \texttt{NULL}.
+The \texttt{dict\_api\_allows\_order\_queries} and
+\texttt{dict\_allows\_order\_queries} functions detect whether ordered
+dictionary operations are available for the given implementation or dictionary.
 \begin{lstlisting}[language=C]
-int8_t dict_next(dict*, uint64_t key,
+bool dict_api_allows_order_queries(const dict_api*);
+bool dict_allows_order_queries(const dict*);
+void dict_next(dict*, uint64_t key,
 		uint64_t *next_key, bool *found);
-int8_t dict_prev(dict*, uint64_t key,
+void dict_prev(dict*, uint64_t key,
 		uint64_t *prev_key, bool *found);
 \end{lstlisting}
 
@@ -128,7 +134,7 @@ a B-tree can be used as follows:
 #include "dict/btree.h"
 #include "dict/dict.h"
 
-void example_btree() {
+void example_btree(void) {
 	dict* btree;
 	if (dict_init(&btree, &dict_btree) != 0) {
 		printf("Error initializing B-tree.\n");
@@ -138,15 +144,12 @@ void example_btree() {
 		printf("Error inserting 1 -> 100.\n");
 	}
 	// ...
-	if (dict_find(btree, 42, &value, &found) != 0) {
-		printf("Error looking for key 42.\n");
+	const bool found = dict_find(btree, 42, &value);
+	if (found) {
+		printf("Found 42 -> \%" PRIu64 ".\n",
+				value);
 	} else {
-		if (found) {
-			printf("Found 42 -> \%" PRIu64 ".\n",
-					value);
-		} else {
-			printf("No value for 42.\n");
-		}
+		printf("No value for 42.\n");
 	}
 	// ...
 	if (dict_delete(btree, 1) != 0) {

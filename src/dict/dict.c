@@ -65,6 +65,14 @@ void dict_check(dict* this) {
 	}
 }
 
+bool dict_api_allows_order_queries(const dict_api* api) {
+	return api->next && api->prev;
+}
+
+bool dict_allows_order_queries(const dict* this) {
+	return dict_api_allows_order_queries(this->api);
+}
+
 void dict_next(dict* this, uint64_t key, uint64_t *next_key, bool *found) {
 	if (this->api->next) {
 		this->api->next(this->opaque, key, next_key, found);

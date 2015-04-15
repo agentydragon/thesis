@@ -89,14 +89,15 @@ int main(int argc, char** argv) {
 		}
 
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
-			if (!FLAGS.measured_apis[i]->next) {
-				// No implementation of ordering.
-				// TODO: Make the test more idiomatic.
+			const dict_api* api = FLAGS.measured_apis[i];
+			if (!dict_api_supports_order_queries(api)) {
+				log_info("order queries not supported by %s, "
+						"skipping.", api->name);
 				continue;
 			}
 			KSPLAY_COUNTERS.ksplay_steps = 0;
 			KSPLAY_COUNTERS.composed_keys = 0;
-			result = measure_ltr_scan(FLAGS.measured_apis[i], size);
+			result = measure_ltr_scan(api, size);
 
 			json_t* point = json_object();
 			add_common_keys(point, "ltr_scan", size,
