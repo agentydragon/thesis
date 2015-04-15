@@ -76,10 +76,10 @@ $\Theta(b \cdot \log_b N)$.
 
 The main benefit of B-trees over binary trees is the tunable parameter
 $b$, which we can choose to be $\Theta(B)$. Practically, if the B-tree
-is stored in a disk, we would choose $b$ to be the sector size.
-Thus, in the external memory model, \textsc{Find}, \textsc{Insert} and
-\textsc{Delete} all take $\O(1)$ block transfers on every level,
-yielding $\Theta(\log_B N)$ block transfers per operation.
+is stored in a disk, $b$ can be tuned to fit one B-tree node in exactly one
+physical block. Thus, in the external memory model, \textsc{Find},
+\textsc{Insert} and \textsc{Delete} all take $\O(1)$ block transfers
+on every level, yielding $\Theta(\log_B N)$ block transfers per operation.
 
 This is optimal assuming the only allowed operation
 on keys is comparison: reading a block of $\Theta(B)$ keys will only
