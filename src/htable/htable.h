@@ -27,7 +27,7 @@ typedef struct {
 } htable;
 
 int8_t htable_delete(htable* this, uint64_t key);
-int8_t htable_find(void* _this, uint64_t key, uint64_t *value, bool *found);
+void htable_find(void* _this, uint64_t key, uint64_t *value, bool *found);
 int8_t htable_insert_internal(htable* this, uint64_t key, uint64_t value);
 void htable_dump(void* this);
 

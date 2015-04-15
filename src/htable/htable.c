@@ -52,15 +52,13 @@ int8_t htable_delete(htable* this, uint64_t key) {
 	}
 }
 
-int8_t htable_find(void* _this, uint64_t key, uint64_t *value, bool *found) {
+void htable_find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 	htable* this = _this;
 
 	bool _found;
 	htable_slot_pointer pointer;
 
-	if (htable_scan(this, key, &pointer, NULL, &_found)) {
-		return 1;
-	}
+	ASSERT(!htable_scan(this, key, &pointer, NULL, &_found));
 
 	if (_found) {
 		log_verbose(1, "htable_find(%" PRIu64 "): found %" PRIu64,
@@ -73,5 +71,4 @@ int8_t htable_find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 		log_verbose(1, "find(%" PRIu64 "): not found", key);
 		*found = false;
 	}
-	return 0;
 }

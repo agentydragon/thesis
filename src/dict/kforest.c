@@ -32,10 +32,9 @@ static void destroy(void** _this) {
 	}
 }
 
-static int8_t find(void* _this, uint64_t key, uint64_t *value, bool *found) {
+static void find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 	assert(_this);
 	kforest_find(_this, key, value, found);
-	return 0;
 }
 
 static int8_t insert(void* _this, uint64_t key, uint64_t value) {

@@ -53,28 +53,25 @@ static void _lookup_index(data* this, uint64_t key, bool *found, uint64_t *index
 	*found = false;
 }
 
-static int8_t find(void* _this, uint64_t key, uint64_t *value, bool *found) {
+static void find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 	data* this = _this;
 	uint64_t index;
 
 	bool pair_found;
 	_lookup_index(this, key, &pair_found, &index);
-	if (found) *found = pair_found;
-	if (pair_found && value) *value = this->pairs[index].value;
-
-	return 0;
+	if (found) {
+		*found = pair_found;
+	}
+	if (pair_found && value) {
+		*value = this->pairs[index].value;
+	}
 }
 
 static int8_t insert(void* _this, uint64_t key, uint64_t value) {
 	data* this = _this;
 
 	bool found;
-	if (find(this, key, NULL, &found)) {
-		log_error("cannot check for duplicity when inserting %ld=%ld",
-				key, value);
-		goto err_1;
-	}
-
+	find(this, key, NULL, &found);
 	if (found) {
 		log_verbose(1, "key %ld already present when inserting %ld=%ld",
 				key, key, value);
@@ -134,6 +131,8 @@ const dict_api dict_array = {
 	.insert = insert,
 	.find = find,
 	.delete = delete,
+
+	// TODO: next, prev
 
 	.name = "dict_array"
 };

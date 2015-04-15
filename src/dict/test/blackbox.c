@@ -8,14 +8,13 @@
 #include "log/log.h"
 
 static void has_element(dict* table, uint64_t key, uint64_t value) {
-	uint64_t value_found;
+	uint64_t found_value;
 	bool found;
-	CHECK(dict_find(table, key, &value_found, &found) == 0,
-			"dict_find for %ld failed", key);
+	dict_find(table, key, &found_value, &found);
 	CHECK(found, "key %ld not found", key);
-	CHECK(value_found == value,
+	CHECK(found_value == value,
 			"value for key %ld should be %ld, but is %ld",
-			key, value, value_found);
+			key, value, found_value);
 }
 
 static void init(dict** table, const dict_api* api) {
@@ -23,10 +22,8 @@ static void init(dict** table, const dict_api* api) {
 }
 
 static void has_no_element(dict* table, uint64_t key) {
-	bool found;
-	CHECK(!dict_find(table, key, NULL, &found),
-		"dict_find for %ld failed", key);
-	CHECK(!found, "key %ld found, expected not to find it", key);
+	CHECK(!dict_contains(table, key),
+			"key %ld found, expected not to find it", key);
 }
 
 static void insert(dict* table, uint64_t key, uint64_t value) {
@@ -66,7 +63,7 @@ static void check_equivalence(dict* instance, uint64_t N,
 	for (uint64_t i = 0; i < N; i++) {
 		uint64_t value;
 		bool key_present;
-		ASSERT(!dict_find(instance, keys[i], &value, &key_present));
+		dict_find(instance, keys[i], &value, &key_present);
 		if (present[i]) {
 			CHECK(key_present, "expected to find %" PRIu64 "=%" PRIu64 ", "
 						"but no such key found",

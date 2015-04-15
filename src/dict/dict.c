@@ -39,8 +39,8 @@ void dict_destroy(dict** _this) {
 	}
 }
 
-int8_t dict_find(dict* this, uint64_t key, uint64_t *value, bool *found) {
-	return this->api->find(this->opaque, key, value, found);
+void dict_find(dict* this, uint64_t key, uint64_t *value, bool *found) {
+	this->api->find(this->opaque, key, value, found);
 }
 
 int8_t dict_insert(dict* this, uint64_t key, uint64_t value) {
@@ -65,23 +65,21 @@ void dict_check(dict* this) {
 	}
 }
 
-int8_t dict_next(dict* this, uint64_t key, uint64_t *next_key, bool *found) {
+void dict_next(dict* this, uint64_t key, uint64_t *next_key, bool *found) {
 	if (this->api->next) {
-		return this->api->next(this->opaque, key, next_key, found);
+		this->api->next(this->opaque, key, next_key, found);
 	} else {
-		log_error("dict api %s doesn't implement next",
+		log_fatal("dict api %s doesn't implement next",
 				this->api->name);
-		return 1;
 	}
 }
 
-int8_t dict_prev(dict* this, uint64_t key, uint64_t *prev_key, bool *found) {
+void dict_prev(dict* this, uint64_t key, uint64_t *prev_key, bool *found) {
 	if (this->api->prev) {
-		return this->api->prev(this->opaque, key, prev_key, found);
+		this->api->prev(this->opaque, key, prev_key, found);
 	} else {
-		log_error("dict api %s doesn't implement prev",
+		log_fatal("dict api %s doesn't implement prev",
 				this->api->name);
-		return 1;
 	}
 }
 
@@ -91,4 +89,10 @@ const void* dict_get_implementation(dict* this) {
 
 const dict_api* dict_get_api(dict* this) {
 	return this->api;
+}
+
+bool dict_contains(dict* this, uint64_t key) {
+	bool found;
+	dict_find(this, key, NULL, &found);
+	return found;
 }

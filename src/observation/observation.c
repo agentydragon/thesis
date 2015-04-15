@@ -98,22 +98,17 @@ static void tapped_destroy(void** _this) {
 	}
 }
 
-static int8_t tapped_find(void* _this, uint64_t key, uint64_t *value, bool *found) {
+static void tapped_find(void* _this, uint64_t key,
+		uint64_t *value, bool *found) {
 	struct tapped_dict *this = _this;
 
-	if (dict_find(this->dict_to_tap, key, value, found)) {
-		log_error("tapped dict_find failed");
-		return 1;
-	}
+	dict_find(this->dict_to_tap, key, value, found);
 
-	if (observation_push(this->recorded_observation, (struct observed_operation) {
-		.operation = OP_FIND,
-		.find = { .key = key }
-	})) {
-		log_fatal("cannot push dict_find observation");
-		return 1;
-	}
-	return 0;
+	ASSERT(!observation_push(this->recorded_observation,
+				(struct observed_operation) {
+					.operation = OP_FIND,
+					.find = { .key = key }
+				}));
 }
 
 static int8_t tapped_insert(void* _this, uint64_t key, uint64_t value) {
@@ -124,10 +119,11 @@ static int8_t tapped_insert(void* _this, uint64_t key, uint64_t value) {
 		return 1;
 	}
 
-	if (observation_push(this->recorded_observation, (struct observed_operation) {
-		.operation = OP_INSERT,
-		.insert = { .key = key, .value = value }
-	})) {
+	if (observation_push(this->recorded_observation,
+				(struct observed_operation) {
+					.operation = OP_INSERT,
+					.insert = { .key = key, .value = value }
+				})) {
 		log_fatal("cannot push dict_insert observation");
 		return 1;
 	}
@@ -173,7 +169,8 @@ int8_t observation_tap(observation* this, dict* to_tap, dict** tapped) {
 static int8_t replay_operation(struct observed_operation operation, dict* replay_on) {
 	switch (operation.operation) {
 		case OP_FIND:
-			return dict_find(replay_on, operation.find.key, NULL, NULL);
+			dict_find(replay_on, operation.find.key, NULL, NULL);
+			return 0;
 		case OP_INSERT:
 			return dict_insert(replay_on, operation.insert.key, operation.insert.value);
 		case OP_DELETE:

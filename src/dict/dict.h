@@ -12,15 +12,16 @@ typedef struct {
 	int8_t (*init)(void**, void* args);
 	void (*destroy)(void**);
 
-	int8_t (*find)(void*, uint64_t key, uint64_t *value, bool *found);
+	void (*find)(void*, uint64_t key, uint64_t *value, bool *found);
 	int8_t (*insert)(void*, uint64_t key, uint64_t value);
 	int8_t (*delete)(void*, uint64_t key);
 
 	const char* name;
 
-	// Optional extension: ordered dictionary
-	int8_t (*next)(void*, uint64_t key, uint64_t *next_key, bool *found);
-	int8_t (*prev)(void*, uint64_t key, uint64_t *prev_key, bool *found);
+	// Optional extension: ordered dictionary.
+	// NULL if not implemented.
+	void (*next)(void*, uint64_t key, uint64_t *next_key, bool *found);
+	void (*prev)(void*, uint64_t key, uint64_t *prev_key, bool *found);
 
 	// Optional
 	void (*dump)(void*);
@@ -30,18 +31,22 @@ typedef struct {
 int8_t dict_init(dict**, const dict_api* api, void* args);
 void dict_destroy(dict**);
 
-int8_t dict_find(dict*, uint64_t key, uint64_t *value, bool *found);
+void dict_find(dict*, uint64_t key, uint64_t *value, bool *found);
 int8_t dict_insert(dict*, uint64_t key, uint64_t value);
 int8_t dict_delete(dict*, uint64_t key);
 
-int8_t dict_next(dict*, uint64_t key, uint64_t *next_key, bool *found);
-int8_t dict_prev(dict*, uint64_t key, uint64_t *prev_key, bool *found);
+void dict_next(dict*, uint64_t key, uint64_t *next_key, bool *found);
+void dict_prev(dict*, uint64_t key, uint64_t *prev_key, bool *found);
+
+void dict_dump(dict*);
+void dict_check(dict*);
 
 // Provides access to implementation pointer. Explicitly disallows modification.
 const void* dict_get_implementation(dict*);
 const dict_api* dict_get_api(dict*);
 
-void dict_dump(dict*);
-void dict_check(dict*);
+// Derived from dict_find.
+// TODO: Some implementations may want to provide a custom implementation.
+bool dict_contains(dict*, uint64_t key);
 
 #endif

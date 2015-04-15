@@ -24,24 +24,21 @@ static void destroy(void** _this) {
 	}
 }
 
-static int8_t find(void* _this, uint64_t key, uint64_t *value, bool *found) {
+static void find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 	assert(_this);
 	ksplay_find(_this, key, value, found);
-	return 0;
 }
 
-static int8_t find_next(void* _this, uint64_t key,
+static void find_next(void* _this, uint64_t key,
 		uint64_t* next_key, bool *found) {
 	assert(_this);
 	ksplay_next_key(_this, key, next_key, found);
-	return 0;
 }
 
-static int8_t find_previous(void* _this, uint64_t key,
+static void find_previous(void* _this, uint64_t key,
 		uint64_t* previous_key, bool *found) {
 	assert(_this);
 	ksplay_previous_key(_this, key, previous_key, found);
-	return 0;
 }
 
 static int8_t insert(void* _this, uint64_t key, uint64_t value) {

@@ -16,14 +16,14 @@ static void run_events(observation* observation) {
 	dict* tapped_dict;
 	observation_tap(observation, example, &tapped_dict);
 
-	ASSERT(!dict_find(tapped_dict, 1, NULL, NULL));
-	ASSERT(!dict_find(tapped_dict, 2, NULL, NULL));
+	dict_find(tapped_dict, 1, NULL, NULL);
+	dict_find(tapped_dict, 2, NULL, NULL);
 	ASSERT(!dict_insert(tapped_dict, 1, 100));
 	ASSERT(!dict_insert(tapped_dict, 2, 250));
-	ASSERT(!dict_find(tapped_dict, 2, NULL, NULL));
+	dict_find(tapped_dict, 2, NULL, NULL);
 	ASSERT(!dict_delete(tapped_dict, 2));
 	ASSERT(!dict_insert(tapped_dict, 2, 200));
-	ASSERT(!dict_find(tapped_dict, 2, NULL, NULL));
+	dict_find(tapped_dict, 2, NULL, NULL);
 	ASSERT(!dict_insert(tapped_dict, 3, 300));
 	ASSERT(!dict_delete(tapped_dict, 3));
 
@@ -41,11 +41,11 @@ static void replay_events(observation* observation) {
 
 	uint64_t value;
 	bool found;
-	ASSERT(!dict_find(replay_on, 1, &value, &found));
+	dict_find(replay_on, 1, &value, &found);
 	ASSERT(found && value == 100);
-	ASSERT(!dict_find(replay_on, 2, &value, &found));
+	dict_find(replay_on, 2, &value, &found);
 	ASSERT(found && value == 200);
-	ASSERT(!dict_find(replay_on, 3, &value, &found));
+	dict_find(replay_on, 3, &value, &found);
 	ASSERT(!found);
 
 	dict_destroy(&replay_on);
