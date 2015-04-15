@@ -316,9 +316,9 @@ In our root-to-leaf traversals, reading the value of a non-leaf node $N$ will be
 followed by reading the value of its right child $R$. Based on the value in
 $R$, we will then either descend further below $R$, or we will descent into
 the subtree below $N$'s left child $L$.
-We slightly optimize this access pattern by calculating $Pos[d]$ for $L$
+We can slightly optimize this access pattern by calculating $Pos[d]$ for $L$
 from $Pos[d]$ for $R$ by simply subtracting $T[d]$, because $B[d]$ will
-decrease by 1. This saves us one relatively expensive \texttt{imulq}
+decrease by 1. This saves us one relatively expensive multiplication
 instruction whenever moving to the left sibling.
 
 \begin{figure}
