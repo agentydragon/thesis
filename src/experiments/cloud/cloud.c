@@ -108,6 +108,9 @@ static uint64_t records_capacity = 0;
 static uint64_t records_size = 0;
 static dict* id_map;
 
+static FILE* averages_file;
+static FILE* positions_file;
+
 static void load_records(const char* path) {
 	FILE* input = fopen(path, "r");
 	CHECK(input != NULL, "cannot open %s", path);
@@ -131,7 +134,8 @@ static void load_records(const char* path) {
 
 		if (pr.sea_level_pressure <= 20000 && pr.wind_speed <= 1000 && pr.wind_speed >= 0 && pr.sea_level_pressure >= 8000) {
 			if (FLAGS.dump_averages) {
-				printf("%d\t%d\n", pr.lat_x100, pr.lon_x100);
+				fprintf(positions_file, "%d\t%d\n",
+						pr.lat_x100, pr.lon_x100);
 			}
 		}
 
@@ -227,8 +231,6 @@ static void collect_sea_level_pressure(const uint64_t value,
 		//		sea_level_pressure);
 	}
 }
-
-static FILE* averages_file;
 
 static void query_close_points(dict* map, const int lat, const int lon) {
 	const uint64_t position_code = build_position_code(lat, lon);
@@ -337,7 +339,10 @@ int main(int argc, char** argv) {
 
 	if (FLAGS.dump_averages) {
 		averages_file = fopen("experiments/cloud/averages.csv", "w");
-		CHECK(averages_file, "cannot open averages.csv for writing");
+		CHECK(averages_file, "cannot open averages.csv");
+
+		positions_file = fopen("experiments/cloud/positions.csv", "w");
+		CHECK(positions_file, "cannot open positions.csv");
 	}
 
 	test_bit_ops();
@@ -365,6 +370,7 @@ int main(int argc, char** argv) {
 
 	if (FLAGS.dump_averages) {
 		fclose(averages_file);
+		fclose(positions_file);
 	}
 
 	return 0;
