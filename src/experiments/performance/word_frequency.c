@@ -85,11 +85,11 @@ static void report_count(dict* dict, const char* word) {
 
 static char* content;
 
-void init_word_frequency() {
+void init_word_frequency(void) {
 	content = read_file(PATH);
 }
 
-void deinit_word_frequency() {
+void deinit_word_frequency(void) {
 	free(content);
 }
 

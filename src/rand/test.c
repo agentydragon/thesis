@@ -27,7 +27,7 @@ static void distribution_within(int hits, int buckets,
 	free(histogram);
 }
 
-void test_rand() {
+void test_rand(void) {
 	distribution_within(10000, 10, 900, 1100);
 	distribution_within(10000000, 200, 49000, 51000);
 }

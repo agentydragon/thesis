@@ -30,7 +30,7 @@ static int parse_option(int key, char *arg, struct argp_state *state) {
 	return 0;
 }
 
-static void set_defaults() {
+static void set_defaults(void) {
 	// TODO: Unify this with performance/flags.c somewhere ("dict/all.h"?)
 	FLAGS.measured_apis[0] = &dict_btree;
 	FLAGS.measured_apis[1] = &dict_cobt;

@@ -70,7 +70,7 @@ static void _assert_keys(struct ordered_file file,
 } while (0)
 #define ASSERT_FILE(...) assert_file(file, __VA_ARGS__)
 
-static void test_parameter_policy() {
+static void test_parameter_policy(void) {
 	for (uint64_t N = 0; N < 100000; N++) {
 		struct parameters parameters = adequate_parameters(N);
 		CHECK(parameters.capacity % parameters.block_size == 0,
@@ -106,7 +106,7 @@ void test_reorganization_complexity() {
 }
 */
 
-void test_functional() {
+void test_functional(void) {
 	pma file;
 	memset(&file, 0, sizeof(file));
 	pma_init(&file);
@@ -131,7 +131,7 @@ void test_functional() {
 	pma_destroy(&file);
 }
 
-void test_cobt_pma() {
+void test_cobt_pma(void) {
 	test_functional();
 //	test_parameter_policy();
 //	test_reorganization_complexity();

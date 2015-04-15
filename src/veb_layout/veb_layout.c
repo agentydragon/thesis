@@ -86,7 +86,7 @@ static CACHE_PTR_TYPE cache_starts[256];
 static CACHED_TYPE cache[CACHE_SIZE];
 static bool should_build_cache = true;
 
-void veb_build_cache() {
+void veb_build_cache(void) {
 	should_build_cache = false;
 	uint64_t offset = 0;
 	for (uint64_t height = 1; ; height++) {

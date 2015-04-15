@@ -19,7 +19,7 @@ static void assert_not_found(htable* this, uint64_t key) {
 	ASSERT(!_found);
 }
 
-void htable_test_find() {
+void htable_test_find(void) {
 	uint64_t hash_pairs[] = {
 		100, 1,
 		101, 1,

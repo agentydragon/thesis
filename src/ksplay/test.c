@@ -62,7 +62,7 @@ static void _assert_children(node* x, node** children, uint64_t child_count) {
 	} \
 } while (0)
 
-static void test_nonfull_compose() {
+static void test_nonfull_compose(void) {
 	ksplay_pair pairs[] = { PAIR(10), PAIR(20) };
 	node* children[] = { MOCK('a'), MOCK('b'), MOCK('c') };
 
@@ -80,7 +80,7 @@ static void test_nonfull_compose() {
 	ASSERT(pool.remaining == 0);
 }
 
-static void test_walk_to() {
+static void test_walk_to(void) {
 	node a, b, c, root;
 	set_pairs(&a, PAIR(48), PAIR(49));
 	a.children[0] = a.children[1] = a.children[2] = NULL;
@@ -105,7 +105,7 @@ static void test_walk_to() {
 	free(stack.nodes);
 }
 
-static void test_exact_compose() {
+static void test_exact_compose(void) {
 	ksplay_pair pairs[] = {
 		PAIR(10), PAIR(20), PAIR(30), PAIR(40),
 		PAIR(50), PAIR(60), PAIR(70), PAIR(80)
@@ -134,7 +134,7 @@ static void test_exact_compose() {
 	assert_children(right, MOCK('G'), MOCK('H'), MOCK('I'));
 }
 
-static void test_underfull_compose() {
+static void test_underfull_compose(void) {
 	ksplay_pair pairs[] = {
 		PAIR(10), PAIR(20), PAIR(30), PAIR(40), PAIR(50)
 	};
@@ -156,7 +156,7 @@ static void test_underfull_compose() {
 	assert_children(right, MOCK('d'), MOCK('e'), MOCK('f'));
 }
 
-static void test_overfull_compose() {
+static void test_overfull_compose(void) {
 	ksplay_pair pairs[] = {
 		PAIR(10), PAIR(20), PAIR(30), PAIR(40), PAIR(50), PAIR(60),
 		PAIR(70), PAIR(80), PAIR(90), PAIR(100), PAIR(110)
@@ -186,7 +186,7 @@ static void test_overfull_compose() {
 	assert_children(d, MOCK('j'), MOCK('k'), MOCK('l'));
 }
 
-static void test_mixed_compose() {
+static void test_mixed_compose(void) {
 	// Terminal splay.
 	ksplay_pair pairs[] = {
 		PAIR(10), PAIR(20), PAIR(30), PAIR(40)
@@ -209,7 +209,7 @@ static void test_mixed_compose() {
 	ASSERT(root->children[2] == MOCK('e'));
 }
 
-static void test_compose() {
+static void test_compose(void) {
 	test_nonfull_compose();
 	test_exact_compose();
 	test_underfull_compose();
@@ -225,7 +225,7 @@ static void test_compose() {
 	} \
 } while (0)
 
-static void test_flatten() {
+static void test_flatten(void) {
 	node a, b, c;
 	set_pairs(&a, PAIR(100));
 	set_children(&a, MOCK('A'), MOCK('B'));
@@ -267,7 +267,7 @@ static void test_flatten() {
 	ASSERT(_found && _found_value == value); \
 } while (0)
 
-static void test_insert() {
+static void test_insert(void) {
 	ksplay *tree = malloc(sizeof(ksplay));
 	ksplay_init(tree);
 	assert_not_found(10);
@@ -302,7 +302,7 @@ static void test_insert() {
 	free(tree);
 }
 
-static void test_split_overfull() {
+static void test_split_overfull(void) {
 	ksplay_node root;
 	set_pairs(&root, PAIR(10), PAIR(20), PAIR(30));
 	set_children(&root, MOCK('a'), MOCK('b'), MOCK('c'), MOCK('d'));
@@ -315,7 +315,7 @@ static void test_split_overfull() {
 	free(new_root);
 }
 
-void test_ksplay() {
+void test_ksplay(void) {
 	test_compose();
 	test_walk_to();
 	test_flatten();

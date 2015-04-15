@@ -7,7 +7,7 @@
 
 // TODO: reenable tests
 
-static void test_internal_splitting() {
+static void test_internal_splitting(void) {
 	btree_node_persisted node = {
 		.internal = {
 			.key_count = 3,
@@ -33,7 +33,7 @@ static void test_internal_splitting() {
 }
 
 /*
-static void test_leaf_splitting() {
+static void test_leaf_splitting(void) {
 	btree_node_persisted node = {
 		.leaf = {
 			.key_count = 4,
@@ -65,7 +65,7 @@ static void test_leaf_splitting() {
 }
 */
 
-static void test_insert_pointer() {
+static void test_insert_pointer(void) {
 	btree_node_persisted node = {
 		.internal = {
 			.key_count = 2,
@@ -84,7 +84,7 @@ static void test_insert_pointer() {
 }
 
 /*
-static void test_insert_key_value_pair() {
+static void test_insert_key_value_pair(void) {
 	btree_node_persisted node = {
 		.leaf = {
 			.key_count = 2,
@@ -101,7 +101,7 @@ static void test_insert_key_value_pair() {
 }
 */
 
-static void test_inserting() {
+static void test_inserting(void) {
 	btree tree;
 	btree_init(&tree);
 	btree_insert(&tree, 10, 100);
@@ -127,7 +127,7 @@ static void test_inserting() {
 	btree_destroy(&tree);
 }
 
-static void test_deletion() {
+static void test_deletion(void) {
 	btree tree;
 	btree_init(&tree);
 	btree_insert(&tree, 10, 100);
@@ -174,7 +174,7 @@ static void test_deletion() {
 	btree_destroy(&tree);
 }
 
-void test_btree() {
+void test_btree(void) {
 	test_internal_splitting();
 	//test_leaf_splitting();
 	test_insert_pointer();

@@ -2,7 +2,7 @@
 
 #include "log/log.h"
 
-stopwatch stopwatch_start() {
+stopwatch stopwatch_start(void) {
 	stopwatch this;
 	ASSERT(clock_gettime(CLOCK_REALTIME, &this.started_at) == 0);
 	return this;

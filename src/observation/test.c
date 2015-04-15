@@ -51,7 +51,7 @@ static void replay_events(observation* observation) {
 	dict_destroy(&replay_on);
 }
 
-static void it_delegates() {
+static void it_delegates(void) {
 	observation* observation;
 	if (observation_init(&observation))
 		log_fatal("cannot init observation");
@@ -62,6 +62,6 @@ static void it_delegates() {
 	observation_destroy(&observation);
 }
 
-void test_observation() {
+void test_observation(void) {
 	it_delegates();
 }

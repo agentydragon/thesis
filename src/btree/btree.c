@@ -19,7 +19,7 @@
 // Equal to dict DICT_RESERVED_KEY
 #define SLOT_UNUSED 0xFFFFFFFFFFFFFFFF
 
-static btree_node_persisted* new_empty_leaf();
+static btree_node_persisted* new_empty_leaf(void);
 static btree_node_persisted* new_fork_node(uint64_t middle_key,
 		btree_node_persisted* left, btree_node_persisted* right);
 void split_leaf(btree_node_persisted* node,
@@ -344,7 +344,7 @@ static void clear_leaf(btree_node_persisted* leaf) {
 	}
 }
 
-static btree_node_persisted* new_empty_leaf() {
+static btree_node_persisted* new_empty_leaf(void) {
 	btree_node_persisted* new_node = malloc(sizeof(btree_node_persisted));
 	clear_leaf(new_node);
 	return new_node;

@@ -56,13 +56,13 @@ static void build_with_height(uint64_t height) {
 			(veb_pointer) { .present = false }, 0);
 }
 
-static void test_1() {
+static void test_1(void) {
 	HEIGHT = 1;
 	build_with_height(1);
 	check(0, NOTHING, NOTHING); check_leaf_number(0, 0);
 }
 
-static void test_2() {
+static void test_2(void) {
 	HEIGHT = 2;
 	build_with_height(2);
 	check(0, 1, 2); check_nonleaf(0);
@@ -70,7 +70,7 @@ static void test_2() {
 	check(2, NOTHING, NOTHING); check_leaf_number(1, 2);
 }
 
-static void test_3() {
+static void test_3(void) {
 	HEIGHT = 3;
 	build_with_height(3);
 	check(0, 1, 4); check_nonleaf(0);
@@ -82,7 +82,7 @@ static void test_3() {
 	check(6, NOTHING, NOTHING); check_leaf_number(3, 6);
 }
 
-static void test_4() {
+static void test_4(void) {
 	HEIGHT = 4;
 	build_with_height(4);
 	check(0, 1, 2); check_nonleaf(0);
@@ -102,7 +102,7 @@ static void test_4() {
 	check(14, NOTHING, NOTHING); check_leaf_number(7, 14);
 }
 
-static void test_5() {
+static void test_5(void) {
 	HEIGHT = 5;
 	build_with_height(5);
 	check(0, 1, 16); check_nonleaf(0);
@@ -138,7 +138,7 @@ static void test_5() {
 	check(30, NOTHING, NOTHING); check_leaf_number(15, 30);
 }
 
-static void test_drilldown_level_data() {
+static void test_drilldown_level_data(void) {
 	veb_level_data r;
 	// 0 = forbidden (root) level
 	r = veb_get_level_data(2, 1);
@@ -184,7 +184,7 @@ static void test_drilldown_level_data() {
 	assert(r.top_size == 1 && r.bottom_size == 1 && r.top_depth == 3);
 }
 
-static void test_drilldown_small() {
+static void test_drilldown_small(void) {
 	struct drilldown_track track;
 	veb_level_data levels[5 + 1];
 	veb_prepare(5, levels);
@@ -205,7 +205,7 @@ static void test_drilldown_small() {
 	assert(track.depth == 4 && track.pos[track.depth] == 23 && track.bfs == 25);
 }
 
-static void test_drilldown_integration() {
+static void test_drilldown_integration(void) {
 	struct drilldown_track track;
 	veb_level_data levels[50 + 1];
 
@@ -234,7 +234,7 @@ static void test_drilldown_integration() {
 	}
 }
 
-static void test_drilldown() {
+static void test_drilldown(void) {
 	test_drilldown_level_data();
 	test_drilldown_small();
 	test_drilldown_integration();

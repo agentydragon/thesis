@@ -21,7 +21,7 @@
 	assert(got.right == expected.right); \
 } while (0)
 
-static void test_alternating_3() {
+static void test_alternating_3(void) {
 	// TODO: reenable test
 	/*
 	splay_node c = { .key = 5,  .left = MOCK(2), .right = MOCK(3) };
@@ -38,7 +38,7 @@ static void test_alternating_3() {
 	*/
 }
 
-static void test_right_path_4() {
+static void test_right_path_4(void) {
 	// TODO: reenable test
 	/*
 	splay_node d = { .key = 400, .left = MOCK(4), .right = MOCK(5) };
@@ -57,7 +57,7 @@ static void test_right_path_4() {
 	*/
 }
 
-static void test_left_path_5() {
+static void test_left_path_5(void) {
 	// TODO: reenable test
 	/*
 	splay_node e = { .key = 600, .left = MOCK(1), .right = MOCK(2) };
@@ -78,7 +78,7 @@ static void test_left_path_5() {
 	*/
 }
 
-void test_splay_tree() {
+void test_splay_tree(void) {
 	test_alternating_3();
 	test_right_path_4();
 	test_left_path_5();

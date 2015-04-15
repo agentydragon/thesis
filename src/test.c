@@ -22,7 +22,7 @@
 #include "splay/test.h"
 #include "veb_layout/test.h"
 
-void run_unit_tests() {
+void run_unit_tests(void) {
 	test_ksplay();
 	test_cobt();
 

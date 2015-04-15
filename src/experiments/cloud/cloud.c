@@ -93,7 +93,7 @@ static uint64_t build_position_code(int lat_x100, int lon_x100) {
 	return code;
 }
 
-static void test_bit_ops() {
+static void test_bit_ops(void) {
 	ASSERT(expand_32(0x00000000) == 0x0000000000000000ULL);
 	ASSERT(expand_32(0x0000FFFF) == 0x0000000055555555ULL);
 	ASSERT(expand_32(0xFF00FFFF) == 0x5555000055555555ULL);

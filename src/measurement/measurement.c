@@ -91,7 +91,7 @@ static uint64_t event_fd_read(int fd) {
 	return result;
 }
 
-measurement* measurement_begin() {
+measurement* measurement_begin(void) {
 	measurement* m = malloc(sizeof(measurement));
 	m->fds = calloc(COUNT_OF(counters), sizeof(int));
 	ASSERT(m->fds);

@@ -4,7 +4,7 @@
 
 #include "cobt/tree.h"
 
-void test_cobt_tree() {
+void test_cobt_tree(void) {
 	bool occupied[] = { true, true, true, true, true };
 	uint64_t array[] = { 10, 99999, 20, 99999, 30 };
 	const uint64_t size = sizeof(array) / sizeof(*array);

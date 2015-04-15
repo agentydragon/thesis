@@ -27,7 +27,7 @@ static void assert_block_internal(const char* header, const htable_block* found,
 	assert_block_internal(#found, found, expected); \
 } while (0)
 
-static void test_shortening_chains() {
+static void test_shortening_chains(void) {
 	// When we remove an element, we don't leave behind an empty hole.
 	// We must do this to avoid potentially O(N) long chains.
 	// So, we need to find the last pair with the same hash and put it to
@@ -137,6 +137,6 @@ static void test_shortening_chains() {
 	assert_block(&blocks[3], expected[3]);
 }
 
-void htable_test_delete() {
+void htable_test_delete(void) {
 	test_shortening_chains();
 }

@@ -69,7 +69,7 @@ static int parse_option(int key, char* arg, struct argp_state* state) {
 	return 0;
 }
 
-static void set_defaults() {
+static void set_defaults(void) {
 	FLAGS.measured_apis[0] = &dict_cobt;
 	FLAGS.measured_apis[1] = &dict_splay;
 	FLAGS.measured_apis[2] = &dict_ksplay;
