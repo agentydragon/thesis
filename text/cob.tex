@@ -336,34 +336,41 @@ saves a considerable amount of computation, especially with deeper van Emde Boas
 layouts.
 
 \section{Ordered file maintenance}
-The ordered file maintenance problem asks us to store an ordered list of
-$N$ keys in a given order in a contiguous array of size $\O(N)$.
-The allowed operations are \textsc{Insert}(\emph{index},\emph{key}),
-which inserts a new key before or after a given index in the array,
-and \textsc{Delete}(\emph{index}), which deletes an item at a given index.
-We allow the array to contain gaps up to a constant maximum size.
-Having constant-size gaps allows scanning a range of $k$ keys using the
-optimal $\Theta(k/B)$ scans.
+Ordered file maintenance algorithms maintain $N$ items stored in a physical
+array of size $\O(N)$. Aside from reading from any slot in the array,
+we can ask the algorithm to \textsc{Insert} a new item before or after
+a given index in the array, and \textsc{Delete}(\emph{index}), which deletes
+the item at a given index. Updates are allowed to move elements of the array,
+but the relative order of all stored items must remain the same.
+
+While the interface is similar to a simple linked list, storing the items
+in a contiguous array of size $\O(N)$ lets us scan a range of size $k$ using
+only the optimal $\Theta(k/B)$ scans, which improves upon linked lists by
+a factor of $B$.
+
+To give the maintenance algorithm some freedom, empty gaps of up to a constant
+maximum size may be present between two adjacent items in the array. Without
+gaps, \textsc{Insert} and \textsc{Delete} would have to be implemented
+by shifting elements to the right or left in $\Theta(N/B)$ block transfers.
 
 The \emph{packed memory array} is a data structure that maintains an ordered
 file. Updates (\textsc{Insert}s and \textsc{Delete}s) of a packed memory array
-rewrite a contiguous range of size $\Theta(\log^2 N)$ amortized.
+rewrite a contiguous range of amortized size $\Theta(\log^2 N)$.
 Thanks to the range being contiguous, updates will incur
 $\Theta(\frac{\log^2 N}{B})$ amortized block transfers.
 
-The packed memory array consists of a physical array. Each position in this
-array either contains an element, or it is empty.
-The array is divided into \emph{leaf blocks} of constant size $\O(\log N)$.
-A \emph{virtual full binary tree} is built above those leaf blocks. Every
-node of this binary tree represents the range covering all the leaf blocks below.
-This tree is only conceptual -- it is never stored in memory.
+The array is divided into logical \emph{leaf blocks} of constant size
+$\O(\log N)$. A \emph{virtual full binary tree} is built above those leaf
+blocks. Every node of this binary tree represents the range covering all
+the leaf blocks below. This tree is only conceptual -- it is never stored
+in memory.
 
 To properly define the structure, we need to define some terms. The
 \emph{capacity} of a certain range of the array is its size and the
 \emph{density} of a range is the number of items present in the range divided
 by its capacity.
-The data structure maintains certain bounds on the densities of subranges of
-the array.
+The packed memory array maintains certain bounds on the densities of subranges
+of the array.
 
 The densities in the leaf blocks are kept between \unichar{"00BC} % VULGAR FRACTION ONE QUARTER
 and 1. If an update keeps the density of the leaf block within thresholds,
@@ -385,7 +392,7 @@ a multiplicative constant.
 
 We claim that while this redistribution may reorganize a range of size up
 to $\O(N)$, the redistribution of a node puts all nodes below it well within
-thresholds, so the next reorganization will be needed only after many more
+their thresholds, so the next reorganization will be needed only after many more
 updates.
 % TODO: how much is "many"?
 
