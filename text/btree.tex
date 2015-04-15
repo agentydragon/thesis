@@ -61,18 +61,17 @@ If deleting from the root would leave the root with only one child
 
 Thus, updates to the B-tree keep the number of keys of all nodes within
 $[b/2;b$, so the depth of the tree is kept between $\log_b N$ and
-$\log_{b/2} N$ and the \textsc{Find} operation takes
-$\Theta(\log b \cdot \log_b N)$ time.
-\textsc{FindNext} and \textsc{FindPrevious} also run in $\Theta(\log_b N)$ time,
-but if they are invoked after a previous \textsc{Find}, we can keep a pointer
-to the leaf containing the key and accordingly adjust it to find the next
-or previous key, which runs in $\O(1)$ amortized time.
-Thus, B-trees also allow scanning a contigous
+$\log_{b/2} N$ and the \textsc{Find} operation takes time
+$\Theta(\log b \cdot \log_b N)=\Theta(\log N)$. \textsc{FindNext} and
+\textsc{FindPrevious} also take time $\Theta(\log N)$, but if they are invoked
+after a previous \textsc{Find}, we can keep a pointer to the leaf containing
+the key and accordingly adjust it to find the next or previous key, which runs
+in $\O(1)$ amortized time. Thus, B-trees also allow scanning a contigous
 range of keys of size $k$ in $\Theta(\log_b N + k)$ time.
 
 The \textsc{Insert} and \textsc{Delete} operations may spend up to
 $\Theta(b)$ time splitting or merging nodes on each level, so they run in
-$\Theta(b \cdot \log_b N)$.
+time $\Theta(b \cdot \log_b N)$.
 
 The main benefit of B-trees over binary trees is the tunable parameter
 $b$, which we can choose to be $\Theta(B)$. Practically, if the B-tree
