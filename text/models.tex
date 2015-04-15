@@ -184,7 +184,10 @@ The algorithm must perform well independent of the values of $M$ and $B$.
 On a machine with multiple levels of memory hierarchy, this means that
 the algorithm performs well on every cache boundary at the same time.
 Thanks to this property, cache-oblivious algorithms need little tuning to the
-computer they run on.
+computer they run on. Interestingly, automatically optimized cache boundaries
+include not only the usual L1, L2 and L3 caches, but also the \emph{translation
+lookaside buffer} (TLB), which caches the mapping of pages from virtual to
+physical memory.
 
 % TODO: check tall cache assumption
 The cache is assumed to be tall (with number of blocks $>> B^2$) and
