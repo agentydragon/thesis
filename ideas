@@ -2,8 +2,6 @@
 - B+/B* tree w/ large blocks
 - persistence?
 
-- kombinace: velky B-strom s malymi hash tabulkami, apod.
-
 - hash tabulky:
 	okamzikem zvetseni/zmenseni si jenom naalokovat pamet,
 	ale zacit tam kopirovat data az postupne, abych nemusel
@@ -62,7 +60,6 @@ TODO: custom allocator
 TODO: SIMD hledani v B-stromu
 TODO: hashovani - urcite kukackove
 
-TODO instrumentovat nejaky projekt
 TODO zacit podporovat rank/select? (mohly by se pro to najit nejake aplikace)
 
 TODO: musim delat updaty v poradi post-order
@@ -133,13 +130,7 @@ http://pizzachili.dcc.uchile.cl/texts/nlang/
 
 TLB miss muze byt duvod dvojnasobnych cache missu
 
-http://www.researchgate.net/publication/221131616_How_to_Splay_for_loglog_N-Competitiveness
-
 source: perf_event_open
-
-edited synoptic cloud reports from ships and land stations over the globe
-	^- idea: zaindexovat (lat, long) v Z-kodovani, pro nahodne body hledat
-	   blizke reporty
 
 Enron e-mails dataset
 U.S. census
