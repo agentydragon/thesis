@@ -38,12 +38,12 @@ tree of height $h$ to indices $0\ldots 2^h-2$. Other layouts of full binary
 trees include the BFS or DFS order.
 
 TODO: reference na van emde boas layout clanek
-
 Surprisingly, the van Emde Boas layout was not invented by van Emde Boas.
 The name comes from the earlier \emph{van Emde Boas priority queue},
 which was invented by \citeauthor{van-emde-boas} in \citeyear{van-emde-boas}.
-The van Emde Boas priority queue uses a height splitting scheme which inspired
-the van Emde Boas layout.
+The van Emde Boas priority queue uses a height splitting scheme similar
+to the van Emde Boas layout. The cache-oblivious application of this idea
+was devised in \cite{veb-layout}.
 
 The advantage of storing a full binary tree in the van Emde Boas layout
 is that is lets us read the sequence of keys from the root to any leaf
