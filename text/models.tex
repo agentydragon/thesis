@@ -4,17 +4,24 @@
 
 The performance of algorithms is usually measured in the RAM
 (\emph{Random Access Memory} or \emph{Machine}) model.
-The ideal RAM machine has an infinite memory divided into constant-size
-cells addressed by integers.
-One instruction fo the RAM machine can compute an arithmetic expression
-based on values of cells and store it into another cell. The expressions
-may involve reading cells, including cells pointed to by another cell.
-The exact set of arithmetic operations allowed on the values differs
-from model to model, but a typical set would include the usual C operators
-(\texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{\%}, \texttt{\&},
- \texttt{|}, \texttt{\^}, \texttt{~}, \dots).
+The ideal RAM machine has an infinite memory divided into cells addressed
+by integers.
+One instruction of the RAM machine takes constant time and it
+can compute an arithmetic expression based on values of cells and store it
+in another cell. The expressions may involve reading cells, including cells
+pointed to by another cell. The exact set of arithmetic operations allowed
+on the values differs from model to model, but a typical set would include
+the usual C operators (\texttt{+}, \texttt{-}, \texttt{*}, \texttt{/},
+\texttt{\%}, \texttt{\&}, \texttt{|}, \texttt{\^}, \texttt{~}, \dots).
 A complete set of instructions also requires a conditional jump (based on
 the value of an expression).
+A more thorough treatment of various types of RAM is included
+in \cite{saga-of-msts}.
+
+The model is also restricted by the \textit{word size} (denoted $w$),
+which is the number of bits allocated for a cell. Choosing a too large $w$
+results in an unreasonably strong model. A typical choice of $w$ is
+$\Theta(\log N)$, where $N$ is size of input.
 
 We benchmark RAM algorithms by their \emph{time} and \emph{space complexity}.
 The time complexity is the number of executed instructions as a function of
@@ -58,7 +65,7 @@ between speeds of memory levels reaches several orders of magnitude. TODO: sourc
 
 Larger and slower memories are also faster when accessing data physically
 close to recently accessed data. The hard disk is the most apparent example
-of this behavior -- reading a byte close to the current position of the drive
+of this behavior -- reading a byte close after the current position of the drive
 head takes very little time compared to reading a random position, which incurs
 a slow disk seek. % TODO: times
 Similarly, modern CPUs contain a prefetcher, which tries to speculatively
@@ -72,7 +79,8 @@ request and to parse a response dwarfs the latency of the connection.
 Memory hierarchies transport data between memories in \emph{blocks}.
 In the context of caches and main memory, these blocks are called
 \emph{cache lines} and their usual size is 64 B.
-A traditional block size for disk I/O is 4 kB.
+Operating systems usually perform disk I/O in batches of 4 kB,
+while physical HDD blocks typically span either 512 B, or 4 kB.
 
 \begin{figure}
 \begin{itemize}
@@ -80,10 +88,9 @@ A traditional block size for disk I/O is 4 kB.
 	The installed Intel Core i5-3230M CPU has 16 logical 64-bit
 	general-purpose registers (plus some registers for specific purposes,
 	e.g. vector operations).
-\item Level 1 (L1) cache, 8-way associative. The latency is several CPU cycles.
-	It is divided into a data section and an instruction section,
-	both of them 32 kB in size. There are two L1 caches, one for each CPU
-	core.
+\item Level 1 data and instruction caches (L1d, L1i), both 8-way associative
+	and 32 kB in size. Their latency is several CPU cycles.
+	% There are two L1 caches, one for each CPU core.
 \item Level 2 (L2) cache, 8-way associative, 256 kB in size.
 	It is an order of magnitude slower than the L1 cache. Again, each
 	CPU core has a separate L2 cache.

@@ -5,10 +5,10 @@ B-trees are particularly useful where the external memory model is accurate,
 because all information in every transferred block is actively used
 in searching. For example, the ext4, Btrfs and NTFS filesystems use B-trees
 to store directory contents and the MongoDB and MariaDB databases use B-trees
-as indexes. Red-black trees, which are (in the left-leaning variant) isomorphic
-to B-trees for $b=4$, are commonly used to maintain in-memory dictionaries,
-for example in the GNU ISO C++ Library as the implementation of the
-\texttt{std::map} STL template.
+as indexes. Red-black trees, which are (in the left-leaning variant
+described by \cite{left-leaning}) isomorphic to B-trees for $b=4$, are
+commonly used to maintain in-memory dictionaries, for example in the GNU ISO
+C++ Library as the implementation of the \texttt{std::map} STL template.
 B-trees are also an optimal sorted dictionary data structure
 for the external memory model assuming the only operation allowed on
 keys is comparison.
