@@ -44,11 +44,12 @@ between splaying a node and splaying a key. In $k$-ary splay trees, we always
 $k$-splay nodes.
 
 As with Sleator and Tarjan's splaying, $k$-splaying is done in steps.
-All splaying steps involve 3 nodes connected by 2 edges, except for the final
-step, which may involve the root node and one of its children connected by
-an edge. In every step, the splayed node (or key) moves from the bottom
-of a subtree to the root of a subtree. Splaying stops when the splayed node
-becomes the root of the splay tree.
+
+Splaying steps of Sleator and Tarjan's splay trees involve 3 nodes connected
+by 2 edges, except for the final step, which may involve the root node and one
+of its children connected by an edge. In every step, the splayed node (or key)
+moves from the bottom of a subtree to the root of a subtree.
+Splaying stops when the splayed node becomes the root of the splay tree.
 
 In $k$-splay trees, $k$-splaying steps involve $k$ edges connecting
 $k+1$ nodes, except for the final step which may involve fewer edges.
