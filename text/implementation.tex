@@ -293,11 +293,11 @@ Land Stations Over the Globe, 1952-2009 (NDP-026C)} (\cite{cloud-reports}).
 The main part of this dataset consists of 196 compressed plaintext files
 containing one cloud report per line. Aside from many other fields,
 each report contains the date and UTC hour, the longitude and latitude of the
-reporting ship or land station and the measured air temperature and wind speed.
+reporting ship or land station and the measured sea level pressure and
+wind speed.
 Our simulated database loads all air temperature and wind speed measurements
 and indexes them by their coordinates. Given a position on the globe, the
 database can return a set of reports taken close to the position.
-% TODO: values aren't meaningful right now!
 
 To implement this database in the context of our general dictionary API,
 we map from latitude-longitude pairs to dictionary keys via a
@@ -305,10 +305,20 @@ locality-preserving mapping called the \emph{Z-order} (or
 \emph{Morton order} after its inventor, who introduced it in
 \cite{morton-order}). The Z-order computes a one-dimensional key from
 a position in multiple dimensions simply by interleaving the bits of
-the coordinates. Because stations at one position usually give multiple reports,
+the coordinates. One-dimensional distances implied by the Z-order only
+approximate the original two-dimensional distances, so the Z-order is
+not useful for exact closest-point queries -- we only use it as an
+approximation. For the sake of simplicity, we also interpret
+latitude-longitude angles as plane coordinates, without any attempt
+to merge 180\textdegree~W and 180\textdegree~E.
+
+Because stations at one position usually give multiple reports,
 the key for our dictionary also needs to contain a unique identifier of
 the report, which we create by counting the reports from each unique position
 and append after the Z-order code of the position.
+Some stations also do not provide the wind speed or air pressure.
+Records from stations which provide neither are not loaded, and records
+with missing values are also skipped at query time.
 
 \begin{figure}
 \centering
@@ -332,12 +342,44 @@ and append after the Z-order code of the position.
 \caption{Z-order in two dimensions}
 \end{figure}
 
-A possible alternative would be using a \emph{Hilbert curve}
-(\cite{hilbert-curve}), which guarantees that points with adjacent
-one-dimensional representations are also adjacent in the multidimensional
-space. We decided to use the Z-order for the simplicity of its mapping function.
+A possible alternative would be using a \emph{Peano curve}
+(introduced in \cite{peano-curve}, later generalized into
+\emph{Hilbert curves} of arbitrary dimension by \cite{hilbert-curve}).
+A desirable property of Peano curves is that points mapped to adjacent
+one-dimensional points are also adjacent in the multidimensional space.
+We decided to use the Z-order for the simplicity of its mapping function.
 
-Queries are implemented simply by calling \texttt{dict\_prev} and
-\texttt{dict\_next} and collecting the results. A non-toy database might
+Queries are implemented simply by mixed calls to \texttt{dict\_prev} and
+\texttt{dict\_next} until we collect enough results. A non-toy database might
 perform some additional filtering to ensure only reports within a certain
 distance are returned.
+
+Our usage of this simulated database will pick $S$ random points on the globe.
+For each point, we fetch $R$ close records and we calculate the average
+recorded sea-level atmospheric pressure and wind speed in these records.
+Atmospheric pressures and wind speeds are packed into 64-bit values, which
+are stored in the ordered dictionary.
+
+\begin{figure}
+\centering
+\begin{subfigure}[b]{1.0\textwidth}
+	\includegraphics[width=\textwidth]{img/cloud/stations}
+	\caption{Stations providing wind speed or air pressure data}
+\end{subfigure}
+
+\begin{subfigure}[b]{1.0\textwidth}
+	\includegraphics[width=\textwidth]{img/cloud/wind-speed}
+	\caption{Average wind speeds}
+\end{subfigure}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+\centering
+\ContinuedFloat
+\begin{subfigure}[b]{1.0\textwidth}
+	\includegraphics[width=\textwidth]{img/cloud/pressure}
+	\caption{Average sea-level atmospheric pressure}
+\end{subfigure}
+\caption{Results from the cloud data experiment.
+	Each query sampled 1000 close measurements.}
+\end{figure}
