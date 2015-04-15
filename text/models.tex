@@ -46,8 +46,8 @@ another 1 kB stored on swapped memory is so large that it cannot be ignored.
 % TODO: latency numbers everyone should know
 % TODO: list-array experiment
 There are two major types of RAM: \emph{static} and \emph{dynamic}.
-While static RAM stores information as states of logic gates, dynamic RAM
-uses capacitors, which lose charge over time. To avoid losing information,
+While static RAM stores information as active states of semiconductors, dynamic
+RAM uses capacitors, which lose charge over time. To avoid losing information,
 contents of dynamic RAM must be periodically refreshed by ``reading'' the data
 and writing it back. Dynamic RAM also has destructive reads: a read removes
 charge from capacitors, which must then be returned to keep the data.
@@ -109,13 +109,34 @@ It is possible to advise the processor via special instructions about some
 characteristics of memory access (e.g. by requesting prefetching), but programs
 cannot explicitly set which memory blocks should be stored in caches.
 
-Caches are usually $m$-way associative: for every line in main memory, there
-are $m$ possible places where it can be stored in cache. If all $m$ possible
-slots are already occupied by other lines, one of the loaded line gets evicted
-to make space for newly requested data. The node that gets evicted is determined
-according to the \emph{cache replacement policy}. The most common cache
+\emph{Fully associative caches} maintain up to $m$ memory blocks called
+\textit{cache lines} (typically of 64 B). When the CPU tries to access
+a memory location, the cache is checked first before accessing main memory.
+If the cache doesn't contain the requested data, it is loaded into the cache.
+When the cache becomes full, it needs to evict presently loaded cache lines
+before caching new ones. The evicted cache line is picked according
+to a \emph{cache replacement policy}. The most commonly implemented cache
 replacement policy is LRU (\emph{least recently used}), which evicts
 the memory line that was accessed least recently.
+A theoretically useful, but practically impossible policy is the \emph{optimal
+replacement policy}, which always evicts the cache line that will be needed
+farthest in the future.
+
+Because fully associative caching would be hard to implement in hardware,
+actual caches have a limited associativity. While fully associative
+caches may cache an arbitrary set of memory lines, $t$-way associative
+caches only allow each memory location to reside in one of $t$ possible
+locations in the cache. If all $t$ possible locations for a memory line
+are already occupied, the cache replacement policy evicts one of the $t$
+lines to make space fresh data.
+
+The associativity of caches $t$ is usually a small power of two, like 8 or 16.
+The set of possible cache locations for lines in memory is determined
+by simply masking out a few address bits. This approach implies that
+accessing too many locations with addresses differing exactly by a power
+of two may result in \emph{cache aliasing} -- the cache will only be able
+to store only $t$ useful cache lines at once, which greatly degrades its
+performance.
 
 Programs which have \emph{spatial} and \emph{temporal locality of reference}
 will perform better on computers with hierarchical memory. Several models have
@@ -165,16 +186,24 @@ the algorithm performs well on every cache boundary at the same time.
 Thanks to this property, cache-oblivious algorithms need little tuning to the
 computer they run on.
 
+% TODO: check tall cache assumption
 The cache is assumed to be tall (with number of blocks $>> B^2$) and
 the algorithm cannot control block transfers between the cache and the memory.
 This is similar to real computers: L1, L2 and L3 caches are also out
 of the program's control.
-Cache-oblivious algorithms assume a slightly unrealistic cache model:
-the cache is fully associative (memory blocks can be stored anywhere in the
-cache) and the replacement policy is optimal (the cache evicts the memory
-block that will be used the farthest in the future).
-Fortunately, fully associative caches with optimal replacement can be simulated
-with a linear slowdown on less ideal caches, so results obtained in
-the cache-oblivious model also apply to the real world.
+The cache is, however, assumed to be unrealistically powerful: it is fully
+associative and the replacement policy is optimal. Fortunately, fully
+associative caches with optimal replacement can be simulated with a constant
+slowdown on more realistic caches, so results obtained in the cache-oblivious
+model can be translated to real world programs:
+
+\theorem{Consider an algorithm that causes $Q^\star(n; Z,L)$ cache misses on
+a problem of size $n$ using a $(Z,L)$ ideal cache. Then, the same algorithm
+incurs $Q(n; Z,L)\leq 2Q^\star(n;Z/2,L)$ cache misses on a $(Z,L)$ cache
+that uses LRU replacement.}
+\proof{
+	% TODO: Sleator-Tarjan: Amortized efficiency of list update and paging
+	% rules
+}
 
 TODO: basic bounds
