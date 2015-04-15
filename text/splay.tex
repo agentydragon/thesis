@@ -23,8 +23,8 @@ sequence $S$ needs $\mathrm{OPT}(S)$ operations to perform the accesses, splay
 trees are presumed to only need $\O(\mathrm{OPT}(S))$ steps.
 
 Let us also denote stored keys as $K_1,\ldots K_N$ in sorted order.
-As binary search trees, splay trees are composed of nodes, each of which
-contains one key and its associated value. A node has up to two children,
+Splay trees are binary search trees, so they are composed of nodes, each of
+which contains one key and its associated value. A node has up to two children,
 denoted \emph{left} and \emph{right}.
 The left subtree of a node with key $K_i$ contains only keys smaller than $K_i$
 and, symetrically, the right subtree contains only keys larger than $K_i$.
