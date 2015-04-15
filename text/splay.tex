@@ -382,7 +382,24 @@ guarantee a more desirable worst-case access time of $\O(\log^2 N)$.
 \section{Implementation}
 % TODO: top-down splay
 
-\section{???}
+\section{Top-down splaying}
+Simple implementations of splaying first find the node to splay, and then
+splay along the traversed path. The traversed path may be either kept
+in an explicit stack, which is progressively shortened by splay steps,
+or the tree may be augmented with pointers to parent nodes.
+Explicitly keeping a stack is wasteful, because it requires dynamically
+allocating up to $N$ node pointers when splaying. On the other hand,
+storing parent pointers makes nodes less memory-efficient, especially
+with small sizes of keys.
+
+A common optimization is \emph{top-down splaying}, which simulates
+splaying while searching.
+% TODO
+% The tree is traversed 2 nodes at a time, and
+% two trees $L$ and $R$ are maintained. Encountered branches smaller than
+% the sought key are put under the $L$ tree, and branches 
+
+\section{Applications}
 A drawback of splay trees is that accessing the $\O(\log N)$ amortized
 nodes on the access path may incur an expensive cache miss for every node --
 splay trees make no effort to exploit the memory hierarchy.
