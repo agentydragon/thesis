@@ -199,13 +199,11 @@ void ksplay_destroy(ksplay* this) {
 	free(stack);
 }
 
-static ksplay_node_buffer empty_buffer() {
-	return (ksplay_node_buffer) {
-		.nodes = NULL,
-		.count = 0,
-		.capacity = 0
-	};
-}
+static const ksplay_node_buffer EMPTY_BUFFER = {
+	.nodes = NULL,
+	.count = 0,
+	.capacity = 0
+};
 
 static void buffer_append(ksplay_node_buffer* buffer, node* appended_node) {
 	while (buffer->count >= buffer->capacity) {
@@ -223,7 +221,7 @@ static void buffer_append(ksplay_node_buffer* buffer, node* appended_node) {
 }
 
 ksplay_node_buffer ksplay_walk_to(ksplay* this, uint64_t key) {
-	ksplay_node_buffer stack = empty_buffer();
+	ksplay_node_buffer stack = EMPTY_BUFFER;
 	node* current = this->root;
 
 next_level:
@@ -265,7 +263,7 @@ static bool node_has_key_gt(node* x, uint64_t key) {
 
 static ksplay_node_buffer ksplay_walk_to_next(ksplay* this, uint64_t key,
 		uint64_t *good_prefix) {
-	ksplay_node_buffer stack = empty_buffer();
+	ksplay_node_buffer stack = EMPTY_BUFFER;
 	node* current = this->root;
 
 next_level:
@@ -313,7 +311,7 @@ static bool node_has_key_lt(node* x, uint64_t key) {
 
 static ksplay_node_buffer ksplay_walk_to_previous(ksplay* this, uint64_t key,
 		uint64_t *good_prefix) {
-	ksplay_node_buffer stack = empty_buffer();
+	ksplay_node_buffer stack = EMPTY_BUFFER;
 	node* current = this->root;
 
 next_level:
