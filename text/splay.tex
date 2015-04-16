@@ -194,7 +194,7 @@ if $K_i \neq K_F$, we continue to the left subtree or to the right subtree.
 If the subtree we would like to descend into is empty, the search is aborted,
 since $K_F$ is not present in the tree.
 After the search finishes (successfully or unsuccessfully), we splay the last
-visited node. An \textsc{Insert} is similar - we find the right place for the
+visited node. An \textsc{Insert} is similar: we find the right place for the
 new node, insert it, and finally splay it up.
 
 \textsc{Delete}s are slightly more complex. We first find and splay the node $x$
