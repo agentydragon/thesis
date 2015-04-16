@@ -222,7 +222,7 @@ top and bottom heights}
 		\State $\ell, r \gets$ \Call{GetChildren}{$n$,$h_\uparrow$}
 		\If {$\ell$ and $r$ are internal}
 			\State \Return{internal ($\ell$,$r$)}
-		\Else\Comment{$\ell$ and $r$ they point to bottom tree roots}
+		\Else\Comment{$\ell$ and $r$ point to bottom tree roots}
 			\State \Return{internal
 				($N_\uparrow+\ell\cdot N_\downarrow$,
 				$N_\uparrow+r\cdot N_\downarrow$)
