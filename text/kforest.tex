@@ -9,7 +9,8 @@ a self-adjusting dictionary data structure based on a sequence of
 $k$-ary search trees of increasing size.
 
 The $k$-forest allows \textsc{Find}, \textsc{Insert} and \textsc{Delete}
-operations in worst-case, optionally randomized $\O(\log_k N)$ block transfers.
+operations in $\O(\log_k N)$ block transfers in the worst case. A simpler
+randomized version of the data structure archieves the same expected bound.
 It can be proven that a generalization of the Static Optimality theorem
 also applies to $k$-forests: an element with access probability $p$
 will have average lookup time $\O\left(\min\{\log_k \frac{1}{p}, \log_k
