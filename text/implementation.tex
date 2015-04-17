@@ -282,6 +282,29 @@ instances with most operations.
 TODO: what about variable-length keys (folding)
 TODO: what about values
 
+Presumably for the sake of optimization, \texttt{nsTHashtable} has a more
+liberal interface than we implemented. Aside from searches and updates,
+\texttt{nsTHashtable} also supports enumerating all key-value pairs in
+an arbitrary order (i.e. depending on the internal hash function).
+The user is also allowed to update values in enumerated key-value pairs
+at no extra \textsc{Find} cost.
+We skipped arbitrary enumeration when replaying recorded operations.
+Because further calls to \texttt{nsTHashtable} may depend on the arbitrary
+order of enumeration, we expect that \texttt{nsTHashtable} would behave
+better on recorded operations than any of our structures. For example,
+since \texttt{nsTHashtable} will enumerate keys in the order in which they
+are stored within \texttt{nsTHashtable}, \texttt{nsTHashtable} will reap
+the rewards of cache friendliness, while our data structures will be much
+more likely to read from unpredicatable locations.
+
+Fairly comparing data structures in the presence of arbitrary-order enumeration
+would require actually running our source code within the instrumented program.
+We did not pursue this direction further in this thesis, but benchmarking data
+structures directly where they are used may provide inspiration for better
+optimizations. Particularly interpreters of dynamic programming languages
+with built-in dictionary types, like Python or Ruby, could prove interesting
+test subjects.
+
 \subsection{Geospatial database}
 To test the performance of \textsc{FindNext} and \textsc{FindPrevious}, we
 simulated the workload of a simple database of geospatial data supporting
