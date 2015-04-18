@@ -10,7 +10,7 @@ $k$-ary search trees of increasing size.
 
 The $k$-forest allows \textsc{Find}, \textsc{Insert} and \textsc{Delete}
 operations in $\O(\log_k N)$ block transfers in the worst case. A simpler
-randomized version of the data structure archieves the same expected bound.
+randomized version of the data structure achieves the same expected bound.
 It can be proven that a generalization of the Static Optimality theorem
 also applies to $k$-forests: an element with access probability $p$
 will have average lookup time $\O\left(\min\{\log_k \frac{1}{p}, \log_k
@@ -52,10 +52,10 @@ which maintains information about the time of last access to elements
 in every tree. The element pushed down to the next tree is always the least
 recently accessed one, so the trees $T_1,T_2,\ldots$ are maintained in sorted
 order with respect to last access time.
-A simpler implementation without auxilliary data is \emph{random demotion},
+A simpler implementation without auxiliary data is \emph{random demotion},
 which simply selects a random key from $T_i$ to demote to $T_{i+1}$.
 Both are equivalent in the sense that the expected time bounds arising
-from random demotion equal the deteministic time bounds of LRU demotion.
+from random demotion equal the deterministic time bounds of LRU demotion.
 
 \textsc{Insert} and \textsc{Delete} operations are similar to \textsc{Find}.
 \textsc{Insert} inserts to $T_1$ and then demotes elements from $T_1,T_2,\ldots$

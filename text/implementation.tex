@@ -94,7 +94,7 @@ typedef struct {
 \end{lstlisting}
 
 The \texttt{init} and \texttt{destroy} functions are passed a pointer to the
-\texttt{opaque} pointer and they respecively initialize and deinitialize it.
+\texttt{opaque} pointer and they respectively initialize and deinitialize it.
 The \texttt{name} field is a human-readable name of the data structure.
 Other fields are given the \texttt{opaque} pointer as the first argument
 and they act as implementations of their respective general versions operating
@@ -234,7 +234,7 @@ The synthetic setups include:
 	a mostly-static ununiform access probability distribution.
 
 \item
-	\emph{Word occurence counting}: We load a large text document
+	\emph{Word occurrence counting}: We load a large text document
 	and we tokenize it into words. Each word is then normalized
 	to lowercase and transformed into a 64-bit integer via a simple
 	hash function $h$. We create a dictionary storing counts of word
@@ -295,7 +295,7 @@ better on recorded operations than any of our structures. For example,
 since \texttt{nsTHashtable} will enumerate keys in the order in which they
 are stored within \texttt{nsTHashtable}, \texttt{nsTHashtable} will reap
 the rewards of cache friendliness, while our data structures will be much
-more likely to read from unpredicatable locations.
+more likely to read from unpredictable locations.
 
 Fairly comparing data structures in the presence of arbitrary-order enumeration
 would require actually running our source code within the instrumented program.

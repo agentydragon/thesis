@@ -66,7 +66,7 @@ $\Theta(\log b \cdot \log_b N)=\Theta(\log N)$. \textsc{FindNext} and
 \textsc{FindPrevious} also take time $\Theta(\log N)$, but if they are invoked
 after a previous \textsc{Find}, we can keep a pointer to the leaf containing
 the key and accordingly adjust it to find the next or previous key, which runs
-in $\O(1)$ amortized time. Thus, B-trees also allow scanning a contigous
+in $\O(1)$ amortized time. Thus, B-trees also allow scanning a contiguous
 range of keys of size $k$ in $\Theta(\log_b N + k)$ time.
 
 The \textsc{Insert} and \textsc{Delete} operations may spend up to

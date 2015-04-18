@@ -65,3 +65,9 @@ some interesting graphs by running:
 cd experiments/performance
 ./plot_results.py
 ```
+
+## Spell checking
+To spell check my TeX:
+```bash
+aspell --mode tex -c (something).tex
+```

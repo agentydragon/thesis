@@ -579,7 +579,7 @@ child{node [veb] {25}
 \end{figure}
 
 To \textsc{Find} a key in the cache-oblivious B-tree, we walk down the
-boostrapping structure in $\Theta(\log_B (N/\log N))=\Theta(\log_B N)$
+bootstrapping structure in $\Theta(\log_B (N/\log N))=\Theta(\log_B N)$
 to find the piece that may contain the key, and scan it in
 $\Theta(\frac{\log N}{B})$, so we still need only $\Theta(\log_B N)$
 block transfers for \textsc{Find}s.
@@ -597,10 +597,10 @@ $P/2$. The splitting takes $\Theta(\frac{\log N}{B})$ block transfers.
 Afterwards, the new piece needs to be inserted to the bootstrapping structure
 in $\Theta(\frac{\log^2 (N/\log N)}{B})$ amortized transfers.
 Similarly, if the piece is too sparse, we merge the piece with one of its
-neighbours. A neighbour can be found in $\O(1)$, because the pieces are
+neighbors. A neighbor can be found in $\O(1)$, because the pieces are
 stored in the packed memory array, which guarantees gaps of constant size.
 If the two pieces have more than $3P/4$ items, we only ``borrow'' some keys from
-the neighbour and update the bootstrapping structure in $\Theta(\log_B N)$
+the neighbor and update the bootstrapping structure in $\Theta(\log_B N)$
 to reflect new piece minima.
 If there are less than $3P/4$ items in total, the pieces get merged and one
 of them will be deleted from the bootstrapping structure in
@@ -639,12 +639,12 @@ N)$ while keeping the amortized bound at $\Theta(\log_B N)$.
 % 	$\frac{N}{B}$ term to account for necessary reallocations of
 % 	the backing array once it becomes too full.}
 
-As we observed with applying the van Emde Boas layout, removing auxilliary
+As we observed with applying the van Emde Boas layout, removing auxiliary
 data can greatly speed up operations -- the tree in van Emde Boas layout has
 half the effective depth of a B-tree, because cache lines can fit more keys
 when pointers are implicit.
 \emph{Implicit data structures} are designed to waste as little memory on
-auxilliary information as possible. Implicit dictionaries are allowed to only
+auxiliary information as possible. Implicit dictionaries are allowed to only
 store a permutation of the stored data and $\O(1)$ memory cells of additional
 information. Bookkeeping information, such as pointers or small integers
 of $b$ bits, is usually encoded by a pairwise permutation of $2b$ keys,
@@ -663,5 +663,5 @@ requires building the structure on the fly.
 We decided not to implement the implicit cache-oblivious B-tree due
 to its large complexity. We also believe the data structure may be much
 slower on practical data sets than equivalent structures with free slots or
-pointers, since decoding auxilliary data from the implicit representation
+pointers, since decoding auxiliary data from the implicit representation
 requires reading large permutations of keys.
