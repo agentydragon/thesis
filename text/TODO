@@ -1,3 +1,8 @@
 - check quotes: "hello" => ``hello''
 - check nonbreaking~spaces
 - check sentence ends (non-french spacing)
+- \label's in figures must go after \caption's
+  - equation reference
+- amsmath: \eqref{formula:123} je hezci (udela zavorky)
+- i.e.\ , pripadne e.g.\  -- proti delsi mezere mezi vetami
+

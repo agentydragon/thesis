@@ -12,7 +12,7 @@ in the number of CPU instructions executed and the number of memory cells used.
 These models aren't well suited for environments where different memory cells
 may have vastly different access speeds, for example depending on which caches
 currently hold the memory cell. The \emph{external memory model} is a simple
-extension of the RAM model that add a \emph{block transfer} measure, which
+extension of the RAM model that adds a \emph{block transfer} measure, which
 is the number of \emph{blocks} transferred between a fast cache and a slow
 \emph{external memory}. While this model was originally developed
 in the context of accessing data stored or hard disks, it is also useful
@@ -31,7 +31,7 @@ This thesis explores the performance implications of memory hierarchies
 on data structures implementing dictionaries or sorted dictionaries.
 Especially unsorted dictionaries are very common in practice, as illustrated
 by modern programming languages, which commonly have a dedicated built-in
-data type for unsorted dictionaries (e.g. \texttt{std::unordered\_map} in C++,
+data type for unsorted dictionaries (e.g.\ \texttt{std::unordered\_map} in C++,
 \texttt{dict} in Python, or hashes in Perl).
 
 Dictionaries maintain a set of key-value pairs with distinct keys.
