@@ -18,16 +18,3 @@ uint64_t htable_hash(htable* this, uint64_t x) {
 		return result % this->blocks_size;
 	}
 }
-
-/*
-static uint64_t hash_fn(uint64_t x, uint64_t max) {
-	// TODO: very slow
-	return ((x * PRIME_X) ^ (x * PRIME_Y)) % max;
-}
-
-static uint64_t htable_hash(htable* this, uint64_t x) {
-	uint64_t result = hash_fn(x, this->table_size);
-	// log_info("hash(%" PRIu64 ") where size=%ld = %" PRIu64, x, this->table_size, result);
-	return result;
-}
-*/
