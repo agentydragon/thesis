@@ -45,12 +45,10 @@ Given a key $k$, which may or may not be present in the dictionary,
 key present in the dictionary.
 
 The most common data structure implementing an unsorted dictionary is a hash
-table. Most hash tables have expected $\O(1)$ time for all operations, which
+table. We describe some variants of hash tables in chapter \ref{chapter:hashing}.
+Most hash tables have expected $\O(1)$ time for all operations, which
 makes them quite practical. On the other hand, there is no simple way to
-implement sorted dictionaries efficiently via hash tables. Additionally,
-hash table accesses can be expected to always take the same time, whether
-we are reading a randomly chosen key or a key very close to the last key we
-accessed.
+implement sorted dictionaries efficiently via hash tables.
 
 Ordered dictionaries are usually maintained in search trees. Common variants
 of search trees include AVL trees, red-black trees, B-trees or splay trees.
