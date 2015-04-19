@@ -15,15 +15,11 @@ typedef struct {
 	uint8_t slot;
 } slot_pointer;
 
-static uint8_t scan(htable* this, uint64_t key,
-		slot_pointer* key_slot, slot_pointer* last_slot_with_hash,
-		bool* _found) {
-	*_found = false;
-
+static bool scan(htable* this, uint64_t key,
+		slot_pointer* key_slot, slot_pointer* last_slot_with_hash) {
 	// Special case for empty hash tables.
 	if (this->blocks_size == 0) {
-		*_found = false;
-		return 0;
+		return false;
 	}
 
 	const uint64_t key_hash = htable_hash(this, key);
@@ -31,6 +27,7 @@ static uint8_t scan(htable* this, uint64_t key,
 	const uint64_t keys_with_hash = this->blocks[index].keys_with_hash;
 	htable_block current_block;
 
+	bool found = false;
 	for (uint64_t i = 0; i < keys_with_hash;
 			index = htable_next_index(this, index)) {
 		// Make a local copy
@@ -41,7 +38,7 @@ static uint8_t scan(htable* this, uint64_t key,
 
 			if (current_block.occupied[slot]) {
 				if (current_key == key) {
-					*_found = true;
+					found = true;
 
 					if (key_slot != NULL) {
 						key_slot->block = &this->blocks[index];
@@ -50,7 +47,7 @@ static uint8_t scan(htable* this, uint64_t key,
 
 					if (last_slot_with_hash == NULL) {
 						// We don't care and we're done.
-						return 0;
+						return true;
 					}
 				}
 
@@ -66,8 +63,7 @@ static uint8_t scan(htable* this, uint64_t key,
 		}
 		// TODO: guard against infinite loop?
 	}
-
-	return 0;
+	return found;
 }
 
 int8_t htable_delete(htable* this, uint64_t key) {
@@ -86,13 +82,8 @@ int8_t htable_delete(htable* this, uint64_t key) {
 	const uint64_t key_hash = htable_hash(this, key);
 
 	slot_pointer to_delete, last;
-	bool _found;
 
-	if (scan(this, key, &to_delete, &last, &_found)) {
-		return 1;
-	}
-
-	if (_found) {
+	if (scan(this, key, &to_delete, &last)) {
 		// Shorten the chain by 1.
 		last.block->occupied[last.slot] = false;
 		to_delete.block->keys[to_delete.slot] =
@@ -115,17 +106,13 @@ int8_t htable_delete(htable* this, uint64_t key) {
 void htable_find(void* _this, uint64_t key, uint64_t *value, bool *found) {
 	htable* this = _this;
 
-	bool _found;
-	slot_pointer pointer;
-
-	ASSERT(!scan(this, key, &pointer, NULL, &_found));
-
-	if (_found) {
+	slot_pointer found_at;
+	if (scan(this, key, &found_at, NULL)) {
 		log_verbose(1, "htable_find(%" PRIu64 "): found %" PRIu64,
-				key, pointer.block->values[pointer.slot]);
+				key, found_at.block->values[found_at.slot]);
 		*found = true;
 		if (value) {
-			*value = pointer.block->values[pointer.slot];
+			*value = found_at.block->values[found_at.slot];
 		}
 	} else {
 		log_verbose(1, "find(%" PRIu64 "): not found", key);
