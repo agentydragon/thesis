@@ -5,4 +5,4 @@
   - equation reference
 - amsmath: \eqref{formula:123} je hezci (udela zavorky)
 - i.e.\ , pripadne e.g.\  -- proti delsi mezere mezi vetami
-
+- TODO: remove mollusks before printing
