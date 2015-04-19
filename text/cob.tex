@@ -25,6 +25,7 @@ root-to-leaf path in root-to-leaf or leaf-to-root order takes $\Theta(\log_B N)$
 block transfers.
 Then, the \emph{packed memory array} lets us store a ``cache-oblivious linked
 list''. The items of this ``linked list'' will represent key-value pairs.
+% TODO: previous sentence not really true
 The packed memory array has fast updates in the amortized sense. Inserting
 and deleting items overwrites $\Theta(\frac{\log^2 N}{B})$ amortized memory
 blocks.
