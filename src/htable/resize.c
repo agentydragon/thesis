@@ -105,7 +105,7 @@ static int8_t foreach(htable* this,
 }
 
 static int8_t insert_internal_wrap(void* this, uint64_t key, uint64_t value) {
-	return htable_insert_internal(this, key, value);
+	return htable_insert_noresize(this, key, value);
 }
 
 static int8_t resize(htable* this, uint64_t new_blocks_size) {

@@ -5,8 +5,17 @@
 #include "log/log.h"
 #include "htable/hash.h"
 #include "htable/traversal.h"
+#include "htable/resize.h"
 
-int8_t htable_insert_internal(htable* this, uint64_t key, uint64_t value) {
+int8_t htable_insert(htable* this, uint64_t key, uint64_t value) {
+	if (htable_resize_to_fit(this, this->pair_count + 1)) {
+		log_error("failed to resize to fit one more element");
+		return 1;
+	}
+	return htable_insert_noresize(this, key, value);
+}
+
+int8_t htable_insert_noresize(htable* this, uint64_t key, uint64_t value) {
 	const uint64_t key_hash = htable_hash(this, key);
 	htable_block* const home_block = &this->blocks[key_hash];
 

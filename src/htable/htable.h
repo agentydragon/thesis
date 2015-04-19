@@ -28,7 +28,8 @@ typedef struct {
 
 int8_t htable_delete(htable* this, uint64_t key);
 void htable_find(void* _this, uint64_t key, uint64_t *value, bool *found);
-int8_t htable_insert_internal(htable* this, uint64_t key, uint64_t value);
+int8_t htable_insert(htable* this, uint64_t key, uint64_t value);
+int8_t htable_insert_noresize(htable* this, uint64_t key, uint64_t value);
 void htable_dump(void* this);
 
 #endif
