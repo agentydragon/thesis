@@ -61,7 +61,7 @@ static void add_word(dict* dict, char* word) {
 
 	bool found;
 	uint64_t count;
-	ASSERT(!dict_find(dict, key, &count, &found));
+	dict_find(dict, key, &count, &found);
 
 	if (found) {
 		ASSERT(!dict_delete(dict, key));
@@ -75,7 +75,7 @@ static void report_count(dict* dict, const char* word) {
 	uint64_t key = hash_word(word);
 	bool found;
 	uint64_t value;
-	ASSERT(!dict_find(dict, key, &value, &found));
+	dict_find(dict, key, &value, &found);
 	if (found) {
 		log_info("%s: found %" PRIu64 " times", word, value);
 	} else {

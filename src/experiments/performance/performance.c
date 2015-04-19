@@ -6,6 +6,7 @@
 
 #include "cobt/cobt.h"
 #include "dict/cobt.h"
+#include "dict/dict.h"
 #include "dict/ksplay.h"
 #include "experiments/performance/flags.h"
 #include "experiments/performance/ltr_scan.h"
