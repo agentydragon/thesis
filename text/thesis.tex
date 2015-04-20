@@ -26,32 +26,42 @@
 % \setlength\headheight{0mm}
 % \let\openright=\cleardoublepage
 
-\newcommand{\E}{\mathrm{E}}
-\newcommand{\Var}{\mathrm{Var}}
 \usepackage[utf8]{inputenc}
 
-%% Bibliography
-\usepackage{natbib}
-\usepackage{url}
-
-%% Further packages
-\usepackage{textcomp}
-\usepackage{subcaption}
-\usepackage{graphicx}
-\usepackage{amsthm}
-\usepackage{amssymb}
-\usepackage{amsmath} % \text{} in mathmode
-\usepackage{tikz}  % must be top
-\usetikzlibrary{calc, shapes, fit, positioning}
-\usepackage{ucs}
 \usepackage{algorithmicx}
 \usepackage{algpseudocode}
-\usepackage{listings}
+\usepackage{amsmath}           % \text{} in mathmode
+\usepackage{amssymb}
 \usepackage{authoraftertitle}
+\usepackage{graphicx}          % Embedded graphics
+\usepackage{natbib}            % Bibliography
+\usepackage{subcaption}        % Sub-figures
+\usepackage{textcomp}          % \textdegree
+\usepackage{ucs}               % Refer to Unicode symbols by codepoint
+\usepackage{url}
+
+\usepackage{amsthm}            % Theorems, definitions, proofs
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem*{define}{Definition}	% Definice nečíslujeme, proto "*"
+
+\usepackage{listings}          % Code listings
 \lstset{
 	basicstyle=\footnotesize\ttfamily,
 	frame=single
 }
+
+\usepackage{tikz}              % Drawings embedded in LaTeX
+\usetikzlibrary{calc, shapes, fit, positioning}
+
+%% Custom commands
+\newcommand{\E}{\mathrm{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\def\O{\mathcal{O}}  % \O is already taken by crossed O
+% Hyperfloors are defined by package 'nath', but it's not compatible with TikZ
+\def\hyperspc{\kern -0.22em}
+\newcommand{\lhfloor}{\lfloor \hyperspc \lfloor}
+\newcommand{\rhfloor}{\rfloor \hyperspc \rfloor}
 
 %%% Basic information on the thesis
 
@@ -99,11 +109,6 @@ TODO: abstract; recommended length ~80-200 words.
 	{self-adjusting search trees}
 }
 
-% package nath incompatible with tikz
-\def\hyperspc{\kern -0.22em}
-\newcommand{\lhfloor}{\lfloor \hyperspc \lfloor}
-\newcommand{\rhfloor}{\rfloor \hyperspc \rfloor}
-
 %% The hyperref package for clickable links in PDF and also for storing
 %% metadata to PDF (including the table of contents).
 \usepackage[pdftex,unicode]{hyperref}   % Must follow all other packages
@@ -112,14 +117,8 @@ TODO: abstract; recommended length ~80-200 words.
 \hypersetup{pdfauthor={\MyAuthor}}
 \hypersetup{pdfkeywords=\Keywords}
 
-\newtheorem{theorem}{Theorem}
-\newtheorem{lemma}{Lemma}
-\newtheorem*{define}{Definition}	% Definice nečíslujeme, proto "*"
-
 % Slimejzi. TODO: Remove before printing (should be fairly obvious).
 \overfullrule=2cm
-
-\def\O{\mathcal{O}}
 
 %%% Minor tweaks of style
 
@@ -187,9 +186,13 @@ TODO: abstract; recommended length ~80-200 words.
 %%% Abbreviations used in the thesis, if any, including their explanation
 \chapwithtoc{List of Abbreviations}
 \begin{description}
+\item[BFS]
+	Breadth-first search (on a rooted tree).
 \item[BST]
 	Balanced (binary) search tree, e.g.\ an AVL tree
 	or a red-black tree.
+\item[DFS]
+	Depth-first search (on a rooted tree).
 \item[HDD]
 	Hard disk drive.
 \end{description}
