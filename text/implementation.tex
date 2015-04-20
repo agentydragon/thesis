@@ -162,13 +162,19 @@ Inserting this key into a dictionary or deleting it will result in an error.
 Reserving this value is useful for representing unused slots in B-tree
 and $k$-splay tree nodes.
 
-We have implemented the following dictionary data structures:
+We implemented the following dictionary data structures:
 \begin{itemize}
+\item \texttt{dict\_array}, declared in \texttt{dict/array.h}:
+	a sorted array of key-value pairs with $\O(N)$ insertions and deletions,
+	indended as a benchmark on very small inputs.
 \item \texttt{dict\_btree}, declared in \texttt{dict/btree.h}:
 	a B-tree with nodes aligned to 64 B cache lines
 	(Chapter~\ref{chapter:btree}).
 \item \texttt{dict\_cobt}, declared in \texttt{dict/cobt.h}:
 	a cache-oblivious B-tree (Chapter~\ref{chapter:cob}).
+\item \texttt{dict\_htlp}, declared in \texttt{dict/htlp.h}:
+	an open-addressing hash table with linear probing and simple tabulation
+	hashing.
 \item \texttt{dict\_splay}, declared in \texttt{dict/splay.h}:
 	a splay tree (Chapter~\ref{chapter:splay}).
 \item \texttt{dict\_ksplay}, declared in \texttt{dict/ksplay.h}:
