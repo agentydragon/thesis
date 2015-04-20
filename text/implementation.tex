@@ -55,8 +55,8 @@ We have decided to forgo generality to keep the code clean and readable.
 \section{General dictionary API}
 All implemented data structures can be used through a common API defined
 in \texttt{dict/dict.h}. To encapsulate implementation details from
-users of the API, we have used a common C "trick", where we represent
-dictionaries as "virtual table pointers" and "private data".
+users of the API, we have used a common C ``trick'', where we represent
+dictionaries as ``virtual table pointers'' and ``private data''.
 The common API represents a dictionary as a pointer to an opaque structure.
 The type pointed to is declared in \texttt{dict/dict.h} as:
 \begin{lstlisting}[language=C]
