@@ -19,7 +19,7 @@ static char* read_file(const char* path) {
 	uint64_t content_size = 0, content_capacity = 0;
 	char buffer[1024];
 	while (!feof(fp)) {
-		fgets(buffer, sizeof(buffer), fp);
+		ASSERT(fgets(buffer, sizeof(buffer), fp) != NULL);
 		if (content_size + strlen(buffer) >= content_capacity) {
 			if (content_capacity == 0) {
 				content_capacity = 1024;
