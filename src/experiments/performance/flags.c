@@ -14,6 +14,7 @@
 #include "dict/cobt.h"
 #include "dict/dict.h"
 #include "dict/htable.h"
+#include "dict/htlp.h"
 #include "dict/kforest.h"
 #include "dict/ksplay.h"
 #include "dict/register.h"
@@ -47,13 +48,18 @@ static int parse_option(int key, char *arg, struct argp_state *state) {
 static void set_defaults(void) {
 	FLAGS.maximum = 1024 * 1024 * 1024;
 	FLAGS.base = 1.2;
+
+	// TODO: use dict_register_grab, and filter out unreasonably slow APIs
+	// later. It would be interesting to see, for example,
+	// simple sorted arrays.
 	FLAGS.measured_apis[0] = &dict_btree;
 	FLAGS.measured_apis[1] = &dict_cobt;
 	FLAGS.measured_apis[2] = &dict_htable;
 	FLAGS.measured_apis[3] = &dict_splay;
 	FLAGS.measured_apis[4] = &dict_kforest;
 	FLAGS.measured_apis[5] = &dict_ksplay;
-	FLAGS.measured_apis[6] = NULL;
+	FLAGS.measured_apis[6] = &dict_htlp;
+	FLAGS.measured_apis[7] = NULL;
 }
 
 void parse_flags(int argc, char** argv) {

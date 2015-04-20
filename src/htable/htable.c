@@ -51,8 +51,8 @@ static uint64_t pick_capacity(uint64_t current_size, uint64_t pairs) {
 
 	while (too_dense(pairs, new_size)) {
 		new_size *= 2;
-		if (new_size == 0) {
-			new_size = 2;
+		if (new_size < MIN_SIZE) {
+			new_size = MIN_SIZE;
 		}
 	}
 
@@ -64,11 +64,13 @@ static uint64_t next_index(const htable* this, uint64_t i) {
 	return (i + 1) % this->blocks_size;
 }
 
-int8_t insert_noresize(htable* this, uint64_t key, uint64_t value) {
+static const uint32_t KEYS_WITH_HASH_MAX = (1LL << 32LL) - 1;
+
+static int8_t insert_noresize(htable* this, uint64_t key, uint64_t value) {
 	const uint64_t key_hash = hash(this, key);
 	htable_block* const home_block = &this->blocks[key_hash];
 
-	if (home_block->keys_with_hash == HTABLE_KEYS_WITH_HASH_MAX) {
+	if (home_block->keys_with_hash == KEYS_WITH_HASH_MAX) {
 		log_error("cannot insert - overflow in maximum block size");
 		return 1;
 	}
@@ -155,14 +157,13 @@ static int8_t resize(htable* this, uint64_t new_blocks_size) {
 		}
 	}
 
-	free(this->blocks);
-	this->blocks = new_this.blocks;
-	this->blocks_size = new_this.blocks_size;
+	htable_destroy(this);
+	*this = new_this;
 
 	return 0;
 
 err_2:
-	free(new_this.blocks);
+	htable_destroy(&new_this);
 err_1:
 	return 1;
 }
@@ -180,13 +181,13 @@ static int8_t resize_to_fit(htable* this, uint64_t to_fit) {
 	return 0;
 }
 
-const uint32_t HTABLE_KEYS_WITH_HASH_MAX = (1LL << 32LL) - 1;
-
 typedef struct {
 	htable_block* block;
 	uint8_t slot;
 } slot_pointer;
 
+// key_slot: Required.
+// last_slot_with_hash: Optional.
 static bool scan(htable* this, uint64_t key,
 		slot_pointer* key_slot, slot_pointer* last_slot_with_hash) {
 	// Special case for empty hash tables.
@@ -212,10 +213,8 @@ static bool scan(htable* this, uint64_t key,
 				if (current_key == key) {
 					found = true;
 
-					if (key_slot != NULL) {
-						key_slot->block = &this->blocks[index];
-						key_slot->slot = slot;
-					}
+					key_slot->block = &this->blocks[index];
+					key_slot->slot = slot;
 
 					if (last_slot_with_hash == NULL) {
 						// We don't care and we're done.

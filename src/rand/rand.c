@@ -26,8 +26,13 @@ static uint64_t advance(rand_generator* generator) {
 	return state;
 }
 
+uint64_t rand_next64(rand_generator* generator) {
+	// TODO: This may be too predicable...
+	return advance(generator) * 2685821657736338717ULL;
+}
+
 uint64_t rand_next(rand_generator* generator, uint64_t max) {
-	return (advance(generator) * 2685821657736338717ULL) % max;
+	return rand_next64(generator) % max;
 }
 
 #endif

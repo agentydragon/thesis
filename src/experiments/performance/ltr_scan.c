@@ -4,27 +4,23 @@
 
 #include "log/log.h"
 #include "measurement/stopwatch.h"
+#include "util/consume.h"
 
 static void iterate_ltr(dict* dict) {
 	uint64_t min = 0;
-	bool found;
-	dict_find(dict, min, NULL, &found);
+	bool found = dict_find(dict, min, NULL);
 	if (!found) {
-		dict_next(dict, min, &min, &found);
+		found = dict_next(dict, min, &min);
 	}
 
 	uint64_t current_key = min;
 	while (found) {
 		uint64_t value;
-		dict_find(dict, current_key, &value, &found);
-		ASSERT(found);
-		// We don't really care what value did we get, but we
-		// still don't want to pass NULL, because we want
-		// the dictionary to fetch us the value.
-		(void) value;
+		ASSERT(dict_find(dict, current_key, &value));
+		consume64(value);
 
 		uint64_t next_key;
-		dict_next(dict, current_key, &next_key, &found);
+		found = dict_next(dict, current_key, &next_key);
 		if (found) {
 			ASSERT(next_key > current_key);
 		}
