@@ -9,6 +9,9 @@
 
 #define HTLP_EMPTY UINT64_MAX
 
+// TODO: Current sizing policy is between 1/4-full and 3/4-full.
+// More free space should speed it up considerably.
+
 // Open-addressing hash table. Linear probing, simple tabulation hashing.
 typedef struct {
 	uint64_t pair_count;
