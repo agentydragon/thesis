@@ -7,20 +7,20 @@ dictionary problem. One example are \emph{y-fast tries}, which allow
 in time $\O(\log\log |U|)$, where $U$ is the key universe. They require
 $\O(N \log\log |U|)$ memory.
 % TODO: Can I start a sentence like this???
-y-fast tries are built for the RAM model and they assume that RAM operations
+The RAM model is required by y-fast tries -- they assume that RAM operations
 can be performed on keys in constant time.
 The original motivation for developing y-fast tries was lowering the memory
-requirements of van Emde Boas queues ($\O(|U|)$ TODO: check) while keeping
-the same time for operations.
+requirements of van Emde Boas queues ($\O(|U|)$) while keeping the same time
+for operations.
 % TODO: Try to find some practical numbers.
 
-\emph{Judy arrays} are highly optimized dictionaries developed at IBM.
+\emph{Judy arrays} are highly optimized dictionaries developed at IBM
+(\cite{judy-shop-manual}, \cite{judy-patent}).
 IBM sources claim that Judy arrays are very efficient in practice.
 % TODO: Cite author & technical report
-According to available documentation, the data structure is based on
-sparse 256-ary tries with implementation tricks that compress
-the representation.
+The data structure is based on sparse 256-ary tries with implementation tricks
+that compress the representation.
 Unfortunately, we found the existing documentation highly complex and sometimes
 incomplete. On the other hand, an open-source implementation is available
-at TODO, so it should be possible to independently analyze the data structure.
-
+at \url{http://judy.sourceforge.net/}, so it should be possible to independently
+analyze the data structure and possibly to improve upon it.
