@@ -27,16 +27,16 @@ static void destroy(void** _this) {
 	}
 }
 
-static void find(void* _this, uint64_t key, uint64_t *value, bool *found) {
-	btree_find(_this, key, value, found);
+static bool find(void* this, uint64_t key, uint64_t *value) {
+	return btree_find(this, key, value);
 }
 
-static int8_t insert(void* _this, uint64_t key, uint64_t value) {
-	return btree_insert(_this, key, value);
+static int8_t insert(void* this, uint64_t key, uint64_t value) {
+	return btree_insert(this, key, value);
 }
 
-static int8_t delete(void* _this, uint64_t key) {
-	return btree_delete(_this, key);
+static int8_t delete(void* this, uint64_t key) {
+	return btree_delete(this, key);
 }
 
 const dict_api dict_btree = {

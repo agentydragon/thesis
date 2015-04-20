@@ -7,16 +7,12 @@
 #include "log/log.h"
 
 static void assert_found(htable* this, uint64_t key, uint64_t value) {
-	uint64_t _value;
-	bool _found;
-	htable_find(this, key, &_value, &_found);
-	ASSERT(_found && _value == value);
+	uint64_t found_value;
+	ASSERT(htable_find(this, key, &found_value) && found_value == value);
 }
 
 static void assert_not_found(htable* this, uint64_t key) {
-	bool _found;
-	htable_find(this, key, NULL, &_found);
-	ASSERT(!_found);
+	ASSERT(!htable_find(this, key, NULL));
 }
 
 void htable_test_find(void) {

@@ -267,20 +267,18 @@ int8_t htable_delete(htable* this, uint64_t key) {
 	return 0;
 }
 
-void htable_find(void* _this, uint64_t key, uint64_t *value, bool *found) {
-	htable* this = _this;
-
+bool htable_find(htable* this, uint64_t key, uint64_t *value) {
 	slot_pointer found_at;
 	if (scan(this, key, &found_at, NULL)) {
 		log_verbose(1, "htable_find(%" PRIu64 "): found %" PRIu64,
 				key, found_at.block->values[found_at.slot]);
-		*found = true;
 		if (value) {
 			*value = found_at.block->values[found_at.slot];
 		}
+		return true;
 	} else {
 		log_verbose(1, "find(%" PRIu64 "): not found", key);
-		*found = false;
+		return false;
 	}
 }
 

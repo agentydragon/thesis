@@ -82,8 +82,7 @@ typedef struct {
 	int8_t (*init)(void**);
 	void (*destroy)(void**);
 
-	int8_t (*find)(void*, uint64_t key,
-			uint64_t *value, bool *found);
+	bool (*find)(void*, uint64_t key, uint64_t *value);
 	int8_t (*insert)(void*, uint64_t key, uint64_t value);
 	int8_t (*delete)(void*, uint64_t key);
 
@@ -101,8 +100,7 @@ and they act as implementations of their respective general versions operating
 on general dictionaries declared in \texttt{dict/dict.h}:
 
 \begin{lstlisting}[language=C]
-void dict_find(dict*, uint64_t key,
-		uint64_t *value, bool *found);
+bool dict_find(dict*, uint64_t key, uint64_t *value);
 int8_t dict_insert(dict*, uint64_t key, uint64_t value);
 int8_t dict_delete(dict*, uint64_t key);
 \end{lstlisting}
@@ -117,10 +115,8 @@ dictionary operations are available for the given implementation or dictionary.
 \begin{lstlisting}[language=C]
 bool dict_api_allows_order_queries(const dict_api*);
 bool dict_allows_order_queries(const dict*);
-void dict_next(dict*, uint64_t key,
-		uint64_t *next_key, bool *found);
-void dict_prev(dict*, uint64_t key,
-		uint64_t *prev_key, bool *found);
+bool dict_next(dict*, uint64_t key, uint64_t *next_key);
+bool dict_prev(dict*, uint64_t key, uint64_t *prev_key);
 \end{lstlisting}
 
 Every data structure implementation exposes a global variable of type

@@ -9,9 +9,7 @@
 
 static void has_element(dict* table, uint64_t key, uint64_t value) {
 	uint64_t found_value;
-	bool found;
-	dict_find(table, key, &found_value, &found);
-	CHECK(found, "key %ld not found", key);
+	CHECK(dict_find(table, key, &found_value), "key %ld not found", key);
 	CHECK(found_value == value,
 			"value for key %ld should be %ld, but is %ld",
 			key, value, found_value);
@@ -62,8 +60,7 @@ static void check_equivalence(dict* instance, uint64_t N,
 	// TODO: randomize test order?
 	for (uint64_t i = 0; i < N; i++) {
 		uint64_t value;
-		bool key_present;
-		dict_find(instance, keys[i], &value, &key_present);
+		bool key_present = dict_find(instance, keys[i], &value);
 		if (present[i]) {
 			CHECK(key_present, "expected to find %" PRIu64 "=%" PRIu64 ", "
 						"but no such key found",

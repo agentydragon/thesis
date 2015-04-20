@@ -217,23 +217,20 @@ static void make_space(kforest* this) {
 	}
 }
 
-void kforest_find(kforest* this, uint64_t key, uint64_t *value, bool *found) {
+bool kforest_find(kforest* this, uint64_t key, uint64_t *value) {
 	log_verbose(1, "kforest_find(%" PRIu64 ")", key);
 
 	uint64_t tree;
 	uint64_t value_found;
 	for (tree = 0; tree < this->tree_capacity; ++tree) {
-		bool found_here;
-		kforest_tree_find(&this->trees[tree], key,
-				&value_found, &found_here);
-		if (found_here) {
+		if (kforest_tree_find(&this->trees[tree], key, &value_found)) {
 			goto tree_found;
 		}
 	}
-	goto not_found;
+	// Not found.
+	return false;
 
 tree_found:
-	*found = true;
 	if (value) {
 		*value = value_found;
 	}
@@ -250,23 +247,13 @@ tree_found:
 				== 0);
 		++this->tree_sizes[0];
 	}
-
-	//dump(this);
-	//check_invariants(this);
-	return;
-
-not_found:
-	//dump(this);
-	//check_invariants(this);
-	*found = false;
+	return true;
 }
 
 int8_t kforest_insert(kforest* this, uint64_t key, uint64_t value) {
 	log_verbose(1, "kforest_insert(%" PRIu64 "=%" PRIu64 ")", key, value);
 
-	bool exists;
-	kforest_find(this, key, NULL, &exists);
-	if (exists) {
+	if (kforest_find(this, key, NULL)) {
 		return 1;
 	}
 
@@ -279,7 +266,6 @@ int8_t kforest_insert(kforest* this, uint64_t key, uint64_t value) {
 
 	//dump(this);
 	//check_invariants(this);
-	//log_info("// kforest_insert");
 
 	return 0;
 }
@@ -287,9 +273,7 @@ int8_t kforest_insert(kforest* this, uint64_t key, uint64_t value) {
 int8_t kforest_delete(kforest* this, uint64_t key) {
 	log_verbose(1, "kforest_delete(%" PRIu64 ")", key);
 
-	bool found;
-	kforest_find(this, key, NULL, &found);
-	if (!found) {
+	if (!kforest_find(this, key, NULL)) {
 		return 1;
 	}
 

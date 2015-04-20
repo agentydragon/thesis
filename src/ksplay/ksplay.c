@@ -835,7 +835,7 @@ removed:
 	return 0;
 }
 
-void ksplay_find(ksplay* this, uint64_t key, uint64_t *value, bool *found) {
+bool ksplay_find(ksplay* this, uint64_t key, uint64_t *value) {
 	IF_LOG_VERBOSE(1) {
 		log_info("find(%" PRIu64 ")", key);
 		ksplay_dump(this);
@@ -843,17 +843,17 @@ void ksplay_find(ksplay* this, uint64_t key, uint64_t *value, bool *found) {
 
 	ksplay_node_buffer stack = ksplay_walk_to(this, key);
 	node* target = stack.nodes[stack.count - 1];
-	*found = node_find(target, key, value);
+	bool found = node_find(target, key, value);
 	ksplay_ksplay(this, &stack);
 
 	IF_LOG_VERBOSE(1) {
 		log_info("after find(%" PRIu64 "):", key);
 		ksplay_dump(this);
 	}
+	return found;
 }
 
-void ksplay_next_key(ksplay* this, uint64_t key,
-		uint64_t *next_key, bool *found) {
+bool ksplay_next_key(ksplay* this, uint64_t key, uint64_t *next_key) {
 	IF_LOG_VERBOSE(1) {
 		log_info("next(%" PRIu64 ")", key);
 		ksplay_dump(this);
@@ -861,10 +861,8 @@ void ksplay_next_key(ksplay* this, uint64_t key,
 
 	uint64_t good_prefix;
 	ksplay_node_buffer stack = ksplay_walk_to_next(this, key, &good_prefix);
-	if (good_prefix == 0) {
-		log_verbose(1, "good prefix empty; next not found");
-		*found = false;
-	} else {
+	const bool found = (good_prefix > 0);
+	if (found) {
 		node* good_node = stack.nodes[good_prefix - 1];
 		uint64_t i;
 		for (i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
@@ -877,13 +875,12 @@ void ksplay_next_key(ksplay* this, uint64_t key,
 		}
 		assert(i < KSPLAY_MAX_NODE_KEYS);
 		*next_key = good_node->pairs[i].key;
-		*found = true;
 	}
 	ksplay_ksplay(this, &stack);
+	return found;
 }
 
-void ksplay_previous_key(ksplay* this, uint64_t key,
-		uint64_t *previous_key, bool *found) {
+bool ksplay_previous_key(ksplay* this, uint64_t key, uint64_t *previous_key) {
 	IF_LOG_VERBOSE(1) {
 		log_info("prev(%" PRIu64 ")", key);
 		ksplay_dump(this);
@@ -892,9 +889,8 @@ void ksplay_previous_key(ksplay* this, uint64_t key,
 	uint64_t good_prefix;
 	ksplay_node_buffer stack = ksplay_walk_to_previous(this, key,
 			&good_prefix);
-	if (good_prefix == 0) {
-		*found = false;
-	} else {
+	const bool found = (good_prefix > 0);
+	if (found) {
 		node* good_node = stack.nodes[good_prefix - 1];
 		uint64_t i;
 		for (i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
@@ -906,9 +902,9 @@ void ksplay_previous_key(ksplay* this, uint64_t key,
 		assert(i < KSPLAY_MAX_NODE_KEYS);
 		*previous_key = good_node->pairs[
 				KSPLAY_MAX_NODE_KEYS - i - 1].key;
-		*found = true;
 	}
 	ksplay_ksplay(this, &stack);
+	return found;
 }
 
 static void _dump_dot(node* current_node, FILE* output) {

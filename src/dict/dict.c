@@ -39,8 +39,8 @@ void dict_destroy(dict** _this) {
 	}
 }
 
-void dict_find(dict* this, uint64_t key, uint64_t *value, bool *found) {
-	this->api->find(this->opaque, key, value, found);
+bool dict_find(dict* this, uint64_t key, uint64_t *value) {
+	return this->api->find(this->opaque, key, value);
 }
 
 int8_t dict_insert(dict* this, uint64_t key, uint64_t value) {
@@ -73,22 +73,18 @@ bool dict_allows_order_queries(const dict* this) {
 	return dict_api_allows_order_queries(this->api);
 }
 
-void dict_next(dict* this, uint64_t key, uint64_t *next_key, bool *found) {
+bool dict_next(dict* this, uint64_t key, uint64_t *next_key) {
 	if (this->api->next) {
-		this->api->next(this->opaque, key, next_key, found);
-	} else {
-		log_fatal("dict api %s doesn't implement next",
-				this->api->name);
+		return this->api->next(this->opaque, key, next_key);
 	}
+	log_fatal("dict api %s doesn't implement next", this->api->name);
 }
 
-void dict_prev(dict* this, uint64_t key, uint64_t *prev_key, bool *found) {
+bool dict_prev(dict* this, uint64_t key, uint64_t *prev_key) {
 	if (this->api->prev) {
-		this->api->prev(this->opaque, key, prev_key, found);
-	} else {
-		log_fatal("dict api %s doesn't implement prev",
-				this->api->name);
+		return this->api->prev(this->opaque, key, prev_key);
 	}
+	log_fatal("dict api %s doesn't implement prev", this->api->name);
 }
 
 const void* dict_get_implementation(dict* this) {
@@ -100,7 +96,5 @@ const dict_api* dict_get_api(dict* this) {
 }
 
 bool dict_contains(dict* this, uint64_t key) {
-	bool found;
-	dict_find(this, key, NULL, &found);
-	return found;
+	return dict_find(this, key, NULL);
 }

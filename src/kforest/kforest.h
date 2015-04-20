@@ -39,7 +39,7 @@ typedef struct {
 int8_t kforest_init(kforest*);
 void kforest_destroy(kforest*);
 
-void kforest_find(kforest*, uint64_t key, uint64_t *value, bool *found);
+bool kforest_find(kforest*, uint64_t key, uint64_t *value);
 int8_t kforest_insert(kforest*, uint64_t key, uint64_t value);
 int8_t kforest_delete(kforest*, uint64_t key);
 

@@ -317,7 +317,7 @@ int8_t btree_delete(btree* this, uint64_t key) {
 	return 0;
 }
 
-void btree_find(btree* this, uint64_t key, uint64_t *value, bool *found) {
+bool btree_find(btree* this, uint64_t key, uint64_t *value) {
 	btree_node_traversed node = nt_root(this);
 
 	while (!nt_is_leaf(node)) {
@@ -326,14 +326,13 @@ void btree_find(btree* this, uint64_t key, uint64_t *value, bool *found) {
 
 	for (uint8_t i = 0; i < get_n_leaf_keys(node.persisted); i++) {
 		if (node.persisted->leaf.keys[i] == key) {
-			*found = true;
 			if (value) {
 				*value = node.persisted->leaf.values[i];
 			}
-			return;
+			return true;
 		}
 	}
-	*found = false;
+	return false;
 }
 
 // Details of node representation:

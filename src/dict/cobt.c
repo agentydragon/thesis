@@ -28,24 +28,24 @@ static void destroy(void** _this) {
 	}
 }
 
-static void find(void* _this, uint64_t key, uint64_t *value, bool *found) {
-	cob_find(_this, key, value, found);
+static bool find(void* this, uint64_t key, uint64_t *value) {
+	return cob_find(this, key, value);
 }
 
-static int8_t insert(void* _this, uint64_t key, uint64_t value) {
-	return cob_insert(_this, key, value);
+static int8_t insert(void* this, uint64_t key, uint64_t value) {
+	return cob_insert(this, key, value);
 }
 
-static int8_t delete(void* _this, uint64_t key) {
-	return cob_delete(_this, key);
+static int8_t delete(void* this, uint64_t key) {
+	return cob_delete(this, key);
 }
 
-static void next(void* _this, uint64_t key, uint64_t *next_key, bool *found) {
-	cob_next_key(_this, key, next_key, found);
+static bool next(void* this, uint64_t key, uint64_t *next_key) {
+	return cob_next_key(this, key, next_key);
 }
 
-static void prev(void* _this, uint64_t key, uint64_t *prev_key, bool *found) {
-	cob_previous_key(_this, key, prev_key, found);
+static bool prev(void* this, uint64_t key, uint64_t *prev_key) {
+	return cob_previous_key(this, key, prev_key);
 }
 
 const dict_api dict_cobt = {

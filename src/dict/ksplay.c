@@ -24,31 +24,24 @@ static void destroy(void** _this) {
 	}
 }
 
-static void find(void* _this, uint64_t key, uint64_t *value, bool *found) {
-	assert(_this);
-	ksplay_find(_this, key, value, found);
+static bool find(void* this, uint64_t key, uint64_t *value) {
+	return ksplay_find(this, key, value);
 }
 
-static void find_next(void* _this, uint64_t key,
-		uint64_t* next_key, bool *found) {
-	assert(_this);
-	ksplay_next_key(_this, key, next_key, found);
+static bool find_next(void* this, uint64_t key, uint64_t* next_key) {
+	return ksplay_next_key(this, key, next_key);
 }
 
-static void find_previous(void* _this, uint64_t key,
-		uint64_t* previous_key, bool *found) {
-	assert(_this);
-	ksplay_previous_key(_this, key, previous_key, found);
+static bool find_previous(void* this, uint64_t key, uint64_t* previous_key) {
+	return ksplay_previous_key(this, key, previous_key);
 }
 
-static int8_t insert(void* _this, uint64_t key, uint64_t value) {
-	assert(_this);
-	return ksplay_insert(_this, key, value);
+static int8_t insert(void* this, uint64_t key, uint64_t value) {
+	return ksplay_insert(this, key, value);
 }
 
-static int8_t delete(void* _this, uint64_t key) {
-	assert(_this);
-	return ksplay_delete(_this, key);
+static int8_t delete(void* this, uint64_t key) {
+	return ksplay_delete(this, key);
 }
 
 const dict_api dict_ksplay = {

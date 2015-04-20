@@ -40,22 +40,23 @@ static void destroy(void** _this) {
 	}
 }
 
-static int8_t insert(void* _this, uint64_t key, uint64_t value) {
-	htable* this = _this;
-	log_info("insert(%" PRIx64 ", %" PRIx64 ")", key, value);
+static int8_t insert(void* this, uint64_t key, uint64_t value) {
 	return htable_insert(this, key, value);
 }
 
-static int8_t delete(void* _this, uint64_t key) {
-	htable* this = _this;
+static int8_t delete(void* this, uint64_t key) {
 	return htable_delete(this, key);
+}
+
+static bool find(void* this, uint64_t key, uint64_t* value) {
+	return htable_find(this, key, value);
 }
 
 const dict_api dict_htable = {
 	.init = init,
 	.destroy = destroy,
 
-	.find = htable_find,
+	.find = find,
 	.insert = insert,
 	.delete = delete,
 

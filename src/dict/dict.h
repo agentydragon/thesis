@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "util/unused.h"
+
 #define DICT_RESERVED_KEY UINT64_MAX
 
 typedef struct dict_s dict;
@@ -12,7 +14,7 @@ typedef struct {
 	int8_t (*init)(void**, void* args);
 	void (*destroy)(void**);
 
-	void (*find)(void*, uint64_t key, uint64_t *value, bool *found);
+	bool (*find)(void*, uint64_t key, uint64_t *value);
 	int8_t (*insert)(void*, uint64_t key, uint64_t value);
 	int8_t (*delete)(void*, uint64_t key);
 
@@ -20,8 +22,8 @@ typedef struct {
 
 	// Optional extension: ordered dictionary.
 	// NULL if not implemented.
-	void (*next)(void*, uint64_t key, uint64_t *next_key, bool *found);
-	void (*prev)(void*, uint64_t key, uint64_t *prev_key, bool *found);
+	bool (*next)(void*, uint64_t key, uint64_t *next_key);
+	bool (*prev)(void*, uint64_t key, uint64_t *prev_key);
 
 	// Optional
 	void (*dump)(void*);
@@ -31,15 +33,15 @@ typedef struct {
 int8_t dict_init(dict**, const dict_api* api, void* args);
 void dict_destroy(dict**);
 
-void dict_find(dict*, uint64_t key, uint64_t *value, bool *found);
-int8_t dict_insert(dict*, uint64_t key, uint64_t value);
-int8_t dict_delete(dict*, uint64_t key);
+bool MUST_USE_RESULT dict_find(dict*, uint64_t key, uint64_t *value);
+int8_t MUST_USE_RESULT dict_insert(dict*, uint64_t key, uint64_t value);
+int8_t MUST_USE_RESULT dict_delete(dict*, uint64_t key);
 
 // Optional extension: ordered dictionary.
 bool dict_api_allows_order_queries(const dict_api*);
 bool dict_allows_order_queries(const dict*);
-void dict_next(dict*, uint64_t key, uint64_t *next_key, bool *found);
-void dict_prev(dict*, uint64_t key, uint64_t *prev_key, bool *found);
+bool MUST_USE_RESULT dict_next(dict*, uint64_t key, uint64_t *next_key);
+bool MUST_USE_RESULT dict_prev(dict*, uint64_t key, uint64_t *prev_key);
 
 void dict_dump(dict*);
 void dict_check(dict*);

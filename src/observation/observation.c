@@ -98,17 +98,16 @@ static void tapped_destroy(void** _this) {
 	}
 }
 
-static void tapped_find(void* _this, uint64_t key,
-		uint64_t *value, bool *found) {
+static bool tapped_find(void* _this, uint64_t key, uint64_t *value) {
 	struct tapped_dict *this = _this;
 
-	dict_find(this->dict_to_tap, key, value, found);
-
+	bool found = dict_find(this->dict_to_tap, key, value);
 	ASSERT(!observation_push(this->recorded_observation,
 				(struct observed_operation) {
 					.operation = OP_FIND,
 					.find = { .key = key }
 				}));
+	return found;
 }
 
 static int8_t tapped_insert(void* _this, uint64_t key, uint64_t value) {
@@ -168,9 +167,12 @@ int8_t observation_tap(observation* this, dict* to_tap, dict** tapped) {
 
 static int8_t replay_operation(struct observed_operation operation, dict* replay_on) {
 	switch (operation.operation) {
-		case OP_FIND:
-			dict_find(replay_on, operation.find.key, NULL, NULL);
+		case OP_FIND: {
+			bool found = dict_find(replay_on, operation.find.key,
+					NULL);
+			(void) found;
 			return 0;
+		}
 		case OP_INSERT:
 			return dict_insert(replay_on, operation.insert.key, operation.insert.value);
 		case OP_DELETE:

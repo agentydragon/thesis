@@ -9,25 +9,22 @@
 #define NIL 0xDEADDEADDEADDEAD
 
 static void assert_map(dict* instance, uint64_t key, uint64_t value) {
-	bool _found;
-	uint64_t _found_value;
-	dict_find(instance, key, &_found_value, &_found);
-	if (!_found) {
+	uint64_t found_value;
+	bool found = dict_find(instance, key, &found_value);
+	if (!found) {
 		log_fatal("expected to find %" PRIu64 "=%" PRIu64 ", "
-				"but no such key found",
-				key, value);
+				"but no such key found", key, value);
 	}
-	if (_found_value != value) {
+	if (found_value != value) {
 		log_fatal("expected to find %" PRIu64 "=%" PRIu64 ", "
 				"but found %" PRIu64 "=%" PRIu64,
-				key, value, key, _found_value);
+				key, value, key, found_value);
 	}
 }
 
 static void assert_next_key(dict* instance, uint64_t key, uint64_t next_key) {
-	bool found;
 	uint64_t found_key;
-	dict_next(instance, key, &found_key, &found);
+	bool found = dict_next(instance, key, &found_key);
 	if (next_key != NIL) {
 		CHECK(found, "no next key for %" PRIu64 ", expected "
 					"%" PRIu64, key, next_key);
@@ -40,9 +37,8 @@ static void assert_next_key(dict* instance, uint64_t key, uint64_t next_key) {
 
 static void assert_previous_key(dict* instance,
 		uint64_t key, uint64_t previous_key) {
-	bool found;
 	uint64_t found_key;
-	dict_prev(instance, key, &found_key, &found);
+	bool found = dict_prev(instance, key, &found_key);
 	if (previous_key != NIL) {
 		CHECK(found, "no previous key for %" PRIu64 ", expected "
 					"%" PRIu64, key, previous_key);
@@ -61,10 +57,9 @@ static void check_equivalence(dict* instance, uint64_t N,
 		if (present[i]) {
 			assert_map(instance, keys[i], values[i]);
 		} else {
-			bool found;
 			uint64_t found_value;
-			dict_find(instance, keys[i], &found_value, &found);
-			CHECK(!found, "Expected not to find key %" PRIu64 ", "
+			CHECK(!dict_find(instance, keys[i], &found_value),
+					"Expected not to find key %" PRIu64 ", "
 					"but it has value %" PRIu64 ".",
 					keys[i], found_value);
 		}

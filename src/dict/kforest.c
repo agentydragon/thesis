@@ -32,18 +32,15 @@ static void destroy(void** _this) {
 	}
 }
 
-static void find(void* _this, uint64_t key, uint64_t *value, bool *found) {
-	assert(_this);
-	kforest_find(_this, key, value, found);
+static bool find(void* _this, uint64_t key, uint64_t *value) {
+	return kforest_find(_this, key, value);
 }
 
 static int8_t insert(void* _this, uint64_t key, uint64_t value) {
-	assert(_this);
 	return kforest_insert(_this, key, value);
 }
 
 static int8_t delete(void* _this, uint64_t key) {
-	assert(_this);
 	return kforest_delete(_this, key);
 }
 

@@ -255,16 +255,13 @@ static void test_flatten(void) {
 }
 
 #define assert_not_found(key) do { \
-	bool _found; \
-	ksplay_find(tree, key, NULL, &_found); \
-	ASSERT(!_found); \
+	ASSERT(!ksplay_find(tree, key, NULL)); \
 } while (0)
 
 #define assert_found(key,value) do { \
-	bool _found; \
 	uint64_t _found_value; \
-	ksplay_find(tree, key, &_found_value, &_found); \
-	ASSERT(_found && _found_value == value); \
+	ASSERT(ksplay_find(tree, key, &_found_value)); \
+	ASSERT(_found_value == value); \
 } while (0)
 
 static void test_insert(void) {

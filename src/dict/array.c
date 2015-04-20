@@ -41,37 +41,32 @@ static void destroy(void** _this) {
 	}
 }
 
-static void _lookup_index(data* this, uint64_t key, bool *found, uint64_t *index) {
+static bool lookup_index(data* this, uint64_t key, uint64_t *index) {
 	// TODO: this should use binary search
 	for (uint64_t i = 0; i < this->pair_count; i++) {
 		if (this->pairs[i].key == key) {
-			*found = true;
 			*index = i;
-			return;
+			return true;
 		}
 	}
-	*found = false;
+	return false;
 }
 
-static void find(void* _this, uint64_t key, uint64_t *value, bool *found) {
+static bool find(void* _this, uint64_t key, uint64_t *value) {
 	data* this = _this;
 	uint64_t index;
 
-	bool pair_found;
-	_lookup_index(this, key, &pair_found, &index);
-	if (found) {
-		*found = pair_found;
-	}
-	if (pair_found && value) {
+	const bool found = lookup_index(this, key, &index);
+	if (found && value) {
 		*value = this->pairs[index].value;
 	}
+	return found;
 }
 
 static int8_t insert(void* _this, uint64_t key, uint64_t value) {
 	data* this = _this;
 
-	bool found;
-	find(this, key, NULL, &found);
+	const bool found = find(this, key, NULL);
 	if (found) {
 		log_verbose(1, "key %ld already present when inserting %ld=%ld",
 				key, key, value);
@@ -109,11 +104,8 @@ err_1:
 static int8_t delete(void* _this, uint64_t key) {
 	data* this = _this;
 
-	bool found;
 	uint64_t index;
-
-	_lookup_index(this, key, &found, &index);
-	if (!found) {
+	if (!lookup_index(this, key, &index)) {
 		// ERROR: no such element
 		return 1;
 	}

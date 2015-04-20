@@ -133,21 +133,18 @@ int8_t splay_insert(splay_tree* tree, uint64_t key, uint64_t value) {
 	return 0;
 }
 
-
-void splay_find(splay_tree* this, uint64_t key, uint64_t *value, bool *found) {
+bool splay_find(splay_tree* this, uint64_t key, uint64_t *value) {
 	if (this->root == NULL) {
-		*found = false;
-		return;
+		return false;
 	}
 
 	node* parent = _splay(this->root, key);
 	this->root = parent;
-	if (found != NULL) {
-		*found = (this->root->key == key);
-	}
-	if (this->root->key == key && value != NULL) {
+	const bool found = (this->root->key == key);
+	if (found && value != NULL) {
 		*value = this->root->value;
 	}
+	return found;
 }
 
 static void get_leftmost_in_right_subtree(node* current,
@@ -197,11 +194,9 @@ int8_t splay_delete(splay_tree* this, uint64_t key) {
 	return 0;
 }
 
-void splay_next_key(splay_tree* this, splay_key key,
-		splay_key* next_key, bool* found) {
+bool splay_next_key(splay_tree* this, splay_key key, splay_key* next_key) {
 	if (this->root == NULL) {
-		*found = false;
-		return;
+		return false;
 	}
 
 	this->root = _splay(this->root, key);
@@ -209,7 +204,7 @@ void splay_next_key(splay_tree* this, splay_key key,
 		if (next_key) {
 			*next_key = this->root->key;
 		}
-		*found = true;
+		return true;
 	} else {
 		node* leftmost_in_right;
 		// TODO: splay
@@ -219,18 +214,17 @@ void splay_next_key(splay_tree* this, splay_key key,
 			if (next_key) {
 				*next_key = leftmost_in_right->key;
 			}
-			*found = true;
+			return true;
 		} else {
-			*found = false;
+			return false;
 		}
 	}
 }
 
-void splay_previous_key(splay_tree* this, splay_key key,
-		splay_key* previous_key, bool *found) {
+bool splay_previous_key(splay_tree* this, splay_key key,
+		splay_key* previous_key) {
 	if (this->root == NULL) {
-		*found = false;
-		return;
+		return false;
 	}
 
 	this->root = _splay(this->root, key);
@@ -239,7 +233,7 @@ void splay_previous_key(splay_tree* this, splay_key key,
 		if (previous_key) {
 			*previous_key = this->root->key;
 		}
-		*found = true;
+		return true;
 	} else {
 		node* rightmost_in_left;
 		// TODO: splay
@@ -248,9 +242,9 @@ void splay_previous_key(splay_tree* this, splay_key key,
 			if (previous_key) {
 				*previous_key = rightmost_in_left->key;
 			}
-			*found = true;
+			return true;
 		} else {
-			*found = false;
+			return false;
 		}
 	}
 }

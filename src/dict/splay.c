@@ -22,27 +22,24 @@ static void destroy(void** _this) {
 	}
 }
 
-static void find(void* _this, uint64_t key, uint64_t *value, bool *found) {
-	assert(_this);
-	splay_find(_this, key, value, found);
+static bool find(void* this, uint64_t key, uint64_t *value) {
+	return splay_find(this, key, value);
 }
 
-static int8_t insert(void* _this, uint64_t key, uint64_t value) {
-	assert(_this);
-	return splay_insert(_this, key, value);
+static int8_t insert(void* this, uint64_t key, uint64_t value) {
+	return splay_insert(this, key, value);
 }
 
-static int8_t delete(void* _this, uint64_t key) {
-	assert(_this);
-	return splay_delete(_this, key);
+static int8_t delete(void* this, uint64_t key) {
+	return splay_delete(this, key);
 }
 
-static void next(void* _this, uint64_t key, uint64_t *next, bool *found) {
-	splay_next_key(_this, key, next, found);
+static bool next(void* this, uint64_t key, uint64_t *next_key) {
+	return splay_next_key(this, key, next_key);
 }
 
-static void prev(void* _this, uint64_t key, uint64_t *prev, bool *found) {
-	splay_previous_key(_this, key, prev, found);
+static bool prev(void* this, uint64_t key, uint64_t *previous_key) {
+	return splay_previous_key(this, key, previous_key);
 }
 
 const dict_api dict_splay = {

@@ -50,7 +50,7 @@ int8_t insert_key_value_pair(btree_node_persisted* node,
 void btree_init(btree*);
 int8_t btree_insert(btree*, uint64_t key, uint64_t value);
 int8_t btree_delete(btree*, uint64_t key);
-void btree_find(btree*, uint64_t key, uint64_t *value, bool *found);
+bool btree_find(btree*, uint64_t key, uint64_t *value);
 void btree_destroy(btree*);
 
 // TODO: implement _next, _prev

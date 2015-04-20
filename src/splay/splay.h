@@ -3,6 +3,7 @@
 
 #include <inttypes.h>
 #include <stdbool.h>
+#include "util/unused.h"
 
 typedef uint64_t splay_key;
 typedef uint64_t splay_value;
@@ -17,8 +18,7 @@ typedef struct {
 	splay_node* root;
 } splay_tree;
 
-void splay_find(splay_tree* this, splay_key key,
-		splay_value* value, bool *found);
+bool splay_find(splay_tree* this, splay_key key, splay_value* value);
 int8_t splay_insert(splay_tree* this, splay_key key, splay_value value);
 int8_t splay_delete(splay_tree* this, splay_key key);
 void splay_init(splay_tree** this);
@@ -27,9 +27,8 @@ void splay_destroy(splay_tree** this);
 // Actually splays up the last node found on the path here.
 void splay(splay_tree* tree, splay_key key);
 
-void splay_next_key(splay_tree* this, splay_key key,
-		splay_key* next_key, bool* found);
-void splay_previous_key(splay_tree* this, splay_key key,
-		splay_key* previous_key, bool* found);
+bool splay_next_key(splay_tree* this, splay_key key, splay_key* next_key);
+bool splay_previous_key(splay_tree* this, splay_key key,
+		splay_key* previous_key);
 
 #endif

@@ -427,7 +427,7 @@ no_such_key:
 	return 1;
 }
 
-void cob_find(cob* this, uint64_t key, uint64_t *value, bool *found) {
+bool cob_find(cob* this, uint64_t key, uint64_t *value) {
 	validate_key(key);
 	const uint64_t index = cobt_tree_find_le(&this->tree, key);
 	if (this->file.occupied[index]) {
@@ -440,17 +440,15 @@ void cob_find(cob* this, uint64_t key, uint64_t *value, bool *found) {
 				}
 				log_verbose(1, "cob_find(%" PRIu64 "): found %" PRIu64,
 						key, piece[i].value);
-				*found = true;
-				return;
+				return true;
 			}
 		}
 	}
 	log_verbose(1, "cob_find(%" PRIu64 "): no such key", key);
-	*found = false;
+	return false;
 }
 
-void cob_next_key(cob* this, uint64_t key,
-		uint64_t *next_key, bool *next_key_exists) {
+bool cob_next_key(cob* this, uint64_t key, uint64_t *next_key) {
 	validate_key(key);
 	const uint64_t index = cobt_tree_find_le(&this->tree, key);
 
@@ -462,8 +460,7 @@ void cob_next_key(cob* this, uint64_t key,
 				if (next_key) {
 					*next_key = piece[i].key;
 				}
-				*next_key_exists = true;
-				return;
+				return true;
 			}
 		}
 	}
@@ -477,15 +474,13 @@ void cob_next_key(cob* this, uint64_t key,
 			if (next_key) {
 				*next_key = piece[0].key;
 			}
-			*next_key_exists = true;
-			return;
+			return true;
 		}
 	}
-	*next_key_exists = false;
+	return false;
 }
 
-void cob_previous_key(cob* this, uint64_t key,
-		uint64_t *previous_key, bool *previous_key_exists) {
+bool cob_previous_key(cob* this, uint64_t key, uint64_t *previous_key) {
 	validate_key(key);
 	const uint64_t index = cobt_tree_find_le(&this->tree, key);
 
@@ -498,8 +493,7 @@ void cob_previous_key(cob* this, uint64_t key,
 				if (previous_key) {
 					*previous_key = piece[idx].key;
 				}
-				*previous_key_exists = true;
-				return;
+				return true;
 			}
 		}
 	}
@@ -516,12 +510,11 @@ void cob_previous_key(cob* this, uint64_t key,
 				if (previous_key) {
 					*previous_key = piece[piece_idx].key;
 				}
-				*previous_key_exists = true;
-				return;
+				return true;
 			}
 		}
 	}
-	*previous_key_exists = false;
+	return false;
 }
 
 static pma rebuild_file(cob* this, uint64_t new_size, uint8_t new_piece) {
