@@ -1,2 +1,26 @@
 \chapter*{Conclusion}
 \addcontentsline{toc}{chapter}{Conclusion}
+
+Several data structures based on tries have also been proposed for the
+dictionary problem. One example are \emph{y-fast tries}, which allow
+\textsc{Find}s in time $\O(1)$ and updates and predecessor/successor queries
+in time $\O(\log\log |U|)$, where $U$ is the key universe. They require
+$\O(N \log\log |U|)$ memory.
+% TODO: Can I start a sentence like this???
+y-fast tries are built for the RAM model and they assume that RAM operations
+can be performed on keys in constant time.
+The original motivation for developing y-fast tries was lowering the memory
+requirements of van Emde Boas queues ($\O(|U|)$ TODO: check) while keeping
+the same time for operations.
+% TODO: Try to find some practical numbers.
+
+\emph{Judy arrays} are highly optimized dictionaries developed at IBM.
+IBM sources claim that Judy arrays are very efficient in practice.
+% TODO: Cite author & technical report
+According to available documentation, the data structure is based on
+sparse 256-ary tries with implementation tricks that compress
+the representation.
+Unfortunately, we found the existing documentation highly complex and sometimes
+incomplete. On the other hand, an open-source implementation is available
+at TODO, so it should be possible to independently analyze the data structure.
+

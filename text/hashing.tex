@@ -29,10 +29,9 @@ Unfortunately, if the set of stored keys is not known in advance,
 some keys $k_1\neq k_2$ may have the same hash value.
 This condition is called a \emph{collision}.
 
-There is a multitude of approaches to resolving collisions.
+Specific collision resolution strategies differ between hashing approaches.
 
-\begin{itemize}
-\item
+\section{Separate chaining}
 \emph{Separate chaining} stores the set of all key-value pairs with
 $h(k)=i$ in slot $i$. Let us call this set the \emph{collision chain} for hash
 $i$, and denote its size $C_i$. The easiest solution is storing a pointer to
@@ -40,17 +39,175 @@ a linked list of colliding key-value pairs in the hash table. If there are no
 collisions in an occupied slot, an easy and common optimization is storing
 the only key-value pair directly in the hash table.
 
-If we use separate chaining, the costs of hash table operations become $\O(1)$
-for slot lookup and $\O(|C_i|)$ for scanning the collision chain. By picking
-a hash function that evenly distributes hashes among keys, we can prove
-that the expected length of a collision chain is short.
+TODO: not very cache-friendly for long chains
+
+TODO: uniform ::= pravdepodobnost = O(1/m)
+TODO: n/m == load factor
+
+If we use separate chaining, the costs of all hash table operations become
+$\O(1)$ for slot lookup and $\O(|C_i|)$ for scanning the collision chain.
+By picking a hash function that evenly distributes hashes among keys,
+we can prove that the expected length of a collision chain is short.
 
 To keep the expected chain length low, every time the hash table increases
 or decreases in size by a constant factor, we rebuild it with a new $M$
-picked to be $\O(N)$.
+picked to be $\O(N)$. The rebuild time is $\O(1)$ amortized per operation.
 
-\item
-When we attempt to \textsc{Insert}a new pair with key $k$ into an occupied slot
+If we pick the hash function $h$ at random (i.e. by independently randomly
+assigning $h(k)$ for all $k\in U$), we have $\forall i\in H, k\in U:
+\Pr[h(k)=i]=\frac{1}{M}$, so $\E[C_i]=\frac{N}{M}$, which is constant if we
+maintain $M=\O(N)$, so the expected time per operation is also constant.
+The $\frac{N}{M}$ ratio is commonly called the \emph{load factor}.
+
+However, storing a random hash function would require $|U| \log M$ bits, which
+is too much if we only store a few keys from a very large universe. In practice,
+we pick a hash function from a certain smaller family according to a formula
+with some variables chosen at random.
+Given a family $\mathcal{H}$ of hashing functions, we call $\mathcal{H}$
+\emph{universal} if $\Pr_{h\in \mathcal{H}}[h(x)=h(y)]=\O(\frac{1}{M})$ for any
+$x, y\in U$, and \emph{strongly universal} if this probability is
+$\leq\frac{1}{M}$. % TODO: Do I need strong universality?
+For any universal family of hash functions, the expected time per operation
+is constant when using chaining.
+
+TODO: totally random => w.h.p. O(lg n/lg lg n) = Ct
+	plug c=lg n/lglg n into Chernov
+
+	some chains are long :(
+	(proto considerujeme perfect hashing)
+
+	random, or annoyingly high independence (lg n/lg lg n) or simple tab. hashing
+		1995 / "last year"
+
+with cache of Omega(log n) totally random -> O(1) amortized per operation w.h.p.
+
+TODO: variance: constant
+	%interesting: E[C_t^2], depends on $h$
+	%$E[C_t^2]=1/m \sum_s E[C_s^2]$ = 1/m (pocet kolizi) = 1/m \sum
+	%Pr_{i,j}{h(x_j)=h(y_j)}=O(1) by univ.
+
+%w.h.p.: 1-1/n^c, c arb.
+
+expected linear time: done
+
+"pretty rare in practice", because hashing twice
+
+%"linear probing: basically free" (10\% more than memory access)
+%	$m\geq (1+\varepsilon)n$
+%	idea is old for totally random hf
+%	set epsilon to 1 (proved O(1/\varepsilon^2) per op)
+%
+%	log(n)-wise indep. implies O(1)-expected per op.
+%	5-wise indep. implies O(1) ((2007))
+%	tight (4-wise indep. doesn't work)
+%	simple tabulation hashing => also O(1/\varepsilon^2), great, as good as
+%		random (!!! !!!)
+%
+%linear probing: needs a lot of independence and space
+%	great cache performance
+%
+%cuckoo: parallelism in computing hashes
+
+Some common universal families of hash functions include:
+\begin{itemize}
+\item $h(k)=((a\cdot k)\bmod p)\bmod M$, where $p$ is a prime $\geq |U|$
+	and $a\in\{0,\ldots p-1\}$. % TODO: not 2-independent
+
+	universal, but losts a factor of 2, depending on M related to P
+
+	considered expensive (division)
+
+	1979
+
+\item $(a\cdot k) >> (\log u-\log m)$ for $M, |U|$ powers of 2 (1997).
+	universal
+
+\item \emph{Simple tabulation hashing}: interpret the key $x\in K$ as a vector
+	of $c$ equal-size components $x_1,\ldots x_c$. Pick $c$ random hash
+	functions $h_1,\ldots h_c$ mapping from key components $x_i$ to $H$.
+	The hash of $x$ is computed by taking the bitwise XOR ($\oplus$)
+	of hashes of all components $x_i$:
+	$$h(x)=h_1(x_1)\oplus h_2(x_2)\oplus \ldots \oplus h_c(x_c)$$
+
+%	O(c) to compute, O(c u^{1/c}) space approx. u^\epsilon
+
+	3-independent; almost as good as logn-indep. for some purposes
+
+	% TODO: O(c) time to compute
+	% TODO: potentially very efficient
+	% TODO: 3-independent; prove that
+	% TODO: from 1981. cite!
+	% TODO: analyzed recently. cite!
+\end{itemize}
+
+\section{Perfect hashing}
+\emph{Perfect hashing} avoids the issue of collisions by picking a hashing
+function that is collision-free for the given key set. If we fix $K$
+in advance (i.e.\ if we perform \emph{static hashing}), we can use a variety
+of algorithms which produce a collision-free hashing function at the cost
+of some preprocessing time. If the hash function produces no empty slots
+(i.e.\ $M=N$), we call it \emph{minimal}.
+
+For example, HDC (\textit{Hash, Displace and Compress},
+\cite{hdc-hashing}) is a randomized algorithm that can generate a perfect
+hash function in expected $\O(N)$ time. The hash function can be represented
+using 1.98 bits per key for $M=1.01 N$, or more efficiently if we allow a larger
+$M$. All hash functions generated by HDC can be evaluated in constant time.
+The algorithm can be simply generalized to build $k$-perfect hash functions,
+which allow up to $k$ collisions per slot. The \textit{C Minimum Perfect
+Hashing Library}, available at \url{http://cmph.sourceforge.net/}, implements
+HDC along with several other minimum perfect hashing algorithms.
+
+A dynamic version of perfect hashing, commonly referred to as \emph{FKS
+hashing} after the initials of the authors, was developed in \cite{fks-hashing}.
+FKS hashing takes worst-case $\O(1)$ time for queries (an improvement over
+expected $\O(1)$ with chaining) and expected $\O(1)$ for updates.
+
+FKS hashing is two-level. The first-level hashing function $f$ partitions
+$K$ into $M$ buckets $B_1,\ldots B_M$. Denote their sizes as $b_i$.
+Every bucket is stored in a separate hash table, mapping $B_i$ to an array
+of size $\Theta(b_i^2)=\beta b_i^2$ via its private hash function $g_i$.
+The constant $\beta$ will be picked later.
+Each function $g_i$ is injective: buckets may contain no collisions.
+% TODO: how can we store the fully random HF? why does it matter? maps from B_i?
+
+If we pick the first-level hash function $f$ from a universal family
+$\mathcal{F}$, the expected total size of all buckets is linear, so an FKS
+hash table takes expected linear space:
+$$\E\left[\sum_{i=1}^N b_i^2\right]=
+	\sum_{i=1}^N \sum_{j\in\{1,\ldots N\}\smallsetminus\{i\}}
+	\Pr_{f\in\mathcal{F}}[f(k_i)=f(k_j)]=
+	\O\left(N^2\cdot\frac{1}{M}\right)=\O(N)$$
+We pick $f$ at random from $\mathcal{F}$ until we find one that will need at
+most $\sum_{i=1}^N b_i=\alpha N$ space, where $\alpha$ is an appropriate
+constant. Picking a proper $\alpha$ yields expected $\O(N)$ time to pick $f$.
+TODO
+
+To select a second-level hash function $g_i$, we pick one randomly from
+a universal family $\mathcal{G}$ until we find one that gives no collisions
+in $B_i$. By universality of $g_i$, the expected number of collisions in $B_i$
+is constant:
+$$\E_{g_i\in\mathcal{G}}[\text{\# of collisions in }B_i]=
+	{b_i\choose 2}\cdot\O\left(\frac{1}{b_i^2}\right)=\O(1)$$
+By tuning the constant $\beta$, we can make the expected number of collisions
+small (e.g. $\leq\frac{1}{2}$), so we can push the probability of having no
+collisions above a constant (e.g. $\geq\frac{1}{2}$). This ensures that for
+every bucket, we will find an injective hash function in expected $\O(1)$
+trials.
+
+To \textsc{Find} a key $k$, we simply compute $f(k)$ to get the right bucket,
+and we look at position $g_{f(k)}(k)$ in the bucket, which takes deterministic
+$\O(1)$ time.
+
+Allowing updates is slightly hairy. We maintain $\O(N)$ buckets, and whenever
+$N$ increases or decreases by a constant factor, we rebuild the whole FKS hash
+table in $\O(N)$, which amortizes to $\O(1)$ per operation. Each bucket $B_i$
+has $\O(b_i^2)$ slots. Whenever $b_i$ increases or decreases by a constant
+factor (e.g. 2), we resize the reservation by the constant factor's square
+(e.g. 4). The expected time for \textsc{Insert} and \textsc{Delete} is $\O(1)$.
+
+\section{Open addressing}
+When we attempt to \textsc{Insert} a new pair with key $k$ into an occupied slot
 $h(k)$, we can start trying out alternate slots $a(k,1), a(k,2), \ldots$
 until we succeed in finding an empty slot. We call this approach \emph{open
 addressing}. When using this family of strategies, one also needs to slightly
@@ -75,33 +232,9 @@ where $h'(k)$ is required to be nonzero.
 TODO: While quadratic probing and double hashing avoid long clusters of occupied
 slots, they are not as cache-friendly as linear probing.
 
-\item
-\emph{Perfect hashing} avoids the issue of collisions by picking a hashing
-function that is collision-free for the given key set. If we fix the key
-set in advance (i.e.\ if we perform \emph{static hashing}), we can use
-a variety of algorithms which produce a collision-free hashing function
-at the cost of some preprocessing time. If the hash function produces no
-empty slots, we call it \emph{minimal}.
-
-For example, HDC (\textit{Hash, Displace and Compress},
-\cite{hdc-hashing}) is a randomized algorithm that can generate a perfect
-hash function in expected $\O(N)$ time. For $M=1.01 N$, the hash function can be
-represented using 1.98 bits per key. All hash functions generated by HDC can be
-evaluated in constant time. The algorithm can be simply generalized to build
-$k$-perfect hash functions, which allow up to $k$ collisions per slot.
-The \textit{C Minimum Perfect Hashing Library}, available at
-\url{http://cmph.sourceforge.net/}, implements several minimum perfect hashing
-algorithms.
-
-A dynamic version of perfect hashing, commonly referred to as \emph{FKS
-hashing} after the initials of the authors, was developed in \cite{fks-hashing}.
-TODO: more.
-
-\item
-\emph{Cuckoo hashing}
+\section{Cuckoo hashing}
+\label{sec:cuckoo}
 TODO
-
-\end{itemize}
 
 \section{Properties of hash functions}
 Let us define several properties that we would expect from well-behaved hash

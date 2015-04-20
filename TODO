@@ -7,7 +7,6 @@
 * mereni spotreby pameti
 * jeste nejaka realna data
 * vysledkova kapitola
-* staticka RAM: neni to stav hradla, je to stav klopneho obvodu
 * oznamit, ze budu merit na Lenovu
 * oznamit CPU Lenova, kolik ma jader
 * Konkretni latence (vykrast od Intelu) -- odkaz na AIM (van Eick)
@@ -23,8 +22,6 @@
   (potencial pak bude porad fungovat, i pri insert/delete)
 * citace: [x] nebo (2001): muzu pouzit i jiny standard kdyz bude lepsi
 * plavou mi pismena v k-splay
-* O -> Omega v protiprikladove rodine sekvenci
-* randomized -> expected
 * BFS order (VEB) -> left-to-right
 * definovat hyperfloor, hyperceil
 * VEB height, explicitne zminit N = 2^h-1.
