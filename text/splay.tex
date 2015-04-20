@@ -415,17 +415,6 @@ also faster on smaller working sets, the complexity of any access remains
 $\O(\log_B N)$, so accessing a small working set is slower on larger
 dictionaries.
 
-% TODO: This should probably be somewhere else.
-\cite{alternatives-to-splay-trees} introduces a data structure based
-on $k$-forests, which we describe in chapter \ref{chapter:kforest}.
-This structure has the \emph{unified property}, which is a strong
-generalization of the dynamic finger property and the working set property.
-It is not known whether splay trees also have the unified property.
-Additionally, the new data structure improves upon splay trees by guaranteeing
-a worst-case access time of $\O(\log N)$. Unfortunately, the structure
-(as described by the author) is static and highly complex: each node of
-the structure stores 21 pointers.
-
 Splay trees are frequently used in practice where access patterns are assumed
 to be non-random. For example, splay trees are used in the FreeBSD kernel
 to store the mapping from virtual memory areas to

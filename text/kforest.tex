@@ -67,8 +67,15 @@ then promotes items from all trees $T_{i+1},T_{i+2},\ldots$
 TODO: find complexity == entropy
 
 \cite{alternatives-to-splay-trees} and \cite{unified-access-bound} extend
-K-forests to build data structures with the \emph{unified property}.
-TODO: crossref s splay.tex
+K-forests to build data structures with the \emph{unified property},
+which is a strong generalization of the dynamic finger property and the working
+set property of splay trees.
+It is not known whether splay trees also have the unified property.
+Additionally, the new data structure improves upon splay trees by guaranteeing
+a worst-case access time of $\O(\log N)$. Unfortunately, the structure
+(as described by the author) is static and highly complex: each node of
+the structure stores 21 pointers.
+
 TODO: unified-access-bound = K-forest + finger search tree???
 unified-access-bound-on-comparison-dicts.pdf
 
