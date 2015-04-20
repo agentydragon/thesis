@@ -16,6 +16,8 @@ def apis_with_colors(data):
   return zip(mentioned_apis(data),
              ['r-', 'g-', 'b-', 'c-', 'm-', 'y-', 'k-'])
 
+FIGURE_SIZE = (20,20)
+
 def plot_graph(data, title):
   def sizes(api_data):
     return [point['size'] for point in api_data]
@@ -24,7 +26,7 @@ def plot_graph(data, title):
   def misses(api_data):
     return [point['metrics']['cache_misses'] / point['size'] for point in api_data]
 
-  pyplot.figure(1)
+  pyplot.figure(1, figsize=FIGURE_SIZE)
   subplot = pyplot.subplot(211)
   subplot.set_title(title)
   subplot.set_xscale('log')
@@ -58,7 +60,7 @@ def plot_mispredicts(data, title):
                       point['metrics']['branches'])
     return result
 
-  pyplot.figure(1)
+  pyplot.figure(1, figsize=FIGURE_SIZE)
   subplot = pyplot.subplot(211)
   subplot.set_title(title)
   subplot.set_xscale('log')
@@ -74,7 +76,7 @@ def plot_mispredicts(data, title):
 CACHED_DATA_FROM_FILE = None
 
 def save_to(filename):
-  pyplot.savefig('output/' + filename, figsize=(12, 12))
+  pyplot.savefig('output/' + filename)
 
 def point_fits_filters(point, filters):
   for key in filters:
@@ -125,7 +127,7 @@ def plot_all_experiments():
 def plot_ksplay_ltr_counters():
   data = load_data(implementation='dict_ksplay', experiment='ltr_scan')
 
-  pyplot.figure(1)
+  pyplot.figure(1, figsize=FIGURE_SIZE)
   pyplot.xscale('log')
   pyplot.ylabel('K-splay steps per element')
   pyplot.plot([point['size'] for point in data],
@@ -133,7 +135,7 @@ def plot_ksplay_ltr_counters():
   save_to('ltr-ksplays.png')
   pyplot.clf()
 
-  pyplot.figure(1)
+  pyplot.figure(1, figsize=FIGURE_SIZE)
   pyplot.xscale('log')
   pyplot.ylabel('K-splay composed keys per element')
   pyplot.plot([point['size'] for point in data],
@@ -144,7 +146,7 @@ def plot_ksplay_ltr_counters():
 
 def plot_pma_counters():
   data = load_data(implementation='dict_cobt', experiment='serial-both')
-  figure = pyplot.figure(1)
+  figure = pyplot.figure(1, figsize=FIGURE_SIZE)
   # figure.set_title('PMA reorganizations in random inserts')
   # figure.set_xscale('log')
   pyplot.xscale('log')
@@ -157,7 +159,7 @@ def plot_pma_counters():
 
 def plot_cache_events(implementation, experiment):
   data = load_data(implementation=implementation, experiment=experiment)
-  pyplot.figure(1)
+  pyplot.figure(1, figsize=FIGURE_SIZE)
   pyplot.xscale('log')
   pyplot.ylabel('Cache misses per element')
   for metric, color, label in [

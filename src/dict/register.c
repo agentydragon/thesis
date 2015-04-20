@@ -8,13 +8,15 @@
 #include "dict/btree.h"
 #include "dict/cobt.h"
 #include "dict/htable.h"
+#include "dict/htlp.h"
 #include "dict/kforest.h"
 #include "dict/ksplay.h"
 #include "dict/splay.h"
 
 const dict_api* DICT_API_REGISTER[] = {
-	&dict_array, &dict_btree, &dict_cobt, &dict_htable, &dict_kforest,
-	&dict_ksplay, &dict_splay, NULL
+	&dict_array, &dict_btree, &dict_cobt,
+	&dict_htlp, &dict_htable,
+	&dict_kforest, &dict_ksplay, &dict_splay, NULL
 };
 
 const dict_api* dict_api_find(const char* name) {
