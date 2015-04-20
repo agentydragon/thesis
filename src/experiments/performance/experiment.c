@@ -23,7 +23,7 @@ static void insert(dict* dict, uint64_t key, uint64_t value) {
 void check_contains(dict* dict, uint64_t key, uint64_t value) {
 	uint64_t found_value;
 	bool found;
-	ASSERT(!dict_find(dict, key, &found_value, &found));
+	dict_find(dict, key, &found_value, &found);
 	ASSERT(found && found_value == value);
 }
 

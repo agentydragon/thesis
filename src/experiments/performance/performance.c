@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
 
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
 			const dict_api* api = FLAGS.measured_apis[i];
-			if (!dict_api_supports_order_queries(api)) {
+			if (!dict_api_allows_order_queries(api)) {
 				log_info("order queries not supported by %s, "
 						"skipping.", api->name);
 				continue;
