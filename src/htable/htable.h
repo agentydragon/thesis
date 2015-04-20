@@ -26,6 +26,8 @@ typedef struct {
 	void* hash_fn_override_opaque;
 } htable;
 
+void htable_init(htable* this);
+void htable_destroy(htable* this);
 int8_t htable_delete(htable* this, uint64_t key);
 bool htable_find(htable* this, uint64_t key, uint64_t *value);
 int8_t htable_insert(htable* this, uint64_t key, uint64_t value);

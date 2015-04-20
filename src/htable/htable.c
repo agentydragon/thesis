@@ -24,7 +24,7 @@ static void check_invariants(htable* this) {
 		for (uint64_t j = 0; j < this->blocks_size; j++) {
 			for (int subindex = 0; subindex < 3; subindex++) {
 				if (this->blocks[j].occupied[subindex] &&
-						htable_hash(this, this->blocks[j].keys[subindex]) == i) {
+						hash(this, this->blocks[j].keys[subindex]) == i) {
 					count++;
 				}
 			}
@@ -40,6 +40,15 @@ static void check_invariants(htable* this) {
 	log_info("check_invariants OK");
 }
 */
+
+static uint64_t hash(htable* this, uint64_t key) {
+	if (this->hash_fn_override) {
+		return this->hash_fn_override(this->hash_fn_override_opaque,
+				key);
+	} else {
+		return fnv_hash(key, this->blocks_size);
+	}
+}
 
 static bool too_sparse(uint64_t pairs, uint64_t blocks) {
 	// Keep at least MIN_SIZE blocks.
@@ -189,7 +198,7 @@ static bool scan(htable* this, uint64_t key,
 		return false;
 	}
 
-	const uint64_t key_hash = htable_hash(this, key);
+	const uint64_t key_hash = hash(this, key);
 	uint64_t index = key_hash;
 	const uint64_t keys_with_hash = this->blocks[index].keys_with_hash;
 	htable_block current_block;
@@ -218,7 +227,7 @@ static bool scan(htable* this, uint64_t key,
 					}
 				}
 
-				if (htable_hash(this, current_key) == key_hash) {
+				if (hash(this, current_key) == key_hash) {
 					if (i == keys_with_hash - 1 &&
 							last_slot_with_hash != NULL) {
 						last_slot_with_hash->block = &this->blocks[index];
@@ -246,7 +255,7 @@ int8_t htable_delete(htable* this, uint64_t key) {
 		return 1;
 	}
 
-	const uint64_t key_hash = htable_hash(this, key);
+	const uint64_t key_hash = hash(this, key);
 
 	slot_pointer to_delete, last;
 
@@ -295,7 +304,7 @@ static void dump_block(htable* this, uint64_t index, htable_block* block) {
 					"%s [%016" PRIx64 "(%04" PRIx64 ")=%016" PRIx64 "]",
 					buffer2,
 					block->keys[i],
-					htable_hash(this, block->keys[i]),
+					hash(this, block->keys[i]),
 					block->values[i]);
 		} else {
 			strncpy(buffer2, buffer, sizeof(buffer2) - 1);
@@ -316,7 +325,7 @@ static void calculate_distances(htable* this, int distances[100]) {
 			if (!this->blocks[i].occupied[slot]) continue;
 
 			const uint64_t should_be_at =
-				htable_hash(this, this->blocks[i].keys[slot]);
+				hash(this, this->blocks[i].keys[slot]);
 
 			uint64_t distance;
 			if (should_be_at <= i) {
@@ -380,7 +389,7 @@ int8_t htable_insert(htable* this, uint64_t key, uint64_t value) {
 }
 
 int8_t htable_insert_noresize(htable* this, uint64_t key, uint64_t value) {
-	const uint64_t key_hash = htable_hash(this, key);
+	const uint64_t key_hash = hash(this, key);
 	htable_block* const home_block = &this->blocks[key_hash];
 
 	if (home_block->keys_with_hash == HTABLE_KEYS_WITH_HASH_MAX) {
@@ -402,7 +411,8 @@ int8_t htable_insert_noresize(htable* this, uint64_t key, uint64_t value) {
 					return 1;
 				}
 
-				if (htable_hash(this, current_block->keys[slot]) == key_hash) {
+				if (hash(this, current_block->keys[slot]) ==
+						key_hash) {
 					i++;
 				}
 			} else {
@@ -422,4 +432,18 @@ int8_t htable_insert_noresize(htable* this, uint64_t key, uint64_t value) {
 	// Went over all blocks...
 	log_error("htable is completely full (shouldn't happen)");
 	return 1;
+}
+
+void htable_init(htable* this) {
+	*this = (htable) {
+		.blocks = NULL,
+		.blocks_size = 0,
+		.pair_count = 0
+	};
+}
+
+void htable_destroy(htable* this) {
+	if (this->blocks) {
+		free(this->blocks);
+	}
 }

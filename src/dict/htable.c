@@ -20,11 +20,7 @@ static int8_t init(void** _this, void* args_unused) {
 		return 1;
 	}
 
-	*this = (htable) {
-		.blocks = NULL,
-		.blocks_size = 0,
-		.pair_count = 0
-	};
+	htable_init(this);
 	*_this = this;
 	return 0;
 }
@@ -32,9 +28,7 @@ static int8_t init(void** _this, void* args_unused) {
 static void destroy(void** _this) {
 	if (_this) {
 		htable* this = *_this;
-		if (this) {
-			free(this->blocks);
-		}
+		htable_destroy(this);
 		free(this);
 		*_this = NULL;
 	}
