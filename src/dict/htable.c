@@ -10,37 +10,6 @@
 #include "log/log.h"
 
 #include "htable/htable.h"
-#include "htable/traversal.h"
-#include "htable/resize.h"
-
-/*
-static void check_invariants(htable* this) {
-	uint64_t total = 0;
-	for (uint64_t i = 0; i < this->blocks_size; i++) {
-		for (int subindex1 = 0; subindex1 < 3; subindex1++) {
-			if (this->blocks[i].occupied[subindex1]) total++;
-		}
-
-		uint64_t count = 0;
-		for (uint64_t j = 0; j < this->blocks_size; j++) {
-			for (int subindex = 0; subindex < 3; subindex++) {
-				if (this->blocks[j].occupied[subindex] &&
-						htable_hash(this, this->blocks[j].keys[subindex]) == i) {
-					count++;
-				}
-			}
-		}
-		if (count != this->blocks[i].keys_with_hash) {
-			log_fatal("bucket %" PRIx64 " claims to have %" PRIu32 " pairs, but actually has %" PRIx64 "!",
-				i,
-				this->blocks[i].keys_with_hash,
-				count);
-		}
-	}
-	CHECK(this->pair_count == total);
-	log_info("check_invariants OK");
-}
-*/
 
 static int8_t init(void** _this, void* args_unused) {
 	(void) args_unused;
@@ -89,8 +58,6 @@ const dict_api dict_htable = {
 	.find = htable_find,
 	.insert = insert,
 	.delete = delete,
-
-	.dump = htable_dump,
 
 	.name = "dict_htable"
 };
