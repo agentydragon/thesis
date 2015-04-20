@@ -152,9 +152,7 @@ static void load_records(const char* path) {
 		const uint64_t position_code = build_position_code(pr.lat_x100,
 				pr.lon_x100);
 		uint64_t value;
-		bool found;
-		ASSERT(dict_find(id_map, position_code, &value, &found) == 0);
-		if (found) {
+		if (dict_find(id_map, position_code, &value)) {
 			ASSERT(dict_delete(id_map, position_code) == 0);
 			++value;
 		} else {
@@ -245,28 +243,21 @@ static void query_close_points(dict* map, const int lat, const int lon) {
 
 	uint64_t next;
 	uint64_t prev;
-	bool got_prev, got_next;
 
-	ASSERT(dict_next(map, key, &next, &got_next) == 0);
-	ASSERT(dict_prev(map, key, &prev, &got_prev) == 0);
+	bool got_next = dict_next(map, key, &next);
+	bool got_prev = dict_prev(map, key, &prev);
 
 	uint64_t even_odd = 0;
 	while ((wind_speed_count < CLOSE || sea_level_pressure_count < CLOSE) &&
 			(got_prev || got_next)) {
 		uint64_t value;
 		if (got_next && (!got_prev || even_odd % 2 == 0)) {
-			bool found;
-			ASSERT(dict_find(map, next, &value, &found) == 0);
-			ASSERT(found);
-
-			ASSERT(dict_next(map, next, &next, &got_next) == 0);
+			ASSERT(dict_find(map, next, &value));
+			got_next = dict_next(map, next, &next);
 		} else {
 			ASSERT(got_prev);
-			bool found;
-			ASSERT(dict_find(map, prev, &value, &found) == 0);
-			ASSERT(found);
-
-			ASSERT(dict_prev(map, prev, &prev, &got_prev) == 0);
+			ASSERT(dict_find(map, prev, &value));
+			got_prev = dict_prev(map, prev, &prev);
 		}
 		if (wind_speed_count < CLOSE) {
 			collect_wind_speed(value,
@@ -365,7 +356,7 @@ int main(int argc, char** argv) {
 	log_info("loaded %" PRIu64 " records", records_size);
 
 	for (uint64_t i = 0; FLAGS.measured_apis[i]; ++i) {
-		CHECK(dict_api_supports_order_queries(FLAGS.measured_apis[i]),
+		CHECK(dict_api_allows_order_queries(FLAGS.measured_apis[i]),
 				"%s does not support order queries.",
 				FLAGS.measured_apis[i]->name);
 		test_api(FLAGS.measured_apis[i]);

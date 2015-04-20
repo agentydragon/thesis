@@ -103,8 +103,7 @@ struct metrics measure_recording(const dict_api* api, recording* record) {
 
 		switch (operation.operation) {
 		case FIND: {
-			bool found;
-			ASSERT(!dict_find(dict, operation.key, &value, &found));
+			bool found = dict_find(dict, operation.key, &value);
 			consume_bool(found);
 			consume64(value);
 			break;
@@ -113,13 +112,17 @@ struct metrics measure_recording(const dict_api* api, recording* record) {
 			// Note: dict_insert may fail (since the recording
 			// may have been cleaned).
 			value = rand_next(&rand, UINT64_MAX);
-			dict_insert(dict, operation.key, value);
+			if (dict_insert(dict, operation.key, value) != 0) {
+				log_verbose(1, "insert failure");
+			}
 			break;
 		}
 		case DELETE: {
 			// Note: dict_delete may fail (since the recording
 			// may have been cleaned).
-			dict_delete(dict, operation.key);
+			if (dict_delete(dict, operation.key) != 0) {
+				log_verbose(1, "delete failure");
+			}
 			break;
 		}
 		}
