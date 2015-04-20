@@ -1,5 +1,5 @@
 \chapter{Hash tables}
-\ref{chapter:hashing}
+\label{chapter:hashing}
 When implementing an unordered dictionary, hashing is the most common tool.
 Hashing is a very old idea and the approaches are numerous. Hashing
 techniques usually allow amortized constant-time \textsc{Find}, \textsc{Insert}
@@ -69,6 +69,15 @@ $\leq\frac{1}{M}$. % TODO: Do I need strong universality?
 For any universal family of hash functions, the expected time per operation
 is constant when using chaining.
 
+A family $\mathcal{H}$ is $t$-independent if the hashes of $t$ distinct keys
+$k_1,\ldots k_t$ are ``asymptotically independent'':
+$$\forall k_1\neq\ldots \neq k_t\subseteq K,
+	h_1\ldots h_t\subseteq H: \Pr_{h\in H}[h(k_1)=h_1\wedge \ldots \wedge
+	h(k_t)=h_t]=\O(m^{-t})$$
+2-independent hash function families are universal, but universal families
+are not necessarilly 2-independent.
+Trivially, random hash functions are $k$-wise independent for any $k\leq |U|$.
+
 TODO: totally random => w.h.p. O(lg n/lg lg n) = Ct
 	plug c=lg n/lglg n into Chernov
 
@@ -110,18 +119,17 @@ expected linear time: done
 Some common universal families of hash functions include:
 \begin{itemize}
 \item $h(k)=((a\cdot k)\bmod p)\bmod M$, where $p$ is a prime $\geq |U|$
-	and $a\in\{0,\ldots p-1\}$. % TODO: not 2-independent
-
-	universal, but losts a factor of 2, depending on M related to P
-
-	considered expensive (division)
-
-	1979
-
-\item $(a\cdot k) >> (\log u-\log m)$ for $M, |U|$ powers of 2 (1997).
-	universal
-
-\item \emph{Simple tabulation hashing} (\cite{simple-tabulation}):
+	and $a\in\{0,\ldots p-1\}$ (\cite{univ-classes}).
+	% TODO: not 2-independent
+	The collision probability for this hash function is
+	$\frac{\lfloor p/M\rfloor}{p-1}$, so it becomes less efficient
+	if $M$ is close to $p$.
+\item $(a\cdot k)\gg(\log u-\log m)$ for $M, |U|$ powers of 2
+	(\cite{dietzfelbinger}).
+	This hash function replaces modular arithmetic by bitwise shifts,
+	which are faster on hardware.
+\item \emph{Simple tabulation hashing} (\cite{univ-classes}):
+	% TODO: check citation
 	interpret the key $x\in K$ as a vector
 	of $c$ equal-size components $x_1,\ldots x_c$. Pick $c$ random hash
 	functions $h_1,\ldots h_c$ mapping from key components $x_i$ to $H$.
@@ -135,10 +143,6 @@ Some common universal families of hash functions include:
 	but a recent analysis in \cite{power-of-simple-tab} showed that
 	it provides surprisingly good properties in some applications,
 	which we will mention later.
-
-	% TODO: 3-independent; prove that
-	% TODO: from 1981. cite!
-	% TODO: analyzed recently. cite!
 \end{itemize}
 
 \section{Perfect hashing}
@@ -248,18 +252,5 @@ slots, they are not as cache-friendly as linear probing.
 TODO
 
 \section{Properties of hash functions}
-Let us define several properties that we would expect from well-behaved hash
-functions. Ideally, our hash function would choose the hash of each key
-in an independent random fashion. Unfortunately, storing a random function
-would take $\O(N)$ random words (or $N \log M$ bits), which is impractically
-large.
+TODO: K-wise independence, implies universality (K>2)
 
-$H$ is $t$-independent if the hashes of $t$ distinct keys $k_1,\ldots k_t$
-are ``asymptotically independent'': $$\forall k_1\neq\ldots \neq k_t\subseteq K,
-h_1\ldots h_t\subseteq H: \Pr_{h\in H}[h(k_1)=h_1\wedge \ldots \wedge
-h(k_t)=h_t]=\O(m^{-t})$$
-Trivially, random hash functions are $k$-wise independent for any $k\leq |U|$.
-
-A hash function $h$ is $k$-independent if the hashes of $k$ different keys
-are independent random variables. Trivially, random hash functions are
-$k$-wise independent for any $k\leq |U|$.
