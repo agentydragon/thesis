@@ -27,9 +27,9 @@ static bool too_sparse(uint64_t pairs, uint64_t blocks) {
 	if (blocks <= MIN_SIZE) {
 		return false;
 	}
-	const uint64_t buckets = blocks * 3;
+	const uint64_t slots = blocks * SLOTS_PER_BLOCK;
 	// At least one quarter full.
-	return pairs * 4 < buckets;
+	return pairs * 4 < slots;
 }
 
 static bool too_dense(uint64_t pairs, uint64_t blocks) {
@@ -37,9 +37,9 @@ static bool too_dense(uint64_t pairs, uint64_t blocks) {
 	if (blocks < MIN_SIZE) {
 		return true;
 	}
-	const uint64_t buckets = blocks * 3;
+	const uint64_t slots = blocks * SLOTS_PER_BLOCK;
 	// At most three quarters full.
-	return pairs * 4 > buckets * 3;
+	return pairs * 4 > slots * 3;
 }
 
 static uint64_t pick_capacity(uint64_t current_size, uint64_t pairs) {
@@ -69,7 +69,7 @@ int8_t insert_noresize(htable* this, uint64_t key, uint64_t value) {
 	htable_block* const home_block = &this->blocks[key_hash];
 
 	if (home_block->keys_with_hash == HTABLE_KEYS_WITH_HASH_MAX) {
-		log_error("cannot insert - overflow in maximum bucket size");
+		log_error("cannot insert - overflow in maximum block size");
 		return 1;
 	}
 
@@ -78,10 +78,10 @@ int8_t insert_noresize(htable* this, uint64_t key, uint64_t value) {
 			index = next_index(this, index), traversed++) {
 		htable_block* current_block = &this->blocks[index];
 
-		for (int8_t slot = 0; slot < 3; slot++) {
+		for (int8_t slot = 0; slot < SLOTS_PER_BLOCK; slot++) {
 			if (current_block->occupied[slot]) {
 				if (current_block->keys[slot] == key) {
-					log_verbose(1, "duplicate in bucket %" PRIu64 " "
+					log_verbose(1, "duplicate in block %" PRIu64 " "
 						"when inserting %" PRIu64 "=%" PRIu64,
 						index, key, value);
 					return 1;
@@ -111,7 +111,7 @@ int8_t insert_noresize(htable* this, uint64_t key, uint64_t value) {
 }
 
 static int8_t resize(htable* this, uint64_t new_blocks_size) {
-	if (new_blocks_size * 3 < this->pair_count) {
+	if (new_blocks_size * SLOTS_PER_BLOCK < this->pair_count) {
 		log_error("cannot fit %" PRIu64 " pairs in %" PRIu64 " blocks",
 				this->pair_count, new_blocks_size);
 		goto err_1;
@@ -141,7 +141,7 @@ static int8_t resize(htable* this, uint64_t new_blocks_size) {
 	for (uint64_t i = 0; i < this->blocks_size; i++) {
 		const htable_block* current_block = &this->blocks[i];
 
-		for (uint8_t slot = 0; slot < 3; slot++) {
+		for (uint8_t slot = 0; slot < SLOTS_PER_BLOCK; slot++) {
 			if (current_block->occupied[slot]) {
 				const uint64_t key = current_block->keys[slot],
 						value = current_block->values[slot];
@@ -205,7 +205,7 @@ static bool scan(htable* this, uint64_t key,
 		// Make a local copy
 		current_block = this->blocks[index];
 
-		for (uint8_t slot = 0; slot < 3; slot++) {
+		for (uint8_t slot = 0; slot < SLOTS_PER_BLOCK; slot++) {
 			const uint64_t current_key = current_block.keys[slot];
 
 			if (current_block.occupied[slot]) {
@@ -313,7 +313,7 @@ static void dump_block(htable* this, uint64_t index, htable_block* block) {
 			"[%04" PRIx64 "] keys_with_hash=%" PRIu32,
 			index, block->keys_with_hash);
 
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < SLOTS_PER_BLOCK; i++) {
 		if (block->occupied[i]) {
 			strncpy(buffer2, buffer, sizeof(buffer2) - 1);
 			snprintf(buffer, sizeof(buffer),
@@ -343,7 +343,7 @@ static void calculate_distances(htable* this, int distances[100]) {
 	memset(distances, 0, sizeof(int) * 100);
 	// TODO: optimize?
 	for (uint64_t i = 0; i < this->blocks_size; i++) {
-		for (int8_t slot = 0; slot < 3; slot++) {
+		for (int8_t slot = 0; slot < SLOTS_PER_BLOCK; slot++) {
 			if (!this->blocks[i].occupied[slot]) continue;
 
 			const uint64_t should_be_at =
@@ -360,12 +360,12 @@ static void calculate_distances(htable* this, int distances[100]) {
 	}
 }
 
-static void calculate_bucket_sizes(htable* this, int bucket_sizes[100]) {
-	memset(bucket_sizes, 0, sizeof(int) * 100);
+static void calculate_block_sizes(htable* this, int block_sizes[100]) {
+	memset(block_sizes, 0, sizeof(int) * 100);
 	for (uint64_t i = 0; i < this->blocks_size; i++) {
-		const uint64_t bucket_size = this->blocks[i].keys_with_hash;
-		assert(bucket_size < 100);
-		bucket_sizes[bucket_size]++;
+		const uint64_t block_size = this->blocks[i].keys_with_hash;
+		assert(block_size < 100);
+		++block_sizes[block_size];
 	}
 }
 
@@ -384,16 +384,16 @@ void htable_dump_stats(htable* this) {
 			}
 		}
 
-		int bucket_sizes[100] = { 0 };
-		calculate_bucket_sizes(this, bucket_sizes);
+		int block_sizes[100] = { 0 };
+		calculate_block_sizes(this, block_sizes);
 
 		for (int i = 0; i < 100; i++) {
-			if (bucket_sizes[i] > 0) {
+			if (block_sizes[i] > 0) {
 				log_plain("%d same-hash groups of size %d",
-						bucket_sizes[i], i);
+						block_sizes[i], i);
 			}
 		}
-		log_plain("average bucket size: %.2lf",
-				histogram_average_i(bucket_sizes, 100));
+		log_plain("average block size: %.2lf",
+				histogram_average_i(block_sizes, 100));
 	}
 }

@@ -8,10 +8,11 @@ const uint32_t HTABLE_KEYS_WITH_HASH_MAX;
 
 // je to velke 56 bytu. keys_with_hash muze byt jenom uint32_t
 // a je tam moc prazdneho prostoru :(
+#define SLOTS_PER_BLOCK 3
 typedef struct {
-	uint64_t keys[3];
-	uint64_t values[3];
-	bool occupied[3];
+	uint64_t keys[SLOTS_PER_BLOCK];
+	uint64_t values[SLOTS_PER_BLOCK];
+	bool occupied[SLOTS_PER_BLOCK];
 	uint32_t keys_with_hash;
 
 	uint8_t _unused[8]; // padded to 64 bytes
@@ -31,7 +32,6 @@ void htable_destroy(htable* this);
 int8_t htable_delete(htable* this, uint64_t key);
 bool htable_find(htable* this, uint64_t key, uint64_t *value);
 int8_t htable_insert(htable* this, uint64_t key, uint64_t value);
-int8_t htable_insert_noresize(htable* this, uint64_t key, uint64_t value);
 
 // Debugging.
 void htable_dump_stats(htable* this);
