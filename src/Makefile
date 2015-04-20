@@ -83,7 +83,7 @@ bin/experiments/veb_performance: $(VEB_PERFORMANCE_SOURCES)
 
 # Continuous integration target
 # TODO: Check that everything else builds, too.
-test: bin/test
+test: bin/test bin/experiments/performance bin/experiments/vcr bin/experiments/btree-dot bin/experiments/cloud
 	bin/test
 
 test_coverage: bin/test_coverage
