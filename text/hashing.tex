@@ -242,10 +242,33 @@ $A$ and $B$.
 The ends of collision chains can be marked for example by explicitly maintaining
 the lengths of collision chains in an array, or by marking the ends of chains
 with a bit flag.
-% TODO: document how exactly in our implementation
 
-TODO: While quadratic probing and double hashing avoid long clusters of occupied
-slots, they are not as cache-friendly as linear probing.
+This requires all \textsc{Insert}s and \textsc{Delete}s to traverse an entire
+collision chain to shorten it. The cost of \textsc{Delete}s can be reduced to
+just the length of the collision chain by \emph{lazy deletion}. Deleted elements
+are not replaced by elements from the end of the chain, but they are instead
+just marked as deleted. \textsc{Find} then skips over deleted elements and
+\textsc{Insert}s are allowed to overwrite them.
+\textsc{Find}s also ``execute'' the deletions by overwriting the first
+encountered deleted element by an element from the right. An analysis
+of lazy deletions is presented in \cite{lazy-deletions}.
+
+% TODO: document how exactly in our implementation
+The reason why some implementations use quadratic probing and double hashing
+over linear probing is that linear probing creates long chains when space is
+tight. A chain covering hash values $[i;j]$ forces any key hashing to this
+interval to take $\O(j-i)$ time per operation and to extend the chain further.
+
+However, linear probing performs well if we can avoid long chains: it has
+much better locality of reference.
+\cite{knuth-linear} showed that if $M=(1+\varepsilon) N$, then using a random
+hash function gives expected time $\O(1/\varepsilon^2)$ with linear probing.
+\cite{linear-probing-ci} proved that 5-independent hash functions suffice
+to get this bound $\O(1)$, and \cite{linear-probing-constant}
+showed that the bound is tight (4-independence does not suffice).
+\cite{power-of-simple-tab} gives a proof that simple tabulation hashing,
+which is only 3-independent and which can be implemented faster than usual
+5-independent schemes, also archieves $\O(1/\varepsilon^2)$.
 
 \section{Cuckoo hashing}
 \label{sec:cuckoo}
