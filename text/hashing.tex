@@ -80,31 +80,16 @@ Trivially, random hash functions are $k$-wise independent for any $k\leq |U|$.
 
 with cache of Omega(log n) totally random -> O(1) amortized per operation w.h.p.
 
-TODO: variance: constant
-	%interesting: E[C_t^2], depends on $h$
-	%$E[C_t^2]=1/m \sum_s E[C_s^2]$ = 1/m (pocet kolizi) = 1/m \sum
-	%Pr_{i,j}{h(x_j)=h(y_j)}=O(1) by univ.
+%TODO: variance: constant
+%interesting: E[C_t^2], depends on $h$
+%$E[C_t^2]=1/m \sum_s E[C_s^2]$ = 1/m (pocet kolizi) = 1/m \sum
+%Pr_{i,j}{h(x_j)=h(y_j)}=O(1) by univ.
 
 %w.h.p.: 1-1/n^c, c arb.
-
-expected linear time: done
 
 "pretty rare in practice", because hashing twice
 
 %"linear probing: basically free" (10\% more than memory access)
-%	$m\geq (1+\varepsilon)n$
-%	idea is old for totally random hf
-%	set epsilon to 1 (proved O(1/\varepsilon^2) per op)
-%
-%	log(n)-wise indep. implies O(1)-expected per op.
-%	5-wise indep. implies O(1) ((2007))
-%	tight (4-wise indep. doesn't work)
-%	simple tabulation hashing => also O(1/\varepsilon^2), great, as good as
-%		random (!!! !!!)
-%
-%linear probing: needs a lot of independence and space
-%	great cache performance
-%
 %cuckoo: parallelism in computing hashes
 
 Some common universal families of hash functions include:
@@ -270,8 +255,42 @@ which is only 3-independent and which can be implemented faster than usual
 
 \section{Cuckoo hashing}
 \label{sec:cuckoo}
-TODO
 
-\section{Properties of hash functions}
-TODO: K-wise independence, implies universality (K>2)
+Cuckoo hashing was invented by \cite{cuckoo-hashing}.
+A cuckoo hash table is composed of two hash tables $L$ and $R$ of equal size.
+Two separate hashing functions $h_l$ and $h_r$ are associated with $L$ and $R$.
+All key-value pairs $(k,v)$ are stored either in $L$ at position $h_l(k)$, or
+in $R$ at position $h_r(k)$.
 
+The cuckoo hash table can also be visualized as a bipartite ``cuckoo graph'',
+where partities are slots in $L$ and $R$. Edges correspond to stored keys:
+a stored key $k$ connects $h_l(k)$ in $L$ and $h_r(k)$ in $R$. The assignment
+of key-value pairs to slots in $L$ or $R$ forms a matching on the graph.
+
+\textsc{Find}s take $\O(1)$ worst-case time: they compute $h_l(k)$ and $h_r(k)$
+and look at the two indices in $L$ and $R$. The two reads are independent and
+can potentially be executed in parallel (TODO: superscalar CPU).
+
+The load factor of the cuckoo hash table needs to be kept between two
+constants, so \textsc{Delete} takes $\O(1)$ amortized time.
+
+To \textsc{Insert} a new pair $(k,v)$, we examine slots $L[h_l(k)]$ and
+$R[h_r(k)]$. If either slot is empty, $(k,v)$ is inserted there. Otherwise,
+\textsc{Insert} tries to free up one of the slots, for example $L[h_l(k)]$.
+If $L[h_l(k)]$ currently stores the key-value pair $(k_1,v_1)$, we attempt to
+move it to $R[h_r(k_1)]$. If $R[h_r(k_1)]$ is occupied, we continue following
+the path $k,k_1,\ldots$ until we either find an empty slot, or we find a cycle.
+The name ``cuckoo hashing'' refers to this procedure by analogy with
+cuckoo chicks pushing eggs out of host birds' nests.
+
+TODO: figure
+
+If we find a cycle both on the path from $L[h_l(k)]$ and on the path from
+$R[h_r(k)]$ (we can follow both at the same time), the cuckoo graph with
+the added edge $(h_l(k),h_r(k))$ has no matching. To assign key-value pairs
+to slots, we pick new hashing functions $h_l$ and $h_r$ and we rebuild
+the entire structure.
+
+TODO: what if we use more hash tables?
+
+TODO: "More Robust Hashing: Cuckoo Hashing with a Stash"
