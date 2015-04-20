@@ -78,15 +78,6 @@ $$\forall k_1\neq\ldots \neq k_t\subseteq K,
 are not necessarilly 2-independent.
 Trivially, random hash functions are $k$-wise independent for any $k\leq |U|$.
 
-TODO: totally random => w.h.p. O(lg n/lg lg n) = Ct
-	plug c=lg n/lglg n into Chernov
-
-	some chains are long :(
-	(proto considerujeme perfect hashing)
-
-	random, or annoyingly high independence (lg n/lg lg n) or simple tab. hashing
-		1995 / "last year"
-
 with cache of Omega(log n) totally random -> O(1) amortized per operation w.h.p.
 
 TODO: variance: constant
@@ -144,6 +135,14 @@ Some common universal families of hash functions include:
 	it provides surprisingly good properties in some applications,
 	which we will mention later.
 \end{itemize}
+
+While random hash functions combined with chaining give an expected $\O(1)$
+time per operation, with high probability (i.e.  $P=1-N^{-c}$ for an arbitrary
+choice of $c$) there is at least one chain with at least $\O(\log N/\log\log N)$
+items. The high-probability worst-case bound on operation time also applies
+to hash functions with a high independence ($\O(\log N/\log\log N)$)
+(\cite{chernoff-hoeffding-bounds}) and simple tabulation
+hashing (\cite{power-of-simple-tab}).
 
 \section{Perfect hashing}
 \emph{Perfect hashing} avoids the issue of collisions by picking a hashing
@@ -211,8 +210,7 @@ amortizes to $\O(1)$ per operation. Each bucket $B_i$ has $\O(b_i^2)$ slots.
 Whenever $b_i$ increases or decreases by a constant factor (e.g. 2), we resize
 the reservation by the constant factor's square (e.g. 4).
 The expected amortized time for \textsc{Insert} and \textsc{Delete} is $\O(1)$.
-\cite{univ-class-of-hfns} enhances this to $\O(1)$ with high probability (i.e.
-$P=1-N^{-c}$ for an arbitrary choice of $c$).
+\cite{univ-class-of-hfns} enhances this to $\O(1)$ with high probability.
 
 \section{Open addressing}
 When we attempt to \textsc{Insert} a new pair with key $k$ into an occupied slot
