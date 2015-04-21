@@ -259,7 +259,8 @@ which is only 3-independent and which can be implemented faster than usual
 \label{sec:cuckoo}
 
 Cuckoo hashing was invented by \cite{cuckoo-hashing}.
-A cuckoo hash table is composed of two hash tables $L$ and $R$ of equal size.
+A cuckoo hash table is composed of two hash tables $L$ and $R$ of equal size
+$M=(1+\varepsilon)\cdot N$.
 Two separate hashing functions $h_l$ and $h_r$ are associated with $L$ and $R$.
 All key-value pairs $(k,v)$ are stored either in $L$ at position $h_l(k)$, or
 in $R$ at position $h_r(k)$.
@@ -296,3 +297,51 @@ the entire structure.
 TODO: what if we use more hash tables?
 
 TODO: "More Robust Hashing: Cuckoo Hashing with a Stash"
+
+Cuckoo hashing requires better randomness properties to work efficiently.
+On a $\Theta(\log N)$-independent or random hash function, updates take expected
+time $\O(1)$ and the failure probability (i.e.\ probability that a cycle will
+force us to rebuild the entire structure) is $\O(\frac{1}{N})$
+(\cite{cuckoo-hashing}).
+Hash functions with at most 6-independence are not enough -- their failure
+probability of $\O(1-\frac{1}{N})$ is very bad
+(\cite{cuckoo-hashing-indep-bounds}).
+The build failure probability when using simple tabulation hashing is $\O(N^{1/3})$
+(\cite{power-of-simple-tab}).
+
+We will use a $\Theta(\log N)$-independent hashing scheme to get a low failure
+probability. One simple $k$-independent family is $h(x)=(\sum_{i=0}^{k-1} a_i x^i
+\bmod p) \bmod M$, where $p$ is a prime greater than $|U|$ and all $a_i$ are
+chosen at random from $\Z_p$ (\cite{new-hash-fns}).
+This hash function family is considered slow due to needing $\Theta(\log N)$
+time and using integer division by $p$\footnote{
+	% TODO: This footnote looks like "p^2".
+	As \cite{univ-classes} points out, using Mersenne primes
+	(i.e.\ $2^i-1$ for some $i$) enables a faster implementation of the
+	modulo operation. On 64-bit keys, we could use $p=2^{89}-1$.
+	It might not be possible to generalize this approach, because
+	the question whether there are infinitely many Mersenne primes remains
+	open.
+}.
+
+Other hashing schemes that obtain the needed $\Theta(\log N)$ independence
+are presented in \cite{tab-based-4uni-hashing} and \cite{siegel-1995}.
+The first scheme provides $k$-independent hash function for a general $k$,
+with evaluation times dependent on $k$.
+% TODO: f(k) je velmi divne
+In order to outperform B-trees, we would like to use a hashing function
+which evaluates faster than $\log N$. The latter scheme takes only $\O(1)$ time
+per query if $k=\Theta(\log N)$. Unfortunately, constructing a hash function
+by Siegel's scheme has high constant factors, so it is not very practical
+(\cite{pagh-phd}). Both schemes need $\O(N^\epsilon)$ space
+to store the function.
+
+Drawback: large precomputed tables. CW-trick just requires $a_0,\ldots a_k-1$
+
+$k$-universal hashing, $q$ characters $x_0,\ldots x_{1-1}, x_i\in [2^c]$
+
+1) Construct $q+r$ \emph{derived characters} $z_0,\ldots z_{q+r-1}, z_j\in[p],
+p\geq\max\{2^c,q+r\}$ (some of derived characters may be input characters)
+
+2) $q+r$ independent tabulated hash functions $h_j$ into $[2^l]$,
+$h(x)=\bigoplus h_j[z_j]$

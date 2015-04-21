@@ -681,6 +681,8 @@ block transfers in the worst case. A cache-oblivious B-tree backed by this
 structure would limit the worst-case number of block transfers from
 $\Theta(\frac{N}{\log N})$ to just $\Theta(\frac{\log^2 N}{B}+\log_B
 N)$ while keeping the amortized bound at $\Theta(\log_B N)$.
+% TODO: Not really true. It just does partial deamortization. Still need
+% global updates.
 
 % TODO: Should I mention this?
 % \footnote{

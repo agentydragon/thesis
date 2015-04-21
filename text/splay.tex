@@ -418,7 +418,11 @@ dictionaries.
 Splay trees are frequently used in practice where access patterns are assumed
 to be non-random. For example, splay trees are used in the FreeBSD kernel
 to store the mapping from virtual memory areas to
-addresses\cite{freebsd-vm-splay}. % TODO: The citation looks horrible.
+addresses\footnote{
+	See \texttt{sys/vm/vm\_map.h} in the FreeBSD source tree (lines 169--174
+	at SVN revision 271244); available at
+	\url{https://svnweb.freebsd.org/base/head/sys/vm/vm\_map.h?view=markup}.
+}\cite{freebsd-vm-splay}. % TODO: The citation looks horrible.
 % TODO: The citation is also probably incorrect. Check the standard.
 Unfortunately, splay trees are much slower than BSTs on less
 regular access patterns: splaying always performs costly memory writes.
