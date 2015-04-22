@@ -7,12 +7,14 @@
 #include "cobt/cobt.h"
 #include "dict/cobt.h"
 #include "dict/dict.h"
+#include "dict/htcuckoo.h"
 #include "dict/ksplay.h"
 #include "experiments/performance/flags.h"
 #include "experiments/performance/ltr_scan.h"
 #include "experiments/performance/serial.h"
 #include "experiments/performance/word_frequency.h"
 #include "experiments/performance/working_set.h"
+#include "htable/cuckoo.h"
 #include "ksplay/ksplay.h"
 #include "log/log.h"
 #include "measurement/measurement.h"
@@ -42,6 +44,10 @@ int main(int argc, char** argv) {
 		struct metrics result;
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
 			PMA_COUNTERS.reorganized_size = 0;
+			CUCKOO_COUNTERS.inserts = 0;
+			CUCKOO_COUNTERS.full_rehashes = 0;
+			CUCKOO_COUNTERS.traversed_edges = 0;
+
 			result = measure_serial(FLAGS.measured_apis[i],
 					SERIAL_BOTH, size);
 
@@ -51,6 +57,14 @@ int main(int argc, char** argv) {
 			if (FLAGS.measured_apis[i] == &dict_cobt) {
 				json_object_set_new(point, "pma_reorganized",
 						json_integer(PMA_COUNTERS.reorganized_size));
+			}
+			if (FLAGS.measured_apis[i] == &dict_htcuckoo) {
+				json_object_set_new(point, "cuckoo_inserts",
+						json_integer(CUCKOO_COUNTERS.inserts));
+				json_object_set_new(point, "cuckoo_full_rehashes",
+						json_integer(CUCKOO_COUNTERS.full_rehashes));
+				json_object_set_new(point, "cuckoo_traversed_edges",
+						json_integer(CUCKOO_COUNTERS.traversed_edges));
 			}
 			json_array_append_new(json_results, point);
 			measurement_results_release(result.results);

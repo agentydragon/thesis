@@ -144,6 +144,28 @@ def plot_ksplay_ltr_counters():
   save_to('ltr-composes.png')
   pyplot.clf()
 
+def plot_cuckoo_counters():
+  data = load_data(implementation='dict_htcuckoo', experiment='serial-both')
+  figure = pyplot.figure(1, figsize=FIGURE_SIZE)
+  pyplot.xscale('log')
+  # pyplot.ylabel('Full rehashes per insert')
+  pyplot.ylabel('Cost of full rehashes per insert')
+  pyplot.plot([point['size'] for point in data],
+              [point['cuckoo_full_rehashes'] for point in data],
+  #            [point['cuckoo_full_rehashes'] / point['size'] for point in data],
+              'r-')
+  save_to('cuckoo-full-rehashes.png')
+  pyplot.clf()
+
+  figure = pyplot.figure(1, figsize=FIGURE_SIZE)
+  pyplot.xscale('log')
+  pyplot.ylabel('Traversed edges per insert')
+  pyplot.plot([point['size'] for point in data],
+              [point['cuckoo_traversed_edges'] / point['size'] for point in data],
+              'r-')
+  save_to('cuckoo-traversed-edges.png')
+  pyplot.clf()
+
 def plot_pma_counters():
   data = load_data(implementation='dict_cobt', experiment='serial-both')
   figure = pyplot.figure(1, figsize=FIGURE_SIZE)
@@ -182,6 +204,7 @@ def main():
   pyplot.clf()
 
   plot_pma_counters()
+  plot_cuckoo_counters()
   plot_ksplay_ltr_counters()
 
   plot_cache_events(implementation='dict_cobt', experiment='serial-both')

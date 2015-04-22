@@ -268,6 +268,7 @@ static bool try_vacate(htcuckoo* this, const half_t which_half,
 	this_half->backptr[slot_index] = SENTINEL;
 
 	while (true) {
+		++CUCKOO_COUNTERS.traversed_edges;
 		const uint64_t key = this_half->keys[slot_index];
 		const uint64_t slot_index2 = half_hash(other_half, key);
 		const uint64_t hash_l = half_hash(&this->left, key),
@@ -364,6 +365,8 @@ static void refit(htcuckoo* this, uint64_t half_capacity) {
 	allocate_half(&new_this.right, half_capacity);
 
 	for (uint64_t rebuilds = 1; ; ++rebuilds) {
+		++CUCKOO_COUNTERS.full_rehashes;
+
 		clear_half(&new_this.left, half_capacity);
 		clear_half(&new_this.right, half_capacity);
 		pick_new_hash_fn(&new_this, &new_this.left, &this->rand);
@@ -453,6 +456,9 @@ int8_t htcuckoo_insert(htcuckoo* this, uint64_t key, uint64_t value) {
 	if (htcuckoo_find(this, key, NULL)) {
 		return 1;
 	}
+
+	++CUCKOO_COUNTERS.inserts;
+
 	resize_to_fit(this, ++this->pair_count);
 	for (uint64_t rebuilds = 0; ; ++rebuilds) {
 		if (insert_norebuild(this, key, value)) {

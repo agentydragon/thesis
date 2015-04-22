@@ -7,6 +7,18 @@
 
 #define CUCKOO_EMPTY UINT64_MAX
 
+struct {
+	// Counts successful insert operations.
+	uint64_t inserts;
+
+	// Counts full rehashes, including ones that had to be thrown away and
+	// repeated.
+	uint64_t full_rehashes;
+
+	// Counts traversed edges of the cuckoo graph.
+	uint64_t traversed_edges;
+} CUCKOO_COUNTERS;
+
 // Cuckoo hash table with simple tabulation hashing.
 // TODO: Use log(N)-independent hash function, which STH is not.
 typedef struct {
