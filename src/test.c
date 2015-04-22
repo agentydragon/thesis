@@ -7,6 +7,7 @@
 #include "dict/btree.h"
 #include "dict/cobt.h"
 #include "dict/htable.h"
+#include "dict/htcuckoo.h"
 #include "dict/htlp.h"
 #include "dict/kforest.h"
 #include "dict/ksplay.h"
@@ -41,6 +42,7 @@ void run_unit_tests(void) {
 	test_dict_blackbox(&dict_btree);
 	test_dict_blackbox(&dict_cobt);
 	test_dict_blackbox(&dict_htable);
+	test_dict_blackbox(&dict_htcuckoo);
 	test_dict_blackbox(&dict_htlp);
 	test_dict_blackbox(&dict_kforest);
 	test_dict_blackbox(&dict_ksplay);
@@ -55,6 +57,7 @@ void run_unit_tests(void) {
 	// TODO: optimize dict_cobt for better performance
 	test_dict_large(&dict_cobt, 1 << 20);
 	test_dict_large(&dict_htable, 1 << 20);
+	test_dict_large(&dict_htcuckoo, 1 << 20);
 	test_dict_large(&dict_htlp, 1 << 20);
 	test_dict_large(&dict_kforest, 1 << 20);
 	test_dict_large(&dict_ksplay, 1 << 20);

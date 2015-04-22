@@ -9,6 +9,81 @@
 #include "log/log.h"
 #include "util/unused.h"
 
+// #define MANY_REBUILDS 10000
+#define MANY_REBUILDS 100
+
+// TODO: co je spatne?
+
+static uint64_t half_hash(cuckoo_half* half, uint64_t key) {
+	return sth_hash(&half->hash, key);
+}
+
+static UNUSED void dump_dot(htcuckoo* this) {
+	FILE* output = fopen("cuckoo.dot", "w");
+	ASSERT(output);
+
+	fprintf(output, "digraph htcuckoo_%p {\n", this);
+	fprintf(output, "  splines = polyline;\n");
+	fprintf(output, "  node [shape = record, height = .1];\n");
+
+	// fprintf(output, "  left[label = \"{{");
+	// for (uint64_t i = 0; i < this->half_capacity; ++i) {
+	// 	if (i > 0) {
+	// 		fprintf(output, "|");
+	// 	}
+	// 	fprintf(output, "<left%04" PRIx64 ">", i);
+	// }
+	// fprintf(output, "}}\"]\n");
+
+	for (uint64_t i = 0; i < this->half_capacity; ++i) {
+		if (this->right.keys[i] == CUCKOO_EMPTY) {
+			continue;
+		}
+		fprintf(output, "  left%04" PRIx64 "[];\n", i);
+	}
+
+	// fprintf(output, "  right[label = \"{{");
+	// for (uint64_t i = 0; i < this->half_capacity; ++i) {
+	// 	if (i > 0) {
+	// 		fprintf(output, "|");
+	// 	}
+	// 	fprintf(output, "<right%04" PRIx64 ">", i);
+	// }
+	// fprintf(output, "}}\"]\n");
+
+	for (uint64_t i = 0; i < this->half_capacity; ++i) {
+		if (this->right.keys[i] == CUCKOO_EMPTY) {
+			continue;
+		}
+		fprintf(output, "  right%04" PRIx64 "[];\n", i);
+	}
+
+	for (uint64_t i = 0; i < this->half_capacity; ++i) {
+		if (this->left.keys[i] == CUCKOO_EMPTY) {
+			continue;
+		}
+		const uint64_t key = this->left.keys[i];
+		const uint64_t hash_l = half_hash(&this->left, key),
+			      hash_r = half_hash(&this->right, key);
+		fprintf(output, "  left%04" PRIx64 " -> right%04" PRIx64 ";\n",
+				hash_l, hash_r);
+	}
+
+	for (uint64_t i = 0; i < this->half_capacity; ++i) {
+		if (this->right.keys[i] == CUCKOO_EMPTY) {
+			continue;
+		}
+		const uint64_t key = this->right.keys[i];
+		const uint64_t hash_l = half_hash(&this->left, key),
+			      hash_r = half_hash(&this->right, key);
+		fprintf(output, "  right%04" PRIx64 " -> left%04" PRIx64 ";\n",
+				hash_r, hash_l);
+	}
+
+	fprintf(output, "}\n");
+	fclose(output);
+}
+
 // TODO: MIN_SIZE, too_sparse, too_dense, pick_capacity partially
 // duplicated with htable.c
 static const uint64_t MIN_SIZE = 2;
@@ -28,7 +103,9 @@ static bool too_dense(uint64_t pairs, uint64_t capacity) {
 		return true;
 	}
 	// At most three quarters full.
-	return pairs * 4 > capacity * 3;
+	// return pairs * 4 > capacity * 3;
+	// At most one half full.
+	 return pairs * 2 > capacity;
 }
 
 static uint64_t pick_capacity(uint64_t current_size, uint64_t pairs) {
@@ -52,10 +129,6 @@ static uint64_t pick_capacity(uint64_t current_size, uint64_t pairs) {
 static void pick_new_hash_fn(htcuckoo* this, cuckoo_half* half,
 		rand_generator* rand) {
 	sth_init(&half->hash, this->half_capacity, rand);
-}
-
-static uint64_t half_hash(cuckoo_half* half, uint64_t key) {
-	return sth_hash(&half->hash, key);
 }
 
 const uint64_t UNVISITED = UINT64_MAX, SENTINEL = (UINT64_MAX - 1);
@@ -110,7 +183,7 @@ static void select_half(htcuckoo* this,
 	case LEFT:
 		*this_half = &this->left; *other_half = &this->right; break;
 	case RIGHT:
-		*this_half = &this->right; *other_half = &this->right; break;
+		*this_half = &this->right; *other_half = &this->left; break;
 	default: ASSERT(false);
 	}
 }
@@ -183,7 +256,7 @@ static void clear_backptr(cuckoo_half* this_half, cuckoo_half* other_half,
 
 static bool try_vacate(htcuckoo* this, const half_t which_half,
 		const uint64_t vh_slot_index) {
-	log_info("vacating %d slot %" PRIu64, which_half, vh_slot_index);
+	// log_info("vacating %d slot %" PRIu64, which_half, vh_slot_index);
 	dump(this);
 
 	cuckoo_half *this_half, *other_half;
@@ -200,33 +273,49 @@ static bool try_vacate(htcuckoo* this, const half_t which_half,
 		const uint64_t hash_l = half_hash(&this->left, key),
 			      hash_r = half_hash(&this->right, key);
 		(void) hash_l; (void) hash_r;
-		log_info("=> %" PRIu64 "[L:%" PRIx64 " R:%" PRIx64 "] @ %" PRIu64,
-				key, hash_l, hash_r, slot_index2);
+		// log_info("=> %" PRIu64 "[L:%" PRIx64 " R:%" PRIx64 "] @ %" PRIx64,
+		// 		key, hash_l, hash_r, slot_index2);
 		if (other_half->keys[slot_index2] == CUCKOO_EMPTY) {
 			// Great! Let's execute this!
-			log_info("clear, evicting");
+			// log_info("clear, evicting");
 			evict(this, which_half, vh_slot_index);
-			clear_backptr(this_half, other_half, slot_index);
-			return true;
+			goto evicted;
 		}
 
 		if (other_half->backptr[slot_index2] != UNVISITED) {
 			// Found cycle :(
-			clear_backptr(this_half, other_half, slot_index);
-			log_info("found cycle");
-			return false;
+			goto found_cycle;
 		}
 		other_half->backptr[slot_index2] = slot_index;
 		swap_halves(&this_half, &other_half);
 		slot_index = slot_index2;
 	}
+
+	bool ok;
+
+found_cycle:
+	// log_info("found cycle :(");
+	ok = false;
+	goto done;
+
+evicted:
+	ok = true;
+	goto done;
+
+done:
+	clear_backptr(this_half, other_half, slot_index);
+	// for (uint64_t i = 0; i < this->half_capacity; ++i) {
+	// 	ASSERT(this->left.backptr[i] == UNVISITED);
+	// 	ASSERT(this->right.backptr[i] == UNVISITED);
+	// }
+	return ok;
 }
 
 static bool insert_norebuild(htcuckoo* this, uint64_t key, uint64_t value) {
 	const uint64_t hash_l = half_hash(&this->left, key),
 		      hash_r = half_hash(&this->right, key);
-	log_info("insert_norebuild(%" PRIu64 "[L:%" PRIx64 " R:%" PRIx64 "]="
-			"%" PRIu64 ")", key, hash_l, hash_r, value);
+	// log_info("insert_norebuild(%" PRIu64 "[L:%" PRIx64 " R:%" PRIx64 "]="
+	// 		"%" PRIu64 ")", key, hash_l, hash_r, value);
 	// TODO: The right thing to do would probably be progressing in parallel
 	// steps to ensure we don't do too much work.
 	// (Or maybe just randomizing L/R order.)
@@ -274,14 +363,15 @@ static void refit(htcuckoo* this, uint64_t half_capacity) {
 	allocate_half(&new_this.left, half_capacity);
 	allocate_half(&new_this.right, half_capacity);
 
-	for (uint64_t rebuilds = 0; ; ++rebuilds) {
+	for (uint64_t rebuilds = 1; ; ++rebuilds) {
 		clear_half(&new_this.left, half_capacity);
 		clear_half(&new_this.right, half_capacity);
 		pick_new_hash_fn(&new_this, &new_this.left, &this->rand);
 		pick_new_hash_fn(&new_this, &new_this.right, &this->rand);
 
-		log_info("picked new hash fns, half_capacity=%" PRIu64 " pc=%" PRIu64,
-				half_capacity, this->pair_count);
+		log_info("rebuild %" PRIu64 ", "
+				"half_capacity=%" PRIu64 " pc=%" PRIu64,
+				rebuilds, half_capacity, this->pair_count);
 
 		if (!copy_half(&this->left, this->half_capacity, &new_this)) {
 			// Cycle :(
@@ -293,9 +383,15 @@ static void refit(htcuckoo* this, uint64_t half_capacity) {
 			log_info("cycle copying right half");
 			continue;
 		}
-		CHECK(rebuilds < 10, "suspiciously many rebuilds");
+		if (rebuilds >= MANY_REBUILDS) {
+			dump_dot(this);
+			log_fatal("suspiciously many rebuilds");
+		}
+		// CHECK(rebuilds < MANY_REBUILDS, "suspiciously many rebuilds");
+		log_info("refit took %" PRIu64 " rebuilds", rebuilds);
 		break;
 	}
+	new_this.rand = this->rand;
 
 	htcuckoo_destroy(this);
 	*this = new_this;
@@ -312,6 +408,7 @@ static void resize_to_fit(htcuckoo* this, uint64_t to_fit) {
 	log_info("will resize to %" PRIu64 " to fit %" PRIu64,
 			new_capacity, to_fit);
 	refit(this, new_capacity / 2);
+	// dump_dot(this);
 }
 
 int8_t htcuckoo_delete(htcuckoo* this, uint64_t key) {
@@ -331,7 +428,7 @@ int8_t htcuckoo_delete(htcuckoo* this, uint64_t key) {
 }
 
 bool htcuckoo_find(htcuckoo* this, uint64_t key, uint64_t *value) {
-	log_info("find(%" PRIu64 ")", key);
+	// log_info("find(%" PRIu64 ")", key);
 	const uint64_t hash_l = half_hash(&this->left, key),
 			hash_r = half_hash(&this->right, key);
 	// TODO: Ideally we'd like this to be done as 2 parallel lookups.
@@ -352,15 +449,18 @@ bool htcuckoo_find(htcuckoo* this, uint64_t key, uint64_t *value) {
 }
 
 int8_t htcuckoo_insert(htcuckoo* this, uint64_t key, uint64_t value) {
-	log_info("insert(%" PRIu64 "=%" PRIu64 ")", key, value);
+	// log_info("insert(%" PRIu64 "=%" PRIu64 ")", key, value);
 	if (htcuckoo_find(this, key, NULL)) {
 		return 1;
 	}
 	resize_to_fit(this, ++this->pair_count);
-	uint64_t rebuilds = 0;
-	while (true) {
+	for (uint64_t rebuilds = 0; ; ++rebuilds) {
 		if (insert_norebuild(this, key, value)) {
 			// We are happy.
+			if (rebuilds > 0) {
+				log_info("insert took %" PRIu64 " rebuilds",
+						rebuilds);
+			}
 			return 0;
 		}
 		const uint64_t hash_l = half_hash(&this->left, key),
@@ -371,8 +471,13 @@ int8_t htcuckoo_insert(htcuckoo* this, uint64_t key, uint64_t value) {
 		// Need to rehash.
 		// TODO: Rehash in-place.
 		refit(this, this->half_capacity);
-		++rebuilds;
 
-		CHECK(rebuilds < 10, "suspiciously many rebuilds");
+		log_info("hc=%" PRIu64 " pair_count=%" PRIu64,
+				this->half_capacity, this->pair_count);
+		if (rebuilds >= MANY_REBUILDS) {
+			dump_dot(this);
+			log_fatal("suspiciously many rebuilds");
+		}
+		// CHECK(rebuilds < MANY_REBUILDS, "suspiciously many rebuilds");
 	}
 }

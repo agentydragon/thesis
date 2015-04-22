@@ -9,7 +9,7 @@
 // TODO: Get rid of this thing.
 uint64_t fnv_hash(uint64_t key, uint64_t hash_max);
 
-// Simple tabulation hashing.
+// Simple tabulation hashing, per-byte.
 typedef struct {
 	// Per-byte table of hashes.
 	uint64_t table[sizeof(uint64_t)][256];
