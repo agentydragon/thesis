@@ -287,6 +287,7 @@ The name ``cuckoo hashing'' refers to this procedure by analogy with
 cuckoo chicks pushing eggs out of host birds' nests.
 
 TODO: figure
+% TODO: just one cycle is good...
 
 If we find a cycle both on the path from $L[h_l(k)]$ and on the path from
 $R[h_r(k)]$ (we can follow both at the same time), the cuckoo graph with
@@ -298,50 +299,62 @@ TODO: what if we use more hash tables?
 
 TODO: "More Robust Hashing: Cuckoo Hashing with a Stash"
 
-Cuckoo hashing requires better randomness properties to work efficiently.
-On a $\Theta(\log N)$-independent or random hash function, updates take expected
-time $\O(1)$ and the failure probability (i.e.\ probability that a cycle will
-force us to rebuild the entire structure) is $\O(\frac{1}{N})$
+To guarantee good performance, cuckoo hashing requires good randomness
+properties of the hashing functions.
+If the hash functions are $\Theta(\log N)$-independent, updates take expected
+amortized time $\O(1)$ and the failure probability (i.e.\ probability that
+a cycle will force us to rebuild the entire structure) is $\O(\frac{1}{N})$
 (\cite{cuckoo-hashing}).
-Hash functions with at most 6-independence are not enough -- their failure
-probability of $\O(1-\frac{1}{N})$ is very bad
-(\cite{cuckoo-hashing-indep-bounds}).
-The build failure probability when using simple tabulation hashing is $\O(N^{1/3})$
+6-independence is not enough: some 6-independent hash functions have a
+failure probability of $\O(1-\frac{1}{N})$ (\cite{cuckoo-hashing-indep-bounds}).
+The build failure probability when using simple tabulation hashing is
+$\O(N^{1/3})$. An example degenerate case with $\Omega(N^{1/3})$ build
+failure probability is storing all keys $(a,b,c)$, where $a,b,c\in[N^{1/3}]$
 (\cite{power-of-simple-tab}).
 
-We will use a $\Theta(\log N)$-independent hashing scheme to get a low failure
-probability. One simple $k$-independent family is $h(x)=(\sum_{i=0}^{k-1} a_i x^i
-\bmod p) \bmod M$, where $p$ is a prime greater than $|U|$ and all $a_i$ are
-chosen at random from $\Z_p$ (\cite{new-hash-fns}).
-This hash function family is considered slow due to needing $\Theta(\log N)$
-time and using integer division by $p$\footnote{
-	% TODO: This footnote looks like "p^2".
-	As \cite{univ-classes} points out, using Mersenne primes
-	(i.e.\ $2^i-1$ for some $i$) enables a faster implementation of the
-	modulo operation. On 64-bit keys, we could use $p=2^{89}-1$.
-	It might not be possible to generalize this approach, because
-	the question whether there are infinitely many Mersenne primes remains
-	open.
-}.
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\textwidth]{img/cuckoo/results}
+	\caption{Degenerate cuckoo hashing behavior ($\O(N^{1/3})$ rebuilds)
+		as measured by our test program.}
+\end{figure}
 
-Other hashing schemes that obtain the needed $\Theta(\log N)$ independence
-are presented in \cite{tab-based-4uni-hashing} and \cite{siegel-1995}.
-The first scheme provides $k$-independent hash function for a general $k$,
-with evaluation times dependent on $k$.
-% TODO: f(k) je velmi divne
-In order to outperform B-trees, we would like to use a hashing function
-which evaluates faster than $\log N$. The latter scheme takes only $\O(1)$ time
-per query if $k=\Theta(\log N)$. Unfortunately, constructing a hash function
-by Siegel's scheme has high constant factors, so it is not very practical
-(\cite{pagh-phd}). Both schemes need $\O(N^\epsilon)$ space
-to store the function.
+Examples of $\Theta(\log N)$-independent hashing schemes include:
+\begin{itemize}
+\item For general $k$-independence, we can use
+	$h(x)=(\sum_{i=0}^{k-1} a_i x^i \bmod p) \bmod M$ (from
+	\cite{new-hash-fns}), where $p$ is a prime greater than $|U|$ and
+	all $a_i$ are chosen at random from $\Z_p$.
+	This hash function family is considered slow due to needing
+	$\Theta(\log N)$ time and using integer division by $p$.\footnote{
+		% TODO: This footnote looks like "p^2".
+		As \cite{univ-classes} points out, using Mersenne primes
+		(i.e.\ $2^i-1$ for some $i$) enables a faster implementation of
+		the modulo operation. On 64-bit keys, we could use $p=2^{89}-1$.
+		It might not be possible to generalize this approach, because
+		the question whether there are infinitely many Mersenne primes
+		remains open.
+	}
+	Evaluation of this hash function takes $\O(k)$ steps.
+\item \cite{tab-based-4uni-hashing} presents a $k$-universal scheme that splits
+	$x$ into $q$ components (as in simple tabulation hashing),
+	expands $x$ into a \emph{derived key} $z$ of $\O(qk)$ components,
+	and then applies simple tabulation hashing to $z$:
+	$h(x)=\bigoplus h_i(z_i)$.
+	When applied in our setting, where $q$ is fixed and $k=\O(\log N)$,
+	the scheme takes time $\O(k)$ to evaluate.
+	According to the authors, the scheme also has very competitive speed.
+\item In order to outperform B-trees, we would like to use a hashing function
+	which evaluates faster than $\log N$. A scheme from \cite{siegel-1995}
+	needs only $\O(1)$ time to evaluate. Unfortunately, constructing a hash
+	function by Siegel's scheme has high constant factors, so it is not
+	very practical (\cite{pagh-phd}).
+\end{itemize}
 
-Drawback: large precomputed tables. CW-trick just requires $a_0,\ldots a_k-1$
+% Both schemes need $\O(N^\epsilon)$ space to store the function.
 
-$k$-universal hashing, $q$ characters $x_0,\ldots x_{1-1}, x_i\in [2^c]$
+% Drawback: large precomputed tables. CW-trick just requires $a_0,\ldots a_k-1$
 
-1) Construct $q+r$ \emph{derived characters} $z_0,\ldots z_{q+r-1}, z_j\in[p],
-p\geq\max\{2^c,q+r\}$ (some of derived characters may be input characters)
-
-2) $q+r$ independent tabulated hash functions $h_j$ into $[2^l]$,
-$h(x)=\bigoplus h_j[z_j]$
+For simplicity, our implementation of cuckoo hashing uses simple tabulation
+hashing. The $\O(N^{1/3})$ build failure probability did not prove to be a
+practical problem.
