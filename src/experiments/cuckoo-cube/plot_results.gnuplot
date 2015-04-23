@@ -4,6 +4,7 @@
 set format '$$%g$$';
 set terminal epslatex standalone color;
 set output 'results.tex'
+set xlabel 'Number of inserted elements'
 
 set logscale x
 plot "output.csv" u ($1**3):2 w lines title 'Number of full rehashes', \

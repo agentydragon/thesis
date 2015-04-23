@@ -1,1 +1,6 @@
 output.csv
+*.log
+*.aux
+*.pdf
+*.tex
+*.eps
