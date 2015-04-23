@@ -8,5 +8,12 @@ TODO: COBT is reasonably fast
 TODO: splay trees are fast
 TODO: K-splay is slow, K-forest is even slower
 
+The measured perfomance of $k$-forests was even worse than $k$-splay trees,
+both while backing $k$-forests with B-trees and cache-oblivious B-trees.
+Choosing a larger $k$ slightly helped, but larger values of $k$ also degenerate
+$k$-forests into their backing structure. As expected, $k$-forests do exhibit
+the working set property, but simple structures without the working set property
+outperformed $k$-forests several times on working set tests.
+
 \section{Hashing}
 TODO: cuckoo, linear probing is good
