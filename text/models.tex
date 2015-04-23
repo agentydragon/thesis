@@ -22,7 +22,8 @@ The model is also restricted by the \textit{word size} (denoted $w$),
 which is the number of bits allocated for a cell. Choosing a too large $w$
 results in an unreasonably strong model. A typical choice of $w$ is
 $\Theta(\log N)$, where $N$ is size of input.
-% TODO: transdichotomous
+A RAM with this word size is called the \textit{transdichotomous model}
+by virtue of unifying the notion of problem size and word size.
 
 We benchmark RAM algorithms by their \emph{time} and \emph{space complexity}.
 The time complexity is the number of executed instructions as a function of
@@ -55,10 +56,10 @@ charge from capacitors, which must then be returned to keep the data.
 In general, static RAM is fast and expensive, while dynamic RAM is slow,
 cheap and more space-efficient. Main memories are usually dynamic.
 
-% TODO: jak mam citovat tady???
 CPU speeds are growing faster (60\% per year) than speeds of memory (10\% per
-year)\cite{Ailamaki:2004:DAN:1316689.1316801}. A fast CPU needs to wait several
-hundred cycles to perform a RAM access. TODO: source "several hundred"
+year) (measurements by \cite{Ailamaki:2004:DAN:1316689.1316801}).
+A fast CPU needs to wait several hundred cycles to perform a RAM access.
+TODO: source "several hundred"
 To alleviate the costs of memory transfers, several levels of static RAM
 caches are inserted between the CPU and the main memory. The caches are
 progressively smaller and faster the closer they are to the CPU. The difference
@@ -176,7 +177,6 @@ block transfers), algorithms for computational geometry, graph algorithms
 and dictionary data structures.
 
 \section{Cache-oblivious algorithms}
-% TODO: cite frigo et al. 1999
 Cache-oblivious algorithms run on a machine with a two-level memory hierarchy.
 Unlike algorithms in the external memory model, cache-oblivious algorithms
 are not allowed access to $M$ and $B$. They may only assume the existence
@@ -198,16 +198,8 @@ of the program's control.
 The cache is, however, assumed to be unrealistically powerful: it is fully
 associative and the replacement policy is optimal. Fortunately, fully
 associative caches with optimal replacement can be simulated with a constant
-slowdown on more realistic caches, so results obtained in the cache-oblivious
-model can be translated to real world programs:
-
-\theorem{Consider an algorithm that causes $Q^\star(n; Z,L)$ cache misses on
-a problem of size $n$ using a $(Z,L)$ ideal cache. Then, the same algorithm
-incurs $Q(n; Z,L)\leq 2Q^\star(n;Z/2,L)$ cache misses on a $(Z,L)$ cache
-that uses LRU replacement.}
-\proof{
-	% TODO: Sleator-Tarjan: Amortized efficiency of list update and paging
-	% rules
-}
+slowdown on more realistic caches (e.g. 8-associative LRU), so results obtained
+in the cache-oblivious model can be translated to real world programs
+(\cite{sleator1985amortized}).
 
 TODO: basic bounds

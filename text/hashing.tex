@@ -39,11 +39,8 @@ $h(k)=i$ in slot $i$. Let us call this set the \emph{collision chain} for hash
 $i$, and denote its size $C_i$. The easiest solution is storing a pointer to
 a linked list of colliding key-value pairs in the hash table. If there are no
 collisions in an occupied slot, an easy and common optimization is storing
-the only key-value pair directly in the hash table.
-
-TODO: not very cache-friendly for long chains
-
-TODO: uniform ::= pravdepodobnost = O(1/m)
+the only key-value pair directly in the hash table. However, following a longer
+linked list is not cache-friendly.
 
 If we use separate chaining, the costs of all hash table operations become
 $\O(1)$ for slot lookup and $\O(|C_i|)$ for scanning the collision chain.
@@ -80,25 +77,13 @@ $$\forall k_1\neq\ldots \neq k_t\subseteq K,
 are not necessarilly 2-independent.
 Trivially, random hash functions are $k$-wise independent for any $k\leq |U|$.
 
-with cache of Omega(log n) totally random -> O(1) amortized per operation w.h.p.
-
-%TODO: variance: constant
-%interesting: E[C_t^2], depends on $h$
-%$E[C_t^2]=1/m \sum_s E[C_s^2]$ = 1/m (pocet kolizi) = 1/m \sum
-%Pr_{i,j}{h(x_j)=h(y_j)}=O(1) by univ.
-
-%w.h.p.: 1-1/n^c, c arb.
-
-"pretty rare in practice", because hashing twice
-
-%"linear probing: basically free" (10\% more than memory access)
-%cuckoo: parallelism in computing hashes
+% with cache of Omega(log n) totally random -> O(1) amortized per operation w.h.p.
+% "pretty rare in practice", because hashing twice
 
 Some common universal families of hash functions include:
 \begin{itemize}
 \item $h(k)=((a\cdot k)\bmod p)\bmod M$, where $p$ is a prime $\geq |U|$
 	and $a\in\{0,\ldots p-1\}$ (\cite{univ-classes}).
-	% TODO: not 2-independent
 	The collision probability for this hash function is
 	$\frac{\lfloor p/M\rfloor}{p-1}$, so it becomes less efficient
 	if $M$ is close to $p$.
@@ -172,7 +157,6 @@ $$\E\left[\sum_{i=1}^N b_i^2\right]=
 We pick $f$ at random from $\mathcal{F}$ until we find one that will need at
 most $\sum_{i=1}^N b_i=\alpha N$ space, where $\alpha$ is an appropriate
 constant. Picking a proper $\alpha$ yields expected $\O(N)$ time to pick $f$.
-TODO
 
 To select a second-level hash function $g_i$, we pick one randomly from
 a universal family $\mathcal{G}$ until we find one that gives no collisions
@@ -200,6 +184,7 @@ The expected amortized time for \textsc{Insert} and \textsc{Delete} is $\O(1)$.
 \cite{univ-class-of-hfns} enhances this to $\O(1)$ with high probability.
 
 \section{Open addressing}
+\label{sec:open-addressing}
 When we attempt to \textsc{Insert} a new pair with key $k$ into an occupied slot
 $h(k)$, we can start trying out alternate slots $a(k,1), a(k,2), \ldots$
 until we succeed in finding an empty slot. We call this approach \emph{open
