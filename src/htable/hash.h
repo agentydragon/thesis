@@ -12,7 +12,10 @@ uint64_t fnv_hash(uint64_t key, uint64_t hash_max);
 // Simple tabulation hashing, per-byte.
 typedef struct {
 	// Per-byte table of hashes.
-	uint64_t table[sizeof(uint64_t)][256];
+	// uint64_t table[sizeof(uint64_t)][256];
+
+	// Per-nibble table of hashes
+	uint64_t table[sizeof(uint64_t) * 2][16];
 	uint64_t hash_max;
 } sth;
 
