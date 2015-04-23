@@ -151,6 +151,7 @@ static void allocate_half(cuckoo_half* half, uint64_t capacity) {
 static void destroy_half(cuckoo_half* half) {
 	free(half->keys);
 	free(half->values);
+	free(half->backptr);
 }
 
 void htcuckoo_init(htcuckoo* this, rand_generator rand) {
