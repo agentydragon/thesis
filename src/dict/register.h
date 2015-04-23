@@ -5,6 +5,7 @@
 
 extern const dict_api* DICT_API_REGISTER[];
 
+void dict_register_grab(dict_api const ** copy);
 const dict_api* dict_api_find(const char* name);
 void dict_api_list_parse(char* name_list, dict_api const ** list,
 		uint64_t capacity);

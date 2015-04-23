@@ -19,6 +19,15 @@ const dict_api* DICT_API_REGISTER[] = {
 	&dict_kforest, &dict_ksplay, &dict_splay, NULL
 };
 
+void dict_register_grab(dict_api const ** copy) {
+	uint64_t i = 0;
+	while (DICT_API_REGISTER[i]) {
+		copy[i] = DICT_API_REGISTER[i];
+		++i;
+	}
+	copy[i] = NULL;
+}
+
 const dict_api* dict_api_find(const char* name) {
 	for (const dict_api** api = &DICT_API_REGISTER[0]; *api; ++api) {
 		if (strcmp((*api)->name, name) == 0) {
