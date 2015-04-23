@@ -63,8 +63,7 @@ we pick a hash function from a certain smaller family according to a formula
 with some variables chosen at random.
 Given a family $\mathcal{H}$ of hashing functions, we call $\mathcal{H}$
 \emph{universal} if $\Pr_{h\in \mathcal{H}}[h(x)=h(y)]=\O(\frac{1}{M})$ for any
-$x, y\in U$, and \emph{strongly universal} if this probability is
-$\leq\frac{1}{M}$. % TODO: Do I need strong universality?
+$x, y\in U$.
 For any universal family of hash functions, the expected time per operation
 is constant when using chaining.
 
@@ -282,14 +281,12 @@ the entire structure.
 
 TODO: what if we use more hash tables?
 
-TODO: "More Robust Hashing: Cuckoo Hashing with a Stash"
-
 To guarantee good performance, cuckoo hashing requires good randomness
 properties of the hashing functions.
 If the hash functions are $\Theta(\log N)$-independent, updates take expected
-amortized time $\O(1)$ and the failure probability (i.e.\ probability that
-a cycle will force us to rebuild the entire structure) is $\O(\frac{1}{N})$
-(\cite{cuckoo-hashing}).
+amortized time $\O(1)$ and the failure probability (i.e.\ the probability that
+an \textsc{Insert} will force us to rebuild the entire structure) is
+$\O(\frac{1}{N})$ (\cite{cuckoo-hashing}).
 6-independence is not enough: some 6-independent hash functions have a
 failure probability of $\O(1-\frac{1}{N})$ (\cite{cuckoo-hashing-indep-bounds}).
 The build failure probability when using simple tabulation hashing is
@@ -344,3 +341,12 @@ Examples of $\Theta(\log N)$-independent hashing schemes include:
 For simplicity, our implementation of cuckoo hashing uses simple tabulation
 hashing. The $\O(N^{1/3})$ build failure probability did not prove to be a
 practical problem.
+
+\section{Extensions of hashing}
+Several methods have been developed for maintaining hash tables in an external
+memory setting without expensive rehashing. Some are presented in chapter 9
+of \cite{em-ads}.
+
+In \cite{kirsch2009more}, cuckoo hash tables are extended with a small
+constant-sized \emph{stash} (e.g. 3 or 4 items), which lowers the probability
+of build failures and enhances performance (both theoretically and practically).
