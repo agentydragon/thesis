@@ -81,6 +81,11 @@ VEB_PERFORMANCE_SOURCES=$(SOURCES) measurement/measurement.c measurement/stopwat
 bin/experiments/veb_performance: $(VEB_PERFORMANCE_SOURCES)
 	$(CC) $(CFLAGS) $(VEB_PERFORMANCE_SOURCES) $(LIBS) -ljansson -o $@
 
+# experiments/cuckoo-cube
+CUCKOO_CUBE_SOURCES=$(SOURCES) experiments/cuckoo-cube/cuckoo-cube.c
+bin/experiments/cuckoo-cube: $(CUCKOO_CUBE_SOURCES)
+	$(CC) $(CFLAGS) $(CUCKOO_CUBE_SOURCES) $(LIBS) -o $@
+
 # Continuous integration target
 # TODO: Check that everything else builds, too.
 test: bin/test bin/experiments/performance bin/experiments/vcr bin/experiments/btree-dot bin/experiments/cloud
