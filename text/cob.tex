@@ -49,14 +49,14 @@ is that is lets us read the sequence of keys from the root to any leaf
 using $\Theta(\log_B N)$ block transfers, which matches the \textsc{Find}
 cost of B-trees without the need to know $B$ beforehand.
 In contrast, the same operation would cost $\Theta(\log N-\log B)$ block
-transfers in the DFS or BFS order.
+transfers in the BFS or DFS order.
 
 The van Emde Boas layout is defined recursively. To find the van Emde Boas layout
 of a full binary tree of height $h$, we split the tree to bottom subtrees
 of height $\lhfloor h-1 \rhfloor$ and one top subtree of height $h - \lhfloor
 h-1 \rhfloor$.
 The subtrees are recursively aligned in the van Emde Boas layout and then laid
-out: the top tree first, followed by the bottom trees in BFS order.
+out: the top tree first, followed by the bottom trees in left-to-right order.
 The van Emde Boas layout of a one-node tree is trivial.
 
 \begin{figure}

@@ -1,5 +1,4 @@
 * nekde vic detailu
-* hashovani
 * (pridat to uvodu reference na clanky o prislusnych strukturach?)
 * $B$-strom => $b$-strom konzistentne
 * experiment: klasicke struktury vc. napriklad Red-Black, cuckoo, klasicke hash
@@ -22,14 +21,10 @@
   (potencial pak bude porad fungovat, i pri insert/delete)
 * citace: [x] nebo (2001): muzu pouzit i jiny standard kdyz bude lepsi
 * plavou mi pismena v k-splay
-* BFS order (VEB) -> left-to-right
-* definovat hyperfloor, hyperceil
 * VEB height, explicitne zminit N = 2^h-1.
 * cache slozitost VEB je tezkopadna
 * (nasobeni 2^x-1: nebylo by to rychlejsi?)
-* spotreba pameti -- merit
 * knihovni cast, neobecna (explicitne) VS experimenty nad tim napsane
-* citace nejake knihovny co pouziva generator trick (libucw?)
 * (pointery - nezpomaluje experimenty virtualnost? asi aspon oddiskutovat)
 * find_next/_prev pointers? aspon oddiskutovat ze to nedelame.
 * upravovatelne pointery? ("vrat mi pointer, ja ho budu upravovat do dalsiho
