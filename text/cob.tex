@@ -152,30 +152,33 @@ on any root-leaf path costs $\Theta(\log_B N)$ block transfers.
 \end{theorem}
 
 \begin{proof}
-Let us examine the recursive applications of the van Emde Boas construction
-for a height $h=\log (N+1)$. Denote the heights of the bottom trees
-$h_1, h_2, \ldots$. For example, as seen in Figure \ref{fig:veb_layout_5}, for
-$h=5$ we have $h_1=4$, $h_2=2$ and $h_3=1$.
+First, consider only van Emde Boas layouts with $h$ a power of two.
+Examine recursive applications of the van Emde Boas construction.
+The first recursion splits the tree of height $h$ into a top tree of height
+$h-\lhfloor h-1\rhfloor=h/2$ and a bottom tree of height $\lhfloor
+h-1\rhfloor=h/2$. The second recursion splits all trees of height $h/2$
+into trees of height $h/4$, and so on. Denote the heights of constructed bottom
+trees at recursion level $i$ as $h_i=h/2^i$.
 
-Let us assume that the entire tree doesn't fit in a block of size $B$.
-Because we can assume that a single node fits in one block, there exists a \emph{level of
-detail} $i$ such that the $2^{h_i}-1$ nodes in $i$-th-iteration bottom trees
-fit in a block of size $B$, while bottom trees of $i-1$-th-iteration bottom
-trees do not.
+Note that at every level of recursion, every tree is stored in contiguous
+memory. A cache block can accomodate at least $\O(B)$ nodes, so there is some
+level of recursion $i$ for which trees of height $h_i$ fit into a cache block,
+but trees of the next larger height $h_{i-1}$ do not. In other words,
+$2^{h_i}-1 < B$ and $2^{h_i-1}-1 \geq B$, from which $h_i=\O(\log B)$ follows.
 
-Since $2^{h_i}-1 < B$ and $2^{h_i-1}-1 \geq B$, it follows that $h_i=\O(\log_B N)$.
-By construction, the path of from the root of the tree to any leaf contains
-$\Theta(\log N/h_i)=\Theta(\log_B N)$ bottom trees from the $i$-th iteration.
-The path also contains one top tree, which includes the root.
-As seen on Figure \ref{fig:veb_layout_5}, this top tree may have a height
-different than $h_i$, but the height of this tree is always $\leq h_i$.
+Root-to-leaf paths contain $\Theta(\log N)$ nodes, and these nodes span
+$\Theta(\frac{\log N}{h_i})$ trees of height $h_i$. Since each such tree can be
+read using one block transfer, we need $\Theta(\frac{\log N}{h_i})=\Theta(\log_B
+N)$ block transfers to traverse any root-to-leaf path.
 
-Because the $2^{h_i}-1$ nodes of any $i$-th-iteration bottom tree are stored
-in contiguous memory, every $i$-th-iteration bottom tree (or top tree)
-can be read using $\O(1)$ block transfers. Since every root-to-leaf path
-is composed of $\Theta(\log_B N)$ such subtrees, traversing the path
-takes $\Theta(\log_B N)$ block transfers (plus $\O(1)$ in the uncommon
-case when $B > N$).
+If $h$ is not a power of two, recursively generated top and bottom trees may no
+longer have heights that are powers of two. However, note that if we again
+divide the tree into subtrees until atomic subtrees of height $h_i$ fit into
+cache blocks, almost all trees encountered on any root-to-leaf path will still
+have height $h_i$. The only exception will be the tree that contains the root,
+which may have height less than $h_i$. The original argument still works:
+we need $\O(\log_B N)$ block transfers for traversing a root-to-leaf path,
+including an $\O(1)$ added for reading the tree containing the root.
 \end{proof}
 
 The van Emde Boas layout thus makes a fine data structure for querying static
