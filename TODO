@@ -21,8 +21,6 @@
   (potencial pak bude porad fungovat, i pri insert/delete)
 * citace: [x] nebo (2001): muzu pouzit i jiny standard kdyz bude lepsi
 * plavou mi pismena v k-splay
-* VEB height, explicitne zminit N = 2^h-1.
-* cache slozitost VEB je tezkopadna
 * (nasobeni 2^x-1: nebylo by to rychlejsi?)
 * knihovni cast, neobecna (explicitne) VS experimenty nad tim napsane
 * (pointery - nezpomaluje experimenty virtualnost? asi aspon oddiskutovat)

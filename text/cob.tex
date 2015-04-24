@@ -34,8 +34,8 @@ the desired $\Theta(\log_B N)$ time to \textsc{Find}, \textsc{Insert} and
 
 \section{The van Emde Boas layout}
 The van Emde Boas layout is a way of mapping the nodes of a full binary
-tree of height $h$ to indices $0\ldots 2^h-2$. Other layouts of full binary
-trees include the BFS or DFS order.
+tree of height $h$ to indices $0\ldots 2^h-2$. There are $N=2^h-1$ nodes.
+Other layouts of full binary trees include the BFS or DFS order.
 
 Surprisingly, the van Emde Boas layout was not invented by van Emde Boas.
 The name comes from the earlier \emph{van Emde Boas priority queue},
@@ -394,7 +394,6 @@ We claim that while this redistribution may reorganize a range of size up
 to $\O(N)$, the redistribution of a node puts all nodes below it well within
 their thresholds, so the next reorganization will be needed only after many more
 updates.
-% TODO: how much is "many"?
 
 The search for a node to redistribute is implemented as two interspersed scans,
 one extending the scanned range to the left, one to the right. The
@@ -503,19 +502,51 @@ the tree costs $\Theta(\log_B N)$ block transfers.
 
 \textsc{Insert}s and \textsc{Delete}s first walk to the position the key
 would normally occupy, using $\Theta(\log_B N)$ block transfers. The key
-is then inserted into the ordered file, which costs
-$\Theta(\frac{\log^2 N}{B})$ block transfers. Finally, the tree needs to be
-updated to reflect the reorganization of the packed memory array.
+is then inserted into the ordered file, which costs $\Theta(\frac{\log^2 N}{B})$
+amortized block transfers. Finally, the tree needs to be updated to reflect
+the reorganization of the packed memory array.
 
-TODO: update analysis: VEB update
+\begin{theorem}
+Updating $K$ consecutive leaves of a tree in van Emde Boas order takes
+$\O(\frac{K}{B}+\log_B N)$ memory transfers.
+\end{theorem}
+\begin{proof}
+To propagate new minima in the tree, we need to update the $K$ changed leaves
+and their parents. To get the right memory transfer cost, we update the tree
+in-order: if node $x$ has children $y$ and $z$ which both need to be updated,
+we visit them in this order: $x,y,x,z,x$.
 
-This bootstrapping structure matches B-trees in the speed of \textsc{Find},
-but updates take time $\Theta(\log_B N+\frac{\log^2 N}{B})$, which is
-$\Theta(\frac{\log^2 N}{B})$ more than B-trees.
-This matches the performance of B-trees for $B=\Omega(\log N\log\log N)$.
-Unfortunately, this is not a realistic assumption in internal memory
-where cache lines are relatively small, so we need to remove the
-$\Theta(\frac{\log^2 N}{B})$ term to fully match B-trees.
+We need to update $K$ leaves with new values and their parents.
+Just as in the analysis of root-to-leaf traversal cost in van Emde Boas trees,
+we look at the level of recursion where the atomic trees start fitting into
+cache blocks.
+Call the largest tree units that fit into cache lines \emph{atoms} and the next
+larger units \emph{chunks}.
+
+Consider first the bottom two levels of atoms. Within every large chunk,
+we jump between two atoms (a parent and one of its children), which fit into
+a cache block. If we have at least 2 blocks in the cache, updating any chunk
+will cost $\O(C/B)$ memory transfers, where $C$ is the size of a chunk.
+Thus, we can update the bottom two levels using $\O(K/B)$ memory transfers.
+
+Next, let us separately consider updating the tree below and above the lowest
+common ancestor of the $K$. Updating all nodes above the lowest common ancestor
+means simply walking a root-to-node path, which takes $\O(\log_B N)$ transfers.
+
+Above the bottom two levels, there are $\O(K/B)$ nodes to update. We can afford
+to spend an entire block transfer for updating each of these nodes.
+
+We spend $\O(K/B + \log_B N)$ memory transfers in total.
+\end{proof}
+
+Thus, the block transfer cost of updates is $\Theta(\log_B N+\frac{\log^2
+N}{B})$, which is $\Theta(\frac{\log^2 N}{B})$ more than B-trees.
+\textsc{Find} already matches B-trees with $\Theta(\log_B N)$ block transfers.
+The bootstrapping structure is as good as B-trees for
+$B=\Omega(\log N\log\log N)$.  Unfortunately, this is not a realistic
+assumption in internal memory where cache lines are relatively small, so we
+need to remove the $\Theta(\frac{\log^2 N}{B})$ term from updates to fully
+match B-trees.
 
 To remove this term, we will use this bootstrapping data structure with
 \emph{indirection} to make the final cache-oblivious B-tree.
@@ -679,18 +710,12 @@ cost of rebuilds will be $\O(1)$ per item.
 \section{Enhancements}
 An alternative deamortized ordered file maintenance data structure
 developed by \cite{willard92} performs $\Theta(\frac{\log^2 N}{B})$
-block transfers in the worst case. A cache-oblivious B-tree backed by this
-structure would limit the worst-case number of block transfers from
-$\Theta(\frac{N}{\log N})$ to just $\Theta(\frac{\log^2 N}{B}+\log_B
-N)$ while keeping the amortized bound at $\Theta(\log_B N)$.
-% TODO: Not really true. It just does partial deamortization. Still need
-% global updates.
-
-% TODO: Should I mention this?
-% \footnote{
-% 	In a practical implementation, the worst-case bound needs an additional
-% 	$\frac{N}{B}$ term to account for necessary reallocations of
-% 	the backing array once it becomes too full.}
+block transfers in the worst case. If we momentarily disregard the cost of
+rebuilding when $N$ expands or shrinks by a constant factor, a cache-oblivious
+B-tree backed by this structure would limit the worst-case number of block
+transfers from $\Theta(\frac{N}{\log N})$ to just
+$\Theta(\frac{\log^2 N}{B}+\log_B N)$ while keeping the amortized bound
+at $\Theta(\log_B N)$.
 
 As we observed with applying the van Emde Boas layout, removing auxiliary
 data can greatly speed up operations -- the tree in van Emde Boas layout has

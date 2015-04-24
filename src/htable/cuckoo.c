@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "htable/hash.h"
-//#define NO_LOG_INFO
+#define NO_LOG_INFO
 #include "log/log.h"
 #include "util/unused.h"
 

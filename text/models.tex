@@ -172,7 +172,7 @@ TODO: $B<N$
 
 \cite{em-ads} is a comprehensive survey of the external memory model
 (extended to handle an array of disks allowing simultaneous access), including
-optimal sorting algorithms (in $\Theta(\frac{N}{B}\log_{B}\frac{N}{B})$
+optimal sorting algorithms (in $\Theta(\frac{N}{B}\log_{M/B}\frac{N}{B})$
 block transfers), algorithms for computational geometry, graph algorithms
 and dictionary data structures.
 
@@ -190,16 +190,22 @@ include not only the usual L1, L2 and L3 caches, but also the \emph{translation
 lookaside buffer} (TLB), which caches the mapping of pages from virtual to
 physical memory.
 
-% TODO: check tall cache assumption
-The cache is assumed to be tall (with number of blocks $>> B^2$) and
+The cache is assumed to be tall (with $\Omega(B)$ blocks) and
 the algorithm cannot control block transfers between the cache and the memory.
 This is similar to real computers: L1, L2 and L3 caches are also out
 of the program's control.
 The cache is, however, assumed to be unrealistically powerful: it is fully
 associative and the replacement policy is optimal. Fortunately, fully
-associative caches with optimal replacement can be simulated with a constant
-slowdown on more realistic caches (e.g. 8-associative LRU), so results obtained
-in the cache-oblivious model can be translated to real world programs
+associative caches with optimal replacement can be simulated with a
+$2\times$ slowdown on $2\times$ larger LRU or FIFO caches
 (\cite{sleator1985amortized}).
+The performance of many cache-oblivious algorithms is only slowed down
+by a constant factor when we halve the number of blocks, so cache-oblivious
+algorithms can usually be adopted in real world programs with only a constant
+slowdown compared to the model.
 
-TODO: basic bounds
+Many results from the external memory model have been repeated in the
+cache-oblivious model, including optimal sorting in
+$\Theta(\frac{N}{B}\log_{M/B}\frac{N}{B})$ block transfers.
+In chapter \ref{chapter:cob}, we show a data structure that is a cache-oblivious
+equivalent of B-trees.

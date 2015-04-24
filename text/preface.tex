@@ -44,6 +44,12 @@ Given a key $k$, which may or may not be present in the dictionary,
 \textsc{FindNext} and \textsc{FindPrevious} find the closest larger or smaller
 key present in the dictionary.
 
+We implemented and benchmarked several common and uncommon data structures
+for sorted and unsorted dictionaries. A high-level description of our
+implementation and benchmarks is presented in chapter
+\ref{chapter:implementation}. The results are discussed in
+chapter \ref{chapter:results}.
+
 The most common data structure implementing an unsorted dictionary is a hash
 table. We describe some variants of hash tables in chapter \ref{chapter:hashing}.
 Most hash tables have expected $\O(1)$ time for all operations, which
@@ -55,9 +61,9 @@ of search trees include AVL trees, red-black trees, B-trees or splay trees.
 AVL trees, red-black trees and B-trees are \emph{balanced} -- a design
 invariant maintains their height low, which makes operations cost $\O(h)$, where
 $h$ is the height of the tree. AVL trees and red-black trees are binary,
-so $h=\O(\log N)$ (all logarithms in this thesis are in base 2, unless stated
-otherwise). B-trees store $b\geq 2$ keys per node and they maintain all leaves
-at the same depth, so operations on B-trees touch $\O(\log_b N)$ nodes.
+so $h=\O(\log N)$. B-trees store $\O(b)$ keys per node, where $b\geq 2$,
+and they maintain all leaves at the same depth, so operations on B-trees touch
+$\O(\log_b N)$ nodes.
 
 Splay trees are binary search trees with a self-adjusting rule.
 The structure of a splay tree depends not only on the sequence of
