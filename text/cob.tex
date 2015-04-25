@@ -1,7 +1,6 @@
 \chapter{Cache-oblivious B-trees}
 \label{chapter:cob}
 % TODO: assume B > 1
-% TODO: reference to B-tree article
 The \emph{cache-oblivious B-tree} introduced by \cite{cobt}
 is a data structure which replicates the asymptotic performance of B-trees
 in a cache-oblivious setting.
@@ -12,19 +11,18 @@ in a cache-oblivious setting.
 	$B<N$ to simplify some bounds in this section.}
 amortized block transfers, which is similar to cache-aware B-trees.
 Scanning a range of $t$ keys also takes $\Theta(\log_B N+t/B)$ time.
-% TODO: unfortunately not common for internal memory
 
 The original cache-oblivious B-tree as described in \cite{cobt} used
 weight-balanced B-trees. We implement a simplified version of the structure
 from \cite{brodal01}, which is composed of three components.
-% TODO: nevadi ze tady jsou data obracene?
+% TODO: nevadi ze jsou v citacich data obracene nez by davalo smysl?
 The \emph{van Emde Boas layout} of binary trees is a way of cache-obliviously
 maintaining full binary trees in memory such that reading or updating any
 root-to-leaf path in root-to-leaf or leaf-to-root order takes $\Theta(\log_B N)$
 block transfers.
 Then, the \emph{packed memory array} lets us store a ``cache-oblivious linked
-list''. The items of this ``linked list'' will represent key-value pairs.
-% TODO: previous sentence not really true
+list''. The items of this ``linked list'' will represent key-value pairs,
+and later groups of key-value pairs.
 The packed memory array has fast updates in the amortized sense. Inserting
 and deleting items overwrites $\Theta(\frac{\log^2 N}{B})$ amortized memory
 blocks.
