@@ -242,7 +242,6 @@ which is only 3-independent and which can be implemented faster than usual
 \section{Cuckoo hashing}
 \label{sec:cuckoo}
 
-Cuckoo hashing was invented by \cite{cuckoo-hashing}.
 A cuckoo hash table is composed of two hash tables $L$ and $R$ of equal size
 $M=(1+\varepsilon)\cdot N$.
 Two separate hashing functions $h_l$ and $h_r$ are associated with $L$ and $R$.
@@ -270,7 +269,90 @@ the path $k,k_1,\ldots$ until we either find an empty slot, or we find a cycle.
 The name ``cuckoo hashing'' refers to this procedure by analogy with
 cuckoo chicks pushing eggs out of host birds' nests.
 
-TODO: figure
+\begin{figure}
+	\centering
+	\begin{tikzpicture}[mpath/.style={font=\scriptsize,draw}]
+	% Before
+	\node (before-label) at (2,3.5) {Before};
+	\matrix (left) [matrix of math nodes, row sep=-\pgflinewidth,
+		column 2/.style={nodes={draw,rectangle,minimum width=2em, minimum height=2em}}]
+	{L[0] & 4 \\ L[1] & 20 \\ L[2] & \times \\ L[3] & 40 \\ L[4] & \times \\
+	L[5] & \times\\};
+
+	\matrix (right) at (4,0) [matrix of math nodes, row sep=-\pgflinewidth,
+		column 1/.style={nodes={rectangle,draw,minimum width=2em, minimum height=2em}}]
+	{6 & R[0] \\ \times & R[1] \\ 30 & R[2] \\ \times & R[3] \\ \times & R[4] \\ 12 & R[5]\\};
+	\path[mpath] (left-1-2.east) -- ([xshift=0.5cm]left-1-2.east) --
+		node[above] {6}
+		([xshift=-0.5cm]right-1-1.west) -- (right-1-1.west);
+	\path[mpath] ([yshift=-0.2cm]left-1-2.east) -- ([xshift=0.5cm,yshift=-0.2cm]left-1-2.east) --
+		node[above right] {4}
+		([xshift=-0.5cm,yshift=0.2cm]right-3-1.west) -- ([yshift=0.2cm]right-3-1.west);
+	\path[mpath] (left-2-2.east) -- ([xshift=0.5cm]left-2-2.east) --
+		node[below left] {20}
+		([xshift=-0.5cm]right-3-1.west) -- (right-3-1.west);
+	\path[mpath] ([yshift=0.2cm]left-4-2.east) -- ([xshift=0.5cm,yshift=0.2cm]left-4-2.east) --
+		node[below right] {30}
+		([xshift=-0.5cm,yshift=-0.2cm]right-3-1.west) -- ([yshift=-0.2cm]right-3-1.west);
+	\path[mpath] ([yshift=-0.2cm]left-4-2.east) -- ([xshift=0.5cm,yshift=-0.2cm]left-4-2.east) --
+		node[below] {40}
+		([yshift=-0.2cm,xshift=-0.5cm]right-4-1.west) -- ([yshift=-0.2cm]right-4-1.west);
+	\path[mpath] (left-6-2.east) -- ([xshift=0.5cm]left-6-2.east) --
+		node[below] {12}
+		([xshift=-0.5cm]right-6-1.west) -- (right-6-1);
+
+	% Obtaining free slot
+	\node (obtaining-label) at (7.2,3.5) {Free up $L[h_l(10)]$};
+	\matrix (l2) at (6.2,0) [matrix of math nodes, row sep=-\pgflinewidth,
+		column 1/.style={nodes={draw,rectangle,minimum width=2em, minimum height=2em}}]
+		{4 \\ 20 \\ \times \\ 40 \\ \times \\ \times\\};
+
+	\matrix (r2) at (8.2,0) [matrix of math nodes, row sep=-\pgflinewidth,
+		column 1/.style={nodes={rectangle,draw,minimum width=2em, minimum height=2em}}]
+	{6 \\ \times \\ 30 \\ \times \\ \times \\ 12 \\};
+
+	\path[->,mpath,thick,>=stealth] (l2-2-1) -- (r2-3-1);
+	\path[->,mpath,thick,>=stealth] (r2-3-1) -- (l2-4-1);
+	\path[->,mpath,thick,>=stealth] (l2-4-1) -- (r2-4-1);
+
+	% After
+	\node (after-label) at (11.35,3.5) {After};
+	\matrix (l3) at (10.1,0) [matrix of math nodes, row sep=-\pgflinewidth,
+		column 1/.style={nodes={draw,rectangle,minimum width=2em, minimum height=2em}}]
+	{4 \\ 10 \\ \times \\ 30 \\ \times \\ \times\\};
+
+	\matrix (r3) at (12.6,0) [matrix of math nodes, row sep=-\pgflinewidth,
+		column 1/.style={nodes={rectangle,draw,minimum width=2em, minimum height=2em}}]
+	{6 \\ \times \\ 20 \\ 40 \\ \times \\ 12 \\};
+	\path[mpath] (l3-1-1.east) -- ([xshift=0.5cm]l3-1-1.east) --
+		node[above] {6}
+		([xshift=-0.5cm]r3-1-1.west) -- (r3-1-1.west);
+	\path[mpath] ([yshift=-0.2cm]l3-1-1.east) --
+	([xshift=0.5cm,yshift=-0.2cm]l3-1-1.east) --
+		node[above right] {4}
+		([xshift=-0.5cm,yshift=0.2cm]r3-3-1.west) -- ([yshift=0.2cm]r3-3-1.west);
+	\path[mpath] ([yshift=0.1cm]l3-2-1.east) -- ([yshift=0.1cm,xshift=0.55cm]l3-2-1.east) --
+		([yshift=0.1cm,xshift=-0.5cm]r3-3-1.west) -- ([yshift=0.1cm]r3-3-1.west);
+	\path[mpath] (l3-2-1.east) -- ([xshift=0.5cm]l3-2-1.east) --
+		node[xshift=-0.3cm,below] {10, 20}
+		([xshift=-0.5cm]r3-3-1.west) -- (r3-3-1.west);
+	\path[mpath] ([yshift=0.2cm]l3-4-1.east) --
+	([xshift=0.5cm,yshift=0.2cm]l3-4-1.east) --
+		node[below right] {30}
+		([xshift=-0.5cm,yshift=-0.2cm]r3-3-1.west) -- ([yshift=-0.2cm]r3-3-1.west);
+	\path[mpath] ([yshift=-0.2cm]l3-4-1.east) --
+	([xshift=0.5cm,yshift=-0.2cm]l3-4-1.east) --
+		node[below] {40}
+		([yshift=-0.2cm,xshift=-0.5cm]r3-4-1.west) -- ([yshift=-0.2cm]r3-4-1.west);
+	\path[mpath] (l3-6-1.east) -- ([xshift=0.5cm]l3-6-1.east) --
+		node[below] {12}
+		([xshift=-0.5cm]r3-6-1.west) -- (r3-6-1);
+	\end{tikzpicture}
+
+	\textsc{Insert}(10); $h_l(10)=1$, $h_r(10)=2$
+
+	\caption{Inserting into a cuckoo hash table}
+\end{figure}
 
 If we find a cycle both on the path from $L[h_l(k)]$ and on the path from
 $R[h_r(k)]$ (we can follow both at the same time), the cuckoo graph with
