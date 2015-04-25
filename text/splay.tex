@@ -379,8 +379,6 @@ to apply to splay trees.
 Unlike tango trees, they have an amortized access time of $\O(\log N)$.
 While an access in splay trees may take time up to $\O(N)$, multi-splay trees
 guarantee a more desirable worst-case access time of $\O(\log^2 N)$.
-\section{Implementation}
-% TODO: top-down splay
 
 \section{Top-down splaying}
 Simple implementations of splaying first find the node to splay, and then
@@ -392,8 +390,8 @@ allocating up to $N$ node pointers when splaying. On the other hand,
 storing parent pointers makes nodes less memory-efficient, especially
 with small sizes of keys.
 
-A common optimization is \emph{top-down splaying}, which simulates
-splaying while searching.
+A common optimization from the original paper (\cite{splay}) is
+\emph{top-down splaying}, which simulates splaying while searching.
 % TODO
 % The tree is traversed 2 nodes at a time, and
 % two trees $L$ and $R$ are maintained. Encountered branches smaller than
