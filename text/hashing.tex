@@ -360,8 +360,6 @@ the added edge $(h_l(k),h_r(k))$ has no matching. To assign key-value pairs
 to slots, we pick new hashing functions $h_l$ and $h_r$ and we rebuild
 the entire structure.
 
-TODO: what if we use more hash tables?
-
 To guarantee good performance, cuckoo hashing requires good randomness
 properties of the hashing functions.
 If the hash functions are $\Theta(\log N)$-independent, updates take expected
@@ -431,3 +429,10 @@ of \cite{em-ads}.
 In \cite{kirsch2009more}, cuckoo hash tables are extended with a small
 constant-sized \emph{stash} (e.g. 3 or 4 items), which lowers the probability
 of build failures and enhances performance (both theoretically and practically).
+
+Cuckoo hashing can be generalized to more than two subtables.
+The \textsc{Insert} procedure then performs slot eviction via a random walk.
+According to \cite{open-questions-cuckoo}, experiments suggest that cuckoo
+hash tables with more functions may be significantly more effective than simple
+cuckoo hashing on high load factors. For example, 3 subtables perform well
+with loads up to 91\%.
