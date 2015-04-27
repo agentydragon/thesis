@@ -116,7 +116,9 @@ static void load_records(const char* path) {
 	CHECK(input != NULL, "cannot open %s", path);
 	while (!feof(input)) {
 		char line[1024];
-		fgets(line, sizeof(line) - 1, input);
+		if (fgets(line, sizeof(line) - 1, input) == NULL) {
+			break;
+		}
 
 		record r;
 		parse_line(line, &r);
