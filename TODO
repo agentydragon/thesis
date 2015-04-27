@@ -14,7 +14,6 @@
   na sekvenci INSERTu - DELETu, b=2a je rychlejsi)
 * potencial definovany vahami -> mozna w_i=1 misto w_i=1/N
   (potencial pak bude porad fungovat, i pri insert/delete)
-* citace: [x] nebo (2001): muzu pouzit i jiny standard kdyz bude lepsi
 * plavou mi pismena v k-splay
 * (nasobeni 2^x-1: nebylo by to rychlejsi?)
 * knihovni cast, neobecna (explicitne) VS experimenty nad tim napsane

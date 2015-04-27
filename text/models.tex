@@ -57,7 +57,7 @@ In general, static RAM is fast and expensive, while dynamic RAM is slow,
 cheap and more space-efficient. Main memories are usually dynamic.
 
 CPU speeds are growing faster (60\% per year) than speeds of memory (10\% per
-year) (measurements by \cite{Ailamaki:2004:DAN:1316689.1316801}).
+year) \cite{Ailamaki:2004:DAN:1316689.1316801}.
 A fast CPU needs to wait several hundred cycles to perform a RAM access.
 TODO: source "several hundred"
 To alleviate the costs of memory transfers, several levels of static RAM
@@ -195,7 +195,7 @@ The cache is, however, assumed to be unrealistically powerful: it is fully
 associative and the replacement policy is optimal. Fortunately, fully
 associative caches with optimal replacement can be simulated with a
 $2\times$ slowdown on $2\times$ larger LRU or FIFO caches
-(\cite{sleator1985amortized}).
+\cite{sleator1985amortized}.
 The performance of many cache-oblivious algorithms is only slowed down
 by a constant factor when we halve the number of blocks, so cache-oblivious
 algorithms can usually be adopted in real world programs with only a constant

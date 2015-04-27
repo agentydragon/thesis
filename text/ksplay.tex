@@ -21,9 +21,8 @@ B-tree operations take $\Theta(\log_b N)$ node accesses. It can be proven that
 $k$-splay tree operations need at most $\O(\log N)$ amortized node accesses,
 which matches ordinary splay trees, but unfortunately $k$-splay trees
 do not match the optimal $\O(\log_k N)$ bound given by B-trees. In particular,
-McClurkin and Georgakopoulos (\citeyear{ksplay-nonopt}) found a family
-of counterexample trees, in which repeatedly $k$-splaying deepest nodes
-requires $\log N$ node accesses.
+\cite{ksplay-nonopt} found a family of counterexample trees, in which
+repeatedly $k$-splaying deepest nodes requires $\log N$ node accesses.
 
 $k$-splay trees are proven in \cite{ksplay-sherk} to be $\log k$-competitive
 compared to static optimal $k$-ary search trees.

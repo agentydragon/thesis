@@ -82,12 +82,12 @@ Trivially, random hash functions are $k$-wise independent for any $k\leq |U|$.
 Some common universal families of hash functions include:
 \begin{itemize}
 \item $h(k)=((a\cdot k)\bmod p)\bmod M$, where $p$ is a prime $\geq |U|$
-	and $a\in\{0,\ldots p-1\}$ (\cite{univ-classes}).
+	and $a\in\{0,\ldots p-1\}$ \cite{univ-classes}.
 	The collision probability for this hash function is
 	$\frac{\lfloor p/M\rfloor}{p-1}$, so it becomes less efficient
 	if $M$ is close to $p$.
 \item $(a\cdot k)\gg(\log u-\log m)$ for $M, |U|$ powers of 2
-	(\cite{dietzfelbinger}).
+	\cite{dietzfelbinger}.
 	This hash function replaces modular arithmetic by bitwise shifts,
 	which are faster on hardware.
 \item \emph{Simple tabulation hashing} (\cite{univ-classes}):
@@ -112,8 +112,8 @@ time per operation, with high probability (i.e.  $P=1-N^{-c}$ for an arbitrary
 choice of $c$) there is at least one chain with at least $\O(\log N/\log\log N)$
 items. The high-probability worst-case bound on operation time also applies
 to hash functions with a high independence ($\O(\log N/\log\log N)$)
-(\cite{chernoff-hoeffding-bounds}) and simple tabulation
-hashing (\cite{power-of-simple-tab}).
+\cite{chernoff-hoeffding-bounds} and simple tabulation
+hashing \cite{power-of-simple-tab}.
 
 \section{Perfect hashing}
 \emph{Perfect hashing} avoids the issue of collisions by picking a hashing
@@ -369,9 +369,9 @@ $\O(\frac{1}{N})$ (\cite{cuckoo-hashing}).
 6-independence is not enough: some 6-independent hash functions have a
 failure probability of $\O(1-\frac{1}{N})$ (\cite{cuckoo-hashing-indep-bounds}).
 The build failure probability when using simple tabulation hashing is
-$\O(N^{1/3})$. An example degenerate case with $\Omega(N^{1/3})$ build
-failure probability is storing all keys $(a,b,c)$, where $a,b,c\in[N^{1/3}]$
-(\cite{power-of-simple-tab}).
+$\O(N^{1/3})$. \cite{power-of-simple-tab} demonstrates that storing all keys
+$(a,b,c)$, where $a,b,c\in[N^{1/3}]$, is a degenerate case with
+$\Omega(N^{1/3})$ build failure probability.
 
 \begin{figure}
 	\centering
@@ -410,7 +410,7 @@ Examples of $\Theta(\log N)$-independent hashing schemes include:
 	which evaluates faster than $\log N$. A scheme from \cite{siegel-1995}
 	needs only $\O(1)$ time to evaluate. Unfortunately, constructing a hash
 	function by Siegel's scheme has high constant factors, so it is not
-	very practical (\cite{pagh-phd}).
+	very practical \cite{pagh-phd}.
 \end{itemize}
 
 % Both schemes need $\O(N^\epsilon)$ space to store the function.
