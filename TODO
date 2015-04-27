@@ -9,9 +9,6 @@
 * oznamit, ze budu merit na Lenovu
 * oznamit CPU Lenova, kolik ma jader
 * Konkretni latence (vykrast od Intelu) -- odkaz na AIM (van Eick)
-* veta o konstantnim faktoru oproti dokonale cache
-* externi pamet: mozna zminit trik, ze staci pocitat read I/Os? (assuming ze
-  prectu cokoliv co jsem zapsal)
 * B-trees: <=$b$ key-value pairs: mam tam dost zmatek v $b$/$b$+1, otevrene a
   uzavrene intervaly, atd.
 * generalizovat na (a,b)-stromy? (b=2a NEBO b=2a-1: jine amortizovane chovani
