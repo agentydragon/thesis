@@ -212,7 +212,12 @@ The synthetic setups include:
 	\emph{Random inserts and finds}: We generate pseudorandom key-value
 	pairs by applying two deterministic invertible functions $k(i)$
 	and $v(i)$ for $i$ between 0 and $S-1$.
-	These simple functions use a Feistel network to provide
+	These simple functions use a Feistel network\footnote{
+		A Feistel network is a simple construction for building
+		ciphers from one-way functions. A treatment of several ciphers
+		based on Feistel networks is included in
+		\cite{applied-cryptography}.
+	} to provide
 	``sufficiently randomly behaving'' key-value pairs while letting us
 	derive $i$ from $k(i)$ or $v(i)$, which aids debugging.
 
