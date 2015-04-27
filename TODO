@@ -19,8 +19,6 @@
 * plavou mi pismena v k-splay
 * (nasobeni 2^x-1: nebylo by to rychlejsi?)
 * knihovni cast, neobecna (explicitne) VS experimenty nad tim napsane
-* (pointery - nezpomaluje experimenty virtualnost? asi aspon oddiskutovat)
-* find_next/_prev pointers? aspon oddiskutovat ze to nedelame.
 * upravovatelne pointery? ("vrat mi pointer, ja ho budu upravovat do dalsiho
   accessu)
 * vraceni intu? mel bych to natypedefovat na chybovou navratovou hodnotu
