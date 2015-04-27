@@ -119,6 +119,15 @@ bool dict_allows_order_queries(const dict*);
 bool dict_next(dict*, uint64_t key, uint64_t *next_key);
 bool dict_prev(dict*, uint64_t key, uint64_t *prev_key);
 \end{lstlisting}
+If we iterate over a dictionary in key order, many data structures can benefit
+from keeping a ``finger'' on the last returned key-value pair. For example,
+if we enumerate the keys of a B-tree in order without auxilliary data, we need
+to perform $\O(\log N)$ operations on every query. This can be easily improved
+to $\O(1)$ amortized by stashing the last visited node between queries.
+For simplicity, we did not implement order queries with a finger. While this
+makes our data structures slower on key enumerations, we believe the penalty
+is roughly similar on all data structures, so our results should still be
+representative enough.
 
 Every data structure implementation exposes a global variable of type
 \texttt{const dict\_api} named \texttt{dict\_mydatastructure}. For example,
@@ -155,6 +164,18 @@ void example_btree(void) {
 	dict_destroy(&btree);
 }
 \end{lstlisting}
+
+This approach requires an indirect jump through the ``virtual method table''
+whenever we write implementation-agnostic code. Removing this indirect jump
+by directly compiling against a particular implementation is likely to slightly
+speed up the code. On the other hand, our tests are usually long-running, so in
+the typical case, the target of the indirect jump will be cached, which should
+imply a very low overhead. Even if this indirect jumping were expensive, it
+would not significantly affect our results -- every data structure under test
+is invoked through indirect jumping, so the performance penalty is the same
+on every data structure. While absolute data structure speed may be impacted
+by this design decision, relative differences between data structures should
+stay the same with a virtual call or without.
 
 Finally, we have decided to reserve one key for internal purposes.
 This key is defined in \texttt{dict/dict.h} as the macro
@@ -212,7 +233,12 @@ The synthetic setups include:
 	\emph{Random inserts and finds}: We generate pseudorandom key-value
 	pairs by applying two deterministic invertible functions $k(i)$
 	and $v(i)$ for $i$ between 0 and $S-1$.
-	These simple functions use a Feistel network to provide
+	These simple functions use a Feistel network\footnote{
+		A Feistel network is a simple construction for building
+		ciphers from one-way functions. A treatment of several ciphers
+		based on Feistel networks is included in
+		\cite{applied-cryptography}.
+	} to provide
 	``sufficiently randomly behaving'' key-value pairs while letting us
 	derive $i$ from $k(i)$ or $v(i)$, which aids debugging.
 

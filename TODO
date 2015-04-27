@@ -9,10 +9,6 @@
 * oznamit, ze budu merit na Lenovu
 * oznamit CPU Lenova, kolik ma jader
 * Konkretni latence (vykrast od Intelu) -- odkaz na AIM (van Eick)
-* veta o konstantnim faktoru oproti dokonale cache
-* externi pamet: mozna zminit trik, ze staci pocitat read I/Os? (assuming ze
-  prectu cokoliv co jsem zapsal)
-* tall cache assumption je asi spatne! (#bloku >= B)
 * B-trees: <=$b$ key-value pairs: mam tam dost zmatek v $b$/$b$+1, otevrene a
   uzavrene intervaly, atd.
 * generalizovat na (a,b)-stromy? (b=2a NEBO b=2a-1: jine amortizovane chovani
@@ -23,11 +19,8 @@
 * plavou mi pismena v k-splay
 * (nasobeni 2^x-1: nebylo by to rychlejsi?)
 * knihovni cast, neobecna (explicitne) VS experimenty nad tim napsane
-* (pointery - nezpomaluje experimenty virtualnost? asi aspon oddiskutovat)
-* find_next/_prev pointers? aspon oddiskutovat ze to nedelame.
 * upravovatelne pointery? ("vrat mi pointer, ja ho budu upravovat do dalsiho
   accessu)
 * vraceni intu? mel bych to natypedefovat na chybovou navratovou hodnotu
 * slova -> integery pomoci simple hash fn: popsat simple hash fn
-* cite Feistel network (TODO: how?)
 * experiment o neuspesnych findech
