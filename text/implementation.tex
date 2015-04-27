@@ -269,7 +269,10 @@ The synthetic setups include:
 	\emph{Word occurrence counting}: We load a large text document
 	and we tokenize it into words. Each word is then normalized
 	to lowercase and transformed into a 64-bit integer via a simple
-	hash function $h$. We create a dictionary storing counts of word
+	hash function $h$\footnote{
+		We use the 64-bit version of the FNV-1 hash function
+		(\url{http://www.isthe.com/chongo/tech/comp/fnv/}).
+	}. We create a dictionary storing counts of word
 	occurrences keyed by word hashes. Each word $w$ is inserted into
 	the dictionary by either inserting a new $\langle h(w), 1\rangle$ pair,
 	or deleting an existing pair for $h(w)$ and inserting a new one
