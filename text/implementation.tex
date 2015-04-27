@@ -269,7 +269,10 @@ The synthetic setups include:
 	\emph{Word occurrence counting}: We load a large text document
 	and we tokenize it into words. Each word is then normalized
 	to lowercase and transformed into a 64-bit integer via a simple
-	hash function $h$. We create a dictionary storing counts of word
+	hash function $h$\footnote{
+		We use the 64-bit version of the FNV-1 hash function
+		(\url{http://www.isthe.com/chongo/tech/comp/fnv/}).
+	}. We create a dictionary storing counts of word
 	occurrences keyed by word hashes. Each word $w$ is inserted into
 	the dictionary by either inserting a new $\langle h(w), 1\rangle$ pair,
 	or deleting an existing pair for $h(w)$ and inserting a new one
@@ -351,7 +354,7 @@ be downloaded by running \texttt{./download.sh} from within
 \texttt{experiments/cloud}.
 
 We used data from \emph{Extended Edited Synoptic Cloud Reports from Ships and
-Land Stations Over the Globe, 1952-2009 (NDP-026C)} (\cite{cloud-reports}).
+Land Stations Over the Globe, 1952-2009 (NDP-026C)} \cite{cloud-reports}.
 The main part of this dataset consists of 196 compressed plaintext files
 containing one cloud report per line. Aside from many other fields,
 each report contains the date and UTC hour, the longitude and latitude of the

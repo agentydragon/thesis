@@ -2,7 +2,7 @@
 \addcontentsline{toc}{chapter}{Conclusion}
 
 Several data structures based on tries have also been proposed for the
-dictionary problem. One example are \emph{y-fast tries} (\cite{y-fast}),
+dictionary problem. One example are \emph{y-fast tries} \cite{y-fast},
 which allow \textsc{Find}s in time $\O(1)$ and updates and predecessor/successor
 queries in time $\O(\log\log |U|)$, where $U$ is the key universe. They require
 $\O(N \log\log |U|)$ memory.
@@ -14,7 +14,7 @@ for operations.
 % TODO: Try to find some practical numbers.
 
 \emph{Judy arrays} are highly optimized dictionaries developed at IBM
-(\cite{judy-shop-manual}, \cite{judy-patent}).
+\cite{judy-shop-manual, judy-patent}.
 IBM sources claim that Judy arrays are very efficient in practice.
 The data structure is based on sparse 256-ary tries with implementation tricks
 that compress the representation.

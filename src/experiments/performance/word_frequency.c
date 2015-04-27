@@ -51,6 +51,7 @@ static void normalize(char* word) {
 // We could probably get around this by just smartly encoding words into
 // 64-bit integers.
 static uint64_t hash_word(const char* word) {
+	// 64-bit FNV-1
 	uint64_t hash = 14695981039346656037ULL;
 	for (const char* p = word; *p; p++) {
 		hash = (hash * 1099511628211LL) ^ (*p);

@@ -36,7 +36,7 @@ Other layouts of full binary trees include the BFS or DFS order.
 
 Surprisingly, the van Emde Boas layout was not invented by van Emde Boas.
 The name comes from the earlier \emph{van Emde Boas priority queue},
-which was invented by \citeauthor{van-emde-boas} in \citeyear{van-emde-boas}.
+which was invented by a team led by Peter van Emde Boas \cite{van-emde-boas}.
 The van Emde Boas priority queue uses a height splitting scheme similar
 to the van Emde Boas layout. The cache-oblivious application of this idea
 was devised in \cite{veb-layout}.
@@ -727,12 +727,12 @@ with $x_{2i} < x_{2i+1}$ corresponding to 1 and $x_{2i} > x_{2i+1}$
 corresponding to 0.
 
 \cite{implicit-btrees-survey} gives an overview of progress on implicit
-dictionaries.  In \citeyear{implicit-cob}, \citeauthor{implicit-cob} reached
-the optimal bound of $\Theta(\log_B N)$ block transfers per search or operation
-in an implicit setting. Similarly to the simple cache-oblivious B-tree, their
-construction uses the deamortized version of the packed memory array
-in conjunction with the van Emde Boas layout. To avoid holes in the packed
-memory array, the elements of the packed memory array are chunks of keys.
+dictionaries.  \cite{implicit-cob} reached the optimal bound of
+$\Theta(\log_B N)$ block transfers per search or operation in an implicit
+setting. Similarly to the simple cache-oblivious B-tree, their construction
+uses the deamortized version of the packed memory array in conjunction with
+the van Emde Boas layout. To avoid holes in the packed memory array,
+the elements of the packed memory array are chunks of keys.
 Several other modifications are necessary to allow updates in size, which
 requires building the structure on the fly.
 We decided not to implement the implicit cache-oblivious B-tree due
