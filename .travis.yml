@@ -12,4 +12,6 @@ install:
         - sudo apt-get -qq install g++-4.9 libjansson-dev
 script:
         - export CC=gcc-4.9
-        - cd src; make test
+        - cd src
+        - mkdir bin/experiments
+        - make test
