@@ -75,7 +75,10 @@ recording* load_recording(const char* path) {
 	CHECK(fp, "cannot open recording at %s", path);
 	char line[1024];
 	while (!feof(fp)) {
-		fgets(line, sizeof(line), fp);
+		if (fgets(line, sizeof(line), fp) == NULL) {
+			// TODO: I'd really like to ignore the return value.
+			break;
+		}
 		recorded_operation operation = parse_line(line);
 		insert_operation(record, operation);
 	}
