@@ -12,7 +12,6 @@
 * veta o konstantnim faktoru oproti dokonale cache
 * externi pamet: mozna zminit trik, ze staci pocitat read I/Os? (assuming ze
   prectu cokoliv co jsem zapsal)
-* tall cache assumption je asi spatne! (#bloku >= B)
 * B-trees: <=$b$ key-value pairs: mam tam dost zmatek v $b$/$b$+1, otevrene a
   uzavrene intervaly, atd.
 * generalizovat na (a,b)-stromy? (b=2a NEBO b=2a-1: jine amortizovane chovani
@@ -29,5 +28,4 @@
   accessu)
 * vraceni intu? mel bych to natypedefovat na chybovou navratovou hodnotu
 * slova -> integery pomoci simple hash fn: popsat simple hash fn
-* cite Feistel network (TODO: how?)
 * experiment o neuspesnych findech
