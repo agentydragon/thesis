@@ -7,6 +7,7 @@
 #include "rand/rand.h"
 #include "measurement/stopwatch.h"
 #include "util/consume.h"
+#include "util/fnv.h"
 
 struct {
 	operation_type operation;
@@ -30,6 +31,16 @@ static void insert_operation(recording* this, recorded_operation operation) {
 	this->operations[this->length++] = operation;
 }
 
+static uint8_t parse_hex(char c) {
+	if (c >= '0' && c <= '9') {
+		return (c - '0');
+	} else if (c >= 'a' && c <= 'f') {
+		return (c - 'a') + 10;
+	} else {
+		log_fatal("unparseable hex char %c", c);
+	}
+}
+
 static recorded_operation parse_line(const char* line) {
 	bool found = false;
 	recorded_operation operation;
@@ -48,18 +59,28 @@ static recorded_operation parse_line(const char* line) {
 	// Try to parse the key, pretending it's a 64-bit integer.
 	// (It probably won't actually be, through.)
 	operation.key = 0;
-	while (*key && *key != '\n') {
-		const char c = *key;
-		operation.key <<= 4;
-		if (c >= '0' && c <= '9') {
-			operation.key |= (c - '0');
-		} else if (c >= 'a' && c <= 'f') {
-			operation.key |= (c - 'a') + 10;
-		} else {
-			log_fatal("unparseable key char %c in line %s",
-					c, line);
+
+	uint64_t nibbles = 0;
+	for (char const * octet_ptr = key; *octet_ptr && *octet_ptr != '\n';
+			++octet_ptr) {
+		++nibbles;
+	}
+	if (nibbles <= 8) {
+		// The key is at most 64-bit, it will fit into our data
+		// structures.
+		while (*key && *key != '\n') {
+			operation.key <<= 4;
+			operation.key |= parse_hex(*key);
+			++key;
 		}
-		++key;
+	} else {
+		// Fold the key via FNV-1 to fit.
+		fnv1_state state = fnv1_begin();
+		while (*key && *key != '\n') {
+			fnv1_add(&state, *key);
+			++key;
+		}
+		operation.key = fnv1_finish(state);
 	}
 	return operation;
 }

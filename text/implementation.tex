@@ -203,7 +203,7 @@ We implemented the following dictionary data structures:
 \item \texttt{dict\_splay}, declared in \texttt{dict/splay.h}:
 	a splay tree (Chapter~\ref{chapter:splay}).
 \item \texttt{dict\_ksplay}, declared in \texttt{dict/ksplay.h}:
-	a $k$-splay tree (Chapter~\ref{chapter:ksplay}). % TODO: which K?
+	a $k$-splay tree (Chapter~\ref{chapter:ksplay}). % FIXME: which K?
 % TODO: htable
 \end{itemize}
 
@@ -318,8 +318,12 @@ After a browsing session, we counted the number of operations logged
 on every \texttt{nsTHashtable} instance and we selected the top 10
 instances with most operations.
 
-TODO: what about variable-length keys (folding)
-TODO: what about values
+Unlike our framework, \texttt{nsTHashtable} allows arbitrary-size keys and
+values. We did not record stored values, as this experiment was only indended to
+gather practical access patterns, which depend only on keys.
+For hash tables with keys smaller than 64 bits, we simply zero-padded the keys
+for our data structures. Bigger keys were compressed by applying the FNV-1
+hash function to individual octets.
 
 Presumably for the sake of optimization, \texttt{nsTHashtable} has a more
 liberal interface than we implemented. Aside from searches and updates,
