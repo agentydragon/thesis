@@ -255,7 +255,8 @@ of key-value pairs to slots in $L$ or $R$ forms a matching on the graph.
 
 \textsc{Find}s take $\O(1)$ worst-case time: they compute $h_l(k)$ and $h_r(k)$
 and look at the two indices in $L$ and $R$. The two reads are independent and
-can potentially be executed in parallel (TODO: superscalar CPU).
+can potentially be executed in parallel, especially on modern CPUs with
+instruction reordering.
 
 The load factor of the cuckoo hash table needs to be kept between two
 constants, so \textsc{Delete} takes $\O(1)$ amortized time.
