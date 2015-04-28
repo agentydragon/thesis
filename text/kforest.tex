@@ -70,7 +70,7 @@ for any $j\in\{1,\ldots M\}$, let $t(j)$ be the number of distinct
 keys accessed since the last access of key $K_{k_j}$.
 \cite{martel} proves the following theorems analogous to desirable properties
 of splay trees:
-\begin{theorem}[Working Set Theorem $k$-forests]
+\begin{theorem}[Working Set Theorem for $k$-forests]
 	With LRU demotion, the $j$th lookup accesses $\O(\log_k t(j))$ nodes.
 	With random demotion, it accesses expected $\O(\log_k t(j))$ nodes.
 \end{theorem}
@@ -91,10 +91,10 @@ $k$-forests to build data structures with the \emph{unified property},
 which is a strong generalization of the dynamic finger property and the working
 set property of splay trees.
 It is not known whether splay trees also have the unified property.
-Additionally, the new data structure improves upon splay trees by guaranteeing
-a worst-case access time of $\O(\log N)$. Unfortunately, the structure
-(as described by the author) is static and highly complex: each node of
-the structure stores 21 pointers.
+The data structure from \cite{alternatives-to-splay-trees} also improves
+upon splay trees by guaranteeing a worst-case access time of $\O(\log N)$.
+Unfortunately, the structure (as described by the authors) is static and highly
+complex: each node of the structure stores 21 pointers.
 
 TODO: unified-access-bound = K-forest + finger search tree???
 unified-access-bound-on-comparison-dicts.pdf
