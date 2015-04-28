@@ -14,7 +14,6 @@ Scanning a range of $t$ keys also takes $\Theta(\log_B N+t/B)$ time.
 The original cache-oblivious B-tree as described in \cite{cobt} used
 weight-balanced B-trees. We implement a simplified version of the structure
 from \cite{brodal01}, which is composed of three components.
-% TODO: nevadi ze jsou v citacich data obracene nez by davalo smysl?
 The \emph{van Emde Boas layout} of binary trees is a way of cache-obliviously
 maintaining full binary trees in memory such that reading or updating any
 root-to-leaf path in root-to-leaf or leaf-to-root order takes $\Theta(\log_B N)$
@@ -399,7 +398,7 @@ of the array using a left-to-right scan, followed by a right-to-left scan
 putting items into their final destinations. Thus,
 redistributing a range of $K$ items takes $\Theta(K/B)$ block transfers.
 
-TODO: figure of redistribution
+% TODO: figure of redistribution
 
 \begin{theorem}
 The block-transfer cost of an update of the packed-memory array

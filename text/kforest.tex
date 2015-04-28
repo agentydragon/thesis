@@ -94,12 +94,13 @@ upon splay trees by guaranteeing a worst-case access time of $\O(\log N)$.
 Unfortunately, the structure (as described by the authors) is static and highly
 complex: each node of the structure stores 21 pointers.
 
-TODO: unified-access-bound = K-forest + finger search tree???
-unified-access-bound-on-comparison-dicts.pdf
+% TODO: unified-access-bound = K-forest + finger search tree???
+% unified-access-bound-on-comparison-dicts.pdf
 
+FIXME: Deal with this paragraph.
 \cite{dynamic-optimality-for-sl} uses a similar doubly exponential construction
 to build a self-adjusting skip list. Operations on this skip list take time
-$\O(\log t_i(x_j))$ TODO:fix and define vars, which matches the working set
+$\O(\log t_i(x_j))$ FIXME:fix and define vars, which matches the working set
 bound on splay trees. This structure is also shown to be dynamically optimal
 for the SL-B model, which corresponds to skip lists which allow at most
 $B$ forward moves on any level (for some fixed $B$). Skip lists in the

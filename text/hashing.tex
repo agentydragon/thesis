@@ -21,7 +21,7 @@ of keys as indices in an array, which we call the \emph{hash table}.
 The $i$-th element of the hash table may either be empty, or it may contain
 a key-value pair $(k,v)$, where $h(k)=i$.
 
-TODO: figure
+% TODO: figure
 
 As long as all inserted keys have distinct hashes, hash tables are easy:
 \textsc{Find}s, \textsc{Insert}s and \textsc{Delete}s all consist of just
@@ -366,9 +366,9 @@ properties of the hashing functions.
 If the hash functions are $\Theta(\log N)$-independent, updates take expected
 amortized time $\O(1)$ and the failure probability (i.e.\ the probability that
 an \textsc{Insert} will force us to rebuild the entire structure) is
-$\O(\frac{1}{N})$ (\cite{cuckoo-hashing}).
+$\O(\frac{1}{N})$ \cite{cuckoo-hashing}.
 6-independence is not enough: some 6-independent hash functions have a
-failure probability of $\O(1-\frac{1}{N})$ (\cite{cuckoo-hashing-indep-bounds}).
+failure probability of $\O(1-\frac{1}{N})$ \cite{cuckoo-hashing-indep-bounds}.
 The build failure probability when using simple tabulation hashing is
 $\O(N^{1/3})$. \cite{power-of-simple-tab} demonstrates that storing all keys
 $(a,b,c)$, where $a,b,c\in[N^{1/3}]$, is a degenerate case with
