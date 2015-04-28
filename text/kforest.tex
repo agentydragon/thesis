@@ -77,8 +77,8 @@ of splay trees:
 
 Again, let $q(K_i)$ be the number of accesses of $K_i$.
 \begin{theorem}[Static Optimality Theorem for $k$-forests]
-	Accessing a sequence of keys $\{K_{k_i}: i\leq M\}$ requires accessing
-	$\O(\sum_{i=1}^N q(K_i) \log_k \frac{M}{q(K_i)})$.
+	Accessing a sequence of keys $\{K_{k_i}: i\leq M\}$ requires
+	$\O(\sum_{i=1}^N q(K_i) \log_k \frac{M}{q(K_i)})$ node accesses.
 \end{theorem}
 
 We implemented $k$-forests with random demotion to benchmark their performance,
