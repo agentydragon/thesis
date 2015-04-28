@@ -94,7 +94,14 @@ Data Structures course as taught by Erik Demaine on MIT in spring 2012.
 Lecture videos and other materials are available through MIT OpenCourseWare\footnote{
 \url{http://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-851-advanced-data-structures-spring-2012/index.htm}}.
 
-\section*{Notation}
+\section*{Notation and conventions}
 In this thesis, logarithms are in base 2 unless stated otherwise.
 Chapter \ref{chapter:cob} uses the \emph{hyperfloor} operation
 $\lhfloor x\rhfloor$, which is defined as $2^{\lfloor\log x\rfloor}$.
+
+This thesis contains several references to memory sizes. The base units of
+memory size are traditionally powers of two to simplify some operations on
+addresses.
+When discussing memory, we shall follow this convention, so
+$1\ \mathrm{kB}=1024\ \mathrm{B}$, $1\ \mathrm{MB}=1024\ \mathrm{kB}$,
+and so on.

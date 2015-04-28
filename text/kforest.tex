@@ -13,9 +13,7 @@ randomized version of the data structure achieves the same expected bound.
 It can be proven that a generalization of the Static Optimality theorem
 also applies to $k$-forests: an element with access probability $p$
 will have average lookup time $\O\left(\min\{\log_k \frac{1}{p}, \log_k
-N\}\right)$.
-
-% TODO: and also working set theorem
+N\}\right)$. $k$-forests also have the working set property.
 
 On the other hand, $k$-forests do not have fast finger queries. Scanning
 a $k$-forest in increasing key order takes $\Omega(N\log_k N)$. Furthermore,
