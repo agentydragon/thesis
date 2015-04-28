@@ -98,13 +98,33 @@ TODO: dedication.
 
 % Abstract (recommended length around 80-200 words; this is not a copy of your thesis assignment!)
 \def\Abstract{%
-TODO: abstract; recommended length ~80-200 words.
+	We implement and benchmark several common and uncommon
+	data structures implementing ordered and unordered dictionaries.
+
+	The performance of modern computers is not modelled very closely by
+	traditional models (e.g.\ Turing machines or RAM). Many data structures
+	have been developed to exploit the memory hierarchy. It is well known
+	that cache-aware data structures, like B-trees, perform very well
+	on hard drives. To gauge the benefits that can be gained by cache-aware
+	data structures in main memory, we benchmark B-trees and cache-oblivious
+	B-trees.
+
+	Many dictionary data structures are self-adjusting, and such data
+	structures are difficult to reconcile with block-level accesses
+	in a memory hierarchy: for example, splay trees perform $\O(\log N)$
+	amortized memory reads from unpredictable locations on every
+	\textsc{Find}. In comparison, B-trees only need $\O(\log_B N)$ cache
+	misses per access.
+
+	We explore the performance benefits of self-adjusting by comparing
+	splay trees, $k$-splay trees and $k$-forests with non-self-adjusting
+	structures.
 }
 
 % 3 to 5 keywords (recommended), each enclosed in curly braces
 \def\Keywords{
 	{cache oblivious algorithms}, {data structures}, {dictionaries},
-	{self-adjusting search trees}
+	{search trees}
 }
 
 %% The hyperref package for clickable links in PDF and also for storing
