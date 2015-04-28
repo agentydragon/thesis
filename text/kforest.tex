@@ -61,12 +61,33 @@ from random demotion equal the deterministic time bounds of LRU demotion.
 until the forest is fixed.
 \textsc{Delete} finds the pair in its tree $T_i$ and removes it, and
 then promotes items from all trees $T_{i+1},T_{i+2},\ldots$
+Since both \textsc{Insert} and \textsc{Delete} need to promote and demote items
+in potentially every tree $T_i$, they both access $\O(\log N)$ nodes.
 
-% TODO: theorems about speeds of finds, inserts, deletes
-TODO: find complexity == entropy
+As in our description of splay trees, let $K$ be the set of keys,
+let $\{k_i: i\leq M\}$ be the sequence of indexes of accessed keys and
+for any $j\in\{1,\ldots M\}$, let $t(j)$ be the number of distinct
+keys accessed since the last access of key $K_{k_j}$.
+\cite{martel} proves the following theorems analogous to desirable properties
+of splay trees:
+\begin{theorem}[Working Set Theorem $k$-forests]
+	With LRU demotion, the $j$th lookup accesses $\O(\log_k t(j))$ nodes.
+	With random demotion, it accesses expected $\O(\log_k t(j))$ nodes.
+\end{theorem}
 
+Again, let $q(K_i)$ be the number of accesses of $K_i$.
+\begin{theorem}[Static Optimality Theorem for $k$-forests]
+	Accessing a sequence of keys $\{K_{k_i}: i\leq M\}$ requires accessing
+	$\O(\sum_{i=1}^N q(K_i) \log_k \frac{M}{q(K_i)})$.
+\end{theorem}
+
+We implemented $k$-forests with random demotion to benchmark their performance,
+especially to examine the constant multiplicative factors taken by promoting
+and demoting in every operation.
+
+\section{Related results}
 \cite{alternatives-to-splay-trees} and \cite{unified-access-bound} extend
-K-forests to build data structures with the \emph{unified property},
+$k$-forests to build data structures with the \emph{unified property},
 which is a strong generalization of the dynamic finger property and the working
 set property of splay trees.
 It is not known whether splay trees also have the unified property.
