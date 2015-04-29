@@ -390,11 +390,28 @@ storing parent pointers makes nodes less memory-efficient, especially
 with small sizes of keys.
 
 A common optimization from the original paper \cite{splay} is
-\emph{top-down splaying}, which simulates splaying while searching.
-% FIXME: Extend or cite a better description.
-% TODO: The tree is traversed 2 nodes at a time, and
-% two trees $L$ and $R$ are maintained. Encountered branches smaller than
-% the sought key are put under the $L$ tree, and branches
+\emph{top-down splaying}, which splays while searching.
+Top-down splaying maintains three trees while looking up a key $k$:
+the left tree $L$, the right tree $R$ and the middle tree $M$.
+$L$ holds nodes with keys smaller than $k$ and $R$ holds nodes with keys
+larger than $k$. $M$ contains yet unexplored nodes.
+Nodes are only inserted into the rightmost empty child pointer of $L$
+and the leftmost empty child pointer of $R$. The locations of the rightmost
+empty child pointer of $L$ and leftmost empty child pointer of $R$ are
+maintained while splaying. Denote these locations $L_+$ and $R_-$.
+
+Initially, $L$ and $R$ are both empty and $M$ contains the entire splay tree.
+
+Every splaying step processes up to 2 upper levels of $M$. All nodes in these
+levels are put either under $L_+$, or $R_-$ depending on whether their keys
+are larger or smaller than $k$. $L_+$ and $R_-$ are then updated to point
+to the new empty child pointers.
+Finally, when $M$ has $k$ in the root, we compose the root of $M$ with its
+two children, $L$, and $R$.
+
+An implementation of top-down splaying in C by Sleator is available
+at \url{http://www.link.cs.cmu.edu/link/ftp-site/splaying/top-down-splay.c}.
+% TODO: Extend the description? Figure?
 
 \section{Applications}
 A drawback of splay trees is that accessing the $\O(\log N)$ amortized
