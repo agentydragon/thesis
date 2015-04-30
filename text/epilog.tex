@@ -1,6 +1,32 @@
 \chapter*{Conclusion}
 \addcontentsline{toc}{chapter}{Conclusion}
 
+We confirmed that cache-oblivious B-trees are practically competitive with
+more common data structures in main memory, especially on larger dictionaries
+and uniform access patterns.
+
+Our implementation of $k$-splay trees and $k$-forests performed very badly.
+
+FIXME: What was slow about $k$-splay and $k$-forests?
+
+FIXME: Hashing sometimes slower than splay trees
+
+\section*{Suggestions for further research}
+The dictionary problem is well-explored, including structures for efficient
+in particular models of computation and practical libraries for real computers.
+The space-time limitations of this thesis unfortunately did not permit us to
+completely survey all of them.
+
+We believe an benchmarking various non-traditional self-adjusting structures,
+like Tango trees from \cite{tango} or multi-splay trees from
+\cite{multisplay-trees}, could give interesting results. Splay trees are very
+performant on practical access patterns, but their worst-case $\O(N)$ behavior
+limits their usefulness in time-sensitive systems. Some self-adjusting
+structures provide better worst-case access times (e.g.\ $\O(\log N)$ in
+multi-splay trees. On the other hand, the implementation of splay trees
+are considerably simpler, so the complexity of operations might outweight
+time saved by fewer cache misses in the worst case.
+
 Several data structures based on tries have also been proposed for the
 dictionary problem. One example are \emph{y-fast tries} \cite{y-fast},
 which allow \textsc{Find}s in time $\O(1)$ and updates and predecessor/successor
