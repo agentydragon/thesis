@@ -14,11 +14,14 @@ def mentioned_apis(data):
 
 def apis_with_colors(data):
   return zip(mentioned_apis(data),
-             ['r-', 'g-', 'b-', 'c-', 'm-', 'y-', 'k-'])
+             ['r-', 'g-', 'b-', 'c-', 'm-', 'y-', 'k-', 'rx', 'gx', 'bx'])
 
 FIGURE_SIZE = (20,20)
 
-def plot_graph(data, title):
+def new_figure():
+  return pyplot.figure(1, figsize=FIGURE_SIZE)
+
+def plot_graph(data, title=None):
   def sizes(api_data):
     return [point['size'] for point in api_data]
   def times(api_data):
@@ -26,7 +29,7 @@ def plot_graph(data, title):
   def misses(api_data):
     return [point['metrics']['cache_misses'] / point['size'] for point in api_data]
 
-  pyplot.figure(1, figsize=FIGURE_SIZE)
+  new_figure()
   subplot = pyplot.subplot(211)
   subplot.set_title(title)
   subplot.set_xscale('log')
@@ -60,7 +63,7 @@ def plot_mispredicts(data, title):
                       point['metrics']['branches'])
     return result
 
-  pyplot.figure(1, figsize=FIGURE_SIZE)
+  new_figure()
   subplot = pyplot.subplot(211)
   subplot.set_title(title)
   subplot.set_xscale('log')
@@ -127,7 +130,7 @@ def plot_all_experiments():
 def plot_ksplay_ltr_counters():
   data = load_data(implementation='dict_ksplay', experiment='ltr_scan')
 
-  pyplot.figure(1, figsize=FIGURE_SIZE)
+  new_figure()
   pyplot.xscale('log')
   pyplot.ylabel('K-splay steps per element')
   pyplot.plot([point['size'] for point in data],
@@ -135,7 +138,7 @@ def plot_ksplay_ltr_counters():
   save_to('ltr-ksplays.png')
   pyplot.clf()
 
-  pyplot.figure(1, figsize=FIGURE_SIZE)
+  new_figure()
   pyplot.xscale('log')
   pyplot.ylabel('K-splay composed keys per element')
   pyplot.plot([point['size'] for point in data],
@@ -146,7 +149,7 @@ def plot_ksplay_ltr_counters():
 
 def plot_cuckoo_counters():
   data = load_data(implementation='dict_htcuckoo', experiment='serial-both')
-  figure = pyplot.figure(1, figsize=FIGURE_SIZE)
+  figure = new_figure()
   pyplot.xscale('log')
   # pyplot.ylabel('Full rehashes per insert')
   pyplot.ylabel('Cost of full rehashes per insert')
@@ -157,7 +160,7 @@ def plot_cuckoo_counters():
   save_to('cuckoo-full-rehashes.png')
   pyplot.clf()
 
-  figure = pyplot.figure(1, figsize=FIGURE_SIZE)
+  figure = new_figure()
   pyplot.xscale('log')
   pyplot.ylabel('Traversed edges per insert')
   pyplot.plot([point['size'] for point in data],
@@ -168,7 +171,7 @@ def plot_cuckoo_counters():
 
 def plot_pma_counters():
   data = load_data(implementation='dict_cobt', experiment='serial-both')
-  figure = pyplot.figure(1, figsize=FIGURE_SIZE)
+  figure = new_figure()
   # figure.set_title('PMA reorganizations in random inserts')
   # figure.set_xscale('log')
   pyplot.xscale('log')
@@ -181,13 +184,13 @@ def plot_pma_counters():
 
 def plot_cache_events(implementation, experiment):
   data = load_data(implementation=implementation, experiment=experiment)
-  pyplot.figure(1, figsize=FIGURE_SIZE)
+  new_figure()
   pyplot.xscale('log')
   pyplot.ylabel('Cache misses per element')
   for metric, color, label in [
       ('l1d_read_misses', 'r-', 'L1D read misses'),
       ('l1d_write_misses', 'r-', 'L1D write misses'),
-      ('l1i_read_misses', 'b-', 'L1D read misses'),
+      ('l1i_read_misses', 'b-', 'L1I read misses'),
       ('dtlb_read_misses', 'g-', 'dTLB read misses'),
       ('dtlb_write_misses', 'g-', 'dTLB write misses')]:
     pyplot.plot([point['size'] for point in data],
@@ -195,7 +198,172 @@ def plot_cache_events(implementation, experiment):
   pyplot.legend(loc='upper left')
   pyplot.grid(True)
 
+def select_time_per_op(data):
+  return [point['time_ns'] / point['size'] for point in data]
+
+def plot_cob_performance():
+  #hash_label = 'Hash table with linear probing (for reference)'
+  hash_label = 'Hash table with linear probing'
+  figsize = (6,6)
+
+  def find_speed_fig(**kwargs):
+    data = load_data(**kwargs)
+    data = [point for point in data
+            if point['implementation'] in ['dict_btree', 'dict_cobt',
+                                           'dict_htlp']]
+    # Random FINDs: cache-oblivious B-tree vs. B-tree vs. linear probing HT
+    pyplot.figure(1, figsize=figsize)
+    pyplot.xscale('log')
+    pyplot.xlabel('Dictionary size')
+    pyplot.ylabel('Time per operations [ns]')
+    pyplot.grid(True)
+
+    api_data = [point for point in data if point['implementation'] == 'dict_btree']
+    pyplot.plot([point['size'] for point in api_data],
+                select_time_per_op(api_data),
+                'r', linewidth=2.0, label='B-tree')
+
+    api_data = [point for point in data if point['implementation'] == 'dict_cobt']
+    pyplot.plot([point['size'] for point in api_data],
+                select_time_per_op(api_data),
+                'g', linewidth=2.0, label='Cache-oblivious B-tree')
+
+    api_data = [point for point in data if point['implementation'] == 'dict_htlp']
+    pyplot.plot([point['size'] for point in api_data],
+                select_time_per_op(api_data),
+                '#666666', linewidth=1.0, label=hash_label,
+                linestyle='dashed')
+
+    pyplot.legend(loc='upper left')
+
+  find_speed_fig(experiment='serial-findonly')
+  save_to('export/cob-performance-1.png')
+  pyplot.clf()
+
+  find_speed_fig(experiment='workingset', working_set_size=1000)
+  save_to('export/cob-performance-3.png')
+  pyplot.clf()
+
+  find_speed_fig(experiment='workingset', working_set_size=100000)
+  save_to('export/cob-performance-4.png')
+  pyplot.clf()
+
+  # Random INSERTs: cache-oblivious B-tree vs. B-tree vs. linear probing HT
+  # (Derived.)
+  pyplot.figure(1, figsize=figsize)
+  pyplot.xscale('log')
+  pyplot.xlabel('Dictionary size')
+  pyplot.ylabel('Time per operations [ns]')
+  pyplot.grid(True)
+
+  def get_difference(api):
+    find_pts = load_data(implementation=api, experiment='serial-findonly')
+    both_pts = load_data(implementation=api, experiment='serial-both')
+    find_pts = {point['size']: point['time_ns'] for point in find_pts}
+    both_pts = {point['size']: point['time_ns'] for point in both_pts}
+    difference = [(size, both_pts[size] - find_pts[size]) for size in find_pts]
+
+    # hack against mismeasurements
+    difference = [(size, diff) for size, diff in difference if diff > 0]
+
+    return sorted(difference, key=lambda x: x[0])
+
+  difference = get_difference('dict_btree')
+  pyplot.plot([size for size, _ in difference],
+              [time / size for size, time in difference],
+              'r', linewidth=2.0, label='B-tree')
+  difference = get_difference('dict_cobt')
+  pyplot.plot([size for size, _ in difference],
+              [time / size for size, time in difference],
+              'g', linewidth=2.0, label='Cache-oblivious B-tree')
+  difference = get_difference('dict_htlp')
+  pyplot.plot([size for size, _ in difference],
+              [time / size for size, time in difference],
+              '#666666', linewidth=1.0, label=hash_label,
+              linestyle='dashed')
+
+  #api_data = [point for point in data if point['implementation'] == 'dict_cobt']
+  #pyplot.plot([point['size'] for point in api_data],
+  #            select_time_per_op(api_data),
+  #            'g', linewidth=2.0, label='Cache-oblivious B-tree')
+
+  #api_data = [point for point in data if point['implementation'] == 'dict_htlp']
+  #pyplot.plot([point['size'] for point in api_data],
+  #            select_time_per_op(api_data),
+  #            'r', linewidth=1.0, label=hash_label,
+  #            linestyle='dashed')
+
+  pyplot.legend(loc='upper left')
+  save_to('export/cob-performance-2.png')
+  pyplot.clf()
+
+  pyplot.figure(1, figsize=(10,10))
+  def sizes(api_data):
+    return [point['size'] for point in api_data]
+  def times(api_data):
+    return [point['time_ns'] / point['size'] for point in api_data]
+  def misses(api_data):
+    return [point['metrics']['cache_misses'] / point['size'] for point in api_data]
+
+  data = load_data(experiment='serial-findonly')
+  new_figure()
+  for api, color, label in [
+      ('dict_btree', 'r-', 'B-tree'),
+      ('dict_cobt', 'g-', 'Cache-oblivious B-tree'),
+      ('dict_htcuckoo', 'b-', 'Cuckoo hash table'),
+      ('dict_htlp', 'c-', 'Hash table with linear probing'),
+      ('dict_kforest', 'k-', 'K-forest'),
+      ('dict_ksplay', 'y-', 'K-splay tree'),
+      ('dict_splay', 'm-', 'Splay tree')]:
+    api_data = select_api(data, api)
+    pyplot.plot(sizes(api_data), times(api_data), color, linewidth=2.0,
+                label=label)
+  pyplot.xscale('log')
+  pyplot.legend(loc='upper left')
+  pyplot.ylabel('Time per operation [ns]')
+  pyplot.grid(True)
+  save_to('export/overall-random-find.png')
+  pyplot.clf()
+
+  def plot_self_adj(**kwargs):
+    pyplot.figure(1, figsize=(10,10))
+    data = load_data(**kwargs)
+    new_figure()
+    for api, color, label in [
+        ('dict_splay', 'r-', 'Splay tree'),
+        ('dict_ksplay', 'g-', 'K-splay tree'),
+        ('dict_kforest', 'b-', 'K-forest')]:
+      api_data = select_api(data, api)
+      pyplot.plot(sizes(api_data), times(api_data), color, linewidth=2.0,
+                  label=label)
+
+    api_data = select_api(data, 'dict_btree')
+    pyplot.plot(sizes(api_data), times(api_data), '#666666', linewidth=1.0,
+                linestyle='dashed', label='B-tree')
+
+    pyplot.xscale('log')
+    pyplot.legend(loc='upper left')
+    pyplot.ylabel('Time per operation [ns]')
+    pyplot.grid(True)
+
+  plot_self_adj(experiment='serial-findonly')
+  save_to('export/self-adj-random-find.png')
+  pyplot.clf()
+
+  plot_self_adj(experiment='workingset', working_set_size=1000)
+  save_to('export/self-adj-ws-1k.png')
+  pyplot.clf()
+
+  plot_self_adj(experiment='workingset', working_set_size=100000)
+  save_to('export/self-adj-ws-100k.png')
+  pyplot.clf()
+
+def plot_exported_figures():
+  plot_cob_performance()
+
 def main():
+  plot_exported_figures()
+
   plot_all_experiments()
 
   plot_mispredicts(data=load_data(experiment='serial-findonly'),
