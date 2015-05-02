@@ -10,7 +10,13 @@ In our opinion, they alone are not a practical replacement for simple splay
 trees. A more optimized implementation of $k$-splaying might reach parity with
 splay trees.
 
-FIXME: Hashing sometimes slower than splay trees
+Experiments on data recorded from Mozilla Firefox suggest that splay trees
+and cuckoo hash tables do well on most dictionaries as they are practically
+used. A particularly interesting conclusion that can be drawn from
+Table~\ref{tab:firefox-results} is that hashing with linear probing may
+be (somewhat counterintuitively) slower than splay trees.
+Larger databases that require order queries also seem to be best served
+by splay trees, followed by cache-oblivious B-trees and cache-aware B-trees.
 
 \section*{Suggestions for further research}
 The dictionary problem is well-explored, including structures for efficient
