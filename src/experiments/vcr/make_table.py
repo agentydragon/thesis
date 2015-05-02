@@ -3,6 +3,7 @@ import json
 import os
 import subprocess
 
+# TODO: dict_array?
 implementations = ['dict_btree', 'dict_cobt', 'dict_splay', 'dict_kforest',
                    'dict_ksplay', 'dict_htlp', 'dict_htcuckoo']
 

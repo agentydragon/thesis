@@ -348,6 +348,13 @@ optimizations. Particularly interpreters of dynamic programming languages
 with built-in dictionary types, like Python or Ruby, could prove interesting
 test subjects.
 
+Our solution to recording the operations was very simple: we applied a small
+patch to \texttt{nsTHashtable} that printed out operations to standard output,
+where we collected them and grouped them by the \texttt{this} pointer.
+To further simplify the patch, we made no attempt to synchronize output,
+and we processed the output by a simple script that removed any lines that
+could not be successfully parsed.
+
 \subsection{Geospatial database}
 To test the performance of \textsc{FindNext} and \textsc{FindPrevious}, we
 simulated the workload of a simple database of geospatial data supporting

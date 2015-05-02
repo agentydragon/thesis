@@ -151,6 +151,58 @@ tabulation hashing.
 \end{figure}
 
 \section{Practical experiments}
+\subsection{Mozilla Firefox}
+The hash table operations collected from the Firefox session are compressed
+in \texttt{data/firefox-htable.tar.gz}. We replayed the operations on all our
+dictionary implementations. We normalized the measured times by the maximum
+time taken for each recording to allow easier comparison of relative
+performance. Our results are presented in Table \ref{tab:firefox-results}.
+
+\begin{table}
+\centering
+% TODO: Rerecord?
+% TODO: Sort!
+% TODO: Add back hashtable killer
+\begin{tabular}{|c|r|r|r|r|r|r|r|}
+	\hline
+	Recording &
+		B-tree & COBT &
+		Splay & $k$-forest & $k$-splay &
+		Lin. p. & Cuckoo \\
+	\hline
+	\texttt{0x7f4791631c60} & 11 & 16 & 9 & 33 & 100 & 19 & 13 \\
+	\hline
+	\texttt{0x7f47a6e31058} & 10 & 13 & 9 & 12 & 100 & 13 & 26 \\
+	\hline
+	\texttt{0x7f566e3cb0e0} & 8 & 10 & 10 & 100 & 78 & 9 & 6 \\
+	\hline
+	\texttt{0x7fff84eb8f98} & 11 & 14 & 13 & 64 & 100 & 11 & 7 \\
+	\hline
+	\texttt{0x7f47930300e0} & 14 & 12 & 13 & 100 & 94 & 6 & 4 \\
+	\hline
+	\texttt{0x7f565ca63148} & 9 & 12 & 13 & 46 & 100 & 12 & 10 \\
+	\hline
+	\texttt{0x7f5671faab80} & 17 & 26 & 10 & 17 & 100 & 17 & 20 \\
+	\hline
+	\texttt{0x7fff1d9c7738} & 14 & 15 & 13 & 55 & 100 & 16 & 6 \\
+	\hline
+	\texttt{0x7fff84eb9148} & 11 & 14 & 12 & 70 & 100 & 10 & 7 \\
+	\hline
+	\hline
+	Average & 12 & 15 & 11 & 55 & 96 & 13 & 11 \\
+	\hline
+\end{tabular}
+\caption{Results of the Mozilla Firefox experiment. Standardized by maximum
+	time; lower is better. Produced by
+	\texttt{experiments/vcr/make\_table.py}.}
+\label{tab:firefox-results}
+\end{table}
+
+Overall, the cache-oblivious B-tree (COBT) performed worse than B-trees
+in this experiment. We believe this may be explained by the small size of
+typical hash tables.
+
+\subsection{Geospatial database}
 The results of the cloud database experiment are outlined in Table
 \ref{tab:cloud-results}. Cache-oblivious B-trees slightly outperformed
 standard B-trees. Splay trees were surprisingly fast. One factor that might
@@ -216,5 +268,3 @@ however, comparatively weak on cache-oblivious B-trees.
 }
 \label{tab:cloud-results}
 \end{table}
-
-FIXME: Firefox results
