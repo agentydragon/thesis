@@ -151,5 +151,65 @@ tabulation hashing.
 \end{figure}
 
 \section{Practical experiments}
-TODO: cloud experiment results
-TODO: Firefox results
+The results of the cloud database experiment are outlined in Table
+\ref{tab:cloud-results}. Cache-oblivious B-trees slightly outperformed
+standard B-trees. Splay trees were surprisingly fast. One factor that might
+cause them to perform so well might be that stations usually produce a large
+amount of reports over their lifetime, so when we fetch $S$ closest reports
+for a point, it is likely that all such reports will be the first $S$ reports
+reported by the closest station. Splay trees may thus keep old reports
+near the top. In this experiment, we picked $S=1~000$. Also, as can be
+seen on Figure \ref{fig:cloud-data}, the distribution of stations on the globe
+is very uneven, so stations ``assigned'' to a large area can be kept closer to
+the root.
+
+Additionally, we tried two algorithms for sampling query points on the globe.
+The first algorithm simply iterated through points on the latitude-longitude
+grid with whole number coordinates (i.e.\ -179.0\textdegree W -90.0\textdegree N
+through 180.0\textdegree E 90.0\textdegree S).
+The second algorithm arbitrarily picked $64~800=180\cdot 360$ random query
+points.
+All data structures performed slightly better on the first one, which shows
+that more predictable access are better for performance. The effect was,
+however, comparatively weak on cache-oblivious B-trees.
+
+\begin{table}
+\begin{tabular}{c|c|c}
+%--close_count=1000
+%--scatter=GRID
+%--lat_step=100
+%--lon_step=100
+%--min_year=1997
+%--max_year=2005 ===>
+%	       dict_cobt:     20 687 539 351 ns
+%	      dict_splay:      6 030 131 877 ns
+%	     dict_ksplay:     41 687 825 004 ns
+%	      dict_btree:     22 677 805 459 ns
+%
+%--samples=64800 (180*360)
+%--scatter=RANDOM ===>
+%	       dict_cobt:     20 583 667 067 ns
+%	      dict_splay:      6 647 207 153 ns
+%	     dict_ksplay:     44 717 377 069 ns
+%	      dict_btree:     25 884 347 926 ns
+	Dictionary &
+	\shortstack{Grid sampling \\ (\texttt{--scatter=GRID})} &
+	\shortstack{Random sampling \\ (\texttt{--scatter=RANDOM
+	--samples=64800})} \\
+	\hline
+
+	Cache-oblivious B-tree & 20.69 s & 20.58 s \\
+	\hline
+	Splay tree & 6.03 s & 6.65 s \\
+	\hline
+	$k$-splay tree & 41.69 s & 44.72 s \\
+	\hline
+	B-tree & 22.68 s & 25.89 s
+\end{tabular}
+\caption{Results of the cloud database experiment, generated
+	by \texttt{bin/experiments/cloud --max\_year=2005}.
+}
+\label{tab:cloud-results}
+\end{table}
+
+FIXME: Firefox results
