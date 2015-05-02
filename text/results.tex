@@ -9,6 +9,8 @@ were up to twice as fast in large cache-oblivious B-trees without ever being
 significantly slower on small dictionaries.
 The large density of the van Emde Boas tree is the likely reason for these
 gains.
+\textsc{FindNext} and \textsc{FindPrev} are also faster in cache-oblivious
+B-trees.
 
 \textsc{Insert} operations, however, are comparatively slow in
 smaller cache-oblivious B-trees (e.g.\ $\leq$ 100~000 keys). We believe
@@ -38,7 +40,12 @@ make updates of smaller dictionaries more efficient.
 	\includegraphics[width=\textwidth]{img/performance/cob-performance-4}
 	\caption{\textsc{Find}s, working set of 100~000 keys}
 \end{subfigure}
-
+~
+\begin{subfigure}[b]{0.45\textwidth}
+	\includegraphics[width=\textwidth]{img/performance/cob-performance-5}
+	\caption{Left-to-right scans over whole dictionary}
+\end{subfigure}
+~
 \begin{subfigure}[b]{0.45\textwidth}
 	TODO
 	\caption{Word occurrence counting}
@@ -48,16 +55,10 @@ make updates of smaller dictionaries more efficient.
 \label{fig:cob-performance}
 \end{figure}
 
-TODO: left-to-right scans: mel bych to implementovat v B-stromech...
-
-These results confirm that cache-oblivious B-trees are a better alternative
-to traditional B-trees in larger in-memory databases with frequent
-\textsc{Find}s.
-
 \section{Self-adjusting structures}
 Splay trees are the canonical self-adjusting structure we would like to
 outperfrom. As expected, splay trees are somewhat slower than B-trees on
-unpredictable operations (see figure \ref{fig:self-adj-performance}).
+unpredictable operations (see Figure \ref{fig:self-adj-performance}).
 
 \begin{figure}
 \begin{subfigure}[b]{0.45\textwidth}
@@ -81,20 +82,73 @@ unpredictable operations (see figure \ref{fig:self-adj-performance}).
 \label{fig:self-adj-performance}
 \end{figure}
 
-Unfortunately, we found both $k$-splay trees and $k$-forest severely lacking in
+Unfortunately, we found both $k$-splay trees and $k$-forest lacking in
 performance in every experiment.
 
-FIXME: splay trees are fast
-TODO: profile k-splay, find bottleneck
+Profiling $k$-splay trees showed that about 21\% of time is spent in
+\texttt{ksplay\_walk\_to}, which finds the correct leaf for a key and puts the
+path to the leaf into a buffer. About 37\% of the time is taken by
+\texttt{ksplay\_step}, which performs a splaying step, along with helper
+functions it calls (\texttt{flatten\_explore}, \texttt{compose\_twolevel}).
+
+One suboptimal property of our implementation is that it dynamically
+allocates the $k$-splayed path on every $k$-splay. Memory allocation alone
+accounts for about 20\% of CPU time.
+Keeping a global buffer for $k$-splayed paths could thus potentially bring
+the performance of $k$-splay trees somewhat closer to splay trees.
+As suggested in \cite{ksplay-sherk}, it should be possible to remove the
+need to store the splayed path by top-down $k$-splaying.
+Unfortunately, even with top-down $k$-splaying, every $k$-splay step needs
+to touch $\Theta(k^2)$ keys and pointers, so we believe top-down $k$-splaying
+would not significantly reduce the high cost of \texttt{ksplay\_step}.
+
+Our measurements on small working sets confirm that splay trees, $k$-forests
+and $k$-splay trees all have the working set property.
 
 $k$-forests were slow both backed by B-trees and by cache-oblivious B-trees.
 Choosing a larger $k$ slightly helped, but larger values of $k$ also degenerate
-$k$-forests into their backing structure. As expected, $k$-forests do exhibit
-the working set property, but simple structures without the working set property
-outperformed $k$-forests several times on working set tests.
+$k$-forests into their backing structure.
 
 \section{Hashing}
-FIXME: cuckoo, linear probing is good
+We compared a hash table with linear probing to a cuckoo hash table.
+Both hash tables used a bytewise simple tabulation hash function.
+The cuckoo hash table maintained a load factor between $\frac{1}{4}$ and
+$\frac{1}{2}$ and the hash table with linear probing had a load factor
+between $\frac{1}{4}$ and $\frac{3}{4}$.
+
+Since cuckoo hash tables guarantee worst-case $\O(1)$ time for lookups,
+we expected random \textsc{Find}s to be measurably slower with linear probing.
+Linear probing lookups, however, performed almost exactly the same as
+with cuckoo hashing, even with a higher load factor (see Figure
+\ref{fig:hashing-performance}).
+
+\textsc{Insert}s into cuckoo hash tables proved significantly slower.
+One possible reason might be the limited independence guaranteed by simple
+tabulation hashing.
+
+\begin{figure}
+\begin{subfigure}[b]{0.45\textwidth}
+	\includegraphics[width=\textwidth]{img/performance/hashing-1}
+	\caption{Random \textsc{Find}s}
+\end{subfigure}
+~
+\begin{subfigure}[b]{0.45\textwidth}
+	\includegraphics[width=\textwidth]{img/performance/hashing-2}
+	\caption{Random \textsc{Insert}s}
+\end{subfigure}
+~
+\begin{subfigure}[b]{0.45\textwidth}
+	\includegraphics[width=\textwidth]{img/performance/hashing-3}
+	\caption{\textsc{Find}s, working set of 1~000 keys}
+\end{subfigure}
+~
+\begin{subfigure}[b]{0.45\textwidth}
+	\includegraphics[width=\textwidth]{img/performance/hashing-4}
+	\caption{\textsc{Find}s, working set of 100~000 keys}
+\end{subfigure}
+\caption{Performance of cuckoo hashing and linear probing}
+\label{fig:hashing-performance}
+\end{figure}
 
 \section{Practical experiments}
 TODO: cloud experiment results

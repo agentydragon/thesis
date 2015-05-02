@@ -3,11 +3,12 @@
 
 We confirmed that cache-oblivious B-trees are practically competitive with
 more common data structures in main memory, especially on larger dictionaries
-and uniform access patterns.
+with frequent \texttt{Find}s and uniform access patterns.
 
-Our implementation of $k$-splay trees and $k$-forests performed very badly.
-
-FIXME: What was slow about $k$-splay and $k$-forests?
+Our implementation of $k$-splay trees and $k$-forests performed badly.
+In our opinion, they alone are not a practical replacement for simple splay
+trees. A more optimized implementation of $k$-splaying might reach parity with
+splay trees.
 
 FIXME: Hashing sometimes slower than splay trees
 

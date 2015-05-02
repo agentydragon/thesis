@@ -201,21 +201,20 @@ def plot_cache_events(implementation, experiment):
 def select_time_per_op(data):
   return [point['time_ns'] / point['size'] for point in data]
 
-def plot_cob_performance():
-  #hash_label = 'Hash table with linear probing (for reference)'
-  hash_label = 'Hash table with linear probing'
-  figsize = (6,6)
+#HASH_LABEL = 'Hash table with linear probing (for reference)'
+HASH_LABEL = 'Hash table with linear probing'
+EXPORT_FIGSIZE = (6,6)
 
+def plot_cob_find_speed_figures():
   def find_speed_fig(**kwargs):
     data = load_data(**kwargs)
     data = [point for point in data
             if point['implementation'] in ['dict_btree', 'dict_cobt',
                                            'dict_htlp']]
     # Random FINDs: cache-oblivious B-tree vs. B-tree vs. linear probing HT
-    pyplot.figure(1, figsize=figsize)
     pyplot.xscale('log')
     pyplot.xlabel('Dictionary size')
-    pyplot.ylabel('Time per operations [ns]')
+    pyplot.ylabel('Time per operation [ns]')
     pyplot.grid(True)
 
     api_data = [point for point in data if point['implementation'] == 'dict_btree']
@@ -229,44 +228,57 @@ def plot_cob_performance():
                 'g', linewidth=2.0, label='Cache-oblivious B-tree')
 
     api_data = [point for point in data if point['implementation'] == 'dict_htlp']
-    pyplot.plot([point['size'] for point in api_data],
-                select_time_per_op(api_data),
-                '#666666', linewidth=1.0, label=hash_label,
-                linestyle='dashed')
+    if api_data:
+      pyplot.plot([point['size'] for point in api_data],
+                  select_time_per_op(api_data),
+                  '#666666', linewidth=1.0, label=HASH_LABEL,
+                  linestyle='dashed')
 
     pyplot.legend(loc='upper left')
 
+  pyplot.figure(1, figsize=EXPORT_FIGSIZE)
   find_speed_fig(experiment='serial-findonly')
   save_to('export/cob-performance-1.png')
   pyplot.clf()
 
+  pyplot.figure(1, figsize=EXPORT_FIGSIZE)
   find_speed_fig(experiment='workingset', working_set_size=1000)
   save_to('export/cob-performance-3.png')
   pyplot.clf()
 
+  pyplot.figure(1, figsize=EXPORT_FIGSIZE)
   find_speed_fig(experiment='workingset', working_set_size=100000)
   save_to('export/cob-performance-4.png')
   pyplot.clf()
 
+  pyplot.figure(1, figsize=EXPORT_FIGSIZE)
+  find_speed_fig(experiment='ltr_scan')
+  pyplot.ylabel('Time per scanned key [ns]')
+  save_to('export/cob-performance-5.png')
+  pyplot.clf()
+
+def get_difference(api):
+  find_pts = load_data(implementation=api, experiment='serial-findonly')
+  both_pts = load_data(implementation=api, experiment='serial-both')
+  find_pts = {point['size']: point['time_ns'] for point in find_pts}
+  both_pts = {point['size']: point['time_ns'] for point in both_pts}
+  difference = [(size, both_pts[size] - find_pts[size]) for size in find_pts]
+
+  # hack against mismeasurements
+  difference = [(size, diff) for size, diff in difference if diff > 0]
+
+  return sorted(difference, key=lambda x: x[0])
+
+def plot_cob_performance():
+  plot_cob_find_speed_figures()
+
   # Random INSERTs: cache-oblivious B-tree vs. B-tree vs. linear probing HT
   # (Derived.)
-  pyplot.figure(1, figsize=figsize)
+  pyplot.figure(1, figsize=EXPORT_FIGSIZE)
   pyplot.xscale('log')
   pyplot.xlabel('Dictionary size')
-  pyplot.ylabel('Time per operations [ns]')
+  pyplot.ylabel('Time per operation [ns]')
   pyplot.grid(True)
-
-  def get_difference(api):
-    find_pts = load_data(implementation=api, experiment='serial-findonly')
-    both_pts = load_data(implementation=api, experiment='serial-both')
-    find_pts = {point['size']: point['time_ns'] for point in find_pts}
-    both_pts = {point['size']: point['time_ns'] for point in both_pts}
-    difference = [(size, both_pts[size] - find_pts[size]) for size in find_pts]
-
-    # hack against mismeasurements
-    difference = [(size, diff) for size, diff in difference if diff > 0]
-
-    return sorted(difference, key=lambda x: x[0])
 
   difference = get_difference('dict_btree')
   pyplot.plot([size for size, _ in difference],
@@ -279,19 +291,8 @@ def plot_cob_performance():
   difference = get_difference('dict_htlp')
   pyplot.plot([size for size, _ in difference],
               [time / size for size, time in difference],
-              '#666666', linewidth=1.0, label=hash_label,
+              '#666666', linewidth=1.0, label=HASH_LABEL,
               linestyle='dashed')
-
-  #api_data = [point for point in data if point['implementation'] == 'dict_cobt']
-  #pyplot.plot([point['size'] for point in api_data],
-  #            select_time_per_op(api_data),
-  #            'g', linewidth=2.0, label='Cache-oblivious B-tree')
-
-  #api_data = [point for point in data if point['implementation'] == 'dict_htlp']
-  #pyplot.plot([point['size'] for point in api_data],
-  #            select_time_per_op(api_data),
-  #            'r', linewidth=1.0, label=hash_label,
-  #            linestyle='dashed')
 
   pyplot.legend(loc='upper left')
   save_to('export/cob-performance-2.png')
@@ -302,8 +303,6 @@ def plot_cob_performance():
     return [point['size'] for point in api_data]
   def times(api_data):
     return [point['time_ns'] / point['size'] for point in api_data]
-  def misses(api_data):
-    return [point['metrics']['cache_misses'] / point['size'] for point in api_data]
 
   data = load_data(experiment='serial-findonly')
   new_figure()
@@ -325,6 +324,11 @@ def plot_cob_performance():
   save_to('export/overall-random-find.png')
   pyplot.clf()
 
+def plot_self_adjusting_performance():
+  def sizes(api_data):
+    return [point['size'] for point in api_data]
+  def times(api_data):
+    return [point['time_ns'] / point['size'] for point in api_data]
   def plot_self_adj(**kwargs):
     pyplot.figure(1, figsize=(10,10))
     data = load_data(**kwargs)
@@ -358,8 +362,76 @@ def plot_cob_performance():
   save_to('export/self-adj-ws-100k.png')
   pyplot.clf()
 
+def plot_hashing_performance():
+  def hashing_figure(**kwargs):
+    data = load_data(**kwargs)
+    data = [point for point in data
+            if point['implementation'] in ['dict_htlp', 'dict_htcuckoo', 'dict_btree']]
+    pyplot.figure(1, figsize=EXPORT_FIGSIZE)
+    pyplot.xscale('log')
+    pyplot.xlabel('Dictionary size')
+    pyplot.ylabel('Time per operation [ns]')
+    pyplot.grid(True)
+
+    api_data = [point for point in data if point['implementation'] == 'dict_htlp']
+    pyplot.plot([point['size'] for point in api_data],
+                select_time_per_op(api_data),
+                'r', linewidth=2.0, label='Linear probing')
+
+    api_data = [point for point in data if point['implementation'] == 'dict_htcuckoo']
+    pyplot.plot([point['size'] for point in api_data],
+                select_time_per_op(api_data),
+                'g', linewidth=2.0, label='Cuckoo hashing')
+
+    api_data = [point for point in data if point['implementation'] == 'dict_btree'
+                                        and point['time_ns'] / point['size'] < 500]
+    pyplot.plot([point['size'] for point in api_data],
+                select_time_per_op(api_data),
+                '#666666', linewidth=1.0, label='B-tree', linestyle='dashed')
+    pyplot.legend(loc='upper left')
+
+  hashing_figure(experiment='serial-findonly')
+  save_to('export/hashing-1.png')
+  pyplot.clf()
+
+  # Random INSERTs -- linear probing vs. cuckoo hashing vs. B-tree for reference
+  # (Derived.)
+  pyplot.figure(1, figsize=EXPORT_FIGSIZE)
+  pyplot.xscale('log')
+  pyplot.xlabel('Dictionary size')
+  pyplot.ylabel('Time per operation [ns]')
+  pyplot.grid(True)
+
+  difference = get_difference('dict_htlp')
+  pyplot.plot([size for size, _ in difference],
+              [time / size for size, time in difference],
+              'r', linewidth=2.0, label='Linear probing')
+  difference = get_difference('dict_htcuckoo')
+  pyplot.plot([size for size, _ in difference],
+              [time / size for size, time in difference],
+              'g', linewidth=2.0, label='Cuckoo hashing')
+  difference = get_difference('dict_btree')
+  difference = [(size, time) for size, time in difference if time / size < 1200]
+  pyplot.plot([size for size, _ in difference],
+              [time / size for size, time in difference],
+              '#666666', linewidth=1.0, label='B-tree',
+              linestyle='dashed')
+  pyplot.legend(loc='upper left')
+  save_to('export/hashing-2.png')
+  pyplot.clf()
+
+  hashing_figure(experiment='workingset', working_set_size=1000)
+  save_to('export/hashing-3.png')
+  pyplot.clf()
+
+  hashing_figure(experiment='workingset', working_set_size=100000)
+  save_to('export/hashing-4.png')
+  pyplot.clf()
+
 def plot_exported_figures():
   plot_cob_performance()
+  plot_self_adjusting_performance()
+  plot_hashing_performance()
 
 def main():
   plot_exported_figures()
