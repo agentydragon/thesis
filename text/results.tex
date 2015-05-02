@@ -169,12 +169,18 @@ grid with whole number coordinates (i.e.\ -179.0\textdegree W -90.0\textdegree N
 through 180.0\textdegree E 90.0\textdegree S).
 The second algorithm arbitrarily picked $64~800=180\cdot 360$ random query
 points.
+The algorithm can be selected by passing different values of the
+\texttt{--scatter} flag to \texttt{bin/experiments/cloud}
+(\texttt{--scatter=GRID} for grid sampling, or \texttt{--scatter=RANDOM
+--samples=64800} for random sampling).
+
 All data structures performed slightly better on the first one, which shows
 that more predictable access are better for performance. The effect was,
 however, comparatively weak on cache-oblivious B-trees.
 
 \begin{table}
-\begin{tabular}{c|c|c}
+\centering
+\begin{tabular}{|c|c|c|}
 %--close_count=1000
 %--scatter=GRID
 %--lat_step=100
@@ -192,10 +198,8 @@ however, comparatively weak on cache-oblivious B-trees.
 %	      dict_splay:      6 647 207 153 ns
 %	     dict_ksplay:     44 717 377 069 ns
 %	      dict_btree:     25 884 347 926 ns
-	Dictionary &
-	\shortstack{Grid sampling \\ (\texttt{--scatter=GRID})} &
-	\shortstack{Random sampling \\ (\texttt{--scatter=RANDOM
-	--samples=64800})} \\
+	\hline
+	Dictionary & Grid sampling & Random sampling \\
 	\hline
 
 	Cache-oblivious B-tree & 20.69 s & 20.58 s \\
@@ -204,7 +208,8 @@ however, comparatively weak on cache-oblivious B-trees.
 	\hline
 	$k$-splay tree & 41.69 s & 44.72 s \\
 	\hline
-	B-tree & 22.68 s & 25.89 s
+	B-tree & 22.68 s & 25.89 s \\
+	\hline
 \end{tabular}
 \caption{Results of the cloud database experiment, generated
 	by \texttt{bin/experiments/cloud --max\_year=2005}.
