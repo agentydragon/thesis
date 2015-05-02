@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
 		const dict_api* api = FLAGS.measured_apis[i];
 		log_info("running recording on %s", api->name);
 		struct metrics result;
-		result = measure_recording(api, record);
+		result = measure_recording(api, record, FLAGS.repetitions);
 
 		json_t* point = json_object();
 		json_object_set_new(point, "implementation",

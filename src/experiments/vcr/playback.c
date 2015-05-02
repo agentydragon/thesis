@@ -113,50 +113,52 @@ void destroy_recording(recording* this) {
 	free(this);
 }
 
-struct metrics measure_recording(const dict_api* api, recording* record) {
+struct metrics measure_recording(const dict_api* api, recording* record,
+		int repetitions) {
 	measurement* measurement = measurement_begin();
 	stopwatch watch = stopwatch_start();
 	rand_generator rand = { .state = 0 };
 
-	dict* dict;
-	CHECK(!dict_init(&dict, api, NULL), "cannot init dict");
+	for (int repeat = 0; repeat < repetitions; ++repeat) {
+		dict* dict;
+		CHECK(!dict_init(&dict, api, NULL), "cannot init dict");
 
-	for (uint64_t i = 0; i < record->length; ++i) {
-		const recorded_operation operation = record->operations[i];
-		uint64_t value;
+		for (uint64_t i = 0; i < record->length; ++i) {
+			const recorded_operation operation = record->operations[i];
+			uint64_t value;
 
-		switch (operation.operation) {
-		case FIND: {
-			bool found = dict_find(dict, operation.key, &value);
-			consume_bool(found);
-			consume64(value);
-			break;
-		}
-		case INSERT: {
-			// Note: dict_insert may fail (since the recording
-			// may have been cleaned).
-			value = rand_next(&rand, UINT64_MAX);
-			if (dict_insert(dict, operation.key, value) != 0) {
-				log_verbose(1, "insert failure");
+			switch (operation.operation) {
+			case FIND: {
+				bool found = dict_find(dict, operation.key, &value);
+				consume_bool(found);
+				consume64(value);
+				break;
 			}
-			break;
-		}
-		case DELETE: {
-			// Note: dict_delete may fail (since the recording
-			// may have been cleaned).
-			if (dict_delete(dict, operation.key) != 0) {
-				log_verbose(1, "delete failure");
+			case INSERT: {
+				// Note: dict_insert may fail (since the recording
+				// may have been cleaned).
+				value = rand_next(&rand, UINT64_MAX);
+				if (dict_insert(dict, operation.key, value) != 0) {
+					log_verbose(1, "insert failure");
+				}
+				break;
 			}
-			break;
+			case DELETE: {
+				// Note: dict_delete may fail (since the recording
+				// may have been cleaned).
+				if (dict_delete(dict, operation.key) != 0) {
+					log_verbose(1, "delete failure");
+				}
+				break;
+			}
+			}
 		}
-		}
+
+		dict_destroy(&dict);
 	}
 
 	measurement_results* results = measurement_end(measurement);
 	uint64_t time_nsec = stopwatch_read_ns(watch);
-
-	dict_destroy(&dict);
-
 	return (struct metrics) {
 		.results = results,
 		.time_nsec = time_nsec

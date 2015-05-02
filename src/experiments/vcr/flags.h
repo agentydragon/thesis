@@ -7,6 +7,7 @@
 struct {
 	const dict_api* measured_apis[20];
 	char* recording_path;
+	int repetitions;
 } FLAGS;
 
 void parse_flags(int argc, char** argv);

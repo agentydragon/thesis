@@ -3,6 +3,7 @@
 #include <inttypes.h>
 
 #include "log/log.h"
+#include "util/unused.h"
 
 static uint64_t hash(htlp* this, uint64_t key) {
 	return sth_hash(&this->hash, key);
@@ -97,6 +98,17 @@ static int8_t insert_noresize(htlp* this, uint64_t key, uint64_t value) {
 	log_fatal("htlp is completely full (shouldn't happen)");
 }
 
+static UNUSED void dump(htlp* this) {
+	for (uint64_t i = 0; i < this->capacity; ++i) {
+		if (slot_occupied(this, i)) {
+			log_info("[%" PRIu64 "]: %" PRIu64 " => %" PRIu64,
+					i, this->keys[i], this->values[i]);
+		} else {
+			log_info("[%" PRIu64 "]: nil", i);
+		}
+	}
+}
+
 static int8_t resize(htlp* this, uint64_t new_capacity) {
 	if (new_capacity < this->pair_count) {
 		log_error("cannot fit %" PRIu64 " pairs in %" PRIu64 " slots",
@@ -135,14 +147,7 @@ static int8_t resize(htlp* this, uint64_t new_capacity) {
 		new_this.keys_with_hash[i] = 0;
 	}
 
-	for (uint64_t i = 0; i < this->capacity; ++i) {
-		if (slot_occupied(this, i)) {
-			log_info("[%" PRIu64 "]: %" PRIu64 " => %" PRIu64,
-					i, this->keys[i], this->values[i]);
-		} else {
-			log_info("[%" PRIu64 "]: nil", i);
-		}
-	}
+	// dump(this);
 
 	for (uint64_t i = 0; i < this->capacity; ++i) {
 		if (slot_occupied(this, i)) {
@@ -234,7 +239,8 @@ int8_t htlp_delete(htlp* this, uint64_t key) {
 	const uint64_t key_hash = hash(this, key);
 	uint64_t to_delete, last;
 	if (!scan(this, key, &to_delete, &last)) {
-		log_error("key %" PRIx64 " not present, cannot delete", key);
+		log_verbose(1, "key %" PRIx64 " not present, cannot delete",
+				key);
 		return 1;
 	}
 	// Shorten the chain by 1.

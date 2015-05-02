@@ -160,9 +160,7 @@ performance. Our results are presented in Table \ref{tab:firefox-results}.
 
 \begin{table}
 \centering
-% TODO: Rerecord?
 % TODO: Sort!
-% TODO: Add back hashtable killer
 \begin{tabular}{|c|r|r|r|r|r|r|r|}
 	\hline
 	Recording &
@@ -170,37 +168,58 @@ performance. Our results are presented in Table \ref{tab:firefox-results}.
 		Splay & $k$-forest & $k$-splay &
 		Lin. p. & Cuckoo \\
 	\hline
-	\texttt{0x7f4791631c60} & 11 & 16 & 9 & 33 & 100 & 19 & 13 \\
+	\texttt{0x7f47930300e0} & 15 & 12 & 14 & 100 & 92 & 6 & \textbf{4} \\
 	\hline
-	\texttt{0x7f47a6e31058} & 10 & 13 & 9 & 12 & 100 & 13 & 26 \\
+	\texttt{0x7fff84eb8f98} & 11 & 14 & 13 & 65 & 100 & 11 & \textbf{6} \\
 	\hline
-	\texttt{0x7f566e3cb0e0} & 8 & 10 & 10 & 100 & 78 & 9 & 6 \\
+	\texttt{0x7f566e3cb0e0} & 8 & 10 & 10 & 100 & 78 & 9 & \textbf{6} \\
 	\hline
-	\texttt{0x7fff84eb8f98} & 11 & 14 & 13 & 64 & 100 & 11 & 7 \\
+	\texttt{0x7fff1d9c7738} & 15 & 15 & 14 & 59 & 100 & 15 & \textbf{6} \\
 	\hline
-	\texttt{0x7f47930300e0} & 14 & 12 & 13 & 100 & 94 & 6 & 4 \\
+	\texttt{0x7fff84eb9148} & 12 & 14 & 13 & 73 & 100 & 11 & \textbf{7} \\
 	\hline
-	\texttt{0x7f565ca63148} & 9 & 12 & 13 & 46 & 100 & 12 & 10 \\
+	\texttt{0x7f567b64a830} & 17 & 15 & \textbf{4} & 100 & 70 & 9 & 8 \\
 	\hline
-	\texttt{0x7f5671faab80} & 17 & 26 & 10 & 17 & 100 & 17 & 20 \\
+	\texttt{0x7f4791631c60} & 12 & 16 & \textbf{9} & 38 & 100 & 17 & 13 \\
 	\hline
-	\texttt{0x7fff1d9c7738} & 14 & 15 & 13 & 55 & 100 & 16 & 6 \\
+	\texttt{0x7f47a6e31058} & 11 & 15 & \textbf{9} & 17 & 100 & 23 & 18 \\
 	\hline
-	\texttt{0x7fff84eb9148} & 11 & 14 & 12 & 70 & 100 & 10 & 7 \\
+	\texttt{0x7f5671faab80} & 19 & 28 & \textbf{11} & 19 & 100 & 17 & 22 \\
+	\hline
+	\texttt{0x7f565ca63148} & \textbf{9} & 12 & 13 & 49 & 100 & 14 & 10 \\
 	\hline
 	\hline
-	Average & 12 & 15 & 11 & 55 & 96 & 13 & 11 \\
+	Average & 13 & 15 & 11 & 62 & 94 & 13 & 10 \\
 	\hline
 \end{tabular}
 \caption{Results of the Mozilla Firefox experiment. Standardized by maximum
-	time; lower is better. Produced by
-	\texttt{experiments/vcr/make\_table.py}.}
+	time (lower is better). Sorted by which fastest implementation.
+	Produced by \texttt{experiments/vcr/make\_table.py}.}
 \label{tab:firefox-results}
 \end{table}
 
 Overall, the cache-oblivious B-tree (COBT) performed worse than B-trees
 in this experiment. We believe this may be explained by the small size of
 typical hash tables.
+
+Most recordings run fastest either on cuckoo hash tables, or on splay trees.
+By inspecting the recordings, we found that splay trees are better on recordings
+with many updates, while cuckoo tables win when there are much more
+\textsc{Find}s. Choosing the wrong structure can reduce the performance,
+typically about $2\times$, but, as seen in the case of \texttt{0x7f47930300e0},
+the difference can be up to $4\times$.
+We believe a data structure that would dynamically switch
+its internal representation between cuckoo hashing and splay trees
+based on the access pattern may be a good compromise.
+
+Interestingly, linear probing does not behave as well on Firefox recordings
+as in synthetic experiments, in which it performed as well as cuckoo hashing
+in random \textsc{Find}s and slightly better on \textsc{Insert}s. One possible
+reason for this is a higher incidence of failed \textsc{Insert} and
+\textsc{Find} operations, which we did not specifically benchmark. While failed
+\textsc{Find}s on cuckoo hashing take only 2 memory transfers as any other
+\textsc{Find}, an unsuccessful \textsc{Find} with linear probing needs to
+traverse an entire chain.
 
 \subsection{Geospatial database}
 The results of the cloud database experiment are outlined in Table

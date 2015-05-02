@@ -30,6 +30,11 @@ static int parse_option(int key, char *arg, struct argp_state *state) {
 				COUNT_OF(FLAGS.measured_apis));
 		break;
 	}
+	case 'r': {
+		FLAGS.repetitions = atoi(arg);
+		ASSERT(FLAGS.repetitions > 0);
+		break;
+	}
 	case ARGP_KEY_ARG:
 		log_fatal("unexpected argument: %s", arg);
 		break;
@@ -47,6 +52,8 @@ static void set_defaults(void) {
 	FLAGS.measured_apis[5] = &dict_ksplay;
 	FLAGS.measured_apis[6] = NULL;
 
+	FLAGS.repetitions = 1;
+
 	FLAGS.recording_path = NULL;
 }
 
@@ -57,6 +64,9 @@ void parse_flags(int argc, char** argv) {
 		{
 			.name = 0, .key = 'p', .arg = "PATH", .flags = 0,
 			.doc = "Path to text-formatted recording", .group = 0
+		}, {
+			.name = 0, .key = 'r', .arg = "REPETITIONS", .flags = 0,
+			.doc = "Number of repetitions, 1 by default", .group = 0
 		}, {
 			.name = 0, .key = 'a', .arg = "APIs", .flags = 0,
 			.doc = "Measured APIs", .group = 0

@@ -27,7 +27,8 @@ typedef struct {
 
 recording* load_recording(const char* path);
 void destroy_recording(recording*);
-struct metrics measure_recording(const dict_api* api, recording* record);
+struct metrics measure_recording(const dict_api* api, recording* record,
+		int repetitions);
 
 
 #endif
