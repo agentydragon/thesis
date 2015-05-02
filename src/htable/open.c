@@ -68,13 +68,16 @@ static int8_t insert_noresize(htlp* this, uint64_t key, uint64_t value) {
 		return 1;
 	}
 
+	if (htlp_find(this, key, NULL)) {
+		log_verbose(1, "%" PRIu64 " already in htlp", key);
+		return 1;
+	}
+
 	for (uint64_t i = 0, index = key_hash, traversed = 0;
 			traversed < this->capacity;
 			index = next_index(this, index), traversed++) {
 		if (slot_occupied(this, index)) {
 			if (this->keys[index] == key) {
-				log_verbose(1, "%" PRIu64 " already in htlp "
-						"at %" PRIu64, key, index);
 				return 1;
 			}
 			if (hash(this, this->keys[index]) == key_hash) {
@@ -91,15 +94,14 @@ static int8_t insert_noresize(htlp* this, uint64_t key, uint64_t value) {
 		}
 	}
 
-	log_error("htlp is completely full (shouldn't happen)");
-	return 1;
+	log_fatal("htlp is completely full (shouldn't happen)");
 }
 
 static int8_t resize(htlp* this, uint64_t new_capacity) {
 	if (new_capacity < this->pair_count) {
 		log_error("cannot fit %" PRIu64 " pairs in %" PRIu64 " slots",
 				this->pair_count, new_capacity);
-		goto err_1;
+		return 1;
 	}
 
 	// Cannot use realloc, because this can both upscale and downscale.
@@ -135,14 +137,20 @@ static int8_t resize(htlp* this, uint64_t new_capacity) {
 
 	for (uint64_t i = 0; i < this->capacity; ++i) {
 		if (slot_occupied(this, i)) {
+			log_info("[%" PRIu64 "]: %" PRIu64 " => %" PRIu64,
+					i, this->keys[i], this->values[i]);
+		} else {
+			log_info("[%" PRIu64 "]: nil", i);
+		}
+	}
+
+	for (uint64_t i = 0; i < this->capacity; ++i) {
+		if (slot_occupied(this, i)) {
 			const uint64_t key = this->keys[i],
 					value = this->values[i];
-			if (insert_noresize(&new_this, key, value)) {
-				log_error("failed to insert "
-						"%" PRIu64 "=%" PRIu64,
-						key, value);
-				goto err_2;
-			}
+			CHECK(!insert_noresize(&new_this, key, value),
+					"failed to insert %" PRIu64 "=%" PRIu64,
+					key, value);
 		}
 	}
 
@@ -150,11 +158,6 @@ static int8_t resize(htlp* this, uint64_t new_capacity) {
 	*this = new_this;
 
 	return 0;
-
-err_2:
-	htlp_destroy(&new_this);
-err_1:
-	return 1;
 }
 
 static int8_t resize_to_fit(htlp* this, uint64_t to_fit) {
