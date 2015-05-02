@@ -58,7 +58,6 @@ vector ops
 
 TODO: custom allocator
 TODO: SIMD hledani v B-stromu
-TODO: hashovani - urcite kukackove
 
 TODO zacit podporovat rank/select? (mohly by se pro to najit nejake aplikace)
 
@@ -73,8 +72,6 @@ a density control algorithm for doing insertions and deletions in a sequentially
 
 TODO: oficialni performance countery v procesoru (ne nutne ty, co exposuje perf)
 TODO: pridat do zdrojaku par restrictu
-
-- jaky programovaci jazyk?
 
 - zalezi na tom, kdyz budu vracet krome prev_key/next_key i pozici, kde ten klic je?
 	- mozna bych tim usporil nejaky procesorovy cas pri dalsim hledani
