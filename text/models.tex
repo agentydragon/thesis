@@ -18,9 +18,9 @@ the value of an expression).
 A more thorough treatment of various types of RAM is included
 in \cite{saga-of-msts}.
 
-The model is also restricted by the \textit{word size} (denoted $w$),
+The model is also restricted by the \textit{word size} (denoted~$w$),
 which is the number of bits allocated for a cell. Choosing a too large $w$
-results in an unreasonably strong model. A typical choice of $w$ is
+results in an unreasonably strong model. A typical choice of~$w$ is
 $\Theta(\log N)$, where $N$ is size of input.
 A RAM with this word size is called the \textit{transdichotomous model}
 by virtue of unifying the notion of problem size and word size.
@@ -41,8 +41,8 @@ to the predictions made by the RAM model. However, the RAM model is far
 from equivalent with real computers, especially so when we are dealing with
 very large inputs. One significant source of this discrepancy is the assumption
 that all memory accesses cost the same $\O(1)$ time. In today's computers,
-the difference between accessing 1 kB cached in L1 cache and accessing
-another 1 kB stored on swapped memory is so large that it cannot be ignored.
+the difference between accessing 1~kB cached in L1~cache and accessing
+another 1~kB stored on swapped memory is so large that it cannot be ignored.
 
 \section{Memory hierarchies}
 % TODO: latency numbers everyone should know
@@ -58,8 +58,8 @@ cheap and more space-efficient. Main memories are usually dynamic.
 
 CPU speeds are growing faster (60\% per year) than speeds of memory (10\% per
 year) \cite{Ailamaki:2004:DAN:1316689.1316801}.
-A fast CPU needs to wait several hundred cycles to perform a RAM access.
-FIXME: source "several hundred"
+A fast CPU needs to wait several hundred cycles to perform a RAM access
+\cite{perf-analysis-guide}.
 To alleviate the costs of memory transfers, several levels of static RAM
 caches are inserted between the CPU and the main memory. The caches are
 progressively smaller and faster the closer they are to the CPU. The difference
@@ -75,7 +75,7 @@ retrieve data from main memory before it is actually accessed.
 
 Furthermore, if we need to wait for a long time to get our data from a slow
 store, it is wise to ask for a lot of data at once. Imagine an HTTP connection
-moving a 10 MB file across the Atlantic: the time to compose and send the HTTP
+moving a 10~MB file across the Atlantic: the time to compose and send the HTTP
 request and to parse a response dwarfs the latency of the connection.
 Memory hierarchies transport data between memories in \emph{blocks}.
 In the context of caches and main memory, these blocks are called
