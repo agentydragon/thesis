@@ -13,8 +13,10 @@
 #include "dict/htable.h"
 #include "dict/kforest.h"
 #include "dict/ksplay.h"
+#include "dict/register.h"
 #include "dict/splay.h"
 #include "log/log.h"
+#include "util/count_of.h"
 
 static int parse_option(int key, char *arg, struct argp_state *state) {
 	(void) arg; (void) state;
@@ -23,6 +25,11 @@ static int parse_option(int key, char *arg, struct argp_state *state) {
 		// TODO: Does someone need to free it when we're done?
 		FLAGS.recording_path = strdup(arg);
 		break;
+	case 'a': {
+		dict_api_list_parse(arg, FLAGS.measured_apis,
+				COUNT_OF(FLAGS.measured_apis));
+		break;
+	}
 	case ARGP_KEY_ARG:
 		log_fatal("unexpected argument: %s", arg);
 		break;
@@ -50,6 +57,9 @@ void parse_flags(int argc, char** argv) {
 		{
 			.name = 0, .key = 'p', .arg = "PATH", .flags = 0,
 			.doc = "Path to text-formatted recording", .group = 0
+		}, {
+			.name = 0, .key = 'a', .arg = "APIs", .flags = 0,
+			.doc = "Measured APIs", .group = 0
 		}, { 0 }
 	};
 	struct argp argp = {

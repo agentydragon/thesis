@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "experiments/vcr/flags.h"
 #include "experiments/vcr/playback.h"
@@ -43,6 +44,14 @@ int main(int argc, char** argv) {
 		log_info("%30s: %14" PRIu64 " ns", FLAGS.measured_apis[i]->name,
 				times[i]);
 	}
+
+//	char buffer[1024];
+//	strcpy(buffer, "\\texttt{}");
+//	for (int i = 0; FLAGS.measured_apis[i]; ++i) {
+//		sprintf(buffer + strlen(buffer), " & %" PRIu64, times[i] / (1000 * 1000));
+//	}
+//	sprintf(buffer + strlen(buffer), "\n");
+//	log_info("\n%s\n", buffer);
 
 	return 0;
 }
