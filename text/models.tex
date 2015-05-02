@@ -79,9 +79,9 @@ moving a 10 MB file across the Atlantic: the time to compose and send the HTTP
 request and to parse a response dwarfs the latency of the connection.
 Memory hierarchies transport data between memories in \emph{blocks}.
 In the context of caches and main memory, these blocks are called
-\emph{cache lines} and their usual size is 64 B.
-Operating systems usually perform disk I/O in batches of 4 kB,
-while physical HDD blocks typically span either 512 B, or 4 kB.
+\emph{cache lines} and their usual size is 64~B.
+Operating systems usually perform disk I/O in batches of 4~kB,
+while physical HDD blocks typically span either 512~B, or 4~kB.
 
 \begin{figure}
 \begin{itemize}
@@ -127,7 +127,7 @@ Because fully associative caching would be hard to implement in hardware,
 actual caches have a limited associativity. While fully associative
 caches may cache an arbitrary set of memory lines, $t$-way associative
 caches only allow each memory location to reside in one of $t$ possible
-locations in the cache. If all $t$ possible locations for a memory line
+locations in the cache. If all~$t$~possible locations for a memory line
 are already occupied, the cache replacement policy evicts one of the $t$
 lines to make space fresh data.
 

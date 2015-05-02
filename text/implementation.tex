@@ -190,8 +190,14 @@ We implemented the following dictionary data structures:
 	a sorted array of key-value pairs with $\O(N)$ insertions and deletions,
 	indended as a benchmark on very small inputs.
 \item \texttt{dict\_btree}, declared in \texttt{dict/btree.h}:
-	a B-tree with nodes aligned to 64 B cache lines
-	(Chapter~\ref{chapter:btree}).
+	a 2-3-4 tree with nodes aligned to 64 B cache lines.
+	This is a slight relaxation of B-trees (Chapter~\ref{chapter:btree})
+	that allows inner nodes to contain $k\in[1;3]$ keys.
+	An inner node needs to keep $k$ keys and $k+1$ pointers, so, with
+	64-bit key and pointers and 64~B cache lines, an inner node fitting
+	into a cache line can keep at most 3 keys. However, leaves hold $k$
+	keys and $k$ values of 64 bits each, which lets us put up to
+	4 key-value pairs into each leaf.
 \item \texttt{dict\_cobt}, declared in \texttt{dict/cobt.h}:
 	a cache-oblivious B-tree (Chapter~\ref{chapter:cob}).
 \item \texttt{dict\_htcuckoo}, declared in \texttt{dict/htcuckoo.h}:

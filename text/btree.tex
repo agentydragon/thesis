@@ -6,7 +6,7 @@ because all information in every transferred block is actively used
 in searching. For example, the ext4, Btrfs and NTFS filesystems use B-trees
 to store directory contents and the MongoDB and MariaDB databases use B-trees
 as indexes. Red-black trees, which are (in the left-leaning variant
-described by \cite{left-leaning}) isomorphic to B-trees for $b=4$, are
+described by \cite{left-leaning}) isomorphic to B-trees for $b=2$, are
 commonly used to maintain in-memory dictionaries, for example in the GNU ISO
 C++ Library as the implementation of the \texttt{std::map} STL template.
 B-trees are also an optimal sorted dictionary data structure
@@ -15,14 +15,14 @@ keys is comparison.
 B-trees were introduced in 1970 by \cite{btree}.
 
 B-trees are a generalization of balanced binary search trees.
-Nodes of a B-tree keep up to $b$ key-value pairs in sorted order.
+Nodes of a B-tree keep up to $2b$ key-value pairs in sorted order.
 An inner node of a binary search tree with key $X$ contains two pointers
 pointing to children with keys $< X$ and $\geq X$. In B-trees,
-inner nodes contain $k\in[b/2;b)$ keys $K_1\ldots K_k$. There are $k+1$
+inner nodes contain $k\in[b;2b]$ keys $K_1\ldots K_k$. There are $k+1$
 child pointers in internal nodes: one for every interval
 $[K_1;K_2),\ldots [K_{k-1};K_k)$, plus one for $(-\infty;K_1)$ and
 $(K_k;\infty)$ each.
-Leaf nodes of a B-tree store $[b/2;b)$ key-value pairs.
+Leaf nodes of a B-tree store $[b;2b]$ key-value pairs.
 % FIXME: check boundaries
 
 \begin{figure}
@@ -46,22 +46,24 @@ Once we reach a leaf, we scan its keys and return the value for $K$
 
 To \textsc{Insert} a key-value pair in a B-tree, we first find the right
 place to put the new key-value pair, and then walk back up the tree.
-If an overfull node (with $\geq b$ keys) is encountered, it is split
-to two nodes of $\leq b/2$ keys and a pointer to the new node is inserted into
-the parent. When we split the root node, we immediately create a new
-root node above the two resulting nodes.
+If an overfull node (with $> 2b$ keys) is encountered, it is split
+to two nodes of $\leq b$ keys. One of the keys from the split node
+is inserted to the parent along with a pointer to the new node.
+When we split the root node, we immediately create a new root node above the
+two resulting nodes.
 
 Deletions employ a similar procedure: if the current node is underfull
-(i.e.\ if it has $< b/2$ keys), it is merged with one of its siblings.
+(i.e.\ if it has $< b$ keys), it is merged with one of its siblings.
 If there are not enough keys among the siblings for two nodes,
 one of the siblings takes ownership of all keys and the other sibling
-is recursively deleted from the parent.
-The only exception is the root node, which may have $[1;b)$ keys.
+is recursively deleted from the parent. In this case, the corresponding
+key from the parent is pulled down into the merged node.
+The only exception is the root node, which may have $[1;2b]$ keys.
 If deleting from the root would leave the root with only one child
 (and zero keys), we instead make the only child of the root the new root.
 
 Thus, updates to the B-tree keep the number of keys of all nodes within
-$[b/2;b$, so the depth of the tree is kept between $\log_b N$ and
+$[b;2b]$, so the depth of the tree is kept between $\log_b N$ and
 $\log_{b/2} N$ and the \textsc{Find} operation takes time
 $\Theta(\log b \cdot \log_b N)=\Theta(\log N)$. \textsc{FindNext} and
 \textsc{FindPrevious} also take time $\Theta(\log N)$, but if they are invoked
