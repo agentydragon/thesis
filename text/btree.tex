@@ -23,13 +23,16 @@ child pointers in internal nodes: one for every interval
 $[K_1;K_2),\ldots [K_{k-1};K_k)$, plus one for $(-\infty;K_1)$ and
 $(K_k;\infty)$ each.
 Leaf nodes of a B-tree store $[b;2b]$ key-value pairs.
-% FIXME: check boundaries
 
-\begin{figure}
-\centering
-\includegraphics[width=\linewidth]{img/btree}
-\caption{An example B-tree ($b=5$).}
-\end{figure}
+The essence of the $[b;2b]$ interval is that when we try to insert the $2b+1$-th
+key, we can instead split the node into two valid nodes of size $b$ and borrow
+the middle key to insert the newly created node into the parent.
+Similarly, when we delete the $b$-th key, we first try to borrow some nodes
+from neighbours to create two valid nodes of size $[b;2b]$, which works when
+there are at least $2b$ keys in both nodes combined.
+When there are $2b-1$ keys, we instead bring down one key from the parent
+and combine the two neighbours with the borrowed key into a new valid node with
+$b+(b-1)+1=2b$ keys.
 
 In binary search trees, searching for a key $K$ is performed by binary search.
 Starting in the root node, we compare $K$ with the key stored in the node
