@@ -48,6 +48,7 @@ void run_unit_tests(void) {
 	test_dict_blackbox(&dict_ksplay);
 	test_dict_blackbox(&dict_splay);
 
+	test_ordered_dict_blackbox(&dict_btree);
 	test_ordered_dict_blackbox(&dict_cobt);
 	test_ordered_dict_blackbox(&dict_ksplay);
 	test_ordered_dict_blackbox(&dict_splay);

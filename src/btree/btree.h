@@ -53,7 +53,8 @@ int8_t btree_delete(btree*, uint64_t key);
 bool btree_find(btree*, uint64_t key, uint64_t *value);
 void btree_destroy(btree*);
 
-// TODO: implement _next, _prev
+bool btree_find_next(btree*, uint64_t key, uint64_t *next_key);
+bool btree_find_prev(btree*, uint64_t key, uint64_t *prev_key);
 
 typedef struct {
 	uint8_t levels_above_leaves;

@@ -73,7 +73,7 @@ btree_node_traversed nt_root(btree* tree) {
 
 static btree_node_traversed nt_advance(const btree_node_traversed node,
 		uint64_t key) {
-	for (uint8_t i = 0; i < get_n_internal_keys(node.persisted); i++) {
+	for (uint8_t i = 0; i < get_n_internal_keys(node.persisted); ++i) {
 		if (node.persisted->internal.keys[i] > key) {
 			return (btree_node_traversed) {
 				.persisted = node.persisted->internal.pointers[i],
@@ -333,6 +333,133 @@ bool btree_find(btree* this, uint64_t key, uint64_t *value) {
 		}
 	}
 	return false;
+}
+
+static bool find_next_in_leaf(btree_node_persisted* node,
+		uint64_t key, uint64_t *next) {
+	for (uint8_t i = 0; i < get_n_leaf_keys(node); ++i) {
+		if (node->leaf.keys[i] > key) {
+			*next = node->leaf.keys[i];
+			return true;
+		}
+	}
+	return false;
+}
+
+static bool find_prev_in_leaf(btree_node_persisted* node,
+		uint64_t key, uint64_t *prev) {
+	for (uint8_t i = 0; i < get_n_leaf_keys(node); ++i) {
+		uint8_t j = get_n_leaf_keys(node) - 1 - i;
+		if (node->leaf.keys[j] < key) {
+			*prev = node->leaf.keys[j];
+			return true;
+		}
+	}
+	return false;
+}
+
+bool btree_find_next(btree* this, uint64_t key, uint64_t *next) {
+//	log_info("find_next(%" PRIu64 ")", key);
+//	btree_dump_dot(this, stdout);
+
+	// TODO: check against key == UINT64_MAX
+	btree_node_traversed node = nt_root(this);
+
+	// The last node where we didn't go to the last child.
+	btree_node_traversed last_node_with_next = {
+		.persisted = NULL
+	};
+
+	while (!nt_is_leaf(node)) {
+		const uint64_t last_key = node.persisted->internal.keys[get_n_internal_keys(node.persisted) - 1];
+		if (key < last_key) {
+			last_node_with_next = node;
+		}
+		node = nt_advance(node, key);
+	}
+	if (find_next_in_leaf(node.persisted, key, next)) {
+		return true;
+	}
+	if (last_node_with_next.persisted == NULL) {
+		return false;
+	}
+	{
+		node = last_node_with_next;
+		uint64_t taken_branch = UINT64_MAX;
+		for (uint8_t i = 0; i < get_n_internal_keys(node.persisted); i++) {
+			if (node.persisted->internal.keys[i] > key) {
+				taken_branch = i;
+				break;
+			}
+		}
+		ASSERT(taken_branch != UINT64_MAX);
+		node = (btree_node_traversed) {
+			.persisted = node.persisted->internal.pointers[taken_branch + 1],
+			.levels_above_leaves = node.levels_above_leaves - 1
+		};
+	}
+	// Find leftmost leaf.
+	while (!nt_is_leaf(node)) {
+		node = (btree_node_traversed) {
+			.persisted = node.persisted->internal.pointers[0],
+			.levels_above_leaves = node.levels_above_leaves - 1
+		};
+	}
+	// Find that leaf's minimum.
+	*next = node.persisted->leaf.keys[0];
+	return true;
+}
+
+bool btree_find_prev(btree* this, uint64_t key, uint64_t *prev) {
+//	log_info("find_prev(%" PRIu64 ")", key);
+//	btree_dump_dot(this, stdout);
+
+	// TODO: check against key == UINT64_MAX
+	btree_node_traversed node = nt_root(this);
+
+	// The last node where we didn't go to the first child.
+	btree_node_traversed last_node_with_prev = {
+		.persisted = NULL
+	};
+
+	while (!nt_is_leaf(node)) {
+		const uint64_t first_key = node.persisted->internal.keys[0];
+		if (key >= first_key) {
+			last_node_with_prev = node;
+		}
+		node = nt_advance(node, key);
+	}
+	if (find_prev_in_leaf(node.persisted, key, prev)) {
+		return true;
+	}
+	if (last_node_with_prev.persisted == NULL) {
+		return false;
+	}
+	{
+		node = last_node_with_prev;
+		uint64_t taken_branch = get_n_internal_keys(node.persisted);
+		for (uint8_t i = 0; i < get_n_internal_keys(node.persisted); i++) {
+			if (node.persisted->internal.keys[i] > key) {
+				taken_branch = i;
+				break;
+			}
+		}
+		ASSERT(taken_branch != 0);
+		node = (btree_node_traversed) {
+			.persisted = node.persisted->internal.pointers[taken_branch - 1],
+			.levels_above_leaves = node.levels_above_leaves - 1
+		};
+	}
+	// Find rightmost leaf.
+	while (!nt_is_leaf(node)) {
+		node = (btree_node_traversed) {
+			.persisted = node.persisted->internal.pointers[get_n_internal_keys(node.persisted)],
+			.levels_above_leaves = node.levels_above_leaves - 1
+		};
+	}
+	// Find that leaf's maximum.
+	*prev = node.persisted->leaf.keys[get_n_leaf_keys(node.persisted) - 1];
+	return true;
 }
 
 // Details of node representation:

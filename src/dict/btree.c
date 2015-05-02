@@ -31,6 +31,14 @@ static bool find(void* this, uint64_t key, uint64_t *value) {
 	return btree_find(this, key, value);
 }
 
+static bool next(void* this, uint64_t key, uint64_t *next_key) {
+	return btree_find_next(this, key, next_key);
+}
+
+static bool prev(void* this, uint64_t key, uint64_t *prev_key) {
+	return btree_find_prev(this, key, prev_key);
+}
+
 static int8_t insert(void* this, uint64_t key, uint64_t value) {
 	return btree_insert(this, key, value);
 }
@@ -47,7 +55,8 @@ const dict_api dict_btree = {
 	.insert = insert,
 	.delete = delete,
 
-	// TODO: next, prev
+	.next = next,
+	.prev = prev,
 
 	.dump = NULL,
 	.name = "dict_btree"
