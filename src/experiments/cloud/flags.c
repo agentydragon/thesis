@@ -73,7 +73,8 @@ static void set_defaults(void) {
 	FLAGS.measured_apis[0] = &dict_cobt;
 	FLAGS.measured_apis[1] = &dict_splay;
 	FLAGS.measured_apis[2] = &dict_ksplay;
-	FLAGS.measured_apis[3] = NULL;
+	FLAGS.measured_apis[3] = &dict_btree;
+	FLAGS.measured_apis[4] = NULL;
 
 	FLAGS.dump_averages = false;
 
