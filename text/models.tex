@@ -58,8 +58,9 @@ cheap and more space-efficient. Main memories are usually dynamic.
 
 CPU speeds are growing faster (60\% per year) than speeds of memory (10\% per
 year) \cite{Ailamaki:2004:DAN:1316689.1316801}.
-A fast CPU needs to wait several hundred cycles to perform a RAM access
-\cite{perf-analysis-guide}.
+A fast CPU needs to wait several hundred cycles to perform a RAM access.
+For example, Intel Core i7 and Xeon 5500 processors with clocking frequencies
+in GHz need approximately 100~ns for a RAM access\cite{perf-analysis-guide}.
 To alleviate the costs of memory transfers, several levels of static RAM
 caches are inserted between the CPU and the main memory. The caches are
 progressively smaller and faster the closer they are to the CPU. The difference
