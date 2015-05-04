@@ -4,12 +4,9 @@
 * experiment: klasicke struktury vc. napriklad Red-Black
 * mereni spotreby pameti
 * jeste nejaka realna data
-* vysledkova kapitola
 * oznamit, ze budu merit na Lenovu
 * oznamit CPU Lenova, kolik ma jader
 * Konkretni latence (vykrast od Intelu) -- odkaz na AIM (van Eick)
-* B-trees: <=$b$ key-value pairs: mam tam dost zmatek v $b$/$b$+1, otevrene a
-  uzavrene intervaly, atd.
 * generalizovat na (a,b)-stromy? (b=2a NEBO b=2a-1: jine amortizovane chovani
   na sekvenci INSERTu - DELETu, b=2a je rychlejsi)
 * potencial definovany vahami -> mozna w_i=1 misto w_i=1/N
