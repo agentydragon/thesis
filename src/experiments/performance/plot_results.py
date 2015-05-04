@@ -257,6 +257,13 @@ def plot_cob_find_speed_figures():
   save_to('export/cob-performance-5.png')
   pyplot.clf()
 
+  pyplot.figure(1, figsize=EXPORT_FIGSIZE)
+  find_speed_fig(experiment='word_frequency')
+  pyplot.ylabel('Time per indexed word')
+  pyplot.xlabel('Indexed words')
+  save_to('export/cob-performance-6.png')
+  pyplot.clf()
+
 def get_difference(api):
   find_pts = load_data(implementation=api, experiment='serial-findonly')
   both_pts = load_data(implementation=api, experiment='serial-both')
