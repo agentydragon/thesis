@@ -206,11 +206,7 @@ HASH_LABEL = 'Hash table with linear probing'
 EXPORT_FIGSIZE = (6,6)
 
 def plot_cob_find_speed_figures():
-  def find_speed_fig(**kwargs):
-    data = load_data(**kwargs)
-    data = [point for point in data
-            if point['implementation'] in ['dict_btree', 'dict_cobt',
-                                           'dict_htlp']]
+  def find_speed_fig_internal(data):
     # Random FINDs: cache-oblivious B-tree vs. B-tree vs. linear probing HT
     pyplot.xscale('log')
     pyplot.xlabel('Dictionary size')
@@ -235,6 +231,12 @@ def plot_cob_find_speed_figures():
                   linestyle='dashed')
 
     pyplot.legend(loc='upper left')
+  def find_speed_fig(**kwargs):
+    data = load_data(**kwargs)
+    data = [point for point in data
+            if point['implementation'] in ['dict_btree', 'dict_cobt',
+                                           'dict_htlp']]
+    find_speed_fig_internal(data)
 
   pyplot.figure(1, figsize=EXPORT_FIGSIZE)
   find_speed_fig(experiment='serial-findonly')
@@ -258,7 +260,12 @@ def plot_cob_find_speed_figures():
   pyplot.clf()
 
   pyplot.figure(1, figsize=EXPORT_FIGSIZE)
-  find_speed_fig(experiment='word_frequency')
+  data = load_data(experiment='word_frequency')
+  data = [point for point in data
+          if point['implementation'] in ['dict_btree', 'dict_cobt',
+                                         'dict_htlp']]
+  data = [point for point in data if point['size'] <= 800 * 1000]
+  find_speed_fig_internal(data)
   pyplot.ylabel('Time per indexed word')
   pyplot.xlabel('Indexed words')
   save_to('export/cob-performance-6.png')
