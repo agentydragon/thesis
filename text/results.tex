@@ -202,9 +202,10 @@ performance. Our results are presented in Table \ref{tab:firefox-results}.
 \label{tab:firefox-results}
 \end{table}
 
-Overall, the cache-oblivious B-tree (COBT) performed worse than B-trees
-in this experiment. We believe this may be explained by the small size of
-typical hash tables.
+Overall, the cache-oblivious B-tree (COBT) performed slightly worse than
+B-trees in this experiment. We believe this may be explained by the small size
+of typical hash tables, which forces frequent costly rebuilds of the packed
+memory array.
 
 Most recordings run fastest either on cuckoo hash tables, or on splay trees.
 By inspecting the recordings, we found that splay trees are better on recordings
