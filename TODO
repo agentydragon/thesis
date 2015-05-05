@@ -11,7 +11,6 @@
   na sekvenci INSERTu - DELETu, b=2a je rychlejsi)
 * potencial definovany vahami -> mozna w_i=1 misto w_i=1/N
   (potencial pak bude porad fungovat, i pri insert/delete)
-* plavou mi pismena v k-splay
 * (nasobeni 2^x-1: nebylo by to rychlejsi?)
 * knihovni cast, neobecna (explicitne) VS experimenty nad tim napsane
 * upravovatelne pointery? ("vrat mi pointer, ja ho budu upravovat do dalsiho
