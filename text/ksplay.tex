@@ -92,39 +92,41 @@ as non-terminal steps.
 \begin{tikzpicture}[]
 \tikzstyle{ks_node}=[rectangle split, rectangle split horizontal,
 	rectangle split ignore empty parts, draw]
+\tikzstyle{ks_leaf}=[circle, draw, text depth=0em, text height=0.5em, scale=0.9]
+
 \node at (-4,0) [ks_node] {15 \nodepart{two} 95} [->]
-child { node {a} }
+child { node [ks_leaf] {a} }
 child { node [ks_node] {21 \nodepart{two} 56}
-	child { node {b} }
-	child { node {c} }
+	child { node [ks_leaf] {b} }
+	child { node [ks_leaf] {c} }
 	child { node [ks_node] {71 \nodepart{two} 80}
 		child { node [ks_node] (StarBefore) {60 \nodepart{two} 64}
-			child { node {d} }
-			child { node {e} }
-			child { node {f} }
+			child { node [ks_leaf] {d} }
+			child { node [ks_leaf] {e} }
+			child { node [ks_leaf] {f} }
 		}
-		child { node {g} }
-		child { node {h} }
+		child { node [ks_leaf] {g} }
+		child { node [ks_leaf] {h} }
 	}
 }
-child { node {i} };
+child { node [ks_leaf] {i} };
 \node at ($(StarBefore.west)+(-0.3,0)$) {$\star$};
 
 \node at (4,-1.5) [ks_node] (StarAfter) {56 \nodepart{two} 71} [->]
-child[sibling distance=2cm] { node [ks_node] {15 \nodepart{two} 21}
-	child[sibling distance=0.7cm] { node {a} }
-	child[sibling distance=0.7cm] { node {b} }
-	child[sibling distance=0.7cm] { node {c} }
+child[sibling distance=2.5cm] { node [ks_node] {15 \nodepart{two} 21}
+	child[sibling distance=0.7cm] { node [ks_leaf] {a} }
+	child[sibling distance=0.7cm] { node [ks_leaf] {b} }
+	child[sibling distance=0.7cm] { node [ks_leaf] {c} }
 }
-child[sibling distance=2cm] { node [ks_node] {60 \nodepart{two} 64}
-	child[sibling distance=0.7cm] { node {d} }
-	child[sibling distance=0.7cm] { node {e} }
-	child[sibling distance=0.7cm] { node {f} }
+child[sibling distance=2.5cm] { node [ks_node] {60 \nodepart{two} 64}
+	child[sibling distance=0.7cm] { node [ks_leaf] {d} }
+	child[sibling distance=0.7cm] { node [ks_leaf] {e} }
+	child[sibling distance=0.7cm] { node [ks_leaf] {f} }
 }
-child[sibling distance=2cm] { node [ks_node] {80 \nodepart{two} 95}
-	child[sibling distance=0.7cm] { node {g} }
-	child[sibling distance=0.7cm] { node {h} }
-	child[sibling distance=0.7cm] { node {i} }
+child[sibling distance=2.5cm] { node [ks_node] {80 \nodepart{two} 95}
+	child[sibling distance=0.7cm] { node [ks_leaf] {g} }
+	child[sibling distance=0.7cm] { node [ks_leaf] {h} }
+	child[sibling distance=0.7cm] { node [ks_leaf] {i} }
 };
 \node at ($(StarAfter.west)+(-0.3,0)$) {$\star$};
 
