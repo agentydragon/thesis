@@ -67,6 +67,11 @@ unpredictable operations (see Figure \ref{fig:self-adj-performance}).
 \end{subfigure}
 ~
 \begin{subfigure}[b]{0.45\textwidth}
+	\includegraphics[width=\textwidth]{img/performance/self-adj-random-insert}
+	\caption{Random \textsc{Insert}s}
+\end{subfigure}
+\\
+\begin{subfigure}[b]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/self-adj-ws-1k}
 	\caption{\textsc{Find}s, working set of 1~000 keys}
 \end{subfigure}
@@ -75,8 +80,7 @@ unpredictable operations (see Figure \ref{fig:self-adj-performance}).
 	\includegraphics[width=\textwidth]{img/performance/self-adj-ws-100k}
 	\caption{\textsc{Find}s, working set of 100~000 keys}
 \end{subfigure}
-% TODO: inserts, working sets
-
+% TODO: word occurrence counting
 \caption{Benchmarks of self-adjusting structures.
 	B-trees are included for reference.}
 \label{fig:self-adj-performance}

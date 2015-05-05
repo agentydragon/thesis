@@ -368,6 +368,10 @@ def plot_self_adjusting_performance():
   save_to('export/self-adj-random-find.png')
   pyplot.clf()
 
+  plot_self_adj(experiment='serial-insertonly')
+  save_to('export/self-adj-random-insert.png')
+  pyplot.clf()
+
   plot_self_adj(experiment='workingset', working_set_size=1000)
   save_to('export/self-adj-ws-1k.png')
   pyplot.clf()
