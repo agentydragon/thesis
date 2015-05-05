@@ -221,10 +221,10 @@ Interestingly, linear probing does not behave as well on Firefox recordings
 as in synthetic experiments, in which it performed as well as cuckoo hashing
 in random \textsc{Find}s and slightly better on \textsc{Insert}s. One possible
 reason for this is a higher incidence of failed \textsc{Insert} and
-\textsc{Find} operations, which we did not specifically benchmark. While failed
-\textsc{Find}s on cuckoo hashing take only 2 memory transfers as any other
-\textsc{Find}, an unsuccessful \textsc{Find} with linear probing needs to
-traverse an entire chain.
+\textsc{Find} operations, which we did not specifically benchmark with
+synthetic workloads. While failed \textsc{Find}s on cuckoo hashing take only
+2 memory transfers as any other \textsc{Find}, an unsuccessful \textsc{Find}
+with linear probing needs to traverse an entire chain.
 
 \subsection{Geospatial database}
 The results of the cloud database experiment are outlined in Table
