@@ -21,32 +21,32 @@ make updates of smaller dictionaries more efficient.
 
 \begin{figure}
 \centering
-\begin{subfigure}[b]{0.45\textwidth}
+\begin{subfigure}[t]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/cob-performance-1}
 	\caption{Random \textsc{Find}s}
 \end{subfigure}
 ~
-\begin{subfigure}[b]{0.45\textwidth}
+\begin{subfigure}[t]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/cob-performance-2}
 	\caption{Random \textsc{Insert}s}
 \end{subfigure}
 ~
-\begin{subfigure}[b]{0.45\textwidth}
+\begin{subfigure}[t]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/cob-performance-3}
 	\caption{\textsc{Find}s, working set of 1~000 keys}
 \end{subfigure}
 ~
-\begin{subfigure}[b]{0.45\textwidth}
+\begin{subfigure}[t]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/cob-performance-4}
 	\caption{\textsc{Find}s, working set of 100~000 keys}
 \end{subfigure}
 ~
-\begin{subfigure}[b]{0.45\textwidth}
+\begin{subfigure}[t]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/cob-performance-5}
 	\caption{Left-to-right scans over whole dictionary}
 \end{subfigure}
 ~
-\begin{subfigure}[b]{0.45\textwidth}
+\begin{subfigure}[t]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/cob-performance-6}
 	\caption{Word occurrence counting}
 \end{subfigure}
@@ -127,22 +127,22 @@ One possible reason might be the limited independence guaranteed by simple
 tabulation hashing.
 
 \begin{figure}
-\begin{subfigure}[b]{0.45\textwidth}
+\begin{subfigure}[t]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/hashing-1}
 	\caption{Random \textsc{Find}s}
 \end{subfigure}
 ~
-\begin{subfigure}[b]{0.45\textwidth}
+\begin{subfigure}[t]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/hashing-2}
 	\caption{Random \textsc{Insert}s}
 \end{subfigure}
-~
-\begin{subfigure}[b]{0.45\textwidth}
+\\
+\begin{subfigure}[t]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/hashing-3}
 	\caption{\textsc{Find}s, working set of 1~000 keys}
 \end{subfigure}
 ~
-\begin{subfigure}[b]{0.45\textwidth}
+\begin{subfigure}[t]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/hashing-4}
 	\caption{\textsc{Find}s, working set of 100~000 keys}
 \end{subfigure}
