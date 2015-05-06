@@ -3,17 +3,21 @@
 When implementing an unordered dictionary, hashing is the most common tool
 \footnote{Indeed, one of the many established meanings of the word ``hash''
 	is ``unordered dictionary''.}
-Hashing is a very old idea and the approaches are numerous. Hashing
+Hashing is a very old idea and the approaches to hashing are numerous. Hashing
 techniques usually allow amortized constant-time \textsc{Find}, \textsc{Insert}
 and \textsc{Delete} at the expense of disallowing \textsc{FindNext} and
 \textsc{FindPrevious}. Certain schemes provide stronger than expected-time
 bounds, like deterministic constant time for \textsc{Find}s in cuckoo hashing
 (described in section \ref{sec:cuckoo}).
 
-The idea of hashing is reducing the size of the large key universe $U$ to
-a smaller \emph{hash space} $H$ via a \emph{hashing function}
-$h\mathop{:}U\rightarrow H$.
-Let us denote the size of the hash space $M$.
+The idea of hashing is reducing the size of the large key universe
+$\mathcal{U}$ to a smaller \emph{hash space} $H$ via a \emph{hashing function}
+$h\mathop{:}\mathcal{U}\rightarrow H$.
+In this chapter, let us denote the size of the hash space $M$
+\footnote{%
+	No hashing schemes presented in this chapter are specific to external
+	memory, so we do not need $M$ to denote the cache size in this chapter.
+}.
 For a key $k$, we call $h(k)$ the \emph{hash} of $k$.
 
 The size of the hash space is selected small enough to allow using hashes
@@ -52,18 +56,18 @@ or decreases in size by a constant factor, we rebuild it with a new $M$
 picked to be $\O(N)$. The rebuild time is $\O(1)$ amortized per operation.
 
 If we pick the hash function $h$ at random (i.e. by independently randomly
-assigning $h(k)$ for all $k\in U$), we have $\forall i\in H, k\in U:
-\Pr[h(k)=i]=\frac{1}{M}$, so $\E[C_i]=\frac{N}{M}$, which is constant if we
-maintain $M=\O(N)$, so the expected time per operation is also constant.
-The $\frac{N}{M}$ ratio is commonly called the \emph{load factor}.
+assigning $h(k)$ for all $k\in\mathcal{U}$), we have $\forall i\in H,
+k\in\mathcal{U}: \Pr[h(k)=i]=\frac{1}{M}$, so $\E[C_i]=\frac{N}{M}$, which is
+constant if we maintain $M=\O(N)$, so the expected time per operation is also
+constant.  The $\frac{N}{M}$ ratio is commonly called the \emph{load factor}.
 
-However, storing a random hash function would require $|U| \log M$ bits, which
-is too much if we only store a few keys from a very large universe. In practice,
-we pick a hash function from a certain smaller family according to a formula
-with some variables chosen at random.
+However, storing a random hash function would require $|\mathcal{U}|\log M$
+bits, which is too much if we only store a few keys from a very large universe.
+In practice, we pick a hash function from a certain smaller family according to
+a formula with some variables chosen at random.
 Given a family $\mathcal{H}$ of hashing functions, we call $\mathcal{H}$
 \emph{universal} if $\Pr_{h\in \mathcal{H}}[h(x)=h(y)]=\O(\frac{1}{M})$ for any
-$x, y\in U$.
+$x, y\in\mathcal{U}$.
 For any universal family of hash functions, the expected time per operation
 is constant when using chaining.
 
@@ -74,19 +78,20 @@ $$\forall k_1\neq\ldots \neq k_t\subseteq K,
 	h(k_t)=h_t]=\O(m^{-t})$$
 2-independent hash function families are universal, but universal families
 are not necessarilly 2-independent.
-Trivially, random hash functions are $k$-wise independent for any $k\leq |U|$.
+Trivially, random hash functions are $k$-wise independent for any
+$k\leq|\mathcal{U}|$.
 
 % with cache of Omega(log n) totally random -> O(1) amortized per operation w.h.p.
 % "pretty rare in practice", because hashing twice
 
 Some common universal families of hash functions include:
 \begin{itemize}
-\item $h(k)=((a\cdot k)\bmod p)\bmod M$, where $p$ is a prime $\geq |U|$
-	and $a\in\{0,\ldots p-1\}$ \cite{univ-classes}.
+\item $h(k)=((a\cdot k)\bmod p)\bmod M$, where $p$ is a prime
+	$\geq|\mathcal{U}|$ and $a\in\{0,\ldots p-1\}$ \cite{univ-classes}.
 	The collision probability for this hash function is
 	$\frac{\lfloor p/M\rfloor}{p-1}$, so it becomes less efficient
 	if $M$ is close to $p$.
-\item $(a\cdot k)\gg(\log u-\log m)$ for $M, |U|$ powers of 2
+\item $(a\cdot k)\gg(\log u-\log m)$ for $M, |\mathcal{U}|$ powers of 2
 	\cite{dietzfelbinger}.
 	This hash function replaces modular arithmetic by bitwise shifts,
 	which are faster on hardware.
@@ -99,7 +104,7 @@ Some common universal families of hash functions include:
 	of hashes of all components $x_i$:
 	$$h(x)=h_1(x_1)\oplus h_2(x_2)\oplus \ldots \oplus h_c(x_c)$$
 	Simple tabulation hashes take time $\O(c)$ to compute in the general RAM
-	model and it needs space $\O(c\cdot |U|^{1/c})$.  % TODO: approx u^\epsilon
+	model and it needs space $\O(c\cdot |\mathcal{U}|^{1/c})$.  % TODO: approx u^\epsilon
 
 	Simple tabulation hashing is 3-independent and not 4-independent,
 	but a recent analysis in \cite{power-of-simple-tab} showed that
@@ -386,10 +391,10 @@ Examples of $\Theta(\log N)$-independent hashing schemes include:
 \begin{itemize}
 \item For general $k$-independence, we can use
 	$h(x)=(\sum_{i=0}^{k-1} a_i x^i \bmod p) \bmod M$ (from
-	\cite{new-hash-fns}), where $p$ is a prime greater than $|U|$ and
-	all $a_i$ are chosen at random from $\Z_p$.
+	\cite{new-hash-fns}), where $p$ is a prime greater than $|\mathcal{U}|$
+	and all $a_i$ are chosen at random from $\Z_p$.
 	This hash function family is considered slow due to needing
-	$\Theta(\log N)$ time and using integer division by $p$.\footnote{
+	$\Theta(\log N)$ time and using integer division by $p$.\footnote{%
 		% TODO: This footnote looks like "p^2".
 		As \cite{univ-classes} points out, using Mersenne primes
 		(i.e.\ $2^i-1$ for some $i$) enables a faster implementation of
