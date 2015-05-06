@@ -28,7 +28,7 @@ by virtue of tying the problem size and word size.
 RAM algorithms are judged by their \emph{time} and \emph{space complexity}.
 The time complexity is the number of executed instructions as a function of
 input size and the space complexity is the maximum cell index accessed during
-execution\footnote{
+execution\footnote{%
 	The number of overwritten cells would be a simpler definition
 	of space complexity, but that would allow unrealistic ``dirty tricks''
 	like maintaining an unordered set with deterministic $\O(1)$ time
@@ -150,7 +150,7 @@ been developed to benchmark algorithms designed for hierarchical memory.
 \section{The external memory model}
 The simplest model of memory hierarchies is the \emph{external memory model},
 which has only two levels of memory: the fast and small \emph{cache} and the
-slow and potentially infinite \emph{disk}\footnote{
+slow and potentially infinite \emph{disk}\footnote{%
 	We choose this naming to avoid the ambiguous term ``memory'',
 	which may mean both ``main memory'' in relation to a disk,
 	or an ``external memory'' in relation to a cache.
