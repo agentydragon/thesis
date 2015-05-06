@@ -23,9 +23,9 @@ which is the number of bits allocated for a cell. Choosing a too large $w$
 results in an unreasonably strong model. A typical choice of~$w$ is
 $\Theta(\log N)$, where $N$ is size of input.
 A RAM with this word size is called the \textit{transdichotomous model}
-by virtue of unifying the notion of problem size and word size.
+by virtue of tying the problem size and word size.
 
-We benchmark RAM algorithms by their \emph{time} and \emph{space complexity}.
+RAM algorithms are judged by their \emph{time} and \emph{space complexity}.
 The time complexity is the number of executed instructions as a function of
 input size and the space complexity is the maximum cell index accessed during
 execution\footnote{
@@ -111,33 +111,36 @@ It is possible to advise the processor via special instructions about some
 characteristics of memory access (e.g.\ by requesting prefetching), but programs
 cannot explicitly set which memory blocks should be stored in caches.
 
-\emph{Fully associative caches} maintain up to $m$ memory blocks called
-\textit{cache lines} (typically of 64 B). When the CPU tries to access
-a memory location, the cache is checked first before accessing main memory.
-If the cache doesn't contain the requested data, it is loaded into the cache.
-When the cache becomes full, it needs to evict presently loaded cache lines
-before caching new ones. The evicted cache line is picked according
-to a \emph{cache replacement policy}. The most commonly implemented cache
-replacement policy is LRU (\emph{least recently used}), which evicts
-the memory line that was accessed least recently.
+A cache maintains up to $m$ memory blocks called \textit{cache lines},
+typically of 64~B.
+We will first describe \emph{fully associative caches}.
+When the CPU tries to access a memory location, the cache is checked first
+before accessing main memory. If the cache doesn't contain the requested data,
+it is loaded into the cache. When the cache becomes full (i.e.\ when all $m$
+cache lines are used), it needs to evict presently loaded cache lines before
+caching new ones. The evicted cache line is picked according to a \emph{cache
+replacement policy}. The most commonly implemented cache replacement policy is
+LRU (\emph{least recently used}), which evicts the memory line that was
+accessed least recently.
 A theoretically useful, but practically impossible policy is the \emph{optimal
 replacement policy}, which always evicts the cache line that will be needed
 farthest in the future.
 
-Because fully associative caching would be hard to implement in hardware,
-actual caches have a limited associativity. While fully associative
-caches may cache an arbitrary set of memory lines, $t$-way associative
-caches only allow each memory location to reside in one of $t$ possible
+Fully associative caches can store an arbitrary set of $m$ cached lines
+at any time. Because full associativity would be hard to implement in hardware,
+actual caches have a limited associativity. A $t$-way associative
+cache only allows each memory location to reside in one of $t$ possible
 locations in the cache. If all~$t$~possible locations for a memory line
 are already occupied, the cache replacement policy evicts one of the $t$
-lines to make space fresh data.
+lines to make space fresh data. In a fully associative cache, we have $t=m$.
 
 The associativity of caches $t$ is usually a small power of two, like 8 or 16.
 The set of possible cache locations for lines in memory is determined
 by simply masking out a few address bits. This approach implies that
 accessing too many locations with addresses differing exactly by a power
-of two may result in \emph{cache aliasing} -- the cache will only be able
-to store only $t$ useful cache lines at once, which greatly degrades its
+of two may result in \emph{cache aliasing} -- the accessed locations will
+all fall within the same \emph{set}, and the cache will only be able
+to store only $t$ useful cache lines at once, which greatly degrades
 performance.
 
 Programs which have \emph{spatial} and \emph{temporal locality of reference}
@@ -145,8 +148,9 @@ will perform better on computers with hierarchical memory. Several models have
 been developed to benchmark algorithms designed for hierarchical memory.
 
 \section{The external memory model}
-The simplest model of memory hierarchies has only two levels of memory:
-the \emph{cache} and the \emph{disk}\footnote{
+The simplest model of memory hierarchies is the \emph{external memory model},
+which has only two levels of memory: the fast and small \emph{cache} and the
+slow and potentially infinite \emph{disk}\footnote{
 	We choose this naming to avoid the ambiguous term ``memory'',
 	which may mean both ``main memory'' in relation to a disk,
 	or an ``external memory'' in relation to a cache.
@@ -155,17 +159,20 @@ only one gap between memory levels is usually the bottleneck. For example,
 the bottleneck in a 10 TB database would probably be disk I/O, because
 only a negligible part of the database would fit into main memory and
 lower cache levels. If the time to make a query is 30 ms, optimizing transfers
-between L2 cache and RAM would be unlikely to help.
+between L2 and L3 caches would be unlikely to help.
 
 The cache and the disk are divided to blocks of size $B$. The size of the cache 
-in bytes is fixed and is denoted $M$.
+in bytes is fixed and is denoted $M$ ($M=m\cdot B$).
+In the context of main memory, $B$ is the size of a cache line (64~B).
+
 In the external memory model, we allow free computation on data
 stored in the cache. The time complexity is measured in the number of
 \emph{block transfers}, which read or write an entire block to the disk.
 Algorithms are allowed to explicitly transfer blocks, which corresponds
 to the boundary between main memory and disks in computers.
 The space complexity is the index of the last overwritten block.
-The parameters $B$ and $M$ are known to the program.
+The parameters $B$ and $M$ are known to the program, which allows it to tune
+the transfers to the specific hierarchy.
 
 \cite{em-ads} is a comprehensive survey of the external memory model
 (extended to handle an array of disks allowing simultaneous access), including
@@ -174,10 +181,14 @@ block transfers), algorithms for computational geometry, graph algorithms
 and dictionary data structures.
 
 \section{Cache-oblivious algorithms}
-Cache-oblivious algorithms run on a machine with a two-level memory hierarchy.
-Unlike algorithms in the external memory model, cache-oblivious algorithms
+Cache-oblivious algorithms run on the external memory model.
+Their distinguishing property is that cache-oblivious algorithms
 are not allowed access to $M$ and $B$. They may only assume the existence
 of a main memory and a cache.
+One further assumption required by some cache-oblivious algorithms is
+that the cache is \emph{tall}, meaning that it can store more blocks
+than a block can store bits ($m=\Omega(B)$).
+
 The algorithm must perform well independent of the values of $M$ and $B$.
 On a machine with multiple levels of memory hierarchy, this means that
 the algorithm performs well on every cache boundary at the same time.
@@ -187,10 +198,9 @@ include not only the usual L1, L2 and L3 caches, but also the \emph{translation
 lookaside buffer} (TLB), which caches the mapping of pages from virtual to
 physical memory.
 
-The cache is assumed to be tall (with $\Omega(B)$ blocks) and
-the algorithm cannot control block transfers between the cache and the memory.
-This is similar to real computers: L1, L2 and L3 caches are also out
-of the program's control.
+Cache-oblivious algorithms cannot control block transfers between the cache
+and the memory: they operate in a uniformly addressed memory. This is similar
+to real computers: L1, L2 and L3 caches are also out of the program's control.
 The cache is, however, assumed to be unrealistically powerful: it is fully
 associative and the replacement policy is optimal. Fortunately, fully
 associative caches with optimal replacement can be simulated with a
@@ -213,5 +223,5 @@ without the tall cache assumption. Cache-oblivious algorithms can also permute
 either in $\Theta(N)$ or in $\Theta(\frac{N}{B}\log_{M/B}\frac{N}{B})$ block
 transfers, but it is impossible for a cache-oblivious algorithm to pick
 the faster option.
-In chapter \ref{chapter:cob}, we show a data structure that is a cache-oblivious
-equivalent of B-trees.
+In chapter \ref{chapter:cob}, we show a data structure that is a
+cache-oblivious equivalent of B-trees.

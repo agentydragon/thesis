@@ -5,7 +5,7 @@ It is a well-known fact that there is a widening gap between
 the performance of CPUs and memory. As an optimization of memory accesses,
 modern computers include several small and fast caches between the CPU and
 main memory. However, if programs access data mostly randomly, I/O can become
-the performance bottleneck, even for programs running in main memory.
+the performance bottleneck, even for programs running only in main memory.
 
 Standard models of computation only measure the performance of algorithms
 in the number of CPU instructions executed and the number of memory cells used.
@@ -77,16 +77,16 @@ reads per \textsc{Find} turns out to be $\O(\log N)$.
 
 Splay trees are good at storing nonuniformly accessed dictionaries, but
 the expected number of nodes read to \textsc{Find} a key is generally a factor
-of $\O(\log b)$ higher than in B-trees. We explore and implement two
-data structures designed to both perform well on non-uniform access patterns
-and to perform less I/O: \emph{$k$-splay trees} in chapter
+of $\O(\log b)$ higher than in B-trees. We briefly introduce two
+self-adjusting data structures designed for both exploiting non-uniform
+access patterns and to perform less I/O: \emph{$k$-splay trees} in chapter
 \ref{chapter:ksplay} and \emph{$k$-forests} in chapter \ref{chapter:kforest}.
 
 In chapter \ref{chapter:cob}, we describe \emph{cache-oblivious B-trees}.
 The number of memory operations for cache-oblivious B-tree operations
 is within a constant factor of the bounds given by a B-tree optimally tuned
 for the memory hierarchy. In practice, we found the performance of
-cache-oblivious B-trees to be quite competitive, especially on large datasets
+cache-oblivious B-trees quite competitive, especially on large datasets
 with uniform access patterns.
 
 The chapters on hashing and cache-oblivious B-trees are based on the Advanced

@@ -99,26 +99,29 @@ FIXME: dedication.
 % Abstract (recommended length around 80-200 words; this is not a copy of your thesis assignment!)
 \def\Abstract{%
 	We implement and benchmark several common and uncommon
-	data structures implementing ordered and unordered dictionaries.
+	data structures for ordered and unordered dictionaries.
 
-	The performance of modern computers is not modelled very closely by
-	traditional models (e.g.\ Turing machines or RAM). Many data structures
-	have been developed to exploit the memory hierarchy. It is well known
-	that cache-aware data structures, like B-trees, perform very well
-	on hard drives. To gauge the benefits that can be gained by cache-aware
-	data structures in main memory, we benchmark B-trees and cache-oblivious
-	B-trees.
+	Modern computers have several layers of memory hierarchy. The
+	performance of programs in the presence of slow and fast memory
+	is not predicted very closely by traditional models of computation
+	like Turing machines or RAM.
+	Many data structures have been developed to exploit memory hierarchies.
+	It is well known that cache-aware data structures, like B-trees,
+	perform very well on hard drives. To gauge the benefits that can be
+	gained by cache-aware data structures in main memory, we benchmark
+	B-trees and cache-oblivious B-trees.
 
 	Many dictionary data structures are self-adjusting, and such data
-	structures are difficult to reconcile with block-level accesses
+	structures are difficult to reconcile with block operations
 	in a memory hierarchy: for example, splay trees perform $\O(\log N)$
 	amortized memory reads from unpredictable locations on every
 	\textsc{Find}. In comparison, B-trees only need $\O(\log_B N)$ cache
 	misses per access.
 
-	We explore the performance benefits of self-adjusting by comparing
-	splay trees, $k$-splay trees and $k$-forests with non-self-adjusting
-	structures.
+	Splay trees are probably the most common self-adjusting dictionary
+	implementation. We compare their performance with non-self-adjusting
+	structures and with self-adjusting structures designed for block
+	memory access ($k$-forests and $k$-splay trees).
 }
 
 % 3 to 5 keywords (recommended), each enclosed in curly braces
