@@ -7,9 +7,13 @@
 struct metrics measure_serial(const dict_api* api, serial_mode mode,
 		uint64_t size) {
 	measurement* measurement_both = measurement_begin();
+	measurement* measurement_just_insert = measurement_begin();
 	stopwatch watch = stopwatch_start();
 
 	dict* table = seed(api, size);
+	measurement_results *results_just_insert = measurement_end(
+			measurement_just_insert);
+	const uint64_t time_just_insert_ns = stopwatch_read_ns(watch);
 
 	measurement* measurement_just_find = measurement_begin();
 	stopwatch watch_just_find = stopwatch_start();
@@ -29,12 +33,21 @@ struct metrics measure_serial(const dict_api* api, serial_mode mode,
 	switch (mode) {
 	case SERIAL_BOTH:
 		measurement_results_release(results_just_find);
+		measurement_results_release(results_just_insert);
 		return (struct metrics) {
 			.results = results_combined,
 			.time_nsec = stopwatch_read_ns(watch)
 		};
+	case SERIAL_JUST_INSERT:
+		measurement_results_release(results_combined);
+		measurement_results_release(results_just_find);
+		return (struct metrics) {
+			.results = results_just_insert,
+			.time_nsec = time_just_insert_ns
+		};
 	case SERIAL_JUST_FIND:
 		measurement_results_release(results_combined);
+		measurement_results_release(results_just_insert);
 		return (struct metrics) {
 			.results = results_just_find,
 			.time_nsec = stopwatch_read_ns(watch_just_find)
