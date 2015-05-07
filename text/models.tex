@@ -114,7 +114,7 @@ cannot explicitly set which memory blocks should be stored in caches.
 A cache maintains up to $m$ memory blocks called \textit{cache lines},
 typically of 64~B.
 We will first describe \emph{fully associative caches}.
-When the CPU tries to access a memory location, the cache is checked first
+When the CPU tries to access a~memory location, the cache is checked first
 before accessing main memory. If the cache doesn't contain the requested data,
 it is loaded into the cache. When the cache becomes full (i.e.\ when all $m$
 cache lines are used), it needs to evict presently loaded cache lines before

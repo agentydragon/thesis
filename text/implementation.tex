@@ -28,7 +28,7 @@ the data structures, because a range of compiler optimizations would
 be impossible in code assuming general lengths. For example, copying
 keys and values would need to be a general loop or
 \texttt{memcpy}/\texttt{memmove} call, while assuming a constant key/value
-size of 64 bits lets us copy in one CPU instruction. Using the C++ language,
+size of 64 bits lets us copy in one CPU instruction. Using the \Cpp language,
 we could potentially use templates to make our data structures both general
 and optimized. If we are willing to sacrifice some code style, we could
 make the C code behave similarly by moving the implementation into a header
@@ -365,7 +365,8 @@ patch to \texttt{nsTHashtable} that printed out operations to standard output,
 where we collected them and grouped them by the \texttt{this} pointer.
 To further simplify the patch, we made no attempt to synchronize output,
 and we processed the output by a simple script that removed any lines that
-could not be successfully parsed.
+could not be successfully parsed. The fraction of removed unparseable lines
+was approximately 23\%.
 
 \subsection{Geospatial database}
 To test the performance of \textsc{FindNext} and \textsc{FindPrevious}, we

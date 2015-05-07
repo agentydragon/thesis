@@ -2,7 +2,7 @@
 \addcontentsline{toc}{chapter}{Introduction}
 
 It is a well-known fact that there is a widening gap between
-the performance of CPUs and memory. As an optimization of memory accesses,
+the performance of CPUs and memory. To optimize memory accesses,
 modern computers include several small and fast caches between the CPU and
 main memory. However, if programs access data mostly randomly, I/O can become
 the performance bottleneck, even for programs running only in main memory.
@@ -11,11 +11,11 @@ Standard models of computation only measure the performance of algorithms
 in the number of CPU instructions executed and the number of memory cells used.
 These models aren't well suited for environments where different memory cells
 may have vastly different access speeds, for example depending on which caches
-currently hold the memory cell. The \emph{external memory model} is a simple
-extension of the RAM model that adds a \emph{block transfer} measure, which
-is the number of \emph{blocks} transferred between a fast cache and a slow
-\emph{external memory}. While this model was originally developed
-in the context of accessing data stored or hard disks, it is also useful
+currently hold the particular memory cell. The \emph{external memory model} is
+a simple extension of the RAM model that adds a \emph{block transfer} measure,
+which is the number of \emph{blocks} transferred between a fast cache and
+a slow \emph{external memory}. While this model was originally developed
+in the context of accessing data stored on hard disks, it is also useful
 for reasoning about data transfers between the CPU and main memory.
 
 \emph{Cache-oblivious algorithms} are a class of external memory algorithms
@@ -24,19 +24,19 @@ property, they need little tuning for efficient implementation.
 Modern CPU architectures perform various optimizations that can change
 the effective size of a block, so tuning an algorithm by setting a good block
 size might be difficult.
-The external memory model and cache-oblivious algorithms are introduced futher
-in chapter \ref{chapter:models}.
+The external memory model and cache-oblivious algorithms are introduced in more
+detail in chapter~\ref{chapter:models}.
 
 This thesis explores the performance implications of memory hierarchies
 on data structures implementing dictionaries or sorted dictionaries.
 Especially unsorted dictionaries are very common in practice, as illustrated
 by modern programming languages, which commonly have a dedicated built-in
-data type for unsorted dictionaries (e.g.\ \texttt{std::unordered\_map} in C++,
-\texttt{dict} in Python, or hashes in Perl).
+data type for unsorted dictionaries (e.g.\ \texttt{std::unordered\_map} in
+\Cpp, \texttt{dict} in Python, or hashes in Perl).
 
 Dictionaries maintain a set of $N$ key-value pairs with distinct keys.
 Denote the set of stored keys by $K$.
-The \textsc{Find} operation find the value associated with a given key, or
+The \textsc{Find} operation find the value associated with a~given key, or
 it reports that no such value exists. \textsc{Insert} inserts a new
 key-value pair and \textsc{Delete} removes a key-value pair given its key.
 Sorted dictionaries additionally maintain an ordering on the keys and they
@@ -51,7 +51,7 @@ implementation and benchmarks is presented in chapter
 \ref{chapter:implementation}. The results are discussed in
 chapter \ref{chapter:results}.
 
-The most common data structure implementing an unsorted dictionary is a hash
+The most common data structure implementing an unsorted dictionary is a~hash
 table. We describe some variants of hash tables in chapter \ref{chapter:hashing}.
 Most hash tables have expected $\O(1)$ time for all operations, which
 makes them quite practical. On the other hand, there is no simple way to
@@ -62,7 +62,7 @@ of search trees include AVL trees, red-black trees, B-trees or splay trees.
 AVL trees, red-black trees and B-trees are \emph{balanced} -- a design
 invariant maintains their height low, which makes operations cost $\O(h)$, where
 $h$ is the height of the tree. AVL trees and red-black trees are binary,
-so $h=\O(\log N)$. B-trees store $\O(b)$ keys per node, where $b\geq 2$,
+so $h=\O(\log N)$. B-trees store $\Theta(b)$ keys per node, where $b\geq 2$,
 and they maintain all leaves at the same depth, so operations on B-trees touch
 $\O(\log_b N)$ nodes.
 
@@ -72,7 +72,7 @@ The structure of a splay tree depends not only on the sequence of
 The self-adjusting rule (\emph{splaying}) puts recently accessed nodes
 near the root, so \textsc{Find}s on frequently or recently accessed keys
 are faster than in balanced trees. On the other hand, splaying can put
-the splay tree in a degenerate state, in which accessing an unlucky node can
+the splay tree in a~degenerate state, in which accessing an unlucky node can
 cost up to $\O(N)$ node reads. Fortunately, the amortized number of node
 reads per \textsc{Find} turns out to be $\O(\log N)$.
 
@@ -92,8 +92,8 @@ with uniform access patterns.
 
 The chapters on hashing and cache-oblivious B-trees are based on the Advanced
 Data Structures course as taught by Erik Demaine on MIT in spring 2012.
-Lecture videos and other materials are available through MIT OpenCourseWare\footnote{%
-\url{http://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-851-advanced-data-structures-spring-2012/index.htm}}.
+Lecture videos and other materials are available through MIT OpenCourseWare.\footnote{%
+\url{http://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-851-advanced-data-structures-spring-2012/index.htm}}
 
 \section*{Notation and conventions}
 In this thesis, logarithms are in base 2 unless stated otherwise.
