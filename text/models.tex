@@ -10,29 +10,30 @@ One instruction of the RAM machine takes constant time and it
 can compute an arithmetic expression based on values of cells and store it
 in another cell. The expressions may involve reading cells, including cells
 pointed to by another cell. The exact set of arithmetic operations allowed
-on the values differs from model to model, but a typical set would include
+on the values differs from model to model, but a~typical set would include
 the usual C operators (\texttt{+}, \texttt{-}, \texttt{*}, \texttt{/},
-\texttt{\%}, \texttt{\&}, \texttt{|}, \texttt{\^}, \texttt{~}, \dots).
-A complete set of instructions also requires a conditional jump (based on
-the value of an expression).
+\texttt{\%}, \texttt{\&}, \texttt{|}, \texttt{\^},
+\texttt{\raisebox{0.5ex}{\texttildelow}},
+\dots).  A complete set of instructions also requires a~conditional jump (based
+on the value of an expression).
 A more thorough treatment of various types of RAM is included
 in \cite{saga-of-msts}.
 
 The model is also restricted by the \textit{word size} (denoted~$w$),
-which is the number of bits allocated for a cell. Choosing a too large $w$
-results in an unreasonably strong model. A typical choice of~$w$ is
+which is the number of bits allocated for a~cell. Choosing a~too large $w$
+results in an unreasonably strong model. A~typical choice of~$w$ is
 $\Theta(\log N)$, where $N$ is size of input.
-A RAM with this word size is called the \textit{transdichotomous model}
+A~RAM with this word size is called the \textit{transdichotomous model}
 by virtue of tying the problem size and word size.
 
 RAM algorithms are judged by their \emph{time} and \emph{space complexity}.
-The time complexity is the number of executed instructions as a function of
+The time complexity is the number of executed instructions as a~function of
 input size and the space complexity is the maximum cell index accessed during
 execution\footnote{%
-	The number of overwritten cells would be a simpler definition
+	The number of overwritten cells would be a~simpler definition
 	of space complexity, but that would allow unrealistic ``dirty tricks''
 	like maintaining an unordered set with deterministic $\O(1)$ time
-	for both updates and lookups by interpreting the key as a memory
+	for both updates and lookups by interpreting the key as a~memory
 	location.
 }.
 
@@ -42,7 +43,8 @@ from equivalent with real computers, especially so when we are dealing with
 very large inputs. One significant source of this discrepancy is the assumption
 that all memory accesses cost the same $\O(1)$ time. In today's computers,
 the difference between accessing 1~kB cached in L1~cache and accessing
-another 1~kB stored on swapped memory is so large that it cannot be ignored.
+another 1~kB in virtual memory paged-out to a~disk is so large that it cannot
+be ignored.
 
 \section{Memory hierarchies}
 % TODO: latency numbers everyone should know
@@ -51,16 +53,16 @@ There are two major types of RAM: \emph{static} and \emph{dynamic}.
 While static RAM stores information as active states of semiconductors, dynamic
 RAM uses capacitors, which lose charge over time. To avoid losing information,
 contents of dynamic RAM must be periodically refreshed by ``reading'' the data
-and writing it back. Dynamic RAM also has destructive reads: a read removes
+and writing it back. Dynamic RAM also has destructive reads: a~read removes
 charge from capacitors, which must then be returned to keep the data.
 In general, static RAM is fast and expensive, while dynamic RAM is slow,
 cheap and more space-efficient. Main memories are usually dynamic.
 
 CPU speeds are growing faster (60\% per year) than speeds of memory (10\% per
 year) \cite{Ailamaki:2004:DAN:1316689.1316801}.
-A fast CPU needs to wait several hundred cycles to perform a RAM access.
+A fast CPU needs to wait several hundred cycles to perform a~RAM access.
 For example, Intel Core i7 and Xeon 5500 processors with clocking frequencies
-in GHz need approximately 100~ns for a RAM access\cite{perf-analysis-guide}.
+in GHz need approximately 100~ns for a~RAM access\cite{perf-analysis-guide}.
 To alleviate the costs of memory transfers, several levels of static RAM
 caches are inserted between the CPU and the main memory. The caches are
 progressively smaller and faster the closer they are to the CPU. The difference
@@ -68,16 +70,16 @@ between speeds of memory levels reaches several orders of magnitude.
 
 Larger and slower memories are also faster when accessing data physically
 close to recently accessed data. The hard disk is the most apparent example
-of this behavior -- reading a byte close after the current position of the drive
-head takes very little time compared to reading a random position, which incurs
+of this behavior -- reading a~byte close after the current position of the drive
+head takes very little time compared to reading a~random position, which incurs
 a slow disk seek. % TODO: times
-Similarly, modern CPUs contain a prefetcher, which tries to speculatively
+Similarly, modern CPUs contain a~prefetcher, which tries to speculatively
 retrieve data from main memory before it is actually accessed.
 
-Furthermore, if we need to wait for a long time to get our data from a slow
-store, it is wise to ask for a lot of data at once. Imagine an HTTP connection
-moving a 10~MB file across the Atlantic: the time to compose and send the HTTP
-request and to parse a response dwarfs the latency of the connection.
+Furthermore, if we need to wait for a~long time to get our data from a~slow
+store, it is wise to ask for a~lot of data at once. Imagine an HTTP connection
+moving a~10~MB file across the Atlantic: the time to compose and send the HTTP
+request and to parse a~response dwarfs the latency of the connection.
 Memory hierarchies transport data between memories in \emph{blocks}.
 In the context of caches and main memory, these blocks are called
 \emph{cache lines} and their usual size is 64~B.
@@ -181,7 +183,7 @@ block transfers), algorithms for computational geometry, graph algorithms
 and dictionary data structures.
 
 \section{Cache-oblivious algorithms}
-Cache-oblivious algorithms run on the external memory model.
+Cache-oblivious algorithms run in the external memory model.
 Their distinguishing property is that cache-oblivious algorithms
 are not allowed access to $M$ and $B$. They may only assume the existence
 of a main memory and a cache.
@@ -195,11 +197,11 @@ the algorithm performs well on every cache boundary at the same time.
 Thanks to this property, cache-oblivious algorithms need little tuning to the
 computer they run on. Interestingly, automatically optimized cache boundaries
 include not only the usual L1, L2 and L3 caches, but also the \emph{translation
-lookaside buffer} (TLB), which caches the mapping of pages from virtual to
+look-aside buffer} (TLB), which caches the mapping of pages from virtual to
 physical memory.
 
 Cache-oblivious algorithms cannot control block transfers between the cache
-and the memory: they operate in a uniformly addressed memory. This is similar
+and the memory: they operate in uniformly addressed memory. This is similar
 to real computers: L1, L2 and L3 caches are also out of the program's control.
 The cache is, however, assumed to be unrealistically powerful: it is fully
 associative and the replacement policy is optimal. Fortunately, fully
@@ -208,7 +210,7 @@ $2\times$ slowdown on $2\times$ larger LRU or FIFO caches
 \cite{sleator1985amortized}.
 The performance of many cache-oblivious algorithms is only slowed down
 by a constant factor when we halve the number of blocks, so cache-oblivious
-algorithms can usually be adopted in real world programs with only a constant
+algorithms can usually be adopted in real world programs with only a~constant
 slowdown compared to the model.
 
 Many results from the external memory model have been repeated in the
@@ -221,7 +223,7 @@ cache-oblivious algorithm can achieve
 $\Theta(\frac{N}{B}\log_{M/B}\frac{N}{B})$ block transfers for sorting
 without the tall cache assumption. Cache-oblivious algorithms can also permute
 either in $\Theta(N)$ or in $\Theta(\frac{N}{B}\log_{M/B}\frac{N}{B})$ block
-transfers, but it is impossible for a cache-oblivious algorithm to pick
+transfers, but it is impossible for a~cache-oblivious algorithm to pick
 the faster option.
-In chapter \ref{chapter:cob}, we show a data structure that is a
+In chapter \ref{chapter:cob}, we show a~data structure that is a
 cache-oblivious equivalent of B-trees.

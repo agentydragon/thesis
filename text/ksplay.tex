@@ -2,27 +2,27 @@
 \label{chapter:ksplay}
 Splay trees are useful for exploiting the regularity of access patterns.
 On the other hand, they do not make good use of memory blocks -- every node
-is just binary, so walking to a node in depth $d$ takes $\O(\log d)$ block
-transfers. B-trees improve this by a factor of $\log B$ by storing more keys
+is just binary, so walking to a~node in depth $d$ takes $\O(\log d)$ block
+transfers. B-trees improve this by a~factor of $\log B$ by storing more keys
 per node.
 
 Self-adjusting $k$-ary search trees (or \emph{$k$-splay trees}) developed
-by \cite{ksplay-sherk} use a heuristic named \emph{$k$-splaying}
-to dynamically adjust the structure of a $k$-ary search tree according to
+by \cite{ksplay-sherk} use a~heuristic named \emph{$k$-splaying}
+to dynamically adjust the structure of a~$k$-ary search tree according to
 the query sequence. We have decided to implement and benchmark this data
-structure because of the potential to combine self-adjustment for a specific
+structure because of the potential to combine self-adjustment for a~specific
 search sequence with cache-friendly node sizes.
 
 Similarly to B-trees, nodes in $k$-ary splay trees store up to $k-1$ key-value
 pairs and $k$ child pointers. All nodes except the root are \emph{complete}
-(i.e.\ contain exactly $k-1$ pairs).
+(i.e.\ they contain exactly $k-1$ pairs).
 
-B-tree operations take $\Theta(\log_b N)$ node accesses. It can be proven that
-$k$-splay tree operations need at most $\O(\log N)$ amortized node accesses,
-which matches ordinary splay trees, but unfortunately $k$-splay trees
-do not match the optimal $\O(\log_k N)$ bound given by B-trees. In particular,
-\cite{ksplay-nonopt} found a family of counterexample trees, in which
-repeatedly $k$-splaying deepest nodes requires $\log N$ node accesses.
+\mbox{B-tree} operations take $\Theta(\log_b N)$ node accesses. It can be
+proven that \mbox{$k$-splay} tree operations need at most $\O(\log N)$
+amortized node accesses, which matches ordinary splay trees, but unfortunately
+$k$-splay trees do not match the optimal $\O(\log_k N)$ bound given by B-trees.
+In particular, \cite{ksplay-nonopt} found a~family of counterexample trees,
+in which repeatedly $k$-splaying deepest nodes requires $\log N$ node accesses.
 
 $k$-splay trees are proven in \cite{ksplay-sherk} to be $\log k$-competitive
 compared to static optimal $k$-ary search trees.
@@ -39,7 +39,7 @@ all nodes on the search path are complete, and we will later modify
 the $k$-splaying algorithm to allow \emph{incomplete} and \emph{overfull}
 nodes.
 Because splay trees store one key per node, it is not necessary to distinguish
-between splaying a node and splaying a key. In $k$-ary splay trees, we always
+between splaying a~node and splaying a~key. In $k$-ary splay trees, we always
 $k$-splay nodes.
 
 As with Sleator and Tarjan's splaying, $k$-splaying is done in steps.
@@ -47,21 +47,21 @@ As with Sleator and Tarjan's splaying, $k$-splaying is done in steps.
 Splaying steps of Sleator and Tarjan's splay trees involve 3 nodes connected
 by 2 edges, except for the final step, which may involve the root node and one
 of its children connected by an edge. In every step, the splayed node (or key)
-moves from the bottom of a subtree to the root of a subtree.
+moves from the bottom of a~subtree to the root of a~subtree.
 Splaying stops when the splayed node becomes the root of the splay tree.
 
 In $k$-splay trees, $k$-splaying steps involve $k$ edges connecting
 $k+1$ nodes, except for the final step which may involve fewer edges.
-The objective of $k$-splaying is to move a \emph{star node} to the
+The objective of $k$-splaying is to move a~\emph{star node} to the
 root of the tree. In every $k$-splaying step, we start with the star node
-at the bottom of a subtree, and we change the structure of the subtree
+at the bottom of a~subtree, and we change the structure of the subtree
 so that the star node becomes its root.
-The initial star node is the last node reached on a search operation, and
+The initial star node is the last node reached on a~search operation, and
 $k$-splaying will move the content of this node closer to the root.
 However, the structural changes performed in $k$-splaying steps shuffle
-the keys and pointers of involved nodes, so after a $k$-splay step,
+the keys and pointers of involved nodes, so after a~$k$-splay step,
 the star node may no longer contain the key we originally looked up.
-Unlike splay trees, the distinction between $k$-splaying a node and a key
+Unlike splay trees, the distinction between $k$-splaying a~node and a~key
 is therefore significant.
 
 There are two types of $k$-splay steps: \emph{non-terminal steps} on
@@ -70,15 +70,15 @@ We consider first the non-terminal steps.
 
 Non-terminal $k$-splay steps examine the bottom $k+1$ nodes in the search
 path to the current star node. Denote the nodes $p_0,\ldots p_{k}$, where $p_i$
-is the parent of $p_{i+1}$ and $p_k$ is the current star node. A non-terminal
+is the parent of $p_{i+1}$ and $p_k$ is the current star node. A~non-terminal
 step traverses these nodes in DFS order and collects \emph{external children}
 (i.e.\ children that are not present in $\{p_0,\ldots p_k\}$) and all key-value
 pairs of $p_0,\ldots p_k$ in sorted order. These children and key-value pairs
-are \emph{fused} into a ``virtual node'' with $(k+1)\cdot (k-1)$ keys and
+are \emph{fused} into a~``virtual node'' with $(k+1)\cdot (k-1)$ keys and
 $(k+1)\cdot(k-1) + 1$ children. Finally, this ``virtual node'' is broken down
-into a fully balanced $k$-ary search tree of depth 2. There is exactly one
+into a~fully balanced $k$-ary search tree of depth 2. There is exactly one
 way to arrange this $k$-ary search tree, because all its nodes must be complete.
-The root of this search tree becomes the new star node and a new $k$-splay
+The root of this search tree becomes the new star node and a~new $k$-splay
 step starts.
 
 Terminal $k$-splay steps occur when we are $k$-splaying at most $k$
@@ -145,6 +145,6 @@ child, we merge it with the root, and if the root has more than $k$ children,
 we split it.
 
 By performing an analysis similar to splay trees, \cite{ksplay-sherk}
-shows that the number of node reads performed in a sequence of $m$
-\textsc{Find}s in a $k$-splay tree with $n$ keys is
+shows that the number of node reads performed in a~sequence of $m$
+\textsc{Find}s in a~$k$-splay tree with $n$ keys is
 $\O(m\log n+\frac{n}{k}\log n)$.

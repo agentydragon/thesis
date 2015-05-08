@@ -1,24 +1,24 @@
 \chapter{Cache-oblivious B-trees}
 \label{chapter:cob}
 The \emph{cache-oblivious B-tree} introduced by \cite{cobt}
-is a data structure which replicates the asymptotic performance of B-trees
-in a cache-oblivious setting.
+is a~data structure which replicates the asymptotic performance of B-trees
+in a~cache-oblivious setting.
 \textsc{Find}s and updates on cache-oblivious B-trees require $\Theta(\log_B N)$
 \footnote{Strictly speaking, the bound is $\Theta(1+\log_B N)$
 	because we perform $\O(1)$ block transfers even when $B\in\omega(N)$.
 	We decide to use the reasonable assumption that
 	$B<N$ to simplify some bounds in this section.}
 amortized block transfers, which is similar to cache-aware B-trees.
-Scanning a range of $t$ keys also takes $\Theta(\log_B N+t/B)$ time.
+Scanning a~range of $t$ keys also takes $\Theta(\log_B N+t/B)$ time.
 
 The original cache-oblivious B-tree as described in \cite{cobt} used
-weight-balanced B-trees. We implement a simplified version of the structure
+weight-balanced B-trees. We implement a~simplified version of the structure
 from \cite{brodal01}, which is composed of three components.
-The \emph{van Emde Boas layout} of binary trees is a way of cache-obliviously
+The \emph{van~Emde Boas layout} of binary trees is a~way of cache-obliviously
 maintaining full binary trees in memory such that reading or updating any
 root-to-leaf path in root-to-leaf or leaf-to-root order takes $\Theta(\log_B N)$
 block transfers.
-Then, the \emph{packed memory array} lets us store a ``cache-oblivious linked
+Then, the \emph{packed memory array} lets us store a~``cache-oblivious linked
 list''. The items of this ``linked list'' will represent key-value pairs,
 and later groups of key-value pairs.
 The packed memory array has fast updates in the amortized sense. Inserting
@@ -28,32 +28,32 @@ Finally, we combine the two previous parts with \emph{indirection} to obtain
 the desired $\Theta(\log_B N)$ time to \textsc{Find}, \textsc{Insert} and
 \textsc{Delete}.
 
-\section{The van Emde Boas layout}
-The van Emde Boas layout is a way of mapping the nodes of a full binary
+\section{The van~Emde Boas layout}
+The van~Emde Boas layout is a~way of mapping the nodes of a~full binary
 tree of height $h$ to indices $0\ldots 2^h-2$. There are $N=2^h-1$ nodes.
 Other layouts of full binary trees include the BFS or DFS order.
 
-Surprisingly, the van Emde Boas layout was not invented by van Emde Boas.
-The name comes from the earlier \emph{van Emde Boas priority queue},
-which was invented by a team led by Peter van Emde Boas \cite{van-emde-boas}.
-The van Emde Boas priority queue uses a height splitting scheme similar
+Surprisingly, the van~Emde Boas layout was not invented by van~Emde Boas.
+The name comes from the earlier \emph{van~Emde Boas priority queue},
+which was invented by a~team led by Peter van Emde Boas \cite{van-emde-boas}.
+The van Emde Boas priority queue uses a~height splitting scheme similar
 to the van Emde Boas layout. The cache-oblivious application of this idea
 was devised in \cite{veb-layout}.
 
-The advantage of storing a full binary tree in the van Emde Boas layout
+The advantage of storing a~full binary tree in the van Emde Boas layout
 is that is lets us read the sequence of keys from the root to any leaf
 using $\Theta(\log_B N)$ block transfers, which matches the \textsc{Find}
-cost of B-trees without the need to know $B$ beforehand.
+cost of \mbox{B-trees} without the need to know~$B$ beforehand.
 In contrast, the same operation would cost $\Theta(\log N-\log B)$ block
 transfers in the BFS or DFS order.
 
 The van Emde Boas layout is defined recursively. To find the van Emde Boas layout
-of a full binary tree of height $h$, we split the tree to bottom subtrees
+of a~full binary tree of height $h$, we split the tree to bottom subtrees
 of height $\lhfloor h-1 \rhfloor$ and one top subtree of height $h - \lhfloor
 h-1 \rhfloor$.
 The subtrees are recursively aligned in the van Emde Boas layout and then laid
 out: the top tree first, followed by the bottom trees in left-to-right order.
-The van Emde Boas layout of a one-node tree is trivial.
+The van Emde Boas layout of a~one-node tree is trivial.
 
 \begin{figure}
 \centering
@@ -135,7 +135,7 @@ The van Emde Boas layout of a one-node tree is trivial.
 \end{tikzpicture}
 % TODO: linearized figure, general figure
 
-\caption{The van Emde Boas layout of a full binary tree of height 5.
+\caption{The van Emde Boas layout of a~full binary tree of height 5.
 Boxes mark recursive applications of the construction. Note that the indices
 within every box are contiguous, so at some level of detail, reading
 a box will take $\O(1)$ block transfers.}
@@ -143,22 +143,22 @@ a box will take $\O(1)$ block transfers.}
 \end{figure}
 
 \begin{theorem}
-In a tree stored in the van Emde Boas layout, reading the sequence of nodes
+In a~tree stored in the van Emde Boas layout, reading the sequence of nodes
 on any root-leaf path costs $\Theta(\log_B N)$ block transfers.
 \end{theorem}
 
 \begin{proof}
-First, consider only van Emde Boas layouts with $h$ a power of two.
+First, consider only van Emde Boas layouts with $h$ a~power of two.
 Examine recursive applications of the van Emde Boas construction.
-The first recursion splits the tree of height $h$ into a top tree of height
-$h-\lhfloor h-1\rhfloor=h/2$ and a bottom tree of height $\lhfloor
+The first recursion splits the tree of height $h$ into a~top tree of height
+$h-\lhfloor h-1\rhfloor=h/2$ and a~bottom tree of height $\lhfloor
 h-1\rhfloor=h/2$. The second recursion splits all trees of height $h/2$
 into trees of height $h/4$, and so on. Denote the heights of constructed bottom
 trees at recursion level $i$ as $h_i=h/2^i$.
 
 Note that at every level of recursion, every tree is stored in contiguous
-memory. A cache block can accomodate at least $\O(B)$ nodes, so there is some
-level of recursion $i$ for which trees of height $h_i$ fit into a cache block,
+memory. A~cache block can accomodate at least $\O(B)$ nodes, so there is some
+level of recursion $i$ for which trees of height $h_i$ fit into a~cache block,
 but trees of the next larger height $h_{i-1}$ do not. In other words,
 $2^{h_i}-1 < B$ and $2^{h_i-1}-1 \geq B$, from which $h_i=\O(\log B)$ follows.
 
@@ -167,40 +167,40 @@ $\Theta(\frac{\log N}{h_i})$ trees of height $h_i$. Since each such tree can be
 read using one block transfer, we need $\Theta(\frac{\log N}{h_i})=\Theta(\log_B
 N)$ block transfers to traverse any root-to-leaf path.
 
-If $h$ is not a power of two, recursively generated top and bottom trees may no
+If $h$ is not a~power of two, recursively generated top and bottom trees may no
 longer have heights that are powers of two. However, note that if we again
 divide the tree into subtrees until atomic subtrees of height $h_i$ fit into
 cache blocks, almost all trees encountered on any root-to-leaf path will still
-have height $h_i$. The only exception will be the tree that contains the root,
+have height~$h_i$. The only exception will be the tree that contains the root,
 which may have height less than $h_i$. The original argument still works:
-we need $\O(\log_B N)$ block transfers for traversing a root-to-leaf path,
+we need $\O(\log_B N)$ block transfers for traversing a~root-to-leaf path,
 including an $\O(1)$ added for reading the tree containing the root.
 \end{proof}
 
-The van Emde Boas layout thus makes a fine data structure for querying static
+The van Emde Boas layout thus makes a~fine data structure for querying static
 data, but it does not allow inserting or deleting nodes. We will need
 to combine it with another data structure to allow updates.
 
 \subsection{Efficient implementation of implicit pointers}
 A useful property of the van Emde Boas layout is that it is fully specified
 by the height $h$ of the tree, so there is no need to keep pointers to child
-nodes. The positions of left and right children of a node can be calculated
+nodes. The positions of left and right children of a~node can be calculated
 from $h$ when they are needed.
 This is particularly useful when $B$ is small and when the size of pointers
 is similar to the size of keys, because not storing pointers lets us
-effectively use a higher branching factor than B-trees with explicit
+effectively use a~higher branching factor than B-trees with explicit
 pointers could.
 For example, if we store 8-byte keys in a B-tree and if we align nodes to
 a 64-byte cache line, each node can only store up to 3 keys. In contrast,
-64 bytes of a van Emde Boas layout store 8 keys.
+64 bytes of a~van~Emde Boas layout store 8 keys.
 % We refer to this property of the layout as allowing
 % \emph{implicit pointers}.
 
-We will only use the van Emde Boas order to walk in the direction from
+We will only use the van~Emde Boas order to walk in the direction from
 the root node to a leaf or in reverse.
-Given the \emph{van Emde Boas ID} of a node (denoted as numbers
+Given the \emph{van~Emde Boas ID} of a node (denoted as numbers
 inside the nodes in Figure \ref{fig:veb_layout_5}),
-we can easily calculate the van Emde Boas IDs of its children by
+we can easily calculate the van~Emde Boas IDs of its children by
 a recursive procedure. This procedure either returns \emph{internal} node
 pointers, referencing actual nodes of the tree, or it returns \emph{external}
 indexes, which represent virtual nodes below the leaves, counted from left
@@ -268,7 +268,7 @@ bottom trees rooted in depth $d$, the size $T[d]$ of the corresponding
 top tree and the depth $D[d]$ of the top tree's root. The data takes $\O(\log
 N)$ memory and it can be computed in $\O(\log N)$ time by an iterative procedure.
 Table \ref{tab:depth_data_example} shows the values of these arrays
-for the 5-level van Emde Boas layout shown in figure \ref{fig:veb_layout_5}.
+for the 5-level van Emde Boas layout shown from Figure \ref{fig:veb_layout_5}.
 
 \begin{table}[h]
 	\centering
@@ -327,9 +327,9 @@ instruction whenever moving to the left sibling.
 	level data.}
 \label{fig:veb_drilldown_speed}
 \end{figure}
-As evident in figure \ref{fig:veb_drilldown_speed}, using precomputed level data
-saves a considerable amount of computation, especially with deeper van Emde Boas
-layouts.
+As evident from Figure \ref{fig:veb_drilldown_speed}, using precomputed level
+data saves a considerable amount of computation, especially with deeper
+van~Emde Boas layouts.
 
 \section{Ordered file maintenance}
 Ordered file maintenance algorithms maintain $N$ items stored in a physical
@@ -340,30 +340,30 @@ the item at a given index. Updates are allowed to move elements of the array,
 but the relative order of all stored items must remain the same.
 
 While the interface is similar to a simple linked list, storing the items
-in a contiguous array of size $\O(N)$ lets us scan a range of size $k$ using
-only the optimal $\Theta(k/B)$ scans, which improves upon linked lists by
-a factor of $B$.
+in a~contiguous array of size $\O(N)$ lets us scan a range of size $k$ using
+only the optimal $\Theta(k/B)$ block reads, which improves upon linked lists
+by a~factor of $B$.
 
-To give the maintenance algorithm some freedom, empty gaps of up to a constant
+To give the maintenance algorithm some freedom, empty gaps of up to a~constant
 maximum size may be present between two adjacent items in the array. Without
 gaps, \textsc{Insert} and \textsc{Delete} would have to be implemented
 by shifting elements to the right or left in $\Theta(N/B)$ block transfers.
 
-The \emph{packed memory array} is a data structure that maintains an ordered
-file. Updates (\textsc{Insert}s and \textsc{Delete}s) of a packed memory array
-rewrite a contiguous range of amortized size $\Theta(\log^2 N)$.
+The \emph{packed memory array} is a~data structure that maintains an ordered
+file. Updates (\textsc{Insert}s and \textsc{Delete}s) of a~packed memory array
+rewrite a~contiguous range of amortized size $\Theta(\log^2 N)$.
 Thanks to the range being contiguous, updates will incur
 $\Theta(\frac{\log^2 N}{B})$ amortized block transfers.
 
 The array is divided into logical \emph{leaf blocks} of constant size
-$\O(\log N)$. A \emph{virtual full binary tree} is built above those leaf
+$\O(\log N)$. A~\emph{virtual full binary tree} is built above those leaf
 blocks. Every node of this binary tree represents the range covering all
 the leaf blocks below. This tree is only conceptual -- it is never stored
 in memory.
 
 To properly define the structure, we need to define some terms. The
-\emph{capacity} of a certain range of the array is its size and the
-\emph{density} of a range is the number of items present in the range divided
+\emph{capacity} of a~certain range of the array is its size and the
+\emph{density} of a~range is the number of items present in the range divided
 by its capacity.
 The packed memory array maintains certain bounds on the densities of subranges
 of the array.
@@ -378,9 +378,10 @@ to the left or to the right.
 
 The density requirements become stricter as we walk up the virtual tree.
 In particular, the density of a node of depth $d$ within a tree of height $h$
-is kept between $\frac{1}{2}-\frac{1}{4}\frac{d}{h}$ and $\frac{3}{4}+\frac{1}{4}\frac{d}{h}$
+is kept between $\frac{1}{2}-\frac{1}{4}\frac{d}{h}$ and
+$\frac{3}{4}+\frac{1}{4}\frac{d}{h}$.
 \footnote{The constants are arbitrary and control the tradeoff
-between memory consumption and time complexity of rebuilding.}.
+between memory consumption and time complexity of rebuilding.}
 When we find a node that is \emph{within threshold}, we uniformly redistribute
 the items in its range. If no such node exists, we resize the entire structure
 by a constant factor, which lets us amortize the costs of this resizing to
@@ -411,10 +412,10 @@ an insertion. Since we are redistributing this node, it is within threshold,
 but one of its children, say $Y$, is not.
 Therefore the density of $X$ is at most
 $\frac{3}{4}+\frac{1}{4}\frac{d}{h}$, while the density of $Y$ is more than
-$\frac{3}{4}+\frac{1}{4}\frac{d+1}{h}$. After we redistribute the items within $X$,
-the density of $Y$ will drop by $\frac{1}{h}$. Thus, if we denote the capacity
-of $Y$ as $|Y|$, we will need to insert at least $|Y|/h$ items under any
-child of $X$ before we need to rebalance $X$ again.
+$\frac{3}{4}+\frac{1}{4}\frac{d+1}{h}$. After we redistribute the items
+within~$X$, the density of $Y$ will drop by $\frac{1}{h}$. Thus, if we denote
+the capacity of $Y$ as $|Y|$, we will need to insert at least $|Y|/h$ items
+under any child of $X$ before we need to rebalance $X$ again.
 Thus, we can charge the $\O(|X|)$ cost of redistributing $X$ to the
 insertions into $Y$, which gives us amortized $\O(\log N)$
 redistribution steps per insertion into $Y$.
@@ -428,7 +429,7 @@ cost is analogous.
 \section{Cache-oblivious B-tree}
 The first step of constructing a cache-oblivious B-tree is a bootstrapping
 structure, which is a combination of a full binary tree in
-the van Emde Boas layout and the packed memory array.
+the van~Emde Boas layout and the packed memory array.
 The packed memory array stores inserted key-value pairs sorted by the key.
 Nodes of the tree map to ranges in the array, with leaves mapping
 to individual slots and the root mapping to the entire ordered file.
@@ -503,7 +504,7 @@ amortized block transfers. Finally, the tree needs to be updated to reflect
 the reorganization of the packed memory array.
 
 \begin{theorem}
-Updating $K$ consecutive leaves of a tree in van Emde Boas order takes
+Updating $K$ consecutive leaves of a tree in van~Emde Boas order takes
 $\O(\frac{K}{B}+\log_B N)$ memory transfers.
 \end{theorem}
 \begin{proof}
@@ -513,7 +514,7 @@ in-order: if node $x$ has children $y$ and $z$ which both need to be updated,
 we visit them in this order: $x,y,x,z,x$.
 
 We need to update $K$ leaves with new values and their parents.
-Just as in the analysis of root-to-leaf traversal cost in van Emde Boas trees,
+Just as in the analysis of root-to-leaf traversal cost in van~Emde Boas trees,
 we look at the level of recursion where the atomic trees start fitting into
 cache blocks.
 Call the largest tree units that fit into cache lines \emph{atoms} and the next
@@ -685,7 +686,7 @@ of them will be deleted from the bootstrapping structure in
 $\Theta(\frac{\log^2 (N/\log N)}{B})$.
 
 Thus, updates take $\Theta(\log_B N)$ plus $\Theta(\frac{\log^2 N}{B})$
-every time we need a split or a merge. However, we don't need splits and
+every time we need a~split or a~merge. However, we don't need splits and
 merges too often: splitting a full piece creates two pieces of size $P/2$,
 which will be only split or merged again after $\Theta(P)$ more updates.
 Merging two pieces yields a piece with between $P/2$ and $3P/4$ items.
@@ -713,13 +714,13 @@ transfers from $\Theta(\frac{N}{\log N})$ to just
 $\Theta(\frac{\log^2 N}{B}+\log_B N)$ while keeping the amortized bound
 at $\Theta(\log_B N)$.
 
-As we observed with applying the van Emde Boas layout, removing auxiliary
-data can greatly speed up operations -- the tree in van Emde Boas layout has
+As we observed with applying the van~Emde Boas layout, removing auxiliary
+data can greatly speed up operations -- the tree in van~Emde Boas layout has
 half the effective depth of a B-tree, because cache lines can fit more keys
 when pointers are implicit.
 \emph{Implicit data structures} are designed to waste as little memory on
 auxiliary information as possible. Implicit dictionaries are allowed to only
-store a permutation of the stored data and $\O(1)$ memory cells of additional
+store a~permutation of the stored data and $\O(1)$ memory cells of additional
 information. Bookkeeping information, such as pointers or small integers
 of $b$ bits, is usually encoded by a pairwise permutation of $2b$ keys,
 with $x_{2i} < x_{2i+1}$ corresponding to 1 and $x_{2i} > x_{2i+1}$
@@ -730,7 +731,7 @@ dictionaries.  \cite{implicit-cob} reached the optimal bound of
 $\Theta(\log_B N)$ block transfers per search or operation in an implicit
 setting. Similarly to the simple cache-oblivious B-tree, their construction
 uses the deamortized version of the packed memory array in conjunction with
-the van Emde Boas layout. To avoid holes in the packed memory array,
+the van~Emde Boas layout. To avoid holes in the packed memory array,
 the elements of the packed memory array are chunks of keys.
 Several other modifications are necessary to allow updates in size, which
 requires building the structure on the fly.

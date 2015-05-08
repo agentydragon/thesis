@@ -30,10 +30,10 @@ The left subtree of a node with key $K_i$ contains only keys smaller than $K_i$
 and, symetrically, the right subtree contains only keys larger than $K_i$.
 
 Splay trees are maintained via a heuristic called \emph{splaying}, which
-moves a specified node $x$ to the root of the tree by performing a sequence
+moves a~specified node~$x$ to the root of the tree by performing a~sequence
 of edge rotations along the path from the root to $x$.
 Rotations cost $\O(1)$ time each and rotating any edge maintains
-the soundness of search trees. Rotations are defined by figure
+the soundness of search trees. Rotations are defined by Figure
 \ref{fig:rotation}.
 
 \newcommand{\hunk}[2]{ node [splay_hunk] (hunk#1-#2) {#1} }
@@ -76,7 +76,7 @@ child { node [splay_node] (x-a) {$x$}
 
 To splay a node $x$, we perform \emph{splaying steps}, which
 rotate edges between $x$, its parent $p$ and possibly its grandparent $g$
-until $x$ becomes the root. Splaying a node of depth $d$ takes time $\Theta(d)$.
+until $x$ becomes the root. Splaying a~node of depth $d$ takes time $\Theta(d)$.
 Up to left-right symmetry, there are three cases of splaying steps:
 
 \begin{itemize}
@@ -206,8 +206,8 @@ so it must have no right child after splaying below $x$. We delete $x$ and link
 its right subtree below $x^-$.
 
 \section{Time complexity bounds}
-For the purposes of analysis, we assign a fixed positive weight $w(K_i)$
-to every key $K_i$. Setting $w(K_i)$ to $1/N$ allows us to prove that
+For the purposes of analysis, we assign a~fixed positive weight $w(K_i)$
+to every key~$K_i$. Setting $w(K_i)$ to $1/N$ allows us to prove that
 the amortized complexity of the splay operation is $\O(\log N)$, which implies
 that splay tree \textsc{Find}s and updates also take amortized logarithmic time.
 Proofs of further complexity results will use the same similar analysis with
@@ -244,8 +244,8 @@ of $x$ and $g$ the original grandparent of $x$ (if it exists).
 
 \begin{itemize}
 \item[Case 1 (\emph{zig}):]
-	The only needed rotation of the $px$ edge may only change the rank of
-	$x$ and $p$, so $a_j=1+r'(x)+r'(p)-r(x)-r(p)$.
+	The only needed rotation of the $px$ edge may only change the rank
+	of~$x$ and~$p$, so $a_j=1+r'(x)+r'(p)-r(x)-r(p)$.
 	Because $r(p)\geq r'(p)$, we also have $a_j\leq 1+r'(x)-r(x)$.
 	Furthermore, $r'(x)\geq r(x)$, so $a_j\leq 1+3(r'(x)-r(x))$.
 
@@ -393,8 +393,8 @@ A common optimization from the original paper \cite{splay} is
 \emph{top-down splaying}, which splays while searching.
 Top-down splaying maintains three trees while looking up a key $k$:
 the left tree $L$, the right tree $R$ and the middle tree $M$.
-$L$ holds nodes with keys smaller than $k$ and $R$ holds nodes with keys
-larger than $k$. $M$ contains yet unexplored nodes.
+$L$~holds nodes with keys smaller than~$k$ and $R$~holds nodes with keys
+larger than~$k$. $M$ contains yet unexplored nodes.
 Nodes are only inserted into the rightmost empty child pointer of $L$
 and the leftmost empty child pointer of $R$. The locations of the rightmost
 empty child pointer of $L$ and leftmost empty child pointer of $R$ are

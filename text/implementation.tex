@@ -4,7 +4,7 @@ To measure the performance of various data structures, we implemented them
 in the C programming language (using the C11 revision).
 We have chosen this language for several reasons:
 \begin{itemize}
-\item The language is low-level, which enables a high degree of tuning by hand.
+\item The language is low-level, which enables a~high degree of tuning by hand.
 	Our data structures are also not slowed down by common features of
 	high-level languages, such as garbage collection.
 \item C toolchains are mature and they can be expected to optimize code well.
@@ -15,7 +15,7 @@ We have chosen this language for several reasons:
 
 Our code was developed using the GNU C Compiler (version 4.9.2) on Linux.
 We used the Git version control system, with our repository hosted at
-\url{https://github.com/MichalPokorny/thesis}. The code includes a test suite,
+\url{https://github.com/MichalPokorny/thesis}. The code includes a~test suite,
 which tests implementation details of particular data structures as well
 as general fuzz tests for checking that implemented data structures behave
 like proper dictionaries. We used Travis CI (\url{https://travis-ci.org/})
@@ -23,16 +23,16 @@ to automatically test our code after submission.
 
 All dictionaries assume 64-bit keys and values (represented as the
 \texttt{uint64\_t} type). It would be easy to allow keys and values of arbitrary
-size, but such a choice would be likely to slow down operations on
-the data structures, because a range of compiler optimizations would
+size, but such a~choice would be likely to slow down operations on
+the data structures, because a~range of compiler optimizations would
 be impossible in code assuming general lengths. For example, copying
-keys and values would need to be a general loop or
-\texttt{memcpy}/\texttt{memmove} call, while assuming a constant key/value
+keys and values would need to be a~general loop or
+\texttt{memcpy}/\texttt{memmove} call, while assuming a~constant key/value
 size of 64 bits lets us copy in one CPU instruction. Using the \Cpp language,
 we could potentially use templates to make our data structures both general
 and optimized. If we are willing to sacrifice some code style, we could
-make the C code behave similarly by moving the implementation into a header
-file, which could be configured to generate a general data structure
+make the C code behave similarly by moving the implementation into a~header
+file, which could be configured to generate a~general data structure
 tuned to specific parameters prior to inclusion, as in the following example:
 \begin{lstlisting}
 struct my_value {
@@ -54,11 +54,11 @@ uses this pattern for generic binomial heaps and hash tables.
 We have decided to forgo generality to keep the code clean and readable.
 
 \section{General dictionary API}
-All implemented data structures can be used through a common API defined
+All implemented data structures can be used through a~common API defined
 in \texttt{dict/dict.h}. To encapsulate implementation details from
-users of the API, we have used a common C ``trick'', where we represent
+users of the API, we have used a~common C ``trick'', where we represent
 dictionaries as ``virtual table pointers'' and ``private data''.
-The common API represents a dictionary as a pointer to an opaque structure.
+The common API represents a~dictionary as a~pointer to an opaque structure.
 The type pointed to is declared in \texttt{dict/dict.h} as:
 \begin{lstlisting}[language=C]
 typedef struct dict_s dict;
@@ -75,7 +75,7 @@ struct dict_s {
 \end{lstlisting}
 
 The \texttt{opaque} pointer is maintained by the concrete implementation.
-\texttt{dict\_api} is a "virtual method table" type defined in
+\texttt{dict\_api} is a~``virtual method table'' type defined in
 \texttt{dict/dict.h}:
 
 \begin{lstlisting}[language=C]
@@ -93,9 +93,9 @@ typedef struct {
 } dict_api;
 \end{lstlisting}
 
-The \texttt{init} and \texttt{destroy} functions are passed a pointer to the
+The \texttt{init} and \texttt{destroy} functions are passed a~pointer to the
 \texttt{opaque} pointer and they respectively initialize and deinitialize it.
-The \texttt{name} field is a human-readable name of the data structure.
+The \texttt{name} field is a~human-readable name of the data structure.
 Other fields are given the \texttt{opaque} pointer as the first argument
 and they act as implementations of their respective general versions operating
 on general dictionaries declared in \texttt{dict/dict.h}:
@@ -119,17 +119,17 @@ bool dict_allows_order_queries(const dict*);
 bool dict_next(dict*, uint64_t key, uint64_t *next_key);
 bool dict_prev(dict*, uint64_t key, uint64_t *prev_key);
 \end{lstlisting}
-If we iterate over a dictionary in key order, many data structures can benefit
-from keeping a ``finger'' on the last returned key-value pair. For example,
-if we enumerate the keys of a B-tree in order without auxilliary data, we need
-to perform $\O(\log N)$ operations on every query. This can be easily improved
-to $\O(1)$ amortized by stashing the last visited node between queries.
-For simplicity, we did not implement order queries with a finger. While this
-makes our data structures slower on key enumerations, we believe the penalty
-is roughly similar on all data structures, so our results should still be
-representative enough.
+If we iterate over a~dictionary in key order, many data structures can benefit
+from keeping a~``finger'' on the last returned key-value pair. For example,
+if we enumerate the keys of a~\mbox{B-tree} in order without auxilliary data,
+we need to perform $\O(\log N)$ operations on every query. This can be easily
+improved to $\O(1)$ amortized by stashing the last visited node between
+queries. For simplicity, we did not implement order queries with a~finger.
+While this makes our data structures slower on key enumerations, we believe
+the penalty is roughly similar on all data structures, so our results should
+still be representative enough.
 
-Every data structure implementation exposes a global variable of type
+Every data structure implementation exposes a~global variable of type
 \texttt{const dict\_api} named \texttt{dict\_mydatastructure}. For example,
 a B-tree can be used as follows:
 
@@ -167,35 +167,35 @@ void example_btree(void) {
 
 This approach requires an indirect jump through the ``virtual method table''
 whenever we write implementation-agnostic code. Removing this indirect jump
-by directly compiling against a particular implementation is likely to slightly
+by directly compiling against a~particular implementation is likely to slightly
 speed up the code. On the other hand, our tests are usually long-running, so in
 the typical case, the target of the indirect jump will be cached, which should
-imply a very low overhead. Even if this indirect jumping were expensive, it
+imply a~very low overhead. Even if this indirect jumping were expensive, it
 would not significantly affect our results -- every data structure under test
 is invoked through indirect jumping, so the performance penalty is the same
 on every data structure. While absolute data structure speed may be impacted
 by this design decision, relative differences between data structures should
-stay the same with a virtual call or without.
+stay the same with a~virtual call or without.
 
 Finally, we have decided to reserve one key for internal purposes.
 This key is defined in \texttt{dict/dict.h} as the macro
 \texttt{DICT\_RESERVED\_KEY} and its value is \texttt{UINT64\_MAX}.
-Inserting this key into a dictionary or deleting it will result in an error.
-Reserving this value is useful for representing unused slots in B-tree
-and $k$-splay tree nodes.
+Inserting this key into a~dictionary or deleting it will result in an error.
+Reserving this value is useful for representing unused slots in nodes of
+\mbox{B-trees} or $k$-splay trees.
 
 We implemented the following dictionary data structures:
 \begin{itemize}
 \item \texttt{dict\_array}, declared in \texttt{dict/array.h}:
 	a sorted array of key-value pairs with $\O(N)$ insertions and deletions,
-	indended as a benchmark on very small inputs.
+	indended as a~benchmark on very small inputs.
 \item \texttt{dict\_btree}, declared in \texttt{dict/btree.h}:
 	a 2-3-4 tree with nodes aligned to 64 B cache lines.
-	This is a slight relaxation of B-trees (Chapter~\ref{chapter:btree})
+	This is a~slight relaxation of B-trees (Chapter~\ref{chapter:btree})
 	that allows inner nodes to contain $k\in[1;3]$ keys.
-	An inner node needs to keep $k$ keys and $k+1$ pointers, so, with
+	An inner node needs to keep $k$~keys and $k+1$~pointers, so, with
 	64-bit key and pointers and 64~B cache lines, an inner node fitting
-	into a cache line can keep at most 3 keys. However, leaves hold $k$
+	into a~cache line can keep at most 3 keys. However, leaves hold $k$
 	keys and $k$ values of 64 bits each, which lets us put up to
 	4 key-value pairs into each leaf.
 \item \texttt{dict\_cobt}, declared in \texttt{dict/cobt.h}:
@@ -229,7 +229,7 @@ on several experimental setups.
 We tracked the time it took to conduct each experiment using the POSIX function
 \texttt{clock\_gettime}. To better understand the bottlenecks, we also
 tracked certain hardware events of interest using the \texttt{perf\_events} API
-of the Linux kernel. This API is a generic wrapper around platform-specific
+of the Linux kernel. This API is a~generic wrapper around platform-specific
 performance counters. Events such as cache misses or branch mispredictions
 increment these counters.
 
@@ -247,7 +247,7 @@ The synthetic setups include:
 	and $v(i)$ for $i$ between 0 and $S-1$.
 	These simple functions use a Feistel network\footnote{%
 		A Feistel network is a simple construction for building
-		ciphers from one-way functions. A treatment of several ciphers
+		ciphers from one-way functions. A~treatment of several ciphers
 		based on Feistel networks is included in
 		\cite{applied-cryptography}.
 	} to provide
@@ -275,30 +275,31 @@ The synthetic setups include:
 	with key $k(i)$, where $i$ is picked pseudorandomly from
 	$\{0,\ldots,W-1\}$.
 	This access pattern is intended to simulate datasets, which have
-	a mostly-static ununiform access probability distribution.
+	a mostly-static non-uniform access probability distribution.
 
 \item
 	\emph{Word occurrence counting}: We load a large text document
 	and we tokenize it into words. Each word is then normalized
-	to lowercase and transformed into a 64-bit integer via a simple
-	hash function $h$\footnote{%
+	to lowercase and transformed into a 64-bit integer via a~simple
+	hash function $h$.\footnote{%
 		We use the 64-bit version of the FNV-1 hash function
 		(\url{http://www.isthe.com/chongo/tech/comp/fnv/}).
-	}. We create a dictionary storing counts of word
+	} We create a dictionary storing counts of word
 	occurrences keyed by word hashes. Each word $w$ is inserted into
 	the dictionary by either inserting a new $\langle h(w), 1\rangle$ pair,
 	or deleting an existing pair for $h(w)$ and inserting a new one
 	with an incremented value.
-	This usage pattern approximates building a search index on the document
+	This usage pattern approximates building a search index on the document.
 	\footnote{%
 		We used \emph{The Complete Works of William Shakespeare}
 		from Project Gutenberg
 		(\url{http://www.gutenberg.org/ebooks/100}).
-	}.
+	}
 \end{itemize}
 The code of synthetic experiments is located in \texttt{experiments/performance}.
 
 \section{Non-synthetic experiments}
+
 \cite{libavl} surveys the performance of different binary search tree
 implementations on concrete real-life workloads. In particular, splay trees
 were reported to be several times faster than AVL or red-black trees when

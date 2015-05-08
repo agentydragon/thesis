@@ -4,7 +4,7 @@
 \section{Cache-oblivious B-tree}
 We found the performance of cache-oblivious B-trees very competitive compared
 to B-trees on both random uniform access patterns and modestly large working
-sets. As seen on figure \ref{fig:cob-performance}, random \textsc{Find}s
+sets. As seen on Figure \ref{fig:cob-performance}, random \textsc{Find}s
 were up to twice as fast in large cache-oblivious B-trees without ever being
 significantly slower on small dictionaries.
 The large density of the van Emde Boas tree is the likely reason for these
@@ -15,7 +15,7 @@ B-trees.
 \textsc{Insert} operations, however, are comparatively slow in
 smaller cache-oblivious B-trees (e.g.\ $\leq$ 100~000 keys). We believe
 this slowdown is probably due to the cost of rebuilds, which properly
-amortizes away only on larger dictionaries. A smarter choice of tuning
+amortizes away only on larger dictionaries. A~smarter choice of tuning
 constants (i.e.\ the minimum and maximum density and piece sizes) might
 make updates of smaller dictionaries more efficient.
 
@@ -111,7 +111,7 @@ and $k$-splay trees all have the working set property.
 
 $k$-forests were slow both backed by B-trees and by cache-oblivious B-trees.
 Choosing a larger $k$ slightly helped, but larger values of $k$ also degenerate
-$k$-forests into their backing structure.
+\mbox{$k$-forests} into their backing structure.
 
 \section{Hashing}
 \label{sec:hashing-results}
@@ -204,9 +204,9 @@ performance. Our results are presented in Table \ref{tab:firefox-results}.
 \end{table}
 
 Overall, the cache-oblivious B-tree (COBT) performed slightly worse than
-B-trees in this experiment. We believe this may be explained by the small size
-of typical hash tables, which forces frequent costly rebuilds of the packed
-memory array.
+\mbox{B-trees} in this experiment. We believe this may be explained by the
+small size of typical hash tables, which forces frequent costly rebuilds of
+the packed memory array.
 
 Most recordings run fastest either on cuckoo hash tables, or on splay trees.
 By inspecting the recordings, we found that splay trees are better on recordings
@@ -216,7 +216,7 @@ typically about $2\times$, but, as seen in the case of \texttt{0x7f47930300e0},
 the difference can be up to $4\times$.
 We believe a data structure that would dynamically switch
 its internal representation between cuckoo hashing and splay trees
-based on the access pattern may be a good compromise.
+based on the access pattern may be a~good compromise.
 
 Interestingly, linear probing does not behave as well on Firefox recordings
 as in synthetic experiments, in which it performed as well as cuckoo hashing
@@ -229,12 +229,12 @@ with linear probing needs to traverse an entire chain.
 
 \subsection{Geospatial database}
 The results of the cloud database experiment are outlined in Table
-\ref{tab:cloud-results}. Cache-oblivious B-trees slightly outperformed
-standard B-trees. Splay trees were surprisingly fast. One factor that might
-cause them to perform so well might be that stations usually produce a large
-amount of reports over their lifetime, so when we fetch $S$ closest reports
-for a point, it is likely that all such reports will be the first $S$ reports
-reported by the closest station. Splay trees may thus keep old reports
+\ref{tab:cloud-results}. Cache-oblivious \mbox{B-trees} slightly outperformed
+standard \mbox{B-trees}. Splay trees were surprisingly fast. One factor that
+might cause them to perform so well might be that stations usually produce
+a~large amount of reports over their lifetime, so when we fetch $S$ closest
+reports for a~point, it is likely that all such reports will be the first $S$
+reports reported by the closest station. Splay trees may thus keep old reports
 near the top. In this experiment, we picked $S=1~000$. Also, as can be
 seen on Figure \ref{fig:cloud-data}, the distribution of stations on the globe
 is very uneven, so stations ``assigned'' to a large area can be kept closer to
@@ -242,8 +242,9 @@ the root.
 
 Additionally, we tried two algorithms for sampling query points on the globe.
 The first algorithm simply iterated through points on the latitude-longitude
-grid with whole number coordinates (i.e.\ -179.0\textdegree W -90.0\textdegree N
-through 180.0\textdegree E 90.0\textdegree S).
+grid with whole number coordinates (i.e.\
+$179.0\degree\,\text{W}\ 90.0\degree\,\text{N}$ through
+$180.0\degree\,\text{E}\ 90.0\degree\,\text{S}$).
 The second algorithm arbitrarily picked $64~800=180\cdot 360$ random query
 points.
 The algorithm can be selected by passing different values of the

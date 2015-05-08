@@ -24,9 +24,9 @@ $[K_1;K_2),\ldots [K_{k-1};K_k)$, plus one for $(-\infty;K_1)$ and
 $(K_k;\infty)$ each.
 Leaf nodes of a B-tree store $[b;2b]$ key-value pairs.
 
-The essence of the $[b;2b]$ interval is that when we try to insert the $2b+1$-th
-key, we can instead split the node into two valid nodes of size $b$ and borrow
-the middle key to insert the newly created node into the parent.
+The essence of the $[b;2b]$ interval is that when we try to insert
+the $(2b+1)$-th key, we can instead split the node into two valid nodes of size
+$b$ and borrow the middle key to insert the newly created node into the parent.
 Similarly, when we delete the $b$-th key, we first try to borrow some nodes
 from neighbours to create two valid nodes of size $[b;2b]$, which works when
 there are at least $2b$ keys in both nodes combined.

@@ -16,8 +16,9 @@ will have average lookup time $\O\left(\min\{\log_k \frac{1}{p}, \log_k
 N\}\right)$. $k$-forests also have the working set property.
 
 On the other hand, $k$-forests do not have fast finger queries. Scanning
-a $k$-forest in increasing key order takes $\Omega(N\log_k N)$. Furthermore,
-all successor or predecessor queries take $\Omega(\log_k N)$ block transfers.
+a~\mbox{$k$-forest} in increasing key order takes $\Omega(N\log_k N)$.
+Furthermore, all successor or predecessor queries take $\Omega(\log_k N)$
+block transfers.
 
 We are unaware of any data structure providing good speed for both static
 searches and finger queries with a $\log_B$ reduction in block transfers
