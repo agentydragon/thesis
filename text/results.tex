@@ -117,9 +117,9 @@ Choosing a larger $k$ slightly helped, but larger values of $k$ also degenerate
 \label{sec:hashing-results}
 We compared a hash table with linear probing to a cuckoo hash table.
 Both hash tables used a bytewise simple tabulation hash function.
-The cuckoo hash table maintained a load factor between $\frac{1}{4}$ and
-$\frac{1}{2}$ and the hash table with linear probing had a load factor
-between $\frac{1}{4}$ and $\frac{3}{4}$.
+The cuckoo hash table maintained a load factor between $1/4$ and
+$1/2$ and the hash table with linear probing had a load factor
+between $1/4$ and $3/4$.
 
 Since cuckoo hash tables guarantee worst-case $\O(1)$ time for lookups,
 we expected random \textsc{Find}s to be measurably slower with linear probing.

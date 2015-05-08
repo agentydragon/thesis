@@ -25,7 +25,7 @@ The packed memory array has fast updates in the amortized sense. Inserting
 and deleting items overwrites $\Theta(\frac{\log^2 N}{B})$ amortized memory
 blocks.
 Finally, we combine the two previous parts with \emph{indirection} to obtain
-the desired $\Theta(\log_B N)$ time to \textsc{Find}, \textsc{Insert} and
+the desired $\Theta(\log_B N)$ time for \textsc{Find}, \textsc{Insert} and
 \textsc{Delete}.
 
 \section{The van~Emde Boas layout}
@@ -157,10 +157,11 @@ into trees of height $h/4$, and so on. Denote the heights of constructed bottom
 trees at recursion level $i$ as $h_i=h/2^i$.
 
 Note that at every level of recursion, every tree is stored in contiguous
-memory. A~cache block can accomodate at least $\O(B)$ nodes, so there is some
-level of recursion $i$ for which trees of height $h_i$ fit into a~cache block,
-but trees of the next larger height $h_{i-1}$ do not. In other words,
-$2^{h_i}-1 < B$ and $2^{h_i-1}-1 \geq B$, from which $h_i=\O(\log B)$ follows.
+memory. Assume that any node can be stored in one machine word. A~cache block
+of $B$~words accomodates $B$~nodes, so there is some level of recursion $i$
+for which trees of height $h_i$ fit into a~cache block, but trees of the next
+larger height $h_{i-1}$ do not. In other words, $2^{h_i}-1 < B$ and
+$2^{h_i-1}-1\geq B$, from which $h_i=\Theta(\log B)$ follows.
 
 Root-to-leaf paths contain $\Theta(\log N)$ nodes, and these nodes span
 $\Theta(\frac{\log N}{h_i})$ trees of height $h_i$. Since each such tree can be
@@ -173,7 +174,7 @@ divide the tree into subtrees until atomic subtrees of height $h_i$ fit into
 cache blocks, almost all trees encountered on any root-to-leaf path will still
 have height~$h_i$. The only exception will be the tree that contains the root,
 which may have height less than $h_i$. The original argument still works:
-we need $\O(\log_B N)$ block transfers for traversing a~root-to-leaf path,
+we need $\Theta(\log_B N)$ block transfers for traversing a~root-to-leaf path,
 including an $\O(1)$ added for reading the tree containing the root.
 \end{proof}
 
@@ -368,7 +369,7 @@ by its capacity.
 The packed memory array maintains certain bounds on the densities of subranges
 of the array.
 
-The densities in the leaf blocks are kept between \unichar{"00BC} % VULGAR FRACTION ONE QUARTER
+The densities in the leaf blocks are kept between $1/4$
 and 1. If an update keeps the density of the leaf block within thresholds,
 we perform the update by rewriting all $\Theta(\log N)$ items of the leaf block.
 When a block becomes too sparse or too dense, we walk up the binary

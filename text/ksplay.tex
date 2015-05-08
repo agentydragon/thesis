@@ -21,8 +21,10 @@ pairs and $k$ child pointers. All nodes except the root are \emph{complete}
 proven that \mbox{$k$-splay} tree operations need at most $\O(\log N)$
 amortized node accesses, which matches ordinary splay trees, but unfortunately
 $k$-splay trees do not match the optimal $\O(\log_k N)$ bound given by B-trees.
-In particular, \cite{ksplay-nonopt} found a~family of counterexample trees,
-in which repeatedly $k$-splaying deepest nodes requires $\log N$ node accesses.
+This conjecture from \cite{ksplay-sherk} was disproved in \cite{ksplay-nonopt},
+where a~family of counterexample $k$-ary trees was constructed. For any $k$-ary
+tree in this family, $k$-splaying a~key from a deepest node requires $\log N$
+node accesses and produces another $k$-ary tree from the same family.
 
 $k$-splay trees are proven in \cite{ksplay-sherk} to be $(\log k)$-competitive
 compared to static optimal $k$-ary search trees.
@@ -146,5 +148,5 @@ we split it.
 
 By performing an analysis similar to splay trees, \cite{ksplay-sherk}
 shows that the number of node reads performed in a~sequence of $m$
-\textsc{Find}s in a~$k$-splay tree with $n$ keys is
-$\O(m\log n+\frac{n}{k}\log n)$.
+\textsc{Find}s in a~$k$-splay tree with $N$ keys is
+$\O(m\log N+\frac{N}{k}\log N)$.
