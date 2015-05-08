@@ -22,9 +22,10 @@ proven that \mbox{$k$-splay} tree operations need at most $\O(\log N)$
 amortized node accesses, which matches ordinary splay trees, but unfortunately
 $k$-splay trees do not match the optimal $\O(\log_k N)$ bound given by B-trees.
 This conjecture from \cite{ksplay-sherk} was disproved in \cite{ksplay-nonopt},
-where a~family of counterexample $k$-ary trees was constructed. For any $k$-ary
-tree in this family, $k$-splaying a~key from a deepest node requires $\log N$
-node accesses and produces another $k$-ary tree from the same family.
+where a~family of counterexample $k$-ary trees was constructed. For any
+\mbox{$k$-ary} tree from this family, there exists a key which requires
+$\log N$ node accesses to $k$-splay, and which produces another tree from
+the same family after being $k$-splayed.
 
 $k$-splay trees are proven in \cite{ksplay-sherk} to be $(\log k)$-competitive
 compared to static optimal $k$-ary search trees.

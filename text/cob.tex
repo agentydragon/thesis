@@ -360,24 +360,29 @@ The array is divided into logical \emph{leaf blocks} of constant size
 $\O(\log N)$. A~\emph{virtual full binary tree} is built above those leaf
 blocks. Every node of this binary tree represents the range covering all
 the leaf blocks below. This tree is only conceptual -- it is never stored
-in memory.
+in memory. The root of the virtual tree is the range covering the entire
+ordered file, and the children of any range are its left and right halves.
+For simplicity, the virtual tree assumes that the number of leaf blocks
+is $2^x$. Any ranges that do not fall within the actual backing array
+are ignored.
 
-To properly define the structure, we need to define some terms. The
+To properly describe the structure, we need to define some terms. The
 \emph{capacity} of a~certain range of the array is its size and the
 \emph{density} of a~range is the number of items present in the range divided
 by its capacity.
 The packed memory array maintains certain bounds on the densities of subranges
 of the array.
 
-The densities in the leaf blocks are kept between $1/4$
-and 1. If an update keeps the density of the leaf block within thresholds,
-we perform the update by rewriting all $\Theta(\log N)$ items of the leaf block.
-When a block becomes too sparse or too dense, we walk up the binary
-tree until we find a node that fits our density requirements.
-Walking up the binary tree corresponds to ``multiplying the range by two''
-to the left or to the right.
+The densities in the leaf blocks are kept between $1/4$ and 1.
+If an update keeps the density of the leaf block within thresholds, we perform
+the update by rewriting all $\Theta(\log N)$ items of the leaf block.
+When the range covering the leaf block becomes too sparse or too dense, we
+walk up the virtual tree of ranges until we find a node that fits our density
+requirements. The parent range is obtained by doubling the size of the child
+range, extending the child on the left or on the right (depending on
+whether the child range was a right or left child of its parent range).
 
-The density requirements become stricter as we walk up the virtual tree.
+The density requirements become stricter on larger ranges.
 In particular, the density of a node of depth $d$ within a tree of height $h$
 is kept between $\frac{1}{2}-\frac{1}{4}\frac{d}{h}$ and
 $\frac{3}{4}+\frac{1}{4}\frac{d}{h}$.
@@ -414,7 +419,7 @@ but one of its children, say $Y$, is not.
 Therefore the density of $X$ is at most
 $\frac{3}{4}+\frac{1}{4}\frac{d}{h}$, while the density of $Y$ is more than
 $\frac{3}{4}+\frac{1}{4}\frac{d+1}{h}$. After we redistribute the items
-within~$X$, the density of $Y$ will drop by $\frac{1}{h}$. Thus, if we denote
+within~$X$, the density of $Y$ will drop by $1/h$. Thus, if we denote
 the capacity of $Y$ as $|Y|$, we will need to insert at least $|Y|/h$ items
 under any child of $X$ before we need to rebalance $X$ again.
 Thus, we can charge the $\O(|X|)$ cost of redistributing $X$ to the
@@ -727,15 +732,15 @@ of $b$ bits, is usually encoded by a pairwise permutation of $2b$ keys,
 with $x_{2i} < x_{2i+1}$ corresponding to 1 and $x_{2i} > x_{2i+1}$
 corresponding to 0.
 
-\cite{implicit-btrees-survey} gives an overview of progress on implicit
-dictionaries.  \cite{implicit-cob} reached the optimal bound of
-$\Theta(\log_B N)$ block transfers per search or operation in an implicit
-setting. Similarly to the simple cache-oblivious B-tree, their construction
-uses the deamortized version of the packed memory array in conjunction with
-the van~Emde Boas layout. To avoid holes in the packed memory array,
-the elements of the packed memory array are chunks of keys.
-Several other modifications are necessary to allow updates in size, which
-requires building the structure on the fly.
+An overview of progress on implicit dictionaries is given in
+\cite{implicit-btrees-survey}. The optimal bound of worst-case
+$\Theta(\log_B N)$ block transfers per \textsc{Find} or update has been reached
+in an implicit setting in \cite{implicit-cob}. Similarly to the simple
+cache-oblivious B-tree, the construction uses the deamortized version of
+the packed memory array in conjunction with the van~Emde Boas layout. To avoid
+holes in the packed memory array, the elements of the packed memory array are
+chunks of keys.  Several other modifications are necessary to allow updates
+in size, which requires building the structure on the fly.
 We decided not to implement the implicit cache-oblivious B-tree due
 to its large complexity. We also believe the data structure may be much
 slower on practical data sets than equivalent structures with free slots or

@@ -418,7 +418,7 @@ A drawback of splay trees is that accessing the $\O(\log N)$ amortized
 nodes on the access path may incur an expensive cache miss for every node --
 splay trees make no effort to exploit the memory hierarchy.
 In contrast, lookups in B-trees and cache-oblivious B-trees
-only cause up to $\Theta(\log_B N)$ cache misses, which is a multiplicative
+only cause up to $\Theta(\log_B N)$ cache misses, which is a~multiplicative
 improvement of $\log B$.
 
 On the other hand, splaying automatically adjusts the structure of the splay
@@ -426,19 +426,19 @@ tree to speed up access to recently or frequently accessed nodes. By the
 working set theorem, accessing a small set of keys is always fast, no matter
 how big the splay tree is. While B-trees and cache-oblivious B-trees are
 also faster on smaller working sets, the complexity of any access remains
-$\O(\log_B N)$, so accessing a small working set is slower on larger
+$\O(\log_B N)$, so accessing a~small working set is slower on larger
 dictionaries.
 
 Splay trees are frequently used in practice where access patterns are assumed
 to be non-random. For example, splay trees are used in the FreeBSD kernel
 to store the mapping from virtual memory areas to
-addresses\footnote{%
+addresses.\footnote{%
 	See \texttt{sys/vm/vm\_map.h} in the FreeBSD source tree (lines 169--174
 	at SVN revision 271244); available at
 	\url{https://svnweb.freebsd.org/base/head/sys/vm/vm\_map.h?view=markup}.
-}.
+}
 Unfortunately, splay trees are much slower than BSTs on less
 regular access patterns: splaying always performs costly memory writes.
-For some applications (e.g.\ real-time systems), worst-case $\O(N)$ performance
-is also unacceptable (especially if the splay tree stores data entered by
-an adversary).
+For some applications (e.g.\ real-time systems), worst-case $\Theta(N)$
+performance is also unacceptable (especially if the splay tree stores data
+entered by an adversary).
