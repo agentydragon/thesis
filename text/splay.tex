@@ -362,8 +362,8 @@ $\O(\log N)$-competitive.
 
 \section{Alternate data structures}
 \cite{tango} proposed building alternative search trees with small
-non-constant competitive factors, and invented the \emph{tango tree}, which
-is $\O(\log\log N)$ competitive. However, worst-case performance of tango trees
+non-constant competitive factors, and invented the \emph{Tango tree}, which
+is $\O(\log\log N)$ competitive. However, worst-case performance of Tango trees
 is not very good: on pathological sequences, they underperform plain BSTs
 by a factor of $\O(\log\log N)$.
 \cite{chain-splaying} extends splaying with some housekeeping operations
@@ -375,7 +375,7 @@ Multi-splay trees are $\O(\log\log N)$-competitive and they have all important
 proven properties of splay trees. They also satisfy the \emph{deque property}
 ($\O(M)$ time for $M$ double-ended queue operations), which is only conjectured
 to apply to splay trees.
-Unlike tango trees, they have an amortized access time of $\O(\log N)$.
+Unlike Tango trees, they have an amortized access time of $\O(\log N)$.
 While an access in splay trees may take time up to $\O(N)$, multi-splay trees
 guarantee a more desirable worst-case access time of $\O(\log^2 N)$.
 
