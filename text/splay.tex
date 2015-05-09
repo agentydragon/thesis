@@ -355,20 +355,25 @@ The working set theorem implies that most recently accessed keys (the
 ``working set'') are cheap to access, which makes splay trees behave well when
 the access pattern exhibits temporal locality.
 
-The dynamic optimality conjecture, which states that splay trees are
-$\O(1)$ competitive compared to any dynamic search tree, is an open problem.
-Since \cite{splay}, it was well-known that splay trees are
-$\O(\log N)$-competitive.
+It is conjectured that splay trees are as fast as any other kind of dynamic
+search trees. A dynamic search tree algorithm $X$ is called $k$-competitive,
+if for any sequence of operations $S$ and any dynamic search tree algorithm
+$Y$ the time $T_X(S)$ to perform operations $S$ using $X$ is at most $k\cdot
+T_Y(S)$. Splay trees were proven to be $\O(\log N)$-competitive, but
+the dynamic optimality conjecture, which states that splay trees are
+$\O(1)$-competitive, remains an open problem.
 
 \section{Alternate data structures}
-\cite{tango} proposed building alternative search trees with small
+Since the dynamic optimality conjecture has resisted attempts at solving
+for more than 20 years with little progress, a new approach was proposed in
+\cite{tango}. The authors suggest building alternative search trees with small
 non-constant competitive factors, and invented the \emph{Tango tree}, which
-is $\O(\log\log N)$ competitive. However, worst-case performance of Tango trees
+is $\O(\log\log N)$-competitive. However, worst-case performance of Tango trees
 is not very good: on pathological sequences, they underperform plain BSTs
-by a factor of $\O(\log\log N)$.
+by a factor of $\Theta(\log\log N)$.
 \cite{chain-splaying} extends splaying with some housekeeping operations
 below the splayed element and proves that this \emph{chain-splay} heuristic
-in $\O(\log\log N)$ competitive.
+is $\O(\log\log N)$-competitive.
 
 Finally, \cite{multisplay-trees} presents \emph{multi-splay trees}.
 Multi-splay trees are $\O(\log\log N)$-competitive and they have all important

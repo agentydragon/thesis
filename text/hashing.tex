@@ -159,7 +159,7 @@ If we pick the first-level hash function $f$ from a~universal family
 $\mathcal{F}$, the expected total size of all buckets is linear, so an FKS
 hash table takes expected linear space:
 $$\E\left[\sum_{i=1}^N b_i^2\right]=
-	\sum_{i=1}^N \sum_{j\in\{1,\ldots N\}\smallsetminus\{i\}}
+	\sum_{i=1}^N \sum_{j\in\{1,\ldots N\} \atop j\neq i}
 	\Pr_{f\in\mathcal{F}}[f(k_i)=f(k_j)]=
 	\O\left(N^2\cdot\frac{1}{M}\right)=\O(N)$$
 We pick $f$ at random from $\mathcal{F}$ until we find one that will need at
@@ -420,7 +420,7 @@ Examples of $\Theta(\log N)$-independent hashing schemes include:
 		the question whether there are infinitely many Mersenne primes
 		remains open.
 	}
-	Evaluation of this hash function takes $\O(k)$ steps on RAM.
+	Evaluation of this hash function takes $\O(k)$ steps on the RAM.
 \item \cite{tab-based-4uni-hashing} presents a $k$-universal scheme that splits
 	$x$ into $c$ components (as in simple tabulation hashing),
 	expands $x$ into a \emph{derived key} $z$ of $\O(ck)$ components,
@@ -429,10 +429,10 @@ Examples of $\Theta(\log N)$-independent hashing schemes include:
 	When applied in our setting, where $c$ is fixed and $k=\O(\log N)$,
 	the scheme takes time $\O(k)$ to evaluate.
 	According to the authors, the scheme also has very competitive speed.
-\item In order to outperform B-trees on RAM, we would like to use a hashing
+\item In order to outperform B-trees on the RAM, we would like to use a hashing
 	function which evaluates faster than $\log N$. A scheme from
-	\cite{siegel-1995} needs only $\O(1)$ time to evaluate. Unfortunately,
-	constructing a hash function by Siegel's scheme has high constant
+	\cite{univ-ext-random} needs only $\O(1)$ time to evaluate. Unfortunately,
+	constructing a hash function by this scheme has high constant
 	factors, so it is not very practical \cite{pagh-phd}.
 \end{itemize}
 

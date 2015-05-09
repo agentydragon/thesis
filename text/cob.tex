@@ -671,11 +671,11 @@ block transfers for \textsc{Find}s.
 \textsc{FindNext} and \textsc{FindPrevious} work similarly.
 
 \textsc{Insert}s and \textsc{Delete}s first find the appropriate piece
-to update in $\Theta(\log_B (N/\log N))$. If the piece can be updated
-without getting under $P/4$ or over $P$ items, we rewrite the piece in
-$\Theta(\frac{\log N}{B})$, removing or inserting the key. If we changed
-the minimum of the piece, we also need to walk up the tree in $\Theta(\log_B
-(N/\log N))$ to propagate the change.
+to update, for which they need $\Theta(\log_B (N/\log N))$ block transfers.
+If the piece can be updated without getting under $P/4$ or over $P$ items,
+we rewrite the piece in $\Theta(\frac{\log N}{B})$, removing or inserting
+the key. If we changed the minimum of the piece, we also need to walk up
+the tree in $\Theta(\log_B (N/\log N))$ to propagate the change.
 
 If the piece is too full, we split the piece into two pieces of size
 $P/2$. The splitting takes $\Theta(\frac{\log N}{B})$ block transfers.
