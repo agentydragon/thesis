@@ -430,14 +430,16 @@ with missing values are also skipped at query time.
 };
 \end{tikzpicture}
 \caption{Z-order in two dimensions}
+\label{fig:z-order}
 \end{figure}
 
 A possible alternative would be using a \emph{Peano curve}
 (introduced in \cite{peano-curve}, later generalized into
 \emph{Hilbert curves} of arbitrary dimension by \cite{hilbert-curve}).
-A desirable property of Peano curves is that their mapping preserves
-adjacency: neighbours from the one-dimensional space are mapped
-to neighbours in the two-dimensional space.
+A desirable property of Peano curves is that if two-dimensional points
+$x$ and $y$ map to neighbouring images in the one-dimensional space, then
+$x$ and $y$ were neighbours in the two-dimensional space. As apparent
+from Figure \ref{fig:z-order}, this does not hold in the Z-order.
 We decided to use the Z-order for the simplicity of its mapping function.
 
 Queries are implemented simply by mixed calls to \texttt{dict\_prev} and
