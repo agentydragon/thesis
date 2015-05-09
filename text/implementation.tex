@@ -300,13 +300,13 @@ The code of synthetic experiments is located in \texttt{experiments/performance}
 
 \section{Non-synthetic experiments}
 
-\cite{libavl} surveys the performance of different binary search tree
-implementations on concrete real-life workloads. In particular, splay trees
-were reported to be several times faster than AVL or red-black trees when
-maintaining virtual memory areas of the Mozilla browser, VMware or the Squid
-HTTP proxy. The author also simulated the workload of the mapping from peer
-IP addresses to IP datagram identification nonces. On this workload, splay
-trees underperformed balanced search trees.
+A survey of the performance of different binary search tree implementations
+on concrete real-life workloads was presented in \cite{libavl}.
+In particular, splay trees were reported to be several times faster than AVL or
+red-black trees when maintaining virtual memory areas of the Mozilla browser,
+VMware or the Squid HTTP proxy. The author also simulated the workload of
+the mapping from peer IP addresses to IP datagram identification nonces.
+On this workload, splay trees underperformed balanced search trees.
 
 To investigate the practical performance of our data structure implementations,
 we decided to collect recordings of dictionary access patterns in real programs
