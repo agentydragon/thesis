@@ -4,9 +4,9 @@
 \section{Cache-oblivious B-tree}
 We found the performance of cache-oblivious B-trees very competitive compared
 to B-trees on both random uniform access patterns and modestly large working
-sets. As seen on Figure \ref{fig:cob-performance}, random \textsc{Find}s
-were up to twice as fast in large cache-oblivious B-trees without ever being
-significantly slower on small dictionaries.
+sets. As seen on Figure \ref{fig:cob-performance}, random successful
+\textsc{Find}s were up to twice as fast in large cache-oblivious B-trees
+without ever being significantly slower on small dictionaries.
 The large density of the van Emde Boas tree is the likely reason for these
 gains.
 \textsc{FindNext} and \textsc{FindPrev} are also faster in cache-oblivious
@@ -23,7 +23,7 @@ make updates of smaller dictionaries more efficient.
 \centering
 \begin{subfigure}[t]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/cob-performance-1}
-	\caption{Random \textsc{Find}s}
+	\caption{Random successful \textsc{Find}s}
 \end{subfigure}
 ~
 \begin{subfigure}[t]{0.45\textwidth}
@@ -33,12 +33,12 @@ make updates of smaller dictionaries more efficient.
 ~
 \begin{subfigure}[t]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/cob-performance-3}
-	\caption{\textsc{Find}s, working set of 1~000 keys}
+	\caption{Successful \textsc{Find}s, working set of 1~000 keys}
 \end{subfigure}
 ~
 \begin{subfigure}[t]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/cob-performance-4}
-	\caption{\textsc{Find}s, working set of 100~000 keys}
+	\caption{Successful \textsc{Find}s, working set of 100~000 keys}
 \end{subfigure}
 ~
 \begin{subfigure}[t]{0.45\textwidth}
@@ -63,7 +63,7 @@ unpredictable operations (see Figure \ref{fig:self-adj-performance}).
 \begin{figure}
 \begin{subfigure}[b]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/self-adj-random-find}
-	\caption{Random \textsc{Find}s}
+	\caption{Random successful \textsc{Find}s}
 \end{subfigure}
 ~
 \begin{subfigure}[b]{0.45\textwidth}
@@ -73,12 +73,12 @@ unpredictable operations (see Figure \ref{fig:self-adj-performance}).
 \\
 \begin{subfigure}[b]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/self-adj-ws-1k}
-	\caption{\textsc{Find}s, working set of 1~000 keys}
+	\caption{Successful \textsc{Find}s, working set of 1~000 keys}
 \end{subfigure}
 ~
 \begin{subfigure}[b]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/self-adj-ws-100k}
-	\caption{\textsc{Find}s, working set of 100~000 keys}
+	\caption{Successful \textsc{Find}s, working set of 100~000 keys}
 \end{subfigure}
 % TODO: word occurrence counting
 \caption{Benchmarks of self-adjusting structures.
@@ -122,7 +122,8 @@ $1/2$ and the hash table with linear probing had a load factor
 between $1/4$ and $3/4$.
 
 Since cuckoo hash tables guarantee worst-case $\O(1)$ time for lookups,
-we expected random \textsc{Find}s to be measurably slower with linear probing.
+we expected both successful and unsuccessful random \textsc{Find}s to be
+measurably slower with linear probing.
 Linear probing lookups, however, performed almost exactly the same as
 with cuckoo hashing, even with a higher load factor (see Figure
 \ref{fig:hashing-performance}).
@@ -134,7 +135,7 @@ tabulation hashing.
 \begin{figure}
 \begin{subfigure}[t]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/hashing-1}
-	\caption{Random \textsc{Find}s}
+	\caption{Random successful \textsc{Find}s}
 \end{subfigure}
 ~
 \begin{subfigure}[t]{0.45\textwidth}
@@ -144,12 +145,12 @@ tabulation hashing.
 \\
 \begin{subfigure}[t]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/hashing-3}
-	\caption{\textsc{Find}s, working set of 1~000 keys}
+	\caption{Successful \textsc{Find}s, working set of 1~000 keys}
 \end{subfigure}
 ~
 \begin{subfigure}[t]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/hashing-4}
-	\caption{\textsc{Find}s, working set of 100~000 keys}
+	\caption{Successful \textsc{Find}s, working set of 100~000 keys}
 \end{subfigure}
 \caption{Performance of cuckoo hashing and linear probing}
 \label{fig:hashing-performance}
@@ -226,6 +227,8 @@ reason for this is a higher incidence of failed \textsc{Insert} and
 synthetic workloads. While failed \textsc{Find}s on cuckoo hashing take only
 2 memory transfers as any other \textsc{Find}, an unsuccessful \textsc{Find}
 with linear probing needs to traverse an entire chain.
+
+FIXME: expand above
 
 \subsection{Geospatial database}
 The results of the cloud database experiment are outlined in Table

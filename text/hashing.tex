@@ -266,13 +266,18 @@ A cuckoo hash table is composed of two hash tables $L$ and~$R$ of equal size
 $M=(1+\varepsilon)\cdot N$.
 Two separate hashing functions $h_\ell$ and $h_r$ are associated with
 $L$~and~$R$.
-All key-value pairs $(k,v)$ are stored either in $L$ at position $h_\ell(k)$,
+Each key-value pair $(k,v)$ is stored either in $L$ at position $h_\ell(k)$,
 or in $R$ at position $h_r(k)$.
 
-The cuckoo hash table can also be visualized as a bipartite ``cuckoo graph'',
-where partities are slots in $L$ and~$R$. Edges correspond to stored keys:
-a stored key $k$ connects $h_\ell(k)$ in $L$ and~$h_r(k)$ in $R$. The assignment
-of key-value pairs to slots in $L$ or $R$ forms a matching on the graph.
+The cuckoo hash table can also be visualized as a bipartite ``cuckoo graph''
+$G$, where parts are slots in $L$ and~$R$. Edges correspond to stored keys:
+a stored key $k$ connects $h_\ell(k)$ in $L$ and~$h_r(k)$ in $R$.
+
+Denote the vertices and edges of $G$ as $V$ and $E$.
+Let us define the \emph{incidence graph} $G_I$ of $G$. The vertices of $G_I$
+are vertices and edges of $G$, and the edges of $G_I$ are $\{(x,(xy)): x\in V,
+(xy)\in E\}$. The cuckoo graph $G$ can be represented as a valid cuckoo hash
+table if and only if $G_I$ has a perfect matching.
 
 \textsc{Find}s take $\O(1)$ worst-case time: they compute $h_\ell(k)$ and $h_r(k)$
 and look at the two indices in $L$~and~$R$. The two reads are independent and
@@ -380,10 +385,10 @@ cuckoo chicks pushing eggs out of host birds' nests.
 \end{figure}
 
 If we find a cycle both on the path from $L[h_\ell(k)]$ and on the path from
-$R[h_r(k)]$ (we can follow both at the same time), the cuckoo graph with
-the added edge $(h_\ell(k),h_r(k))$ has no matching. To assign key-value pairs
-to slots, we pick new hashing functions $h_\ell$ and $h_r$ and we rebuild
-the entire structure.
+$R[h_r(k)]$ (we can follow both at the same time), the incidence graph
+of the cuckoo graph with the added edge $(h_\ell(k),h_r(k))$ has no matching.
+To uniquely assign slots to key-value pairs, we need to pick new hashing
+functions $h_\ell$ and $h_r$ and to rebuild the entire structure.
 
 To guarantee good performance, cuckoo hashing requires good randomness
 properties of the hashing functions.

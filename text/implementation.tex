@@ -256,8 +256,11 @@ The synthetic setups include:
 	``sufficiently randomly behaving'' key-value pairs while letting us
 	derive $i$ from $k(i)$ or $v(i)$, which aids debugging.
 
-	After the pairs are inserted, they are read in an order determined
-	by a~simple pseudorandom generator with a fixed seed.
+	After the dictionary is seeded, we read items from it in random order.
+	Because the difference between speeds of successful and unsuccessful
+	\textsc{Find}s is significant on some dictionaries, a fraction of
+	reads will request nonexistant keys. This fraction is set
+	per-experiment.
 
 	On this experiment, we separately measure the performance of insertions
 	and finds.
@@ -296,6 +299,7 @@ The synthetic setups include:
 		We used \emph{The Complete Works of William Shakespeare}
 		from Project Gutenberg
 		(\url{http://www.gutenberg.org/ebooks/100}).
+		% FIXME: cite this?
 	}
 \end{itemize}
 The code of synthetic experiments is located in \texttt{experiments/performance}.
