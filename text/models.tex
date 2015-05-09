@@ -3,11 +3,15 @@
 \section{RAM}
 
 The performance of algorithms is usually measured in the RAM
-(\emph{Random Access Memory} or \emph{Machine}) model.
+(\emph{Random Access Machine}\footnote{%
+	Another meaning of the abbreviation ``RAM'' is \emph{Random Access
+	Memory}. To avoid confusing the model and the type of computer memory,
+	we will only use ``RAM'' to refer to the model.
+}or \emph{Machine}) model.
 The ideal RAM machine has an infinite memory divided into cells addressed
 by integers.
 One instruction of the RAM machine takes constant time and it
-can compute an arithmetic expression based on values of cells and store it
+can compute a fixed arithmetic expression based on values of cells and store it
 in another cell. The expressions may involve reading cells, including cells
 pointed to by another cell. The exact set of arithmetic operations allowed
 on the values differs from model to model, but a~typical set would include
@@ -23,19 +27,19 @@ The model is also restricted by the \textit{word size} (denoted~$w$),
 which is the number of bits allocated for a~cell. Choosing a~too large $w$
 results in an unreasonably strong model. A~typical choice of~$w$ is
 $\Theta(\log N)$, where $N$ is size of input.
-A~RAM with this word size is called the \textit{transdichotomous model}
-by virtue of tying the problem size and word size.
+Since this choice of $w$ ties together the problem size and the word size,
+a~RAM model with this word size is called the \textit{transdichotomous model}.
 
 RAM algorithms are judged by their \emph{time} and \emph{space complexity}.
 The time complexity is the number of executed instructions as a~function of
 input size and the space complexity is the maximum cell index accessed during
-execution\footnote{%
+execution.\footnote{%
 	The number of overwritten cells would be a~simpler definition
 	of space complexity, but that would allow unrealistic ``dirty tricks''
 	like maintaining an unordered set with deterministic $\O(1)$ time
 	for both updates and lookups by interpreting the key as a~memory
 	location.
-}.
+}
 
 The time and space used by real computer programs is obviously related
 to the predictions made by the RAM model. However, the RAM model is far
@@ -49,21 +53,23 @@ be ignored.
 \section{Memory hierarchies}
 % TODO: latency numbers everyone should know
 % TODO: list-array experiment
-There are two major types of RAM: \emph{static} and \emph{dynamic}.
-While static RAM stores information as active states of semiconductors, dynamic
-RAM uses capacitors, which lose charge over time. To avoid losing information,
-contents of dynamic RAM must be periodically refreshed by ``reading'' the data
-and writing it back. Dynamic RAM also has destructive reads: a~read removes
-charge from capacitors, which must then be returned to keep the data.
-In general, static RAM is fast and expensive, while dynamic RAM is slow,
-cheap and more space-efficient. Main memories are usually dynamic.
+There are two major types of memory chips: \emph{static} and \emph{dynamic}.
+While static memory stores information as active states of semiconductors,
+dynamic memory uses capacitors, which lose charge over time. To avoid losing
+information, contents of dynamic memory must be periodically refreshed by
+``reading'' the data and writing it back. Dynamic memory also has destructive
+reads: a~read removes charge from capacitors, which must then be re-charged
+to keep the data. In general, static memory is fast and expensive, while dynamic
+memory is slow, cheap and more space-efficient. Main memories are usually
+dynamic.
 
 CPU speeds are growing faster (60\% per year) than speeds of memory (10\% per
 year) \cite{Ailamaki:2004:DAN:1316689.1316801}.
-A fast CPU needs to wait several hundred cycles to perform a~RAM access.
+A fast CPU needs to wait several hundred cycles to access main memory.
 For example, Intel Core i7 and Xeon 5500 processors with clocking frequencies
-in GHz need approximately 100~ns for a~RAM access\cite{perf-analysis-guide}.
-To alleviate the costs of memory transfers, several levels of static RAM
+in GHz need approximately 100~ns for a~memory access
+access\cite{perf-analysis-guide}.
+To alleviate the costs of memory transfers, several levels of static memory
 caches are inserted between the CPU and the main memory. The caches are
 progressively smaller and faster the closer they are to the CPU. The difference
 between speeds of memory levels reaches several orders of magnitude.
@@ -152,11 +158,11 @@ been developed to benchmark algorithms designed for hierarchical memory.
 \section{The external memory model}
 The simplest model of memory hierarchies is the \emph{external memory model},
 which has only two levels of memory: the fast and small \emph{cache} and the
-slow and potentially infinite \emph{disk}\footnote{%
+slow and potentially infinite \emph{disk}.\footnote{%
 	We choose this naming to avoid the ambiguous term ``memory'',
 	which may mean both ``main memory'' in relation to a disk,
 	or an ``external memory'' in relation to a cache.
-}. The motivation for omitting all other levels is that for practical purposes,
+} The motivation for omitting all other levels is that for practical purposes,
 only one gap between memory levels is usually the bottleneck. For example,
 the bottleneck in a 10 TB database would probably be disk I/O, because
 only a negligible part of the database would fit into main memory and

@@ -13,11 +13,11 @@ bounds, like deterministic constant time for \textsc{Find}s in cuckoo hashing
 The idea of hashing is reducing the size of the large key universe
 $\mathcal{U}$ to a smaller \emph{hash space} $H$ via a \emph{hashing function}
 $h\mathop{:}\mathcal{U}\rightarrow H$.
-In this chapter, let us denote the size of the hash space $M$
+In this chapter, let us denote the size of the hash space $M$.
 \footnote{%
 	No hashing schemes presented in this chapter are specific to external
 	memory, so we do not need $M$ to denote the cache size in this chapter.
-}.
+}
 For a key $k$, we call $h(k)$ the \emph{hash} of $k$.
 
 The size of the hash space is selected small enough to allow using hashes
@@ -53,15 +53,15 @@ we can prove that the expected length of a collision chain is short.
 
 To keep the expected chain length low, every time the hash table increases
 or decreases in size by a constant factor, we rebuild it with a new $M$
-picked to be $\O(N)$. The rebuild time is $\O(1)$ amortized per operation.
+picked to be $\Theta(N)$. The rebuild time is $\O(1)$ amortized per operation.
 
-If we pick the hash function $h$ at random (i.e., by independently randomly
+If we pick the hash function $h$ at random (i.e.,\ by independently randomly
 assigning $h(k)$ for all $k\in\mathcal{U}$), we have $\forall i\in H,
-k\in\mathcal{U}: \Pr[h(k)=i]=\frac{1}{M}$.
-By linearity of expectation, we have $\E[C_i]=\frac{N}{M}$, which is
+k\in\mathcal{U}: \Pr[h(k)=i]=1/M$.
+By linearity of expectation, we have $\E[C_i]=N/M$, which is
 constant if we maintain $M=\O(N)$. Since the expected length of any chain
 is constant, the expected time per operation is also constant.
-The $\frac{N}{M}$ ratio is commonly called the \emph{load factor}.
+The $N/M$ ratio is commonly called the \emph{load factor}.
 
 However, storing a random hash function would require $|\mathcal{U}|\log M$
 bits, which is too much: a typical hash table only stores a few keys from a
@@ -148,7 +148,8 @@ FKS hashing takes worst-case $\O(1)$ time for queries (an improvement over
 expected $\O(1)$ with chaining) and expected amortized $\O(1)$ for updates.
 
 FKS hashing is two-level. The first-level hashing function $f$ partitions
-$K$ into $M$ buckets $B_1,\ldots B_M$. Denote their sizes as $b_i$.
+the set of keys $K$ into $M$ buckets $B_1,\ldots B_M$. Denote their sizes as
+$b_i$.
 Every bucket is stored in a~separate hash table, mapping $B_i$ to an array
 of size $\Theta(b_i^2)=\beta b_i^2$ via its private hash function $g_i$.
 The constant $\beta$ will be picked later.
@@ -168,7 +169,7 @@ constant. Picking a~proper $\alpha$ yields expected $\O(N)$ time to pick $f$.
 
 To select a~second-level hash function $g_i$, we pick one randomly from
 a universal family $\mathcal{G}$ until we find one that gives no collisions
-in $B_i$. By universality of $g_i$, the expected number of collisions in $B_i$
+in $B_i$. By universality of~$g_i$, the expected number of collisions in $B_i$
 is constant:
 $$\E_{g_i\in\mathcal{G}}[\text{\# of collisions in }B_i]=
 	{b_i\choose 2}\cdot\O\left(\frac{1}{b_i^2}\right)=\O(1)$$
@@ -261,19 +262,20 @@ performance of linear probing with simple tabulation hashing.
 \section{Cuckoo hashing}
 \label{sec:cuckoo}
 
-A cuckoo hash table is composed of two hash tables $L$ and $R$ of equal size
+A cuckoo hash table is composed of two hash tables $L$ and~$R$ of equal size
 $M=(1+\varepsilon)\cdot N$.
-Two separate hashing functions $h_\ell$ and $h_r$ are associated with $L$ and $R$.
-All key-value pairs $(k,v)$ are stored either in $L$ at position $h_\ell(k)$, or
-in $R$ at position $h_r(k)$.
+Two separate hashing functions $h_\ell$ and $h_r$ are associated with
+$L$~and~$R$.
+All key-value pairs $(k,v)$ are stored either in $L$ at position $h_\ell(k)$,
+or in $R$ at position $h_r(k)$.
 
 The cuckoo hash table can also be visualized as a bipartite ``cuckoo graph'',
-where partities are slots in $L$ and $R$. Edges correspond to stored keys:
-a stored key $k$ connects $h_\ell(k)$ in $L$ and $h_r(k)$ in $R$. The assignment
+where partities are slots in $L$ and~$R$. Edges correspond to stored keys:
+a stored key $k$ connects $h_\ell(k)$ in $L$ and~$h_r(k)$ in $R$. The assignment
 of key-value pairs to slots in $L$ or $R$ forms a matching on the graph.
 
 \textsc{Find}s take $\O(1)$ worst-case time: they compute $h_\ell(k)$ and $h_r(k)$
-and look at the two indices in $L$ and $R$. The two reads are independent and
+and look at the two indices in $L$~and~$R$. The two reads are independent and
 can potentially be executed in parallel, especially on modern CPUs with
 instruction reordering.
 
@@ -388,7 +390,7 @@ properties of the hashing functions.
 With $\Theta(\log N)$-independent hash functions, \textsc{Insert}s take
 expected amortized time $\O(1)$ and the failure probability (i.e.,\ the
 probability that an \textsc{Insert} will force a full rebuild) is
-$\O(\frac{1}{N})$ \cite{cuckoo-hashing}.
+$\O(1/N)$ \cite{cuckoo-hashing}.
 6-independence is not enough: some 6-independent hash functions lead to a
 failure probability of $\O(1-\frac{1}{N})$ \cite{cuckoo-hashing-indep-bounds}.
 The build failure probability when using simple tabulation hashing is
