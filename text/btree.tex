@@ -66,14 +66,15 @@ If deleting from the root would leave the root with only one child
 (and zero keys), we instead make the only child of the root the new root.
 
 Thus, updates to the B-tree keep the number of keys of all nodes within
-$[b;2b]$, so the depth of the tree is kept between $\log_b N$ and
-$\log_{b/2} N$ and the \textsc{Find} operation takes time
-$\Theta(\log b \cdot \log_b N)=\Theta(\log N)$. \textsc{FindNext} and
-\textsc{FindPrevious} also take time $\Theta(\log N)$, but if they are invoked
-after a previous \textsc{Find}, we can keep a pointer to the leaf containing
-the key and accordingly adjust it to find the next or previous key, which runs
-in $\O(1)$ amortized time. Thus, B-trees also allow scanning a contiguous
-range of keys of size $k$ in $\Theta(\log_b N + k)$ time.
+$[b;2b]$, so the depth of the tree is kept between $\log_2b N$ and $\log_b N$
+and the \textsc{Find} operation takes time
+$\Theta(\log b \cdot \log_b N)=\Theta(\log N)$ and $\Theta(\log_b N)$
+block transfers. \textsc{FindNext} and \textsc{FindPrevious} also take time
+$\Theta(\log N)$, but if they are invoked after a previous \textsc{Find}, we
+can keep a pointer to the leaf containing the key and accordingly adjust it to
+find the next or previous key, which runs in $\O(1)$ amortized time. Thus,
+B-trees also allow scanning a contiguous range of keys of size $k$ in
+$\Theta(\log_b N + k)$ time.
 
 The \textsc{Insert} and \textsc{Delete} operations may spend up to
 $\Theta(b)$ time splitting or merging nodes on each level, so they run in
@@ -91,4 +92,4 @@ on keys is comparison: reading a block of $\Theta(B)$ keys will only
 give us $\log B$ bits of information, since the only useful operation
 can be comparing the sought key $K$ with every key we retrieved.
 We need $\log N$ bits to represent the index of the key-value pair we found,
-so we need at least $\frac{\log N}{\log B}=\log_B N$ block transfers.
+so we need at least $\log N/\log B=\log_B N$ block transfers.

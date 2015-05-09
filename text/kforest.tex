@@ -70,11 +70,11 @@ keys accessed since the last access of key $K_{k_j}$.
 \cite{martel} proves the following theorems analogous to desirable properties
 of splay trees:
 \begin{theorem}[Working Set Theorem for $k$-forests]
-	With LRU demotion, the $j$th lookup accesses $\O(\log_k t(j))$ nodes.
+	With LRU demotion, the $j$-th lookup accesses $\O(\log_k t(j))$ nodes.
 	With random demotion, it accesses expected $\O(\log_k t(j))$ nodes.
 \end{theorem}
 
-Again, let $q(K_i)$ be the number of accesses of $K_i$.
+Again, let $q(K_i)$ be the number of accesses to $K_i$.
 \begin{theorem}[Static Optimality Theorem for $k$-forests]
 	Accessing a sequence of keys $\{K_{k_i}: i\leq M\}$ requires
 	$\O(\sum_{i=1}^N q(K_i) \log_k \frac{M}{q(K_i)})$ node accesses.
