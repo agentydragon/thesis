@@ -390,7 +390,7 @@ $\frac{3}{4}+\frac{1}{4}\frac{d}{h}$.
 between memory consumption and time complexity of rebuilding.}
 When we find a node that is \emph{within threshold}, we uniformly redistribute
 the items in its range. If no such node exists, we resize the entire structure
-by a constant factor, which lets us amortize the costs of this resizing to
+by a~constant factor, which lets us amortize the costs of this resizing to
 a multiplicative constant.
 
 We claim that while this redistribution may reorganize a range of size up
@@ -714,7 +714,7 @@ cost of rebuilds will be $\O(1)$ per item.
 An alternative deamortized ordered file maintenance data structure
 developed by \cite{willard92} performs $\Theta(\frac{\log^2 N}{B})$
 block transfers in the worst case. If we momentarily disregard the cost of
-rebuilding when $N$ expands or shrinks by a constant factor, a cache-oblivious
+rebuilding when $N$ expands or shrinks by a~constant factor, a cache-oblivious
 B-tree backed by this structure would limit the worst-case number of block
 transfers from $\Theta(\frac{N}{\log N})$ to just
 $\Theta(\frac{\log^2 N}{B}+\log_B N)$ while keeping the amortized bound
