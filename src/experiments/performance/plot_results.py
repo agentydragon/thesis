@@ -111,11 +111,25 @@ def plot_all_experiments():
   for experiment, title in [
       ('word_frequency', 'Word frequency'),
       ('serial-both', 'Random insert+find'),
-      ('serial-findonly', 'Random find'),
       ('ltr_scan', 'Left-to-right scan')]:
     plot_graph(data=load_data(experiment=experiment), title=title)
     save_to(experiment + '.png')
     pyplot.clf()
+
+  plot_graph(data=load_data(experiment='serial-findonly',
+                            success_percentage=100), title=title)
+  save_to('serial-findonly-100.png')
+  pyplot.clf()
+
+  plot_graph(data=load_data(experiment='serial-findonly',
+                            success_percentage=50), title=title)
+  save_to('serial-findonly-50.png')
+  pyplot.clf()
+
+  plot_graph(data=load_data(experiment='serial-findonly',
+                            success_percentage=0), title=title)
+  save_to('serial-findonly-0.png')
+  pyplot.clf()
 
   plot_graph(data=load_data(working_set_size=1000, experiment='workingset'),
              title='Random finds in 1k working set')
@@ -182,8 +196,8 @@ def plot_pma_counters():
   save_to('pma-reorg.png')
   pyplot.clf()
 
-def plot_cache_events(implementation, experiment):
-  data = load_data(implementation=implementation, experiment=experiment)
+def plot_cache_events(**kwargs):
+  data = load_data(**kwargs)
   new_figure()
   pyplot.xscale('log')
   pyplot.ylabel('Cache misses per element')
@@ -239,7 +253,7 @@ def plot_cob_find_speed_figures():
     find_speed_fig_internal(data)
 
   pyplot.figure(1, figsize=EXPORT_FIGSIZE)
-  find_speed_fig(experiment='serial-findonly')
+  find_speed_fig(experiment='serial-findonly', success_percentage=100)
   save_to('export/cob-performance-1.png')
   pyplot.clf()
 
@@ -272,7 +286,7 @@ def plot_cob_find_speed_figures():
   pyplot.clf()
 
 def get_difference(api):
-  find_pts = load_data(implementation=api, experiment='serial-findonly')
+  find_pts = load_data(implementation=api, experiment='serial-findonly', success_percentage=100)
   both_pts = load_data(implementation=api, experiment='serial-both')
   find_pts = {point['size']: point['time_ns'] for point in find_pts}
   both_pts = {point['size']: point['time_ns'] for point in both_pts}
@@ -318,7 +332,7 @@ def plot_cob_performance():
   def times(api_data):
     return [point['time_ns'] / point['size'] for point in api_data]
 
-  data = load_data(experiment='serial-findonly')
+  data = load_data(experiment='serial-findonly', success_percentage=100)
   new_figure()
   for api, color, label in [
       ('dict_btree', 'r-', 'B-tree'),
@@ -364,8 +378,16 @@ def plot_self_adjusting_performance():
     pyplot.ylabel('Time per operation [ns]')
     pyplot.grid(True)
 
-  plot_self_adj(experiment='serial-findonly')
-  save_to('export/self-adj-random-find.png')
+  plot_self_adj(experiment='serial-findonly', success_percentage=100)
+  save_to('export/self-adj-random-find-100.png')
+  pyplot.clf()
+
+  plot_self_adj(experiment='serial-findonly', success_percentage=50)
+  save_to('export/self-adj-random-find-50.png')
+  pyplot.clf()
+
+  plot_self_adj(experiment='serial-findonly', success_percentage=0)
+  save_to('export/self-adj-random-find-0.png')
   pyplot.clf()
 
   plot_self_adj(experiment='serial-insertonly')
@@ -408,8 +430,16 @@ def plot_hashing_performance():
                 '#666666', linewidth=1.0, label='B-tree', linestyle='dashed')
     pyplot.legend(loc='upper left')
 
-  hashing_figure(experiment='serial-findonly')
-  save_to('export/hashing-1.png')
+  hashing_figure(experiment='serial-findonly', success_percentage=100)
+  save_to('export/hashing-1-100.png')
+  pyplot.clf()
+
+  hashing_figure(experiment='serial-findonly', success_percentage=50)
+  save_to('export/hashing-1-50.png')
+  pyplot.clf()
+
+  hashing_figure(experiment='serial-findonly', success_percentage=0)
+  save_to('export/hashing-1-0.png')
   pyplot.clf()
 
   # Random INSERTs -- linear probing vs. cuckoo hashing vs. B-tree for reference
@@ -456,7 +486,8 @@ def main():
 
   plot_all_experiments()
 
-  plot_mispredicts(data=load_data(experiment='serial-findonly'),
+  plot_mispredicts(data=load_data(experiment='serial-findonly',
+                                  success_percentage=100),
                    title='Mispredicts (random find)')
   save_to('random-mispredict.png')
   pyplot.clf()
@@ -469,7 +500,8 @@ def main():
   save_to('cobt-cache.png')
   pyplot.clf()
 
-  plot_cache_events(implementation='dict_htable', experiment='serial-findonly')
+  plot_cache_events(implementation='dict_htable', experiment='serial-findonly',
+                    success_percentage=100)
   save_to('htable-cache-findonly.png')
   pyplot.clf()
 

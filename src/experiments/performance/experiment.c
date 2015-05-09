@@ -25,6 +25,10 @@ void check_contains(dict* dict, uint64_t key, uint64_t value) {
 	ASSERT(dict_find(dict, key, &found_value) && found_value == value);
 }
 
+void check_not_contains(dict* dict, uint64_t key) {
+	ASSERT(!dict_find(dict, key, NULL));
+}
+
 dict* seed(const dict_api* api, uint64_t size) {
 	dict* dict;
 	CHECK(!dict_init(&dict, api, NULL), "cannot init dict");

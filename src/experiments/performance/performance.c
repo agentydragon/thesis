@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
 			CUCKOO_COUNTERS.traversed_edges = 0;
 
 			result = measure_serial(FLAGS.measured_apis[i],
-					SERIAL_BOTH, size);
+					SERIAL_BOTH, size, 100);
 
 			json_t* point = json_object();
 			add_common_keys(point, "serial-both", size,
@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
 
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
 			result = measure_serial(FLAGS.measured_apis[i],
-					SERIAL_JUST_INSERT, size);
+					SERIAL_JUST_INSERT, size, 100);
 
 			json_t* point = json_object();
 			add_common_keys(point, "serial-insertonly", size,
@@ -82,11 +82,37 @@ int main(int argc, char** argv) {
 		}
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
 			result = measure_serial(FLAGS.measured_apis[i],
-					SERIAL_JUST_FIND, size);
+					SERIAL_JUST_FIND, size, 100);
 
 			json_t* point = json_object();
 			add_common_keys(point, "serial-findonly", size,
 					FLAGS.measured_apis[i], result);
+			json_object_set_new(point, "success_percentage",
+					json_integer(100));
+			json_array_append_new(json_results, point);
+			measurement_results_release(result.results);
+		}
+		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
+			result = measure_serial(FLAGS.measured_apis[i],
+					SERIAL_JUST_FIND, size, 50);
+
+			json_t* point = json_object();
+			add_common_keys(point, "serial-findonly", size,
+					FLAGS.measured_apis[i], result);
+			json_object_set_new(point, "success_percentage",
+					json_integer(50));
+			json_array_append_new(json_results, point);
+			measurement_results_release(result.results);
+		}
+		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
+			result = measure_serial(FLAGS.measured_apis[i],
+					SERIAL_JUST_FIND, size, 0);
+
+			json_t* point = json_object();
+			add_common_keys(point, "serial-findonly", size,
+					FLAGS.measured_apis[i], result);
+			json_object_set_new(point, "success_percentage",
+					json_integer(0));
 			json_array_append_new(json_results, point);
 			measurement_results_release(result.results);
 		}

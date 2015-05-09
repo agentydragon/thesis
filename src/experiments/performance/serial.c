@@ -5,7 +5,7 @@
 #include "rand/rand.h"
 
 struct metrics measure_serial(const dict_api* api, serial_mode mode,
-		uint64_t size) {
+		uint64_t size, uint64_t success_percentage) {
 	measurement* measurement_both = measurement_begin();
 	measurement* measurement_just_insert = measurement_begin();
 	stopwatch watch = stopwatch_start();
@@ -23,7 +23,11 @@ struct metrics measure_serial(const dict_api* api, serial_mode mode,
 	for (uint64_t i = 0; i < size; i++) {
 		const int k = rand_next(&generator, size);
 		// Let every read be a hit.
-		check_contains(table, make_key(k), make_value(k));
+		if (rand_next(&generator, 100) < success_percentage) {
+			check_contains(table, make_key(k), make_value(k));
+		} else {
+			check_not_contains(table, make_key(k + size));
+		}
 	}
 
 	measurement_results *results_combined = measurement_end(measurement_both),
