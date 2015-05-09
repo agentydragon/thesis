@@ -74,11 +74,10 @@ $x, y\in\mathcal{U}$.
 For any universal family of hash functions, the expected time per operation
 is constant when using chaining.
 
-A family $\mathcal{H}$ is $t$-independent if the hashes of $t$ distinct keys
-$k_1,\ldots k_t$ are ``asymptotically independent'':
-$$\forall k_1\neq\ldots \neq k_t\in K,
-	h_1\ldots h_t\in H: \Pr_{h\in H}[h(k_1)=h_1\wedge \ldots \wedge
-	h(k_t)=h_t]=\O(m^{-t})$$
+A family $\mathcal{H}$ is $t$-independent if the hashes of any set of $t$
+distinct keys $k_1,\ldots k_t$ are ``asymptotically independent'':
+$$\forall h_1\ldots h_t\in H: \Pr_{h\in H}[h(k_1)=h_1\wedge \ldots \wedge
+	h(k_t)=h_t]=\O(m^{-t}).$$
 2-independent hash function families are universal, but universal families
 are not necessarily 2-independent.
 Trivially, random hash functions are $k$-wise independent for any
@@ -90,9 +89,9 @@ $k\leq|\mathcal{U}|$.
 Some common universal families of hash functions include:
 \begin{itemize}
 \item $h(k)=((a\cdot k)\bmod p)\bmod M$, where $p$ is a prime
-	$\geq|\mathcal{U}|$ and $a\in\{0,\ldots p-1\}$ \cite{univ-classes}.
-	The collision probability for this hash function is
-	$\frac{\lfloor p/M\rfloor}{p-1}$, so it becomes less efficient
+	greater than $|\mathcal{U}|$ and $a\in\{0,\ldots p-1\}$
+	\cite{univ-classes}. The collision probability for this hash function
+	is $\frac{\lfloor p/M\rfloor}{p-1}$, so it becomes less efficient
 	if $M$ is close to $p$.
 \item $(a\cdot k)\gg(\log u-\log m)$ for $M, |\mathcal{U}|$ powers of 2
 	\cite{dietzfelbinger}.
@@ -105,7 +104,7 @@ Some common universal families of hash functions include:
 	functions $h_1,\ldots h_c$ mapping from key components $x_i$ to $H$.
 	The hash of $x$ is computed by taking the bitwise XOR
 	of hashes of all components $x_i$:
-	$$h(x)=h_1(x_1)\oplus h_2(x_2)\oplus \ldots \oplus h_c(x_c)$$
+	$$h(x)=h_1(x_1)\oplus h_2(x_2)\oplus \ldots \oplus h_c(x_c).$$
 	Simple tabulation hashes take time $\O(c)$ to compute in the general RAM
 	model. Storing the $c$ individual hash functions needs space
 	$\O(c\cdot |\mathcal{U}|^{1/c})$.  % TODO: approx u^\epsilon
@@ -118,9 +117,9 @@ Some common universal families of hash functions include:
 
 While random hash functions combined with chaining give an expected $\O(1)$
 time per operation, with high probability (i.e.,  $P=1-N^{-c}$ for an arbitrary
-choice of $c$) there is at least one chain with at least $\O(\log N/\log\log N)$
+choice of $c$) there is at least one chain with $\Omega(\log N/\log\log N)$
 items. The high-probability worst-case bound on operation time also applies
-to hash functions with a high independence ($\O(\log N/\log\log N)$)
+to hash functions with a high independence ($\Omega(\log N/\log\log N)$)
 \cite{chernoff-hoeffding-bounds} and simple tabulation
 hashing \cite{power-of-simple-tab}.
 
