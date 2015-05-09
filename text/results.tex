@@ -13,10 +13,10 @@ gains.
 B-trees.
 
 \textsc{Insert} operations, however, are comparatively slow in
-smaller cache-oblivious B-trees (e.g.\ $\leq$ 100~000 keys). We believe
+smaller cache-oblivious B-trees (e.g.,\ $\leq$ 100~000 keys). We believe
 this slowdown is probably due to the cost of rebuilds, which properly
 amortizes away only on larger dictionaries. A~smarter choice of tuning
-constants (i.e.\ the minimum and maximum density and piece sizes) might
+constants (i.e.,\ the minimum and maximum density and piece sizes) might
 make updates of smaller dictionaries more efficient.
 
 \begin{figure}
@@ -242,7 +242,7 @@ the root.
 
 Additionally, we tried two algorithms for sampling query points on the globe.
 The first algorithm simply iterated through points on the latitude-longitude
-grid with whole number coordinates (i.e.\
+grid with whole number coordinates (i.e.,\
 $179.0\degree\,\text{W}\ 90.0\degree\,\text{N}$ through
 $180.0\degree\,\text{E}\ 90.0\degree\,\text{S}$).
 The second algorithm arbitrarily picked $64~800=180\cdot 360$ random query

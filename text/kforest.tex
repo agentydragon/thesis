@@ -99,9 +99,10 @@ complex: each node of the structure stores 21 pointers.
 to build a self-adjusting skip list. Operations on this skip list take time
 $\O(\log t(j))$, which matches the working set bound on splay trees.
 This structure is also shown to be dynamically optimal among skip lists
-constrained by some restrictions (e.g.\ allowing at most $b$ consecutive forward
-steps on any level for a fixed $b$), which implies that this restriction of
-skip lists does not allow better performance than $\O(\log t(j))$.
+constrained by some restrictions (e.g.,\ allowing at most $b$ consecutive
+forward steps on any level for a fixed $b$), which implies that this
+restriction of skip lists does not allow better performance than
+$\O(\log t(j))$.
 Skip lists in this \emph{SL-B model} can be simulated in B-trees via
 a construction from \cite{exploring-duality}. This representation yields
 a B-tree that is dynamically optimal within a restricted class in the external

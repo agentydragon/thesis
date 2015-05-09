@@ -56,7 +56,7 @@ When we split the root node, we immediately create a new root node above the
 two resulting nodes.
 
 Deletions employ a similar procedure: if the current node is underfull
-(i.e.\ if it has $< b$ keys), it is merged with one of its siblings.
+(i.e.,\ if it has $< b$ keys), it is merged with one of its siblings.
 If there are not enough keys among the siblings for two nodes,
 one of the siblings takes ownership of all keys and the other sibling
 is recursively deleted from the parent. In this case, the corresponding

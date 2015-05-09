@@ -271,7 +271,7 @@ of $x$ and $g$ the original grandparent of $x$ (if it exists).
 	$a_j=2+r'(x)+r'(p)+r'(g)-r(x)-r(p)-r(g)$. $r'(x)=r(g)$ and $r(x)\leq r(p)$,
 	so the time is $\leq 2+r'(p)+r'(g)-2r(x)$.
 	We claim that this is at most $2(r'(x)-r(x))$,
-	i.e.\ $2r'(x)-r'(p)-r'(g)\geq 2$. This can be proven
+	i.e.,\ $2r'(x)-r'(p)-r'(g)\geq 2$. This can be proven
 	similarly to case 2 from the inequality $s'(p)+s'(g)\leq s'(x)$.
 	Thus the $a_j \leq 2(r'(x)-r(x))\leq 3(r'(x)-r(x))$.
 \end{itemize}
@@ -444,6 +444,6 @@ addresses.\footnote{%
 }
 Unfortunately, splay trees are much slower than BSTs on less
 regular access patterns: splaying always performs costly memory writes.
-For some applications (e.g.\ real-time systems), worst-case $\Theta(N)$
+For some applications (e.g.,\ real-time systems), worst-case $\Theta(N)$
 performance is also unacceptable (especially if the splay tree stores data
 entered by an adversary).

@@ -11,12 +11,14 @@ Standard models of computation only measure the performance of algorithms
 in the number of CPU instructions executed and the number of memory cells used.
 These models aren't well suited for environments where different memory cells
 may have vastly different access speeds, for example depending on which caches
-currently hold the particular memory cell. The \emph{external memory model} is
-a simple extension of the RAM model that adds a \emph{block transfer} measure,
-which is the number of \emph{blocks} transferred between a fast cache and
-a slow \emph{external memory}. While this model was originally developed
-in the context of accessing data stored on hard disks, it is also useful
-for reasoning about data transfers between the CPU and main memory.
+currently hold the particular memory cell. The \emph{external memory model}
+is a simple extension of the RAM model that is better suited for analyzing
+algorithms in memory hierarchies. This model adds a \emph{block transfer}
+measure, which is the number of \emph{blocks} transferred between a fast cache
+and a slow \emph{external memory}.
+While the original motivation was developing fast algorithms for data stored on
+hard drives, the model can also be used to reason about boundaries between
+internal memory and caches.
 
 \emph{Cache-oblivious algorithms} are a class of external memory algorithms
 that perform equally well given any cache size and block size. Thanks to this
@@ -29,9 +31,9 @@ detail in chapter~\ref{chapter:models}.
 
 This thesis explores the performance implications of memory hierarchies
 on data structures implementing dictionaries or sorted dictionaries.
-Especially unsorted dictionaries are very common in practice, as illustrated
-by modern programming languages, which commonly have a dedicated built-in
-data type for unsorted dictionaries (e.g.\ \texttt{std::unordered\_map} in
+Especially unsorted dictionaries are very useful in practice, as illustrated
+by modern programming languages, which frequently reserve a built-in
+data type for unsorted dictionaries (e.g.,\ \texttt{std::unordered\_map} in
 \Cpp, \texttt{dict} in Python, or hashes in Perl).
 
 Dictionaries maintain a set of $N$ key-value pairs with distinct keys.
@@ -46,9 +48,11 @@ Given a key $k$, which may or may not be present in the dictionary,
 key present in the dictionary.
 
 We implemented and benchmarked several common and uncommon data structures
-for sorted and unsorted dictionaries. A high-level description of our
-implementation and benchmarks is presented in chapter
-\ref{chapter:implementation}. The results are discussed in
+for sorted and unsorted dictionaries. Our choice of data structures was
+intended to sample simple dictionaries for RAM, cache-friendly dictionaries
+for external memory and self-adjusting structures.
+A high-level description of our implementation and benchmarks is presented
+in chapter \ref{chapter:implementation}. The results are discussed in
 chapter \ref{chapter:results}.
 
 The most common data structure implementing an unsorted dictionary is a~hash
@@ -57,28 +61,30 @@ Most hash tables have expected $\O(1)$ time for all operations, which
 makes them quite practical. On the other hand, there is no simple way to
 implement sorted dictionaries efficiently via hash tables.
 
-Ordered dictionaries are usually maintained in search trees. Common variants
-of search trees include AVL trees, red-black trees, B-trees or splay trees.
-AVL trees, red-black trees and B-trees are \emph{balanced} -- a design
-invariant maintains their height low, which makes operations cost $\O(h)$, where
-$h$ is the height of the tree. AVL trees and red-black trees are binary,
-so $h=\O(\log N)$. B-trees store $\Theta(b)$ keys per node, where $b\geq 2$,
-and they maintain all leaves at the same depth, so operations on B-trees touch
-$\O(\log_b N)$ nodes.
+Ordered dictionaries are usually maintained in search trees.
+AVL trees, red-black trees and B-trees are examples of \emph{balanced search
+trees}: a design invariant maintains their height low. The speeds
+of \textsc{Find}, \textsc{Insert} and \textsc{Delete} mostly depend
+on the number of nodes touched by the operations, which is $\Theta(h)$, where
+$h$ is the height of the tree. AVL trees and red-black trees are binary, so
+$h=\Theta(\log N)$. B-trees store $\Theta(b)$ keys per node, where $b\geq 2$,
+and they maintain all leaves at the same depth, so operations on B-trees
+touch $\Theta(\log_b N)$ nodes.
 
-Splay trees are binary search trees with a self-adjusting rule.
-The structure of a splay tree depends not only on the sequence of
+Splay trees are binary search trees with a self-adjusting rule, but splay
+trees are not balanced, as this rule does not guarantee a small height in all
+cases. The structure of a splay tree depends not only on the sequence of
 \textsc{Insert}s and \textsc{Delete}s, but also on executed \textsc{Find}s.
 The self-adjusting rule (\emph{splaying}) puts recently accessed nodes
 near the root, so \textsc{Find}s on frequently or recently accessed keys
 are faster than in balanced trees. On the other hand, splaying can put
-the splay tree in a~degenerate state, in which accessing an unlucky node can
-cost up to $\O(N)$ node reads. Fortunately, the amortized number of node
+the splay tree in a~degenerate state, in which accessing an unlucky node
+touches $\Theta(N)$ nodes. Fortunately, the amortized number of node
 reads per \textsc{Find} turns out to be $\O(\log N)$.
 
 Splay trees are good at storing nonuniformly accessed dictionaries, but
 the expected number of nodes read to \textsc{Find} a key is generally a factor
-of $\O(\log b)$ higher than in B-trees. We briefly introduce two
+of $\Theta(\log b)$ higher than in B-trees. We briefly introduce two
 self-adjusting data structures designed for both exploiting non-uniform
 access patterns and to perform less I/O: \emph{$k$-splay trees} in chapter
 \ref{chapter:ksplay} and \emph{$k$-forests} in chapter \ref{chapter:kforest}.

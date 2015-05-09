@@ -15,7 +15,7 @@ search sequence with cache-friendly node sizes.
 
 Similarly to B-trees, nodes in $k$-ary splay trees store up to $k-1$ key-value
 pairs and $k$ child pointers. All nodes except the root are \emph{complete}
-(i.e.\ they contain exactly $k-1$ pairs).
+(i.e.,\ they contain exactly $k-1$ pairs).
 
 \mbox{B-tree} operations take $\Theta(\log_b N)$ node accesses. It can be
 proven that \mbox{$k$-splay} tree operations need at most $\O(\log N)$
@@ -75,7 +75,7 @@ Non-terminal $k$-splay steps examine the bottom $k+1$ nodes in the search
 path to the current star node. Denote the nodes $p_0,\ldots p_{k}$, where $p_i$
 is the parent of $p_{i+1}$ and $p_k$ is the current star node. A~non-terminal
 step traverses these nodes in DFS order and collects \emph{external children}
-(i.e.\ children that are not present in $\{p_0,\ldots p_k\}$) and all key-value
+(i.e.,\ children that are not present in $\{p_0,\ldots p_k\}$) and all key-value
 pairs of $p_0,\ldots p_k$ in sorted order. These children and key-value pairs
 are \emph{fused} into a~``virtual node'' with $(k+1)\cdot (k-1)$ keys and
 $(k+1)\cdot(k-1) + 1$ children. Finally, this ``virtual node'' is broken down
