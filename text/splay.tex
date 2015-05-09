@@ -182,7 +182,7 @@ Up to left-right symmetry, there are three cases of splaying steps:
 \end{tikzpicture}
 
 \caption{The cases of splay steps.}
-%\label{fig:splay-step}
+\label{fig:splay-step}
 \end{figure}
 
 % Splaying reduces the depth of every node along the access path by roughly
@@ -241,6 +241,9 @@ and just after the step, respectively. We show that the amortized time
 $a_j$ for the step is at most $3(r'(x)-r(x))+1$ in case 1
 and at most $3(r'(x)-r(x))$ in case 2 or case 3. Let $p$ be the original parent
 of $x$ and $g$ the original grandparent of $x$ (if it exists).
+
+The upper bound on $a_j$ is proved by examining the structural changes made
+by each case of a splay step, as shown on Figure \ref{fig:splay-step}.
 
 \begin{itemize}
 \item[Case 1 (\emph{zig}):]
@@ -442,8 +445,8 @@ addresses.\footnote{%
 	at SVN revision 271244); available at
 	\url{https://svnweb.freebsd.org/base/head/sys/vm/vm\_map.h?view=markup}.
 }
-Unfortunately, splay trees are much slower than BSTs on less
-regular access patterns: splaying always performs costly memory writes.
+Unfortunately, splay trees are much slower than BSTs on more random
+access patterns: splaying always performs costly memory writes.
 For some applications (e.g.,\ real-time systems), worst-case $\Theta(N)$
 performance is also unacceptable (especially if the splay tree stores data
 entered by an adversary).
