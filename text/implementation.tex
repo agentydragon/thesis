@@ -232,7 +232,9 @@ tracked certain hardware events of interest using the \texttt{perf\_events} API
 of the Linux kernel. This API is a~generic wrapper around platform-specific
 performance counters. Events such as cache misses or branch mispredictions
 increment these counters.
-
+Details about performance monitoring on Intel CPUs can be found in
+chapters 18 and 19 of the Intel 64 and IA-32 Architectures Software
+Developer’s Manual\cite{intel-manual}.
 % TODO: track RAM
 % TODO: cite perf
 
@@ -257,7 +259,7 @@ The synthetic setups include:
 	After the pairs are inserted, they are read in an order determined
 	by a~simple pseudorandom generator with a fixed seed.
 
-	On this experiment, we separately measure the performance of deletions
+	On this experiment, we separately measure the performance of insertions
 	and finds.
 
 \item
