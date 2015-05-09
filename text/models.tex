@@ -68,15 +68,15 @@ year) \cite{Ailamaki:2004:DAN:1316689.1316801}.
 A fast CPU needs to wait several hundred cycles to access main memory.
 For example, Intel Core i7 and Xeon 5500 processors with clocking frequencies
 in GHz need approximately 100~ns for a~memory access
-access\cite{perf-analysis-guide}.
+access \cite{perf-analysis-guide}.
 To alleviate the costs of memory transfers, several levels of static memory
 caches are inserted between the CPU and the main memory. The caches are
 progressively smaller and faster the closer they are to the CPU. The difference
 between speeds of memory levels reaches several orders of magnitude.
 
 Larger and slower memories are also faster when accessing data physically
-close to recently accessed data. The hard disk is the most apparent example
-of this behavior -- reading a~byte close after the current position of the drive
+close to recently accessed places. The hard disk is the most apparent example
+of this behavior -- reading a~byte at the current position of the drive
 head takes very little time compared to reading a~random position, which incurs
 a slow disk seek. % TODO: times
 Similarly, modern CPUs contain a~prefetcher, which tries to speculatively

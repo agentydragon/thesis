@@ -1,10 +1,10 @@
 \chapter{Hash tables}
 \label{chapter:hashing}
-When implementing an unordered dictionary, hashing is the most common tool
+When implementing an unordered dictionary, hashing is the most common tool.
 \footnote{Indeed, one of the many established meanings of the word ``hash''
 	is ``unordered dictionary''.}
 Hashing is a very old idea and the approaches to hashing are numerous. Hashing
-techniques usually allow amortized constant-time \textsc{Find}, \textsc{Insert}
+techniques usually allow expected constant-time \textsc{Find}, \textsc{Insert}
 and \textsc{Delete} at the expense of disallowing \textsc{FindNext} and
 \textsc{FindPrevious}. Certain schemes provide stronger than expected-time
 bounds, like deterministic constant time for \textsc{Find}s in cuckoo hashing
