@@ -326,9 +326,7 @@ def plot_cob_performance():
   pyplot.clf()
 
 def plot_self_adjusting_performance():
-  def plot_self_adj(**kwargs):
-    pyplot.figure(1, figsize=(10,10))
-    data = load_data(**kwargs)
+  def plot_self_adj(data):
     new_figure()
     for api, color, label in [
         ('dict_splay', 'r-', 'Splay tree'),
@@ -346,33 +344,34 @@ def plot_self_adjusting_performance():
     pyplot.ylabel('Time per operation [ns]')
     pyplot.grid(True)
 
-  plot_self_adj(experiment='serial-findonly', success_percentage=100)
+  plot_self_adj(load_data(experiment='serial-findonly', success_percentage=100))
   save_to('export/self-adj-random-find-100.png')
   pyplot.clf()
 
-  plot_self_adj(experiment='serial-findonly', success_percentage=50)
+  plot_self_adj(load_data(experiment='serial-findonly', success_percentage=50))
   save_to('export/self-adj-random-find-50.png')
   pyplot.clf()
 
-  plot_self_adj(experiment='serial-findonly', success_percentage=0)
+  plot_self_adj(load_data(experiment='serial-findonly', success_percentage=0))
   save_to('export/self-adj-random-find-0.png')
   pyplot.clf()
 
-  plot_self_adj(experiment='serial-insertonly')
+  plot_self_adj(load_data(experiment='serial-insertonly'))
   save_to('export/self-adj-random-insert.png')
   pyplot.clf()
 
-  plot_self_adj(experiment='workingset', working_set_size=1000)
+  plot_self_adj(load_data(experiment='workingset', working_set_size=1000))
   save_to('export/self-adj-ws-1k.png')
   pyplot.clf()
 
-  plot_self_adj(experiment='workingset', working_set_size=100000)
+  working_set_size = 100000
+  data = load_data(experiment='workingset', working_set_size=working_set_size)
+  plot_self_adj([point for point in data if point['size'] >= working_set_size])
   save_to('export/self-adj-ws-100k.png')
   pyplot.clf()
 
 def plot_hashing_performance():
-  def hashing_figure(**kwargs):
-    data = load_data(**kwargs)
+  def hashing_figure(data):
     data = [point for point in data
             if point['implementation'] in ['dict_htlp', 'dict_htcuckoo', 'dict_btree']]
     pyplot.figure(1, figsize=EXPORT_FIGSIZE)
@@ -393,17 +392,11 @@ def plot_hashing_performance():
               linestyle='dashed')
     pyplot.legend(loc='upper left')
 
-  hashing_figure(experiment='serial-findonly', success_percentage=100)
-  save_to('export/hashing-1-100.png')
-  pyplot.clf()
-
-  hashing_figure(experiment='serial-findonly', success_percentage=50)
-  save_to('export/hashing-1-50.png')
-  pyplot.clf()
-
-  hashing_figure(experiment='serial-findonly', success_percentage=0)
-  save_to('export/hashing-1-0.png')
-  pyplot.clf()
+  for success_rate in [100, 50, 0]:
+    hashing_figure(load_data(experiment='serial-findonly',
+                             success_percentage=success_rate))
+    save_to('export/hashing-1-%d.png' % success_rate)
+    pyplot.clf()
 
   # Random INSERTs -- linear probing vs. cuckoo hashing vs. B-tree for reference
   # (Derived.)
@@ -426,11 +419,13 @@ def plot_hashing_performance():
   save_to('export/hashing-2.png')
   pyplot.clf()
 
-  hashing_figure(experiment='workingset', working_set_size=1000)
+  hashing_figure(load_data(experiment='workingset', working_set_size=1000))
   save_to('export/hashing-3.png')
   pyplot.clf()
 
-  hashing_figure(experiment='workingset', working_set_size=100000)
+  working_set_size = 100000
+  data = load_data(experiment='workingset', working_set_size=working_set_size)
+  hashing_figure([point for point in data if point['size'] >= working_set_size])
   save_to('export/hashing-4.png')
   pyplot.clf()
 
