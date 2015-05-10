@@ -218,11 +218,11 @@ and \textsc{Insert} must ensure that \textsc{Find} will know when to abort
 the search.
 
 To illustrate this point, consider linear hashing with $h(A)=h(C)=1$ and
-$h(B)=2$. After inserting $A$ and $B$, slots 1 and 2 are occupied.
+$h(B)=2$. After inserting keys $A$ and $B$, slots 1 and 2 are occupied.
 Inserting $C$ will skip slots 1 and 2, and $C$ will be inserted into slot 3.
-When we try to look for $C$ later, we need to know that there are exactly 2 keys
-that hash to 1, so we won't abort the search prematurely after only seeing
-$A$ and $B$.
+When we try to look for the key $C$ later, we need to know that there are
+exactly 2 keys that hash to 1 (namely, $A$ and $C$), so we won't abort
+the search prematurely after only seeing $A$ and $B$.
 
 The ends of collision chains can be marked for example by explicitly maintaining
 the lengths of collision chains in an array, or by marking the ends of chains
