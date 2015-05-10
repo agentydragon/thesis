@@ -7,7 +7,6 @@
 #include "dict/array.h"
 #include "dict/btree.h"
 #include "dict/cobt.h"
-#include "dict/htable.h"
 #include "dict/htcuckoo.h"
 #include "dict/htlp.h"
 #include "dict/kforest.h"
@@ -16,7 +15,7 @@
 
 const dict_api* DICT_API_REGISTER[] = {
 	&dict_array, &dict_btree, &dict_cobt,
-	&dict_htlp, &dict_htable, &dict_htcuckoo,
+	&dict_htlp, &dict_htcuckoo,
 	&dict_kforest, &dict_ksplay, &dict_splay, NULL
 };
 

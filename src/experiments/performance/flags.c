@@ -13,7 +13,6 @@
 #include "dict/btree.h"
 #include "dict/cobt.h"
 #include "dict/dict.h"
-#include "dict/htable.h"
 #include "dict/htcuckoo.h"
 #include "dict/htlp.h"
 #include "dict/kforest.h"
@@ -49,7 +48,6 @@ static int parse_option(int key, char *arg, struct argp_state *state) {
 static dict_api const * const DEFAULT_APIS[] = {
 	&dict_btree,
 	&dict_cobt,
-	&dict_htable,
 	&dict_htcuckoo,
 	&dict_htlp,
 	&dict_kforest,

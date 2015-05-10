@@ -7,7 +7,7 @@ SOURCES= \
 	cobt/*.c \
 	dict/*.c \
 	dict/test/*.c \
-	htable/*.c htable/test/*.c \
+	htable/*.c \
 	kforest/*.c \
 	ksplay/*.c \
 	log/*.c \

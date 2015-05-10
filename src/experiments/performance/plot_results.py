@@ -500,13 +500,13 @@ def main():
   save_to('cobt-cache.png')
   pyplot.clf()
 
-  plot_cache_events(implementation='dict_htable', experiment='serial-findonly',
-                    success_percentage=100)
-  save_to('htable-cache-findonly.png')
-  pyplot.clf()
+  #plot_cache_events(implementation='dict_htable', experiment='serial-findonly',
+  #                  success_percentage=100)
+  #save_to('htable-cache-findonly.png')
+  #pyplot.clf()
 
-  plot_cache_events(implementation='dict_htable', experiment='serial-both')
-  save_to('htable-cache-both.png')
-  pyplot.clf()
+  #plot_cache_events(implementation='dict_htable', experiment='serial-both')
+  #save_to('htable-cache-both.png')
+  #pyplot.clf()
 
 main()
