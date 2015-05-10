@@ -1,6 +1,8 @@
 \chapter{B-trees}
 \label{chapter:btree}
 The B-tree is a very common data structure for storing sorted dictionaries.
+They were introduced in 1970 as a method of efficiently maintaining ordered
+indexes \cite{btree}.
 B-trees are particularly useful where the external memory model is accurate,
 because all information in every transferred block is actively used
 in searching. For example, the ext4, Btrfs and NTFS filesystems use B-trees
@@ -13,7 +15,6 @@ commonly used to maintain in-memory dictionaries, for example in the GNU ISO
 B-trees are also an optimal sorted dictionary data structure
 for the external memory model assuming the only operation allowed on
 keys is comparison.
-B-trees were introduced in 1970 by \cite{btree}.
 
 B-trees are a generalization of balanced binary search trees.
 Nodes of a B-tree keep up to $2b$ key-value pairs in sorted order.

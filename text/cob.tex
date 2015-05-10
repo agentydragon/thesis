@@ -671,8 +671,8 @@ child{node [veb] {25}
 To \textsc{Find} a key in the cache-oblivious B-tree, we walk down the
 bootstrapping structure in $\Theta(\log_B (N/\log N))=\Theta(\log_B N)$
 to find the piece that may contain the key, and scan it in
-$\Theta(\frac{\log N}{B})$, so we still need only $\Theta(\log_B N)$
-block transfers for \textsc{Find}s.
+$\Theta(P/B)=\Theta(\log N/B)$ transfers, so we still need only
+$\Theta(\log_B N)$ block transfers for \textsc{Find}s.
 \textsc{FindNext} and \textsc{FindPrevious} work similarly.
 
 \textsc{Insert}s and \textsc{Delete}s first find the appropriate piece
