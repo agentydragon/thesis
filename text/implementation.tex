@@ -28,7 +28,7 @@ the data structures, because a~range of compiler optimizations would
 be impossible in code assuming general lengths. For example, copying
 keys and values would need to be a~general loop or
 \texttt{memcpy}/\texttt{memmove} call, while assuming a~constant key/value
-size of 64 bits lets us copy in one CPU instruction. Using the \Cpp language,
+size of 64 bits lets us copy in one CPU instruction. Using the \Cpp{} language,
 we could potentially use templates to make our data structures both general
 and optimized. If we are willing to sacrifice some code style, we could
 make the C code behave similarly by moving the implementation into a~header
