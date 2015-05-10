@@ -22,8 +22,9 @@ make updates of smaller dictionaries more efficient.
 \begin{figure}
 \centering
 \begin{subfigure}[t]{0.45\textwidth}
-	\includegraphics[width=\textwidth]{img/performance/cob-performance-1}
-	\caption{Random successful \textsc{Find}s}
+	\includegraphics[width=\textwidth]{img/performance/cob-performance-1-100}
+	\caption{Random successful \textsc{Find}s (graphs for other success
+		are very similar)}
 \end{subfigure}
 ~
 \begin{subfigure}[t]{0.45\textwidth}
@@ -61,11 +62,21 @@ outperfrom. As expected, splay trees are somewhat slower than B-trees on
 unpredictable operations (see Figure \ref{fig:self-adj-performance}).
 
 \begin{figure}
-\begin{subfigure}[b]{0.45\textwidth}
-	\includegraphics[width=\textwidth]{img/performance/self-adj-random-find}
-	\caption{Random successful \textsc{Find}s}
+\begin{subfigure}[b]{0.31\textwidth}
+	\includegraphics[width=\textwidth]{img/performance/self-adj-random-find-100}
+	\caption{Random \textsc{Find}s (100\% success rate)}
 \end{subfigure}
 ~
+\begin{subfigure}[b]{0.31\textwidth}
+	\includegraphics[width=\textwidth]{img/performance/self-adj-random-find-50}
+	\caption{Random \textsc{Find}s (50\% success rate)}
+\end{subfigure}
+~
+\begin{subfigure}[b]{0.31\textwidth}
+	\includegraphics[width=\textwidth]{img/performance/self-adj-random-find-0}
+	\caption{Random \textsc{Find}s (0\% success rate)}
+\end{subfigure}
+\\
 \begin{subfigure}[b]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/self-adj-random-insert}
 	\caption{Random \textsc{Insert}s}
@@ -133,11 +144,21 @@ One possible reason might be the limited independence guaranteed by simple
 tabulation hashing.
 
 \begin{figure}
-\begin{subfigure}[t]{0.45\textwidth}
-	\includegraphics[width=\textwidth]{img/performance/hashing-1}
-	\caption{Random successful \textsc{Find}s}
+\begin{subfigure}[t]{0.31\textwidth}
+	\includegraphics[width=\textwidth]{img/performance/hashing-1-100}
+	\caption{Random \textsc{Find}s (100\% success rate)}
 \end{subfigure}
 ~
+\begin{subfigure}[t]{0.31\textwidth}
+	\includegraphics[width=\textwidth]{img/performance/hashing-1-50}
+	\caption{Random \textsc{Find}s (50\% success rate)}
+\end{subfigure}
+~
+\begin{subfigure}[t]{0.31\textwidth}
+	\includegraphics[width=\textwidth]{img/performance/hashing-1-0}
+	\caption{Random \textsc{Find}s (0\% success rate)}
+\end{subfigure}
+\\
 \begin{subfigure}[t]{0.45\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/hashing-2}
 	\caption{Random \textsc{Insert}s}
