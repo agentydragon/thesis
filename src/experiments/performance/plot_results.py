@@ -244,10 +244,12 @@ def plot_cob_find_speed_figures():
                                            'dict_htlp']]
     find_speed_fig_internal(data)
 
-  pyplot.figure(1, figsize=EXPORT_FIGSIZE)
-  find_speed_fig(experiment='serial-findonly', success_percentage=100)
-  save_to('export/cob-performance-1.png')
-  pyplot.clf()
+  for success_rate in [100, 50, 0]:
+    pyplot.figure(1, figsize=EXPORT_FIGSIZE)
+    find_speed_fig(experiment='serial-findonly',
+                   success_percentage=success_rate)
+    save_to('export/cob-performance-1-%d.png' % success_rate)
+    pyplot.clf()
 
   pyplot.figure(1, figsize=EXPORT_FIGSIZE)
   find_speed_fig(experiment='workingset', working_set_size=1000)
