@@ -163,10 +163,11 @@ for which trees of height $h_i$ fit into a~cache block, but trees of the next
 larger height $h_{i-1}$ do not. In other words, $2^{h_i}-1 < B$ and
 $2^{h_i-1}-1\geq B$, from which $h_i=\Theta(\log B)$ follows.
 
-Root-to-leaf paths contain $\Theta(\log N)$ nodes, and these nodes span
-$\Theta(\frac{\log N}{h_i})$ trees of height $h_i$. Since each such tree can be
-read using one block transfer, we need $\Theta(\frac{\log N}{h_i})=\Theta(\log_B
-N)$ block transfers to traverse any root-to-leaf path.
+Root-to-leaf paths contain $\Theta(\log N)$ nodes, and these nodes
+span~$\Theta(\frac{\log N}{h_i})$~trees of height $h_i$. Since each such tree
+can be read using one block transfer, we need
+$\Theta(\frac{\log N}{h_i})=\Theta(\log_B N)$ block transfers to traverse any
+root-to-leaf path.
 
 If $h$ is not a~power of two, recursively generated top and bottom trees may no
 longer have heights that are powers of two. However, note that if we again

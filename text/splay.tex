@@ -206,12 +206,15 @@ so it must have no right child after splaying below $x$. We delete $x$ and link
 its right subtree below $x^-$.
 
 \section{Time complexity bounds}
+In this section, we follow the analysis of splay tree performance from
+\cite{splay}.
+
 For the purposes of analysis, we assign a~fixed positive weight $w(K_i)$
 to every key~$K_i$. Setting $w(K_i)$ to $1/N$ allows us to prove that
 the amortized complexity of the splay operation is $\O(\log N)$, which implies
 that splay tree \textsc{Find}s and updates also take amortized logarithmic time.
-Proofs of further complexity results will use the same similar analysis with
-other assignments of $w$.
+Proofs of further complexity results will use a similar analysis with
+other choices of the key-weight assignment function~$w$.
 
 Let us denote the subtree rooted at a node $x$ as $T[x]$
 and the key stored in $x$ as $T(x)$. Define the size $s(x)$ of a node $x$ as
@@ -236,7 +239,7 @@ is at most $3(r(t)-r(x))+1 = \O(\log(s(t)/s(x)))$.
 If $x=t$, we need no rotations and the cost of splaying is 1.
 Assume that  $x\neq t$, so at least one rotation is needed.
 Consider the $j$-th splaying step.
-Let $s$ and $s'$, $r$ and $r'$ denote the size and rank functions just before
+Let~$s$~and~$s'$, $r$~and~$r'$ denote the size and rank functions just before
 and just after the step, respectively. We show that the amortized time
 $a_j$ for the step is at most $3(r'(x)-r(x))+1$ in case 1
 and at most $3(r'(x)-r(x))$ in case 2 or case 3. Let $p$ be the original parent
@@ -272,11 +275,11 @@ by each case of a splay step, as shown on Figure \ref{fig:splay-step}.
 \item[Case 3 (\emph{zig-zag}):]
 	The amortized time of the zig-zag step is
 	$a_j=2+r'(x)+r'(p)+r'(g)-r(x)-r(p)-r(g)$. $r'(x)=r(g)$ and $r(x)\leq r(p)$,
-	so the time is $\leq 2+r'(p)+r'(g)-2r(x)$.
+	so $a_j\leq 2+r'(p)+r'(g)-2r(x)$.
 	We claim that this is at most $2(r'(x)-r(x))$,
 	i.e.,\ $2r'(x)-r'(p)-r'(g)\geq 2$. This can be proven
 	similarly to case 2 from the inequality $s'(p)+s'(g)\leq s'(x)$.
-	Thus the $a_j \leq 2(r'(x)-r(x))\leq 3(r'(x)-r(x))$.
+	Thus we have $a_j \leq 2(r'(x)-r(x))\leq 3(r'(x)-r(x))$.
 \end{description}
 
 Telescoping $\sum a_j$ along the splayed path yields an upper bound of

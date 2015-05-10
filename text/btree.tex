@@ -20,8 +20,8 @@ B-trees are a generalization of balanced binary search trees.
 Nodes of a B-tree keep up to $2b$ key-value pairs in sorted order.
 An inner node of a binary search tree with key $X$ contains two pointers
 pointing to children with keys $< X$ and $\geq X$. In B-trees,
-inner nodes contain $k\in[b;2b]$ keys $K_1\ldots K_k$. There are $k+1$
-child pointers in internal nodes: one for every interval
+inner nodes contain $k\in[b;2b]$ keys $K_1\ldots K_k$. There are $k+1$~child
+pointers in internal nodes: one for every interval
 $[K_1;K_2),\ldots [K_{k-1};K_k)$, plus one for $(-\infty;K_1)$ and
 $(K_k;\infty)$ each.
 Leaf nodes of a B-tree store $[b;2b]$ key-value pairs.
@@ -41,7 +41,7 @@ Similarly, when we delete the $b$-th key, we first try to borrow some nodes
 from neighbours to create two valid nodes of size $[b;2b]$, which works when
 there are at least $2b$ keys in both nodes combined.
 When there are $2b-1$ keys, we instead bring down one key from the parent
-and combine the two neighbours with the borrowed key into a new valid node with
+and combine the two neighbours with the borrowed key into a~new valid node with
 $b+(b-1)+1=2b$ keys.
 
 In binary search trees, searching for a key $K$ is performed by binary search.
@@ -59,7 +59,7 @@ Once we reach a leaf, we scan its keys and return the value for $K$
 
 To \textsc{Insert} a key-value pair in a B-tree, we first find the right
 place to put the new key-value pair, and then walk back up the tree.
-If an overfull node (with $> 2b$ keys) is encountered, it is split
+If an overfull node (with more than $2b$ keys) is encountered, it is split
 to two nodes of $\leq b$ keys. One of the keys from the split node
 is inserted to the parent along with a pointer to the new node.
 When we split the root node, we immediately create a new root node above the
@@ -99,7 +99,7 @@ time $\Theta(b \cdot \log_b N)$.
 
 The main benefit of B-trees over binary trees is the tunable parameter
 $b$, which we can choose to be $\Theta(B)$. Practically, if the B-tree
-is stored in a disk, $b$ can be tuned to fit one B-tree node in exactly one
+is stored in a disk, $b$~can be tuned to fit one B-tree node in exactly one
 physical block. Thus, in the external memory model, \textsc{Find},
 \textsc{Insert} and \textsc{Delete} all take $\O(1)$ block transfers
 on every level, yielding $\Theta(\log_B N)$ block transfers per operation.

@@ -7,11 +7,11 @@ transfers. B-trees improve this by a~factor of $\log B$ by storing more keys
 per node.
 
 Self-adjusting $k$-ary search trees (or \emph{$k$-splay trees}) developed
-by \cite{ksplay-sherk} use a~heuristic named \emph{$k$-splaying}
-to dynamically adjust the structure of a~$k$-ary search tree according to
-the query sequence. We have decided to implement and benchmark this data
-structure because of the potential to combine self-adjustment for a~specific
-search sequence with cache-friendly node sizes.
+by \cite{ksplay-sherk} use a~heuristic called \emph{$k$-splaying}
+to dynamically adjust their structure according to the query sequence.
+We decided to implement and benchmark this data structure because of
+the potential to combine self-adjustment for a~specific search sequence with
+cache-friendly node sizes.
 
 Similarly to B-trees, nodes in $k$-ary splay trees store up to $k-1$ key-value
 pairs and $k$ child pointers. All nodes except the root are \emph{complete}
@@ -144,7 +144,7 @@ of the same procedure. We look up the node to update and we insert or
 delete the key within the node. Then, we $k$-splay the node, while allowing
 the star node to be temporarily overfull or underfull. After $k$-splaying
 the updated node, the root becomes the star node. If it has only one
-child, we merge it with the root, and if the root has more than $k$ children,
+child, we merge it with the root, and if the root has more than~$k$~children,
 we split it.
 
 By performing an analysis similar to splay trees, \cite{ksplay-sherk}
