@@ -209,7 +209,7 @@ to right.
 
 \begin{algorithmic}
 \Function {GetChildren} {$n$: node van Emde Boas ID, $h$: tree height}
-	\If {$h = 1$ and $n = 0$} \Return{external (0,1)} \EndIf
+	\State \algorithmicif\ {$h = 1$ and $n = 0$}\ \algorithmicthen\ \Return{external (0,1)}
 
 	\State {$h_\downarrow \gets \lhfloor h-1 \rhfloor$} \Comment{Calculate
 top and bottom heights}
@@ -287,9 +287,13 @@ for the 5-level van Emde Boas layout shown from Figure \ref{fig:veb_layout_5}.
 	\label{tab:depth_data_example}
 \end{table}
 
+% TODO: Why is this needed? Spacing?
+%\def\Pos{\mathit{Pos}}
+\def\Pos{\hbox{\it Pos}}
+
 While traversing a root-to-leaf path, we shall maintain the depth
 $d$ of the current node $X$, the index $i$ of the current node in BFS order
-and an array $P[j]$ of van Emde Boas order indices of nodes passed in every
+and an array $\Pos[j]$ of van Emde Boas order indices of nodes passed in every
 depth $j<d$ during this traversal.
 
 As the bits of the BFS index $i$ correspond to left and right turns made during
@@ -300,14 +304,15 @@ $i \And T[d]$.
 
 Because the current node $X$ is the root of the $(i \And T[d])$-th
 bottom tree of size $B[d]$ after a top tree of size $T[d]$ rooted in
-$P[D[d]]$, it follows that the van~Emde~Boas index of the current node can be
+$\Pos[D[d]]$, it follows that the van~Emde~Boas index of the current node can be
 calculated in $\O(1)$ time as:
-$$P[d]=P[D[d]] + T[d] + (i \And T[d]) \cdot B[d]$$
+$$\Pos[d]=\Pos[D[d]] + T[d] + (i \And T[d]) \cdot B[d]$$
 
-Our root-to-leaf traversal starts by setting $i\gets 0, d\gets 0, P[0]=0$.
+Our root-to-leaf traversal starts by setting $i\gets 0, d\gets 0,
+\Pos[0]\gets 0$.
 Navigation to the left or right child of the current node is performed
 by updating the BFS index $i$ (setting it to $2i+1$ or $2i+2$ respectively),
-incrementing the depth $d$ and calculating the new $P[d]$.
+incrementing the depth $d$ and calculating the new $\Pos[d]$.
 We can also return one level higher by reversing the update of $i$ and
 decrementing $d$.
 
@@ -315,9 +320,9 @@ In our root-to-leaf traversals, reading the value of a non-leaf node $N$ will be
 followed by reading the value of its right child $R$. Based on the value in
 $R$, we will then either descend further below $R$, or we will descent into
 the subtree below $N$'s left child $L$.
-We can slightly optimize this access pattern by calculating $P[d]$ for $L$
-from $P[d]$ for $R$ by simply subtracting $T[d]$, because $B[d]$ will
-decrease by 1. This saves us one relatively expensive multiplication
+We can slightly optimize this access pattern by calculating $\Pos[d]$
+for $L$ from $\Pos[d]$ for $R$ by simply subtracting $T[d]$, because
+$B[d]$ will decrease by 1. This saves us one relatively expensive multiplication
 instruction whenever moving to the left sibling.
 
 \begin{figure}
@@ -354,7 +359,7 @@ The \emph{packed memory array} is a~data structure that maintains an ordered
 file. Updates (\textsc{Insert}s and \textsc{Delete}s) of a~packed memory array
 rewrite a~contiguous range of amortized size $\Theta(\log^2 N)$.
 Thanks to the range being contiguous, updates will incur
-$\Theta(\frac{\log^2 N}{B})$ amortized block transfers.
+$\Theta(\log^2 N / B)$ amortized block transfers.
 
 The array is divided into logical \emph{leaf blocks} of constant size
 $\O(\log N)$. A~\emph{virtual full binary tree} is built above those leaf
