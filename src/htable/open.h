@@ -27,8 +27,8 @@ typedef struct {
 
 void htlp_init(htlp* this, rand_generator rand);
 void htlp_destroy(htlp* this);
-int8_t htlp_delete(htlp* this, uint64_t key);
+bool htlp_delete(htlp* this, uint64_t key);
 bool htlp_find(htlp* this, uint64_t key, uint64_t *value);
-int8_t htlp_insert(htlp* this, uint64_t key, uint64_t value);
+bool htlp_insert(htlp* this, uint64_t key, uint64_t value);
 
 #endif

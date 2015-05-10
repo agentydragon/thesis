@@ -84,8 +84,8 @@ typedef struct {
 	void (*destroy)(void**);
 
 	bool (*find)(void*, uint64_t key, uint64_t *value);
-	int8_t (*insert)(void*, uint64_t key, uint64_t value);
-	int8_t (*delete)(void*, uint64_t key);
+	bool (*insert)(void*, uint64_t key, uint64_t value);
+	bool (*delete)(void*, uint64_t key);
 
 	const char* name;
 
@@ -102,9 +102,22 @@ on general dictionaries declared in \texttt{dict/dict.h}:
 
 \begin{lstlisting}[language=C]
 bool dict_find(dict*, uint64_t key, uint64_t *value);
-int8_t dict_insert(dict*, uint64_t key, uint64_t value);
-int8_t dict_delete(dict*, uint64_t key);
+bool dict_insert(dict*, uint64_t key, uint64_t value);
+bool dict_delete(dict*, uint64_t key);
 \end{lstlisting}
+
+Each of the functions above returns \texttt{true} on success and \texttt{false}
+on failure. In particular, \texttt{dict\_find} and \texttt{dict\_delete} fail
+if the dictionary does not contain the \texttt{key} and \texttt{dict\_insert}
+fails if the dictionary already contains the inserted \texttt{key}.
+
+Bigger problems, such as internal inconsistencies or failures to allocate
+memory are signalled by logging a message and exitting the program.
+While such resignation to error handling is not appropriate in dependable
+software, our code is indended only for experimental purposes, where fatal
+failure is acceptable. A more robust implementation would instead react
+to failure by deallocating resources, undoing performed changes and returning
+an error code.
 
 Dictionary data structures may optionally implement successor and predecessor
 lookups. The public API consists of the functions \texttt{dict\_next} and
@@ -142,11 +155,8 @@ a B-tree can be used as follows:
 
 void example_btree(void) {
 	dict* btree;
-	if (dict_init(&btree, &dict_btree) != 0) {
-		printf("Error initializing B-tree.\n");
-		return;
-	}
-	if (dict_insert(btree, 1, 100) != 0) {
+	dict_init(&btree, &dict_btree);
+	if (!dict_insert(btree, 1, 100)) {
 		printf("Error inserting 1 -> 100.\n");
 	}
 	// ...
@@ -158,7 +168,7 @@ void example_btree(void) {
 		printf("No value for 42.\n");
 	}
 	// ...
-	if (dict_delete(btree, 1) != 0) {
+	if (!dict_delete(btree, 1)) {
 		printf("Failed to remove key 1.\n");
 	}
 	dict_destroy(&btree);

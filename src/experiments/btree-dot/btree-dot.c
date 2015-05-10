@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
 	(void) argc; (void) argv;
 
 	dict* tree;
-	ASSERT(dict_init(&tree, &dict_btree, NULL) == 0);
+	dict_init(&tree, &dict_btree);
 
 	const uint64_t keys[] = {
 		4, 8, 15, 16, 23, 42, 80, 154, 160, 230, 298, 351, 628,
@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
 	};
 	for (uint64_t i = 0; i < COUNT_OF(keys); ++i) {
 		log_info("insert %" PRIu64 "=42", keys[i]);
-		ASSERT(dict_insert(tree, keys[i], 42) == 0);
+		ASSERT(dict_insert(tree, keys[i], 42));
 	}
 
 	const char* PATH = "experiments/btree-dot/btree.dot";

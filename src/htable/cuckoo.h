@@ -40,8 +40,8 @@ typedef struct {
 
 void htcuckoo_init(htcuckoo* this, rand_generator rand);
 void htcuckoo_destroy(htcuckoo* this);
-int8_t htcuckoo_delete(htcuckoo* this, uint64_t key);
+bool htcuckoo_delete(htcuckoo* this, uint64_t key);
 bool htcuckoo_find(htcuckoo* this, uint64_t key, uint64_t *value);
-int8_t htcuckoo_insert(htcuckoo* this, uint64_t key, uint64_t value);
+bool htcuckoo_insert(htcuckoo* this, uint64_t key, uint64_t value);
 
 #endif

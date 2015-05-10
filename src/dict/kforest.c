@@ -4,24 +4,13 @@
 #include <stdlib.h>
 
 #include "kforest/kforest.h"
+#include "log/log.h"
 
-static int8_t init(void** _this, void* args_unused) {
-	(void) args_unused;
+static void init(void** _this) {
 	kforest* this = malloc(sizeof(kforest));
-	if (!this) {
-		goto err_1;
-		return 1;
-	}
-	if (kforest_init(this)) {
-		goto err_2;
-	}
+	CHECK(this, "failed to allocate memory for kforest");
+	CHECK(!kforest_init(this), "failed to init kforest");
 	*_this = this;
-	return 0;
-
-err_2:
-	free(this);
-err_1:
-	return 1;
 }
 
 static void destroy(void** _this) {
@@ -36,11 +25,11 @@ static bool find(void* _this, uint64_t key, uint64_t *value) {
 	return kforest_find(_this, key, value);
 }
 
-static int8_t insert(void* _this, uint64_t key, uint64_t value) {
+static bool insert(void* _this, uint64_t key, uint64_t value) {
 	return kforest_insert(_this, key, value);
 }
 
-static int8_t delete(void* _this, uint64_t key) {
+static bool delete(void* _this, uint64_t key) {
 	return kforest_delete(_this, key);
 }
 

@@ -17,7 +17,7 @@ uint64_t make_value(uint64_t i) {
 
 static void insert(dict* dict, uint64_t key, uint64_t value) {
 	CHECK(key != DICT_RESERVED_KEY, "trying to insert reserved key");
-	CHECK(!dict_insert(dict, key, value), "cannot insert");
+	CHECK(dict_insert(dict, key, value), "cannot insert");
 }
 
 void check_contains(dict* dict, uint64_t key, uint64_t value) {
@@ -31,7 +31,7 @@ void check_not_contains(dict* dict, uint64_t key) {
 
 dict* seed(const dict_api* api, uint64_t size) {
 	dict* dict;
-	CHECK(!dict_init(&dict, api, NULL), "cannot init dict");
+	dict_init(&dict, api);
 	for (uint64_t i = 0; i < size; i++) {
 		insert(dict, make_key(i), make_value(i));
 	}

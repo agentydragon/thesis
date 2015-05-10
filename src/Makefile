@@ -12,7 +12,6 @@ SOURCES= \
 	ksplay/*.c \
 	log/*.c \
 	math/*.c \
-	observation/*.c \
 	rand/*.c \
 	splay/*.c \
 	util/*.c \

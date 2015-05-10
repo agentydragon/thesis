@@ -103,7 +103,7 @@ static node* make_node(uint64_t key, uint64_t value) {
 	return new_node;
 }
 
-int8_t splay_insert(splay_tree* tree, uint64_t key, uint64_t value) {
+bool splay_insert(splay_tree* tree, uint64_t key, uint64_t value) {
 	node* new_node;
 	if (tree->root == NULL) {
 		new_node = make_node(key, value);
@@ -114,7 +114,7 @@ int8_t splay_insert(splay_tree* tree, uint64_t key, uint64_t value) {
 		if (parent->key == key) {
 			// Element already exists.
 			tree->root = parent;
-			return 1;
+			return false;
 		}
 		new_node = make_node(key, value);
 		if (key < parent->key) {
@@ -130,7 +130,7 @@ int8_t splay_insert(splay_tree* tree, uint64_t key, uint64_t value) {
 		}
 	}
 	tree->root = new_node;
-	return 0;
+	return true;
 }
 
 bool splay_find(splay_tree* this, uint64_t key, uint64_t *value) {
@@ -171,14 +171,14 @@ static void get_rightmost_in_left_subtree(node* current,
 	*_rightmost_in_left = rightmost_in_left;
 }
 
-int8_t splay_delete(splay_tree* this, uint64_t key) {
+bool splay_delete(splay_tree* this, uint64_t key) {
 	if (this->root == NULL) {
-		return 1;
+		return false;
 	}
 
 	node* deleted = _splay(this->root, key);
 	if (deleted->key != key) {
-		return 1;
+		return false;
 	}
 
 	if (deleted->left == NULL) {
@@ -191,7 +191,7 @@ int8_t splay_delete(splay_tree* this, uint64_t key) {
 		this->root->right = deleted->right;
 	}
 	free(deleted);
-	return 0;
+	return true;
 }
 
 bool splay_next_key(splay_tree* this, splay_key key, splay_key* next_key) {

@@ -30,8 +30,8 @@ typedef struct {
 
 void cob_init(cob* this);
 void cob_destroy(cob* this);
-int8_t cob_insert(cob* this, uint64_t key, uint64_t value);
-int8_t cob_delete(cob* this, uint64_t key);
+bool cob_insert(cob* this, uint64_t key, uint64_t value);
+bool cob_delete(cob* this, uint64_t key);
 bool cob_find(cob* this, uint64_t key, uint64_t *value);
 bool cob_next_key(cob* this, uint64_t key, uint64_t *next_key);
 bool cob_previous_key(cob* this, uint64_t key, uint64_t *previous_key);

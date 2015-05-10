@@ -121,7 +121,7 @@ struct metrics measure_recording(const dict_api* api, recording* record,
 
 	for (int repeat = 0; repeat < repetitions; ++repeat) {
 		dict* dict;
-		CHECK(!dict_init(&dict, api, NULL), "cannot init dict");
+		dict_init(&dict, api);
 
 		for (uint64_t i = 0; i < record->length; ++i) {
 			const recorded_operation operation = record->operations[i];
@@ -135,18 +135,18 @@ struct metrics measure_recording(const dict_api* api, recording* record,
 				break;
 			}
 			case INSERT: {
-				// Note: dict_insert may fail (since the recording
-				// may have been cleaned).
+				// Note: dict_insert may fail (since
+				// the recording may have been cleaned).
 				value = rand_next(&rand, UINT64_MAX);
-				if (dict_insert(dict, operation.key, value) != 0) {
+				if (!dict_insert(dict, operation.key, value)) {
 					log_verbose(1, "insert failure");
 				}
 				break;
 			}
 			case DELETE: {
-				// Note: dict_delete may fail (since the recording
-				// may have been cleaned).
-				if (dict_delete(dict, operation.key) != 0) {
+				// Note: dict_delete may fail (since
+				// the recording may have been cleaned).
+				if (!dict_delete(dict, operation.key)) {
 					log_verbose(1, "delete failure");
 				}
 				break;

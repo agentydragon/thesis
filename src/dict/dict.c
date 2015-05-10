@@ -9,25 +9,12 @@ struct dict_s {
 	const dict_api* api;
 };
 
-int8_t dict_init(dict** _this, const dict_api* api, void* args) {
+void dict_init(dict** _this, const dict_api* api) {
 	dict* this = malloc(sizeof(struct dict_s));
-
-	if (!this) {
-		goto err_1;
-	}
-
+	CHECK(this, "failed to allocate memory for %s", api->name);
 	this->api = api;
-	if (this->api->init(&this->opaque, args)) {
-		goto err_2;
-	}
-
+	this->api->init(&this->opaque);
 	*_this = this;
-	return 0;
-
-err_2:
-	free(this);
-err_1:
-	return 1;
 }
 
 void dict_destroy(dict** _this) {
@@ -43,11 +30,11 @@ bool dict_find(dict* this, uint64_t key, uint64_t *value) {
 	return this->api->find(this->opaque, key, value);
 }
 
-int8_t dict_insert(dict* this, uint64_t key, uint64_t value) {
+bool dict_insert(dict* this, uint64_t key, uint64_t value) {
 	return this->api->insert(this->opaque, key, value);
 }
 
-int8_t dict_delete(dict* this, uint64_t key) {
+bool dict_delete(dict* this, uint64_t key) {
 	return this->api->delete(this->opaque, key);
 }
 

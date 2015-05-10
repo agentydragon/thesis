@@ -23,19 +23,14 @@ static uint64_t make_value(uint64_t i) {
 
 void test_dict_large(const dict_api* api, uint64_t N) {
 	dict* table;
-	if (dict_init(&table, api, NULL)) {
-		log_fatal("cannot init dict");
-	}
-
+	dict_init(&table, api);
 	log_info("Testing inserting %" PRIu64 " elements into %s...",
 			N, api->name);
 	for (uint64_t i = 0; i < N; i++) {
 		if (i % 100000 == 0) log_info("%" PRIu64, i);
 		const uint64_t key = make_key(i), value = make_value(i);
 		// log_info("%" PRIu64 " => %" PRIu64, key, value);
-		if (dict_insert(table, key, value)) {
-			log_fatal("cannot insert");
-		}
+		CHECK(dict_insert(table, key, value), "cannot insert");
 	}
 
 	dict_destroy(&table);

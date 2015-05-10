@@ -17,7 +17,7 @@ void try_with(uint64_t side) {
 			for (uint64_t k = 0; k < side; ++k) {
 				const uint64_t key =
 					(i << 32ULL) | (j << 16ULL) | k;
-				ASSERT(!dict_insert(htable, key, 42));
+				ASSERT(dict_insert(htable, key, 42));
 			}
 		}
 	}

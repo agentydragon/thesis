@@ -111,6 +111,14 @@ static dict* id_map;
 static FILE* averages_file;
 static FILE* positions_file;
 
+static bool is_sane_pressure(int pressure) {
+	return pressure >= 8000 && pressure <= 20000;
+}
+
+static bool is_sane_speed(int speed) {
+	return speed >= 0 && speed <= 1000;
+}
+
 static void load_records(const char* path) {
 	FILE* input = fopen(path, "r");
 	CHECK(input != NULL, "cannot open %s", path);
@@ -134,7 +142,8 @@ static void load_records(const char* path) {
 		memcpy(buffer, r.lon_x100, sizeof(r.lon_x100));
 		pr.lon_x100 = atoi(buffer);
 
-		if (pr.sea_level_pressure <= 20000 && pr.wind_speed <= 1000 && pr.wind_speed >= 0 && pr.sea_level_pressure >= 8000) {
+		if (is_sane_pressure(pr.sea_level_pressure) &&
+				is_sane_speed(pr.wind_speed)) {
 			if (FLAGS.dump_averages) {
 				fprintf(positions_file, "%d\t%d\n",
 						pr.lat_x100, pr.lon_x100);
@@ -155,12 +164,12 @@ static void load_records(const char* path) {
 				pr.lon_x100);
 		uint64_t value;
 		if (dict_find(id_map, position_code, &value)) {
-			ASSERT(dict_delete(id_map, position_code) == 0);
+			ASSERT(dict_delete(id_map, position_code));
 			++value;
 		} else {
 			value = 0;
 		}
-		ASSERT(dict_insert(id_map, position_code, value) == 0);
+		ASSERT(dict_insert(id_map, position_code, value));
 
 		pr.id = value;
 		ASSERT(pr.id < (1ULL << 20ULL));
@@ -198,14 +207,6 @@ static uint64_t build_record_code(parsed_record r) {
 
 static uint64_t build_record_value(parsed_record r) {
 	return (((uint64_t) r.sea_level_pressure) << 32ULL) | (r.wind_speed);
-}
-
-static bool is_sane_pressure(int pressure) {
-	return pressure >= 8000 && pressure <= 20000;
-}
-
-static bool is_sane_speed(int speed) {
-	return speed >= 0 && speed <= 1000;
 }
 
 static void collect_wind_speed(const uint64_t value,
@@ -290,13 +291,13 @@ static void query_close_points(dict* map, const int lat, const int lon) {
 
 static void test_api(const dict_api* api) {
 	dict* map;
-	ASSERT(dict_init(&map, api, NULL) == 0);
+	dict_init(&map, api);
 
 	// Insert all records.
 	for (uint64_t i = 0; i < records_size; ++i) {
 		const uint64_t key = build_record_code(records[i]);
 		const uint64_t value = build_record_value(records[i]);
-		ASSERT(dict_insert(map, key, value) == 0);
+		ASSERT(dict_insert(map, key, value));
 	}
 
 	stopwatch watch = stopwatch_start();
@@ -345,7 +346,7 @@ int main(int argc, char** argv) {
 		"JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
 	};
 	log_info("loading records");
-	ASSERT(dict_init(&id_map, &dict_splay, NULL) == 0);
+	dict_init(&id_map, &dict_splay);
 	for (int year = FLAGS.min_year; year <= FLAGS.max_year; ++year) {
 		for (uint64_t month = 0; month < COUNT_OF(MONTHS); ++month) {
 			char filename[100];

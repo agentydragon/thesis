@@ -255,7 +255,7 @@ static void split_piece(cob* this, uint64_t index) {
 	}
 }
 
-int8_t cob_insert(cob* this, uint64_t key, uint64_t value) {
+bool cob_insert(cob* this, uint64_t key, uint64_t value) {
 	validate_key(key);
 	enforce_piece_policy(this, this->size + 1);
 
@@ -292,13 +292,13 @@ int8_t cob_insert(cob* this, uint64_t key, uint64_t value) {
 
 	log_verbose(1, "cob_insert(%" PRIu64 "=%" PRIu64 "): done", key, value);
 	// internal_check(this);
-	return 0;
+	return true;
 
 duplicate_key:
 	log_verbose(1, "cob_insert(%" PRIu64 "=%" PRIu64 "): duplicate",
 			key, value);
 	// internal_check(this);
-	return 1;
+	return false;
 }
 
 static void merge_pieces(cob* this, uint64_t left, uint64_t right) {
@@ -394,7 +394,7 @@ static void merge_piece(cob* this, uint64_t piece_index) {
 	}
 }
 
-int8_t cob_delete(cob* this, uint64_t key) {
+bool cob_delete(cob* this, uint64_t key) {
 	log_verbose(1, "cob_delete(%" PRIu64 ") begin", key);
 	validate_key(key);
 	if (this->size >= 1) {
@@ -419,12 +419,12 @@ int8_t cob_delete(cob* this, uint64_t key) {
 	merge_piece(this, index);
 	--this->size;
 	log_verbose(1, "cob_delete(%" PRIu64 "): done", key);
-	return 0;
+	return true;
 
 no_such_key:
 	log_verbose(1, "cob_delete(%" PRIu64 "): no such key", key);
 	// internal_check(this);
-	return 1;
+	return false;
 }
 
 bool cob_find(cob* this, uint64_t key, uint64_t *value) {

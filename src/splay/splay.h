@@ -19,8 +19,8 @@ typedef struct {
 } splay_tree;
 
 bool splay_find(splay_tree* this, splay_key key, splay_value* value);
-int8_t splay_insert(splay_tree* this, splay_key key, splay_value value);
-int8_t splay_delete(splay_tree* this, splay_key key);
+bool splay_insert(splay_tree* this, splay_key key, splay_value value);
+bool splay_delete(splay_tree* this, splay_key key);
 void splay_init(splay_tree** this);
 void splay_destroy(splay_tree** this);
 

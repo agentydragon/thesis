@@ -11,12 +11,12 @@
 typedef struct dict_s dict;
 
 typedef struct {
-	int8_t (*init)(void**, void* args);
+	void (*init)(void**);
 	void (*destroy)(void**);
 
 	bool (*find)(void*, uint64_t key, uint64_t *value);
-	int8_t (*insert)(void*, uint64_t key, uint64_t value);
-	int8_t (*delete)(void*, uint64_t key);
+	bool (*insert)(void*, uint64_t key, uint64_t value);
+	bool (*delete)(void*, uint64_t key);
 
 	const char* name;
 
@@ -30,12 +30,21 @@ typedef struct {
 	void (*check)(void*);
 } dict_api;
 
-int8_t dict_init(dict**, const dict_api* api, void* args);
+void dict_init(dict**, const dict_api* api);
 void dict_destroy(dict**);
 
+// Tries to find a key in the dictionary.
+// If the key exists and value != NULL, *value is set to the associated value.
+// Returns whether the key was found.
 bool MUST_USE_RESULT dict_find(dict*, uint64_t key, uint64_t *value);
-int8_t MUST_USE_RESULT dict_insert(dict*, uint64_t key, uint64_t value);
-int8_t MUST_USE_RESULT dict_delete(dict*, uint64_t key);
+
+// Inserts a new key-value pair into the dictionary, if the key is not yet
+// in the dictionary. Returns whether a new key-value pair was inserted.
+bool MUST_USE_RESULT dict_insert(dict*, uint64_t key, uint64_t value);
+
+// Deletes the key-value pair for the given key from the dictionary.
+// Returns whether a pair was found and deleted.
+bool MUST_USE_RESULT dict_delete(dict*, uint64_t key);
 
 // Optional extension: ordered dictionary.
 bool dict_api_allows_order_queries(const dict_api*);

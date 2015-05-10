@@ -59,19 +59,19 @@ static bool slot_occupied(htlp* this, uint64_t slot) {
 
 static const uint32_t KEYS_WITH_HASH_MAX = (1ULL << 32ULL) - 1;
 
-static int8_t insert_noresize(htlp* this, uint64_t key, uint64_t value) {
+static bool insert_noresize(htlp* this, uint64_t key, uint64_t value) {
 	CHECK(key != HTLP_EMPTY, "trying to insert key HTLP_EMPTY");
 	const uint64_t key_hash = hash(this, key);
 
 	if (this->keys_with_hash[key_hash] == KEYS_WITH_HASH_MAX) {
 		// TODO: Full rehash?
 		log_error("cannot insert - overflow in maximum chain size");
-		return 1;
+		return false;
 	}
 
 	if (htlp_find(this, key, NULL)) {
 		log_verbose(1, "%" PRIu64 " already in htlp", key);
-		return 1;
+		return false;
 	}
 
 	for (uint64_t i = 0, index = key_hash, traversed = 0;
@@ -79,7 +79,7 @@ static int8_t insert_noresize(htlp* this, uint64_t key, uint64_t value) {
 			index = next_index(this, index), traversed++) {
 		if (slot_occupied(this, index)) {
 			if (this->keys[index] == key) {
-				return 1;
+				return false;
 			}
 			if (hash(this, this->keys[index]) == key_hash) {
 				++i;
@@ -91,7 +91,7 @@ static int8_t insert_noresize(htlp* this, uint64_t key, uint64_t value) {
 
 			this->pair_count++;
 
-			return 0;
+			return true;
 		}
 	}
 
@@ -153,7 +153,7 @@ static int8_t resize(htlp* this, uint64_t new_capacity) {
 		if (slot_occupied(this, i)) {
 			const uint64_t key = this->keys[i],
 					value = this->values[i];
-			CHECK(!insert_noresize(&new_this, key, value),
+			CHECK(insert_noresize(&new_this, key, value),
 					"failed to insert %" PRIu64 "=%" PRIu64,
 					key, value);
 		}
@@ -225,15 +225,15 @@ static bool scan(htlp* this, uint64_t key,
 	return found;
 }
 
-int8_t htlp_delete(htlp* this, uint64_t key) {
+bool htlp_delete(htlp* this, uint64_t key) {
 	log_verbose(1, "htlp_delete(%" PRIx64 ")", key);
 	if (this->pair_count == 0) {
-		return 1;
+		return false;
 	}
 
 	if (resize_to_fit(this, this->pair_count - 1)) {
 		log_error("failed to resize to fit one less element");
-		return 1;
+		return false;
 	}
 
 	const uint64_t key_hash = hash(this, key);
@@ -241,7 +241,7 @@ int8_t htlp_delete(htlp* this, uint64_t key) {
 	if (!scan(this, key, &to_delete, &last)) {
 		log_verbose(1, "key %" PRIx64 " not present, cannot delete",
 				key);
-		return 1;
+		return false;
 	}
 	// Shorten the chain by 1.
 	// TODO: Lazy deletes?
@@ -251,8 +251,7 @@ int8_t htlp_delete(htlp* this, uint64_t key) {
 	this->keys_with_hash[key_hash]--;
 
 	this->pair_count--;
-
-	return 0;
+	return true;
 }
 
 bool htlp_find(htlp* this, uint64_t key, uint64_t *value) {
@@ -270,10 +269,10 @@ bool htlp_find(htlp* this, uint64_t key, uint64_t *value) {
 	}
 }
 
-int8_t htlp_insert(htlp* this, uint64_t key, uint64_t value) {
+bool htlp_insert(htlp* this, uint64_t key, uint64_t value) {
 	if (resize_to_fit(this, this->pair_count + 1)) {
 		log_error("failed to resize to fit one more element");
-		return 1;
+		return false;
 	}
 	return insert_noresize(this, key, value);
 }

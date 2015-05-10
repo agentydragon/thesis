@@ -4,16 +4,13 @@
 #include <stdlib.h>
 
 #include "ksplay/ksplay.h"
+#include "log/log.h"
 
-static int8_t init(void** _this, void* args_unused) {
-	(void) args_unused;
+static void init(void** _this) {
 	ksplay* this = malloc(sizeof(ksplay));
-	if (!this) {
-		return 1;
-	}
+	CHECK(this, "failed to allocate space for ksplay");
 	ksplay_init(this);
 	*_this = this;
-	return 0;
 }
 
 static void destroy(void** _this) {
@@ -36,11 +33,11 @@ static bool find_previous(void* this, uint64_t key, uint64_t* previous_key) {
 	return ksplay_previous_key(this, key, previous_key);
 }
 
-static int8_t insert(void* this, uint64_t key, uint64_t value) {
+static bool insert(void* this, uint64_t key, uint64_t value) {
 	return ksplay_insert(this, key, value);
 }
 
-static int8_t delete(void* this, uint64_t key) {
+static bool delete(void* this, uint64_t key) {
 	return ksplay_delete(this, key);
 }
 

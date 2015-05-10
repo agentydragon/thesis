@@ -188,7 +188,7 @@ void kforest_destroy(kforest* this) {
 static void drop_random_pair(rand_generator* generator, kforest_tree* tree,
 		uint64_t *dropped_key, uint64_t *dropped_value) {
 	get_random_pair(generator, tree, dropped_key, dropped_value);
-	ASSERT(kforest_tree_delete(tree, *dropped_key) == 0);
+	ASSERT(kforest_tree_delete(tree, *dropped_key));
 }
 
 static void make_space(kforest* this) {
@@ -209,8 +209,7 @@ static void make_space(kforest* this) {
 				"from tree %" PRIu64 " to tree %" PRIu64,
 				key, value, tree, tree + 1);
 
-		ASSERT(kforest_tree_insert(&this->trees[tree + 1], key, value)
-				== 0);
+		ASSERT(kforest_tree_insert(&this->trees[tree + 1], key, value));
 		++this->tree_sizes[tree + 1];
 
 		//max_touched = tree + 2;
@@ -237,29 +236,28 @@ tree_found:
 
 	// If we found the key in the first tree, there's no need to drop keys.
 	if (tree != 0) {
-		ASSERT(kforest_tree_delete(&this->trees[tree], key) == 0);
+		ASSERT(kforest_tree_delete(&this->trees[tree], key));
 		--this->tree_sizes[tree];
 
 		make_space(this);
 
 		// Promote to tree 0.
-		ASSERT(kforest_tree_insert(&this->trees[0], key, value_found)
-				== 0);
+		ASSERT(kforest_tree_insert(&this->trees[0], key, value_found));
 		++this->tree_sizes[0];
 	}
 	return true;
 }
 
-int8_t kforest_insert(kforest* this, uint64_t key, uint64_t value) {
+bool kforest_insert(kforest* this, uint64_t key, uint64_t value) {
 	log_verbose(1, "kforest_insert(%" PRIu64 "=%" PRIu64 ")", key, value);
 
 	if (kforest_find(this, key, NULL)) {
-		return 1;
+		return false;
 	}
 
 	make_space(this);
 
-	ASSERT(kforest_tree_insert(&this->trees[0], key, value) == 0);
+	ASSERT(kforest_tree_insert(&this->trees[0], key, value));
 	++this->tree_sizes[0];
 
 	//btree_dump_dot(&this->trees[0], stdout);
@@ -267,17 +265,18 @@ int8_t kforest_insert(kforest* this, uint64_t key, uint64_t value) {
 	//dump(this);
 	//check_invariants(this);
 
-	return 0;
+	return true;
 }
 
-int8_t kforest_delete(kforest* this, uint64_t key) {
+bool kforest_delete(kforest* this, uint64_t key) {
 	log_verbose(1, "kforest_delete(%" PRIu64 ")", key);
 
+	// TODO: This is slightly slow. Deleting should not promote first.
 	if (!kforest_find(this, key, NULL)) {
-		return 1;
+		return false;
 	}
 
-	ASSERT(kforest_tree_delete(&this->trees[0], key) == 0);
+	ASSERT(kforest_tree_delete(&this->trees[0], key));
 	--this->tree_sizes[0];
 
 	for (uint64_t tree = 0; tree + 1 < this->tree_capacity; ++tree) {
@@ -287,7 +286,7 @@ int8_t kforest_delete(kforest* this, uint64_t key) {
 					&shift_key, &shift_value);
 			--this->tree_sizes[tree + 1];
 			ASSERT(kforest_tree_insert(&this->trees[tree],
-						shift_key, shift_value) == 0);
+						shift_key, shift_value));
 			++this->tree_sizes[tree];
 		}
 	}
@@ -295,5 +294,5 @@ int8_t kforest_delete(kforest* this, uint64_t key) {
 	//dump(this);
 	//check_invariants(this);
 
-	return 0;
+	return true;
 }

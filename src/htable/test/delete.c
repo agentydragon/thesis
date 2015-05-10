@@ -98,7 +98,7 @@ static void test_shortening_chains(void) {
 		.hash_fn_override_opaque = hash_pairs
 	};
 
-	ASSERT(htable_delete(&this, 11) == 0);
+	ASSERT(htable_delete(&this, 11));
 	ASSERT(this.pair_count == 10);
 
 	const htable_block expected[4] = {

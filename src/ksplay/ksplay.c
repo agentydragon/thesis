@@ -726,7 +726,7 @@ static void ksplay_ksplay(ksplay* this, ksplay_node_buffer* stack) {
 }
 
 // ----- Insertion and deletion -----
-int8_t ksplay_insert(ksplay* this, uint64_t key, uint64_t value) {
+bool ksplay_insert(ksplay* this, uint64_t key, uint64_t value) {
 	IF_LOG_VERBOSE(1) {
 		log_info("before insert(%" PRIu64 "):", key);
 		ksplay_dump(this);
@@ -734,8 +734,8 @@ int8_t ksplay_insert(ksplay* this, uint64_t key, uint64_t value) {
 
 	ksplay_node_buffer stack = ksplay_walk_to(this, key);
 	node* target = stack.nodes[stack.count - 1];
-	const int8_t result = node_insert(target, key, value) ? 0 : 1;
-	if (result == 0) {
+	const bool result = node_insert(target, key, value);
+	if (result) {
 		++this->size;
 	}
 	ksplay_ksplay(this, &stack);
@@ -748,7 +748,7 @@ int8_t ksplay_insert(ksplay* this, uint64_t key, uint64_t value) {
 	return result;
 }
 
-static int8_t node_contains(node* x, uint64_t key) {
+static bool node_contains(node* x, uint64_t key) {
 	for (uint8_t i = 0; i < KSPLAY_MAX_NODE_KEYS; ++i) {
 		if (x->pairs[i].key == key) {
 			return true;
@@ -773,7 +773,7 @@ static int8_t find_key_in_node(node* x, uint64_t key) {
 	log_fatal("key %" PRIu64 " not in node", key);
 }
 
-int8_t ksplay_delete(ksplay* this, uint64_t key) {
+bool ksplay_delete(ksplay* this, uint64_t key) {
 	IF_LOG_VERBOSE(1) {
 		log_info("before delete(%" PRIu64 "):", key);
 		ksplay_dump(this);
@@ -813,7 +813,7 @@ no_such_key:
 		log_info("after failed delete(%" PRIu64 "):", key);
 		ksplay_dump(this);
 	}
-	return 1;
+	return false;
 
 removed:
 	if (node_key_count(victim) == 0 && this->size > 1) {
@@ -831,8 +831,7 @@ removed:
 		log_info("after delete(%" PRIu64 "):", key);
 		ksplay_dump(this);
 	}
-
-	return 0;
+	return true;
 }
 
 bool ksplay_find(ksplay* this, uint64_t key, uint64_t *value) {

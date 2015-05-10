@@ -3,17 +3,14 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#include "log/log.h"
 #include "splay/splay.h"
 
-static int8_t init(void** _this, void* args_unused) {
-	(void) args_unused;
+static void init(void** _this) {
 	splay_tree* this = malloc(sizeof(splay_tree));
-	if (!this) {
-		return 1;
-	}
+	CHECK(this, "failed to allocate memory for splay");
 	this->root = NULL;
 	*_this = this;
-	return 0;
 }
 
 static void destroy(void** _this) {
@@ -26,11 +23,11 @@ static bool find(void* this, uint64_t key, uint64_t *value) {
 	return splay_find(this, key, value);
 }
 
-static int8_t insert(void* this, uint64_t key, uint64_t value) {
+static bool insert(void* this, uint64_t key, uint64_t value) {
 	return splay_insert(this, key, value);
 }
 
-static int8_t delete(void* this, uint64_t key) {
+static bool delete(void* this, uint64_t key) {
 	return splay_delete(this, key);
 }
 

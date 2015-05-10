@@ -61,10 +61,10 @@ static void add_word(dict* dict, char* word) {
 
 	uint64_t count;
 	if (dict_find(dict, key, &count)) {
-		ASSERT(!dict_delete(dict, key));
-		ASSERT(!dict_insert(dict, key, count + 1));
+		ASSERT(dict_delete(dict, key));
+		ASSERT(dict_insert(dict, key, count + 1));
 	} else {
-		ASSERT(!dict_insert(dict, key, 1));
+		ASSERT(dict_insert(dict, key, 1));
 	}
 }
 
@@ -95,7 +95,7 @@ struct metrics measure_word_frequency(const dict_api* api, uint64_t size) {
 	char* ptr = strtok(content_copy, delimiters);
 
 	dict* dict;
-	CHECK(!dict_init(&dict, api, NULL), "cannot init dict");
+	dict_init(&dict, api);
 
 	measurement* measurement = measurement_begin();
 	stopwatch watch = stopwatch_start();

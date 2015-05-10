@@ -29,9 +29,9 @@ typedef struct {
 
 void htable_init(htable* this);
 void htable_destroy(htable* this);
-int8_t htable_delete(htable* this, uint64_t key);
+bool htable_delete(htable* this, uint64_t key);
 bool htable_find(htable* this, uint64_t key, uint64_t *value);
-int8_t htable_insert(htable* this, uint64_t key, uint64_t value);
+bool htable_insert(htable* this, uint64_t key, uint64_t value);
 
 // Debugging.
 void htable_dump_stats(htable* this);

@@ -66,13 +66,13 @@ static uint64_t next_index(const htable* this, uint64_t i) {
 
 static const uint32_t KEYS_WITH_HASH_MAX = (1LL << 32LL) - 1;
 
-static int8_t insert_noresize(htable* this, uint64_t key, uint64_t value) {
+static bool insert_noresize(htable* this, uint64_t key, uint64_t value) {
 	const uint64_t key_hash = hash(this, key);
 	htable_block* const home_block = &this->blocks[key_hash];
 
 	if (home_block->keys_with_hash == KEYS_WITH_HASH_MAX) {
 		log_error("cannot insert - overflow in maximum block size");
-		return 1;
+		return false;
 	}
 
 	for (uint64_t i = 0, index = key_hash, traversed = 0;
@@ -86,7 +86,7 @@ static int8_t insert_noresize(htable* this, uint64_t key, uint64_t value) {
 					log_verbose(1, "duplicate in block %" PRIu64 " "
 						"when inserting %" PRIu64 "=%" PRIu64,
 						index, key, value);
-					return 1;
+					return false;
 				}
 
 				if (hash(this, current_block->keys[slot]) ==
@@ -101,15 +101,13 @@ static int8_t insert_noresize(htable* this, uint64_t key, uint64_t value) {
 				home_block->keys_with_hash++;
 
 				this->pair_count++;
-
-				return 0;
+				return true;
 			}
 		}
 	}
 
 	// Went over all blocks...
-	log_error("htable is completely full (shouldn't happen)");
-	return 1;
+	log_fatal("htable is completely full (shouldn't happen)");
 }
 
 static int8_t resize(htable* this, uint64_t new_blocks_size) {
@@ -147,7 +145,7 @@ static int8_t resize(htable* this, uint64_t new_blocks_size) {
 			if (current_block->occupied[slot]) {
 				const uint64_t key = current_block->keys[slot],
 						value = current_block->values[slot];
-				if (insert_noresize(&new_this, key, value)) {
+				if (!insert_noresize(&new_this, key, value)) {
 					log_error("failed to insert "
 							"%" PRIu64 "=%" PRIu64,
 							key, value);
@@ -237,15 +235,15 @@ static bool scan(htable* this, uint64_t key,
 	return found;
 }
 
-int8_t htable_delete(htable* this, uint64_t key) {
+bool htable_delete(htable* this, uint64_t key) {
 	log_verbose(1, "htable_delete(%" PRIx64 ")", key);
 	if (this->pair_count == 0) {
-		return 1;
+		return false;
 	}
 
 	if (resize_to_fit(this, this->pair_count - 1)) {
 		log_error("failed to resize to fit one less element");
-		return 1;
+		return false;
 	}
 
 	const uint64_t key_hash = hash(this, key);
@@ -254,7 +252,7 @@ int8_t htable_delete(htable* this, uint64_t key) {
 
 	if (!scan(this, key, &to_delete, &last)) {
 		log_error("key %" PRIx64 " not present, cannot delete", key);
-		return 1;
+		return false;
 	}
 	// Shorten the chain by 1.
 	last.block->occupied[last.slot] = false;
@@ -263,8 +261,7 @@ int8_t htable_delete(htable* this, uint64_t key) {
 
 	this->blocks[key_hash].keys_with_hash--;
 	this->pair_count--;
-
-	return 0;
+	return true;
 }
 
 bool htable_find(htable* this, uint64_t key, uint64_t *value) {
@@ -282,10 +279,10 @@ bool htable_find(htable* this, uint64_t key, uint64_t *value) {
 	}
 }
 
-int8_t htable_insert(htable* this, uint64_t key, uint64_t value) {
+bool htable_insert(htable* this, uint64_t key, uint64_t value) {
 	if (resize_to_fit(this, this->pair_count + 1)) {
 		log_error("failed to resize to fit one more element");
-		return 1;
+		return false;
 	}
 	return insert_noresize(this, key, value);
 }

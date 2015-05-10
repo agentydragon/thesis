@@ -415,7 +415,7 @@ static void resize_to_fit(htcuckoo* this, uint64_t to_fit) {
 	// dump_dot(this);
 }
 
-int8_t htcuckoo_delete(htcuckoo* this, uint64_t key) {
+bool htcuckoo_delete(htcuckoo* this, uint64_t key) {
 	const uint64_t hash_l = half_hash(&this->left, key),
 			hash_r = half_hash(&this->right, key);
 	// TODO: Ideally we'd like this to be done as 2 parallel lookups.
@@ -425,10 +425,10 @@ int8_t htcuckoo_delete(htcuckoo* this, uint64_t key) {
 	} else if (this->right.keys[hash_r] == key) {
 		this->right.keys[hash_r] = CUCKOO_EMPTY;
 	} else {
-		return 1;  // No such key.
+		return false;  // No such key.
 	}
 	resize_to_fit(this, --this->pair_count);
-	return 0;
+	return true;
 }
 
 bool htcuckoo_find(htcuckoo* this, uint64_t key, uint64_t *value) {
@@ -452,10 +452,10 @@ bool htcuckoo_find(htcuckoo* this, uint64_t key, uint64_t *value) {
 	return false;
 }
 
-int8_t htcuckoo_insert(htcuckoo* this, uint64_t key, uint64_t value) {
+bool htcuckoo_insert(htcuckoo* this, uint64_t key, uint64_t value) {
 	// log_info("insert(%" PRIu64 "=%" PRIu64 ")", key, value);
 	if (htcuckoo_find(this, key, NULL)) {
-		return 1;
+		return false;
 	}
 
 	++CUCKOO_COUNTERS.inserts;
@@ -468,7 +468,7 @@ int8_t htcuckoo_insert(htcuckoo* this, uint64_t key, uint64_t value) {
 				log_info("insert took %" PRIu64 " rebuilds",
 						rebuilds);
 			}
-			return 0;
+			return true;
 		}
 		const uint64_t hash_l = half_hash(&this->left, key),
 			      hash_r = half_hash(&this->right, key);

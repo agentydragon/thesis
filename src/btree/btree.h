@@ -44,12 +44,10 @@ void split_internal(btree_node_persisted* node,
 		btree_node_persisted* new_right_sibling, uint64_t *middle_key);
 void insert_pointer(btree_node_persisted* node, uint64_t key,
 		btree_node_persisted* pointer);
-int8_t insert_key_value_pair(btree_node_persisted* node,
-		uint64_t key, uint64_t value);
 
 void btree_init(btree*);
-int8_t btree_insert(btree*, uint64_t key, uint64_t value);
-int8_t btree_delete(btree*, uint64_t key);
+bool btree_insert(btree*, uint64_t key, uint64_t value);
+bool btree_delete(btree*, uint64_t key);
 bool btree_find(btree*, uint64_t key, uint64_t *value);
 void btree_destroy(btree*);
 

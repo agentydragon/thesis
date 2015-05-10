@@ -5,18 +5,11 @@
 #include "htable/htable.h"
 #include "log/log.h"
 
-static int8_t init(void** _this, void* args_unused) {
-	(void) args_unused;
-
+static void init(void** _this) {
 	htable* this = malloc(sizeof(htable));
-	if (!this) {
-		log_error("cannot allocate new htable");
-		return 1;
-	}
-
+	CHECK(this, "cannot allocate new htable");
 	htable_init(this);
 	*_this = this;
-	return 0;
 }
 
 static void destroy(void** _this) {
@@ -28,11 +21,11 @@ static void destroy(void** _this) {
 	}
 }
 
-static int8_t insert(void* this, uint64_t key, uint64_t value) {
+static bool insert(void* this, uint64_t key, uint64_t value) {
 	return htable_insert(this, key, value);
 }
 
-static int8_t delete(void* this, uint64_t key) {
+static bool delete(void* this, uint64_t key) {
 	return htable_delete(this, key);
 }
 

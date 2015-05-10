@@ -18,18 +18,15 @@ typedef struct {
 	uint64_t pair_capacity;
 } data;
 
-static int8_t init(void** _this, void* args_unused) {
-	(void) args_unused;
-
+static void init(void** _this) {
 	data* this = malloc(sizeof(data));
-	if (!this) return 1;
+	CHECK(this, "cannot allocate memory for array dict");
 	*this = (data) {
 		.pairs = NULL,
 		.pair_count = 0,
 		.pair_capacity = 0
 	};
 	*_this = this;
-	return 0;
 }
 
 static void destroy(void** _this) {
@@ -63,14 +60,14 @@ static bool find(void* _this, uint64_t key, uint64_t *value) {
 	return found;
 }
 
-static int8_t insert(void* _this, uint64_t key, uint64_t value) {
+static bool insert(void* _this, uint64_t key, uint64_t value) {
 	data* this = _this;
 
 	const bool found = find(this, key, NULL);
 	if (found) {
 		log_verbose(1, "key %ld already present when inserting %ld=%ld",
 				key, key, value);
-		goto err_1;
+		return false;
 	}
 
 	if (this->pair_count == this->pair_capacity) {
@@ -84,7 +81,7 @@ static int8_t insert(void* _this, uint64_t key, uint64_t value) {
 		pair* new_pairs = realloc(this->pairs,
 				sizeof(pair) * new_capacity);
 		if (!new_pairs) {
-			goto err_1;
+			return false;
 		}
 
 		this->pairs = new_pairs;
@@ -95,25 +92,21 @@ static int8_t insert(void* _this, uint64_t key, uint64_t value) {
 		.key = key,
 		.value = value
 	};
-	return 0;
-
-err_1:
-	return 1;
+	return true;
 }
 
-static int8_t delete(void* _this, uint64_t key) {
+static bool delete(void* _this, uint64_t key) {
 	data* this = _this;
 
 	uint64_t index;
 	if (!lookup_index(this, key, &index)) {
 		// ERROR: no such element
-		return 1;
+		return false;
 	}
 	memmove(&this->pairs[index], &this->pairs[index + 1],
 			sizeof(pair) * (this->pair_count - index - 1));
 	this->pair_count--;
-
-	return 0;
+	return true;
 }
 
 const dict_api dict_array = {

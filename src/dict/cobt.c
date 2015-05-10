@@ -6,17 +6,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-static int8_t init(void** _this, void* args_unused) {
-	(void) args_unused;
-
+static void init(void** _this) {
 	cob* this = malloc(sizeof(cob));
-	if (!this) return 1;
+	CHECK(this, "cannot allocate memory for cob");
 
 	memset(this, 0, sizeof(cob));
 	cob_init(this);
 	*_this = this;
-
-	return 0;
 }
 
 static void destroy(void** _this) {
@@ -32,11 +28,11 @@ static bool find(void* this, uint64_t key, uint64_t *value) {
 	return cob_find(this, key, value);
 }
 
-static int8_t insert(void* this, uint64_t key, uint64_t value) {
+static bool insert(void* this, uint64_t key, uint64_t value) {
 	return cob_insert(this, key, value);
 }
 
-static int8_t delete(void* this, uint64_t key) {
+static bool delete(void* this, uint64_t key) {
 	return cob_delete(this, key);
 }
 

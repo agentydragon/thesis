@@ -19,7 +19,6 @@
 #include "ksplay/test.h"
 #include "log/log.h"
 #include "math/test.h"
-#include "observation/test.h"
 #include "rand/test.h"
 #include "splay/test.h"
 #include "veb_layout/test.h"
@@ -33,7 +32,6 @@ void run_unit_tests(void) {
 	test_math();
 	test_rand();
 	test_veb_layout();
-	test_observation(); // Uses hash_array.
 
 	test_htable();
 	test_splay_tree();

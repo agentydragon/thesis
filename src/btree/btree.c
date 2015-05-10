@@ -30,7 +30,7 @@ void insert_pointer(btree_node_persisted* node, uint64_t key,
 		btree_node_persisted* pointer);
 static void remove_ptr_from_node(btree_node_persisted* parent,
 		const btree_node_persisted* remove);
-int8_t insert_key_value_pair(btree_node_persisted* leaf,
+bool insert_key_value_pair(btree_node_persisted* leaf,
 		uint64_t key, uint64_t value);
 static bool remove_from_leaf(btree_node_persisted* leaf, uint64_t key);
 static void rebalance_internal(btree_node_persisted* parent,
@@ -129,7 +129,7 @@ static void set_new_root(btree* this, uint64_t middle_key,
 	this->root = new_fork_node(middle_key, left, right);
 }
 
-int8_t btree_insert(btree* this, uint64_t key, uint64_t value) {
+bool btree_insert(btree* this, uint64_t key, uint64_t value) {
 	if (key == SLOT_UNUSED && value == SLOT_UNUSED) {
 		log_fatal("Attempted to insert reserved value.");
 	}
@@ -196,7 +196,7 @@ static void collapse_if_singleton_root(btree* this,
 	}
 }
 
-int8_t btree_delete(btree* this, uint64_t key) {
+bool btree_delete(btree* this, uint64_t key) {
 	btree_node_persisted* parent = NULL;
 	btree_node_traversed node = nt_root(this);
 
@@ -303,7 +303,7 @@ int8_t btree_delete(btree* this, uint64_t key) {
 	assert(node.persisted == this->root ||
 			get_n_leaf_keys(node.persisted) > LEAF_MIN_KEYS);
 	if (!remove_from_leaf(node.persisted, key)) {
-		return 1;
+		return false;
 	}
 	if (parent && get_n_leaf_keys(node.persisted) == 0) {
 		remove_ptr_from_node(parent, node.persisted);
@@ -314,7 +314,7 @@ int8_t btree_delete(btree* this, uint64_t key) {
 			assert(get_n_leaf_keys(node.persisted) >= LEAF_MIN_KEYS);
 		}
 	}
-	return 0;
+	return true;
 }
 
 bool btree_find(btree* this, uint64_t key, uint64_t *value) {
@@ -562,7 +562,7 @@ static void remove_ptr_from_node(btree_node_persisted* parent,
 	--parent->internal.key_count;
 }
 
-int8_t insert_key_value_pair(btree_node_persisted* leaf,
+bool insert_key_value_pair(btree_node_persisted* leaf,
 		uint64_t key, uint64_t value) {
 	assert(get_n_leaf_keys(leaf) < LEAF_MAX_KEYS);
 	uint8_t insert_at;
@@ -572,8 +572,7 @@ int8_t insert_key_value_pair(btree_node_persisted* leaf,
 			break;
 		}
 		if (leaf->leaf.keys[insert_at] == key) {
-			// Duplicate keys.
-			return 1;
+			return false;  // Duplicate keys.
 		}
 		if (leaf->leaf.keys[insert_at] > key) {
 			break;
@@ -585,7 +584,7 @@ int8_t insert_key_value_pair(btree_node_persisted* leaf,
 	}
 	leaf->leaf.keys[insert_at] = key;
 	leaf->leaf.values[insert_at] = value;
-	return 0;
+	return true;
 }
 
 static bool remove_from_leaf(btree_node_persisted* leaf, uint64_t key) {

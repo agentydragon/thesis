@@ -86,7 +86,7 @@ static void check_equivalence(dict* instance, uint64_t N,
 
 static void test_with_maximum_size(const dict_api* api, uint64_t N) {
 	dict* instance;
-	ASSERT(!dict_init(&instance, api, NULL));
+	dict_init(&instance, api);
 
 	srand(0);
 	uint64_t *keys = calloc(N, sizeof(uint64_t));
@@ -110,7 +110,7 @@ static void test_with_maximum_size(const dict_api* api, uint64_t N) {
 			for (uint64_t i = 0; ; i = (i + 1) % N) {
 				if (present[i] && rand() % current_size == 0) {
 					// log_info("delete %" PRIu64, keys[i]);
-					ASSERT(!dict_delete(instance, keys[i]));
+					ASSERT(dict_delete(instance, keys[i]));
 					present[i] = false;
 					--current_size;
 					break;
@@ -121,7 +121,7 @@ static void test_with_maximum_size(const dict_api* api, uint64_t N) {
 			for (uint64_t i = 0; ; i = (i + 1) % N) {
 				if (!present[i] && rand() % (N - current_size) == 0) {
 					values[i] = rand();
-					ASSERT(!dict_insert(instance, keys[i], values[i]));
+					ASSERT(dict_insert(instance, keys[i], values[i]));
 					// log_info("add %" PRIu64 "=%" PRIu64, keys[i], values[i]);
 					present[i] = true;
 					++current_size;

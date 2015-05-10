@@ -15,10 +15,6 @@ static void has_element(dict* table, uint64_t key, uint64_t value) {
 			key, value, found_value);
 }
 
-static void init(dict** table, const dict_api* api) {
-	CHECK(!dict_init(table, api, NULL), "cannot init dict");
-}
-
 static void has_no_element(dict* table, uint64_t key) {
 	CHECK(!dict_contains(table, key),
 			"key %ld found, expected not to find it", key);
@@ -26,18 +22,18 @@ static void has_no_element(dict* table, uint64_t key) {
 
 static void insert(dict* table, uint64_t key, uint64_t value) {
 	log_verbose(1, "insert(%ld,%ld)", key, value);
-	CHECK(!dict_insert(table, key, value), "cannot insert %ld=%ld to dict",
+	CHECK(dict_insert(table, key, value), "cannot insert %ld=%ld to dict",
 			key, value);
 }
 
 static void delete(dict* table, uint64_t key) {
 	log_verbose(1, "delete(%ld)", key);
-	CHECK(!dict_delete(table, key), "cannot delete key %ld", key);
+	CHECK(dict_delete(table, key), "cannot delete key %ld", key);
 }
 
 static void has_no_elements_at_first(const dict_api* api) {
 	dict* table;
-	init(&table, api);
+	dict_init(&table, api);
 
 	has_no_element(table, 1);
 	has_no_element(table, 2);
@@ -47,11 +43,9 @@ static void has_no_elements_at_first(const dict_api* api) {
 
 static void doesnt_delete_at_first(const dict_api* api) {
 	dict* table;
-	init(&table, api);
-
-	ASSERT(dict_delete(table, 1));
-	ASSERT(dict_delete(table, 2));
-
+	dict_init(&table, api);
+	ASSERT(!dict_delete(table, 1));
+	ASSERT(!dict_delete(table, 2));
 	dict_destroy(&table);
 }
 
@@ -76,7 +70,7 @@ static void check_equivalence(dict* instance, uint64_t N,
 
 static void test_with_maximum_size(const dict_api* api, uint64_t N) {
 	dict* instance;
-	init(&instance, api);
+	dict_init(&instance, api);
 
 	srand(0);
 	uint64_t *keys = calloc(N, sizeof(uint64_t));
@@ -127,7 +121,7 @@ static void test_with_maximum_size(const dict_api* api, uint64_t N) {
 
 static void test_regular(const dict_api* api, uint64_t N) {
 	dict* table;
-	init(&table, api);
+	dict_init(&table, api);
 
 	log_info("test_regular(%s, %ld)", api->name, N);
 
@@ -148,9 +142,9 @@ static void test_regular(const dict_api* api, uint64_t N) {
 
 static void fails_on_duplicate_insertion(const dict_api* api) {
 	dict* table;
-	init(&table, api);
+	dict_init(&table, api);
 	insert(table, 10, 20);
-	CHECK(dict_insert(table, 10, 20),
+	CHECK(!dict_insert(table, 10, 20),
 			"duplicate insertion should fail, but it succeeded");
 
 	has_element(table, 10, 20);

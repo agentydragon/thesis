@@ -5,15 +5,11 @@
 
 #include "btree/btree.h"
 
-static int8_t init(void** _this, void* args_unused) {
-	(void) args_unused;
-
+static void init(void** _this) {
 	btree* this = malloc(sizeof(btree));
 	assert(this);
 	btree_init(this);
 	*_this = this;
-
-	return 0;
 }
 
 static void destroy(void** _this) {
@@ -39,11 +35,11 @@ static bool prev(void* this, uint64_t key, uint64_t *prev_key) {
 	return btree_find_prev(this, key, prev_key);
 }
 
-static int8_t insert(void* this, uint64_t key, uint64_t value) {
+static bool insert(void* this, uint64_t key, uint64_t value) {
 	return btree_insert(this, key, value);
 }
 
-static int8_t delete(void* this, uint64_t key) {
+static bool delete(void* this, uint64_t key) {
 	return btree_delete(this, key);
 }
 
