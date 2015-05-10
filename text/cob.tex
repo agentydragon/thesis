@@ -201,7 +201,7 @@ We will only use the van~Emde Boas order to walk in the direction from
 the root node to a leaf or in reverse.
 Given the \emph{van~Emde Boas ID} of a node (denoted as numbers
 inside the nodes in Figure \ref{fig:veb_layout_5}),
-we can easily calculate the van~Emde Boas IDs of its children by
+we can easily calculate the van~Emde~Boas IDs of its children by
 a recursive procedure. This procedure either returns \emph{internal} node
 pointers, referencing actual nodes of the tree, or it returns \emph{external}
 indexes, which represent virtual nodes below the leaves, counted from left
@@ -300,7 +300,7 @@ $i \And T[d]$.
 
 Because the current node $X$ is the root of the $(i \And T[d])$-th
 bottom tree of size $B[d]$ after a top tree of size $T[d]$ rooted in
-$Pos[D[d]]$, it follows that the van Emde Boas index of the current node can be
+$Pos[D[d]]$, it follows that the van~Emde~Boas index of the current node can be
 calculated in $\O(1)$ time as:
 $$Pos[d]=Pos[D[d]] + T[d] + (i \And T[d]) \cdot B[d]$$
 
@@ -736,7 +736,7 @@ An overview of progress on implicit dictionaries is given in
 \cite{implicit-btrees-survey}. The optimal bound of worst-case
 $\Theta(\log_B N)$ block transfers per \textsc{Find} or update has been reached
 in an implicit setting in \cite{implicit-cob}. Similarly to the simple
-cache-oblivious B-tree, the construction uses the deamortized version of
+cache-oblivious \mbox{B-tree}, the construction uses the deamortized version of
 the packed memory array in conjunction with the van~Emde Boas layout. To avoid
 holes in the packed memory array, the elements of the packed memory array are
 chunks of keys.  Several other modifications are necessary to allow updates
