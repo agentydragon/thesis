@@ -5,7 +5,8 @@ B-trees are particularly useful where the external memory model is accurate,
 because all information in every transferred block is actively used
 in searching. For example, the ext4, Btrfs and NTFS filesystems use B-trees
 to store directory contents and the MongoDB and MariaDB databases use B-trees
-as indexes. Red-black trees, which are (in the left-leaning variant
+as indexes.  % TODO: Cite this claim.
+Red-black trees, which are (in the left-leaning variant
 described by \cite{left-leaning}) isomorphic to B-trees for $b=2$, are
 commonly used to maintain in-memory dictionaries, for example in the GNU ISO
 \Cpp Library as the implementation of the \texttt{std::map} STL template.
@@ -23,6 +24,14 @@ child pointers in internal nodes: one for every interval
 $[K_1;K_2),\ldots [K_{k-1};K_k)$, plus one for $(-\infty;K_1)$ and
 $(K_k;\infty)$ each.
 Leaf nodes of a B-tree store $[b;2b]$ key-value pairs.
+
+B-trees can store values for keys either within all nodes (internal or leaves),
+or only in leaves. If values are stored only in leaves, keys stored
+within internal nodes are only used as pivots, and may not necessarily
+have a value within leaves -- if a key is deleted, it is removed from its leaf
+along with its node, but internal nodes may retain a copy of the key.
+Our implementation stores values only inside leaves to allow tighter packing
+of internal nodes.
 
 The essence of the $[b;2b]$ interval is that when we try to insert
 the $(2b+1)$-th key, we can instead split the node into two valid nodes of size
@@ -64,6 +73,13 @@ key from the parent is pulled down into the merged node.
 The only exception is the root node, which may have $[1;2b]$ keys.
 If deleting from the root would leave the root with only one child
 (and zero keys), we instead make the only child of the root the new root.
+
+For B-trees that store values within both internal nodes and leaves,
+some deletions will need to remove a key used as a pivot within an internal
+node. In this case, the deleted key needs to be replaced by the minimum of its
+left subtree, or the maximum of its right subtree.
+Since our implementation stores values only inside leaves, deletions will
+always start at a leaf, which slightly simplifies them.
 
 Thus, updates to the B-tree keep the number of keys of all nodes within
 $[b;2b]$, so the depth of the tree is kept between $\log_2b N$ and $\log_b N$
