@@ -261,7 +261,7 @@ however, comparatively weak on cache-oblivious B-trees.
 
 \begin{table}
 \centering
-\begin{tabular}{|c|c|c|}
+\begin{tabular}{|c|S<{\,\si{\s}}|S<{\,\si{\s}}|}
 %--close_count=1000
 %--scatter=GRID
 %--lat_step=100
@@ -280,16 +280,15 @@ however, comparatively weak on cache-oblivious B-trees.
 %	     dict_ksplay:     44 717 377 069 ns
 %	      dict_btree:     25 884 347 926 ns
 	\hline
-	Dictionary & Grid sampling & Random sampling \\
+	Dictionary & \multicolumn{1}{c|}{Grid sampling} & \multicolumn{1}{c|}{Random sampling} \cr
 	\hline
-
-	Cache-oblivious B-tree & $20.69\,\text{s}$ & $20.58\,\text{s}$ \\
+	Cache-oblivious B-tree & 20.69 & 20.58 \cr
 	\hline
-	Splay tree & $6.03\,\text{s}$ & $6.65\,\text{s}$ \\
+	Splay tree & 6.03 & 6.65 \cr
 	\hline
-	$k$-splay tree & $41.69\,\text{s}$ & $44.72\,\text{s}$ \\
+	$k$-splay tree & 41.69 & 44.72 \cr
 	\hline
-	B-tree & $22.68\,\text{s}$ & $25.89\,\text{s}$ \\
+	B-tree & 22.68 & 25.89 \cr
 	\hline
 \end{tabular}
 \caption{Results of the cloud database experiment, generated
