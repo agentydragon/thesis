@@ -141,8 +141,9 @@ allow up to $k$ collisions per slot. The \textit{C Minimum Perfect
 Hashing Library}, available at \url{http://cmph.sourceforge.net/}, implements
 HDC along with several other minimum perfect hashing algorithms.
 
-A dynamic version of perfect hashing, commonly referred to as \emph{FKS
-hashing} after the initials of the authors, was developed in \cite{fks-hashing}.
+A perfect hashing scheme, commonly referred to as \emph{FKS hashing}
+after the initials of the authors, was developed in \cite{fks-hashing}
+and later extended to allow updates in \cite{dyn-ph-bounds}.
 FKS hashing takes worst-case $\O(1)$ time for queries (an improvement over
 expected $\O(1)$ with chaining) and expected amortized $\O(1)$ for updates.
 
@@ -182,8 +183,6 @@ To \textsc{Find} a~key $k$, we simply compute $f(k)$ to get the right bucket,
 and we look at position $g_{f(k)}(k)$ in the bucket, which takes deterministic
 $\O(1)$ time.
 
-Original static FKS hashing was extended to allow updates in
-\cite{dyn-ph-bounds}.
 We maintain $\O(N)$ buckets, and whenever $N$ increases or decreases by
 a constant factor, we rebuild the whole FKS hash table in expected time
 $\O(N)$, which amortizes to expected $\O(1)$ per update. Each bucket $B_i$
