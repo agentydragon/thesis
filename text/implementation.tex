@@ -115,9 +115,9 @@ Bigger problems, such as internal inconsistencies or failures to allocate
 memory are signalled by logging a message and exitting the program.
 While such resignation to error handling is not appropriate in dependable
 software, our code is indended only for experimental purposes, where fatal
-failure is acceptable. A more robust implementation would instead react
-to failure by deallocating resources, undoing performed changes and returning
-an error code.
+failure is acceptable. A~more robust implementation would instead react
+to failure by freeing temporary resources, rolling back any changes
+and returning an error code.
 
 Dictionary data structures may optionally implement successor and predecessor
 lookups. The public API consists of the functions \texttt{dict\_next} and

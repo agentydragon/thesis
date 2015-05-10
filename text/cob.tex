@@ -160,7 +160,7 @@ Note that at every level of recursion, every tree is stored in contiguous
 memory. Assume that any node can be stored in one machine word. A~cache block
 of $B$~words accomodates $B$~nodes, so there is some level of recursion $i$
 for which trees of height $h_i$ fit into a~cache block, but trees of the next
-larger height $h_{i-1}$ do not. In other words, $2^{h_i}-1 < B$ and
+larger height $h_{i-1}$ do~not. In other words, $2^{h_i}-1 < B$ and
 $2^{h_i-1}-1\geq B$, from which $h_i=\Theta(\log B)$ follows.
 
 Root-to-leaf paths contain $\Theta(\log N)$ nodes, and these nodes
@@ -562,7 +562,7 @@ To remove this term, we will use this bootstrapping data structure with
 
 The final \emph{cache-oblivious B-tree} will store key-value pairs
 partitioned into \emph{pieces} in disjoint intervals. A piece is an array of
-$P=\Theta(\log N)$ slots, which contains between $P/4$ and $P$ key-value pairs.
+$P=\Theta(\log N)$ slots, which contains between $P/4$~and~$P$ key-value pairs.
 % TODO: opravdu? ne spis 3/4P? to bych mel overit...
 Since pieces are physical arrays, reading or fully rewriting a piece
 takes $\Theta(\frac{\log N}{B})$ block transfers.
@@ -701,7 +701,7 @@ Thus, updates take $\Theta(\log_B N)$ plus $\Theta(\frac{\log^2 N}{B})$
 every time we need a~split or a~merge. However, we don't need splits and
 merges too often: splitting a full piece creates two pieces of size $P/2$,
 which will be only split or merged again after $\Theta(P)$ more updates.
-Merging two pieces yields a piece with between $P/2$ and $3P/4$ items.
+Merging two pieces yields a piece with between $P/2$~and~$3P/4$ items.
 This new piece will also be updated only after $\Theta(P)$ more updates.
 Thus, we can charge each update $\Theta(\frac{1}{\log N}\frac{\log^2 N}{B})$
 for splits and merges, which gives us $\Theta(\log_B N+\frac{\log N}{B})=
@@ -734,8 +734,8 @@ when pointers are implicit.
 auxiliary information as possible. Implicit dictionaries are allowed to only
 store a~permutation of the stored data and $\O(1)$ memory cells of additional
 information. Bookkeeping information, such as pointers or small integers
-of $b$ bits, is usually encoded by a pairwise permutation of $2b$ keys,
-with $x_{2i} < x_{2i+1}$ corresponding to 1 and $x_{2i} > x_{2i+1}$
+of~$b$~bits, is usually encoded by a pairwise permutation of $2b$ keys,
+with $x_{2i} < x_{2i+1}$ corresponding~to~1 and $x_{2i} > x_{2i+1}$
 corresponding to 0.
 
 An overview of progress on implicit dictionaries is given in
