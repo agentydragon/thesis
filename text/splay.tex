@@ -79,7 +79,7 @@ rotate edges between $x$, its parent $p$ and possibly its grandparent $g$
 until $x$ becomes the root. Splaying a~node of depth $d$ takes time $\Theta(d)$.
 Up to left-right symmetry, there are three cases of splaying steps:
 
-\begin{itemize}
+\begin{description}
 \item[Case 1 (\emph{zig}):] If $p$ is the root, rotate the $px$ edge. (This case is terminal.)
 \item[Case 2 (\emph{zig-zig}):] If $p$ is not the root and $x$ and
 		$p$ are both left or both right children, rotate
@@ -87,7 +87,7 @@ Up to left-right symmetry, there are three cases of splaying steps:
 \item[Case 3 (\emph{zig-zag}):] If $p$ is not the root and $x$ is a left child and $p$
 		is a right child (or vice versa), rotate the edge $px$ and
 		then rotate the edge now joining $g$ with $x$.
-\end{itemize}
+\end{description}
 
 \begin{figure}
 \centering
@@ -245,7 +245,7 @@ of $x$ and $g$ the original grandparent of $x$ (if it exists).
 The upper bound on $a_j$ is proved by examining the structural changes made
 by each case of a splay step, as shown on Figure \ref{fig:splay-step}.
 
-\begin{itemize}
+\begin{description}
 \item[Case 1 (\emph{zig}):]
 	The only needed rotation of the $px$ edge may only change the rank
 	of~$x$ and~$p$, so $a_j=1+r'(x)+r'(p)-r(x)-r(p)$.
@@ -277,7 +277,7 @@ by each case of a splay step, as shown on Figure \ref{fig:splay-step}.
 	i.e.,\ $2r'(x)-r'(p)-r'(g)\geq 2$. This can be proven
 	similarly to case 2 from the inequality $s'(p)+s'(g)\leq s'(x)$.
 	Thus the $a_j \leq 2(r'(x)-r(x))\leq 3(r'(x)-r(x))$.
-\end{itemize}
+\end{description}
 
 Telescoping $\sum a_j$ along the splayed path yields an upper bound of
 $a \leq 3(r'(t)-r(x))+1$ for the entire splaying operation.
