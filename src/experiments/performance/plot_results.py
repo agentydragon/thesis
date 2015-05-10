@@ -225,13 +225,13 @@ def plot_cob_find_speed_figures():
     pyplot.ylabel('Time per operation [ns]')
     pyplot.grid(True)
 
-    api_data = [point for point in data if point['implementation'] == 'dict_btree']
+    api_data = select_api(data, 'dict_btree')
     plot_data(api_data, 'r', linewidth=2.0, label='B-tree')
 
-    api_data = [point for point in data if point['implementation'] == 'dict_cobt']
+    api_data = select_api(data, 'dict_cobt')
     plot_data(api_data, 'g', linewidth=2.0, label='Cache-oblivious B-tree')
 
-    api_data = [point for point in data if point['implementation'] == 'dict_htlp']
+    api_data = select_api(data, 'dict_htlp')
     if api_data:
       plot_data(api_data, '#666666', linewidth=1.0, label=HASH_LABEL,
                 linestyle='dashed')
@@ -381,10 +381,10 @@ def plot_hashing_performance():
     pyplot.ylabel('Time per operation [ns]')
     pyplot.grid(True)
 
-    api_data = [point for point in data if point['implementation'] == 'dict_htlp']
+    api_data = select_api(data, 'dict_htlp')
     plot_data(api_data, 'r', linewidth=2.0, label='Linear probing')
 
-    api_data = [point for point in data if point['implementation'] == 'dict_htcuckoo']
+    api_data = select_api(data, 'dict_htcuckoo')
     plot_data(api_data, 'g', linewidth=2.0, label='Cuckoo hashing')
 
     api_data = [point for point in data if point['implementation'] == 'dict_btree'
