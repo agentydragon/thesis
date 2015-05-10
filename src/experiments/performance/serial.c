@@ -9,11 +9,12 @@ struct metrics measure_serial(const dict_api* api, serial_mode mode,
 	measurement* measurement_both = measurement_begin();
 	measurement* measurement_just_insert = measurement_begin();
 	stopwatch watch = stopwatch_start();
+	measurement_results *results_just_insert;
+	uint64_t time_just_insert_ns;
 
 	dict* table = seed(api, size);
-	measurement_results *results_just_insert = measurement_end(
-			measurement_just_insert);
-	const uint64_t time_just_insert_ns = stopwatch_read_ns(watch);
+	results_just_insert = measurement_end(measurement_just_insert);
+	time_just_insert_ns = stopwatch_read_ns(watch);
 
 	measurement* measurement_just_find = measurement_begin();
 	stopwatch watch_just_find = stopwatch_start();
