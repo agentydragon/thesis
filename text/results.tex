@@ -59,7 +59,7 @@ make updates of smaller dictionaries more efficient.
 \section{Self-adjusting structures}
 Splay trees are the canonical self-adjusting structure we would like to
 outperfrom. As expected, splay trees are somewhat slower than B-trees on
-unpredictable operations (see Figure \ref{fig:self-adj-performance-finds}).
+unpredictable operations (see Figure~\ref{fig:self-adj-performance-finds}).
 
 \begin{figure}
 \begin{subfigure}[t]{\textwidth}
@@ -119,7 +119,7 @@ accounts for about 20\% of CPU time.
 We experimented with replacing memory allocation with a static array.
 This change brought the performance of $k$-splay trees somewhat closer to
 splay trees, but splay trees still won in every test
-(see Figure \ref{fig:ksplay-noalloc}).
+(see Figure~\ref{fig:ksplay-noalloc}).
 
 \begin{figure}
 \begin{subfigure}[t]{0.48\textwidth}
@@ -155,11 +155,12 @@ close to the root, even as we add many unused key-value pairs into the
 dictionary.
 
 Due to the presence of caches, even non-self-adjusting data structures (like
-B-trees) can exhibit a ``pseudo-working set property'', provided the auxiliary
-data needed to access the working set fits into the cache. However, as we
-increase the size of the dictionary, we can distinguish the ``pseudo-working
-set property'' from the true working set property: in B-trees, more auxiliary
-data is needed, and it eventually ceases to fit in the cache.
+\mbox{B-trees}) can exhibit a ``pseudo-working set property'', provided
+the auxiliary data needed to access the working set fits into the cache.
+However, as we increase the size of the dictionary, we can distinguish
+the ``pseudo-working set property'' from the true working set property:
+in B-trees, more auxiliary data is needed, and it eventually ceases to fit
+in the cache.
 In structures with the true working set property, caches will still contain
 mostly useful key-value pairs, even when the working set is a tiny fraction
 of the dictionary.
@@ -184,9 +185,9 @@ between $1/4$ and $3/4$.
 Since cuckoo hash tables guarantee worst-case $\O(1)$ time for lookups,
 we expected both successful and unsuccessful random \textsc{Find}s to be
 measurably slower with linear probing.
-On random successful \textsc{Find}s (Figure \ref{fig:hashing-performance-finds}\subref{fig:sub:hashing-1-100}),
+On random successful \textsc{Find}s (Figure~\ref{fig:hashing-performance-finds}\subref{fig:sub:hashing-1-100}),
 cuckoo hashing did only very slightly better than linear probing.
-On unsuccessful \textsc{Find}s (Figure \ref{fig:hashing-performance-finds}\subref{fig:sub:hashing-1-0}),
+On unsuccessful \textsc{Find}s (Figure~\ref{fig:hashing-performance-finds}\subref{fig:sub:hashing-1-0}),
 the benefits of cuckoo hashing were more pronounced.
 On the other hand, linear probing allows a higher load factor.
 (Forcing cuckoo hashing to fill the hash tables more fully significantly
