@@ -298,10 +298,10 @@ $\O((M+N)\log N+M)$.
 \end{theorem}
 \begin{proof}
 Assign $w(K_i)=1/N$ to every key $K_i$. The amortized
-access time for any key is at most $3\log N+1$. We have $W=1$, so by
-the previous observation the potential drops by at most $N\log N$ over
-the access sequence. Thus the time to perform the access sequence is at most
-$(3\log N+1)M + N\log N = \O((M+N)\log N + M)$.
+access time for any key is at most $3\log N+1$. We have $W=1$, so
+the potential drops by at most $\sum_{i=1}^N \log(1/w(K_i))=
+\sum_{i=1}^N \log N=N\log N$ over the access sequence. Thus the time to perform
+the access sequence is at most $(3\log N+1)M + N\log N = \O((M+N)\log N + M)$.
 \end{proof}
 
 The balance theorem states that, in the amortized sense, lookups in a~splay
