@@ -21,7 +21,7 @@ moves a~specified node~$x$ to the root of the tree by performing a~sequence
 of edge rotations along the path from the root to $x$.
 Rotations cost $\O(1)$ time each and rotating any edge maintains
 the soundness of search trees. Rotations are defined by
-Figure~\ref{fig:rotation}.
+figure~\ref{fig:rotation}.
 
 \newcommand{\hunk}[2]{ node [splay_hunk] (hunk#1-#2) {#1} }
 
@@ -233,7 +233,7 @@ and at most $3(r'(x)-r(x))$ in case 2 or case 3. Let $p$ be the original parent
 of $x$ and $g$ the original grandparent of $x$ (if it exists).
 
 The upper bound on $a_j$ is proved by examining the structural changes made
-by each case of a splay step, as shown on Figure \ref{fig:splay-step}.
+by each case of a splay step, as shown on figure~\ref{fig:splay-step}.
 
 \begin{description}
 \item[Case 1 (\emph{zig}):]
@@ -336,7 +336,8 @@ $\O(N\log N + M + \sum_{j=1}^M \log(|k_j-f|+1))$.
 \end{proof}
 
 As proven in \cite{dynamic-finger-1} and \cite{dynamic-finger-2},
-accessing keys numerically close to recently accessed keys is also fast:
+it is fast to access keys that are close to recently accessed keys
+in the order of keys in $K$:
 \begin{theorem}[Dynamic Finger Theorem]
 The cost of performing an access sequence is
 $\O(N+M+\sum_{i=2}^M \log(|k_i-k_{i-1}| + 1))$.

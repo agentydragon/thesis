@@ -8,7 +8,7 @@ techniques usually allow expected constant-time \textsc{Find}, \textsc{Insert}
 and \textsc{Delete} at the expense of disallowing \textsc{FindNext} and
 \textsc{FindPrevious}. Certain schemes provide stronger than expected-time
 bounds, like deterministic constant time for \textsc{Find}s in cuckoo hashing
-(described in section \ref{sec:cuckoo}).
+(described in section~\ref{sec:cuckoo}).
 
 The idea of hashing is reducing the size of the large key universe
 $\mathcal{U}$ to a smaller \emph{hash space} $H$ via a \emph{hashing function}
@@ -260,7 +260,7 @@ to get this bound, and \cite{linear-probing-constant} showed that
 which is only 3-independent and which can be implemented faster than usual
 5-independent schemes, also achieves $\O(1/\varepsilon^2)$.
 
-In section \ref{sec:hashing-results}, we present our measurements of the
+In section~\ref{sec:hashing-results}, we present our measurements of the
 performance of linear probing with simple tabulation hashing.
 
 \section{Cuckoo hashing}
@@ -451,7 +451,7 @@ Examples of $\Theta(\log N)$-independent hashing schemes include:
 % Drawback: large precomputed tables. CW-trick just requires $a_0,\ldots a_k-1$
 
 For simplicity, our implementation of cuckoo hashing uses simple tabulation
-hashing. As shown in section \ref{sec:hashing-results}, \textsc{Insert}s were
+hashing. As shown in section~\ref{sec:hashing-results}, \textsc{Insert}s were
 significantly slower than with linear probing. Our work could be extended by
 trying more sophisticated and more independent hash functions.
 

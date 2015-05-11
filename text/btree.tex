@@ -5,9 +5,9 @@ They were introduced in 1970 as a method of efficiently maintaining an ordered
 index \cite{btree}.
 B-trees are particularly useful where the external memory model is accurate,
 because all information in every transferred block is actively used
-in searching. For example, the ext4, Btrfs and NTFS filesystems use B-trees
-to store directory contents and the MongoDB and MariaDB databases use B-trees
-for indexing.  % TODO: Cite this claim.
+in searching. For example, the ext4, Btrfs and NTFS filesystems use variants
+of B-trees to store directory contents and the MongoDB and MariaDB databases
+use B-trees for indexing.  % TODO: Cite this claim:  \cite{btrfs}
 Red-black trees, which are (in the left-leaning variant
 described by \cite{left-leaning}) isomorphic to B-trees for $b=2$, are
 commonly used to maintain in-memory dictionaries, for example in the GNU ISO

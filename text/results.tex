@@ -2,9 +2,10 @@
 \label{chapter:results}
 
 \section{Cache-oblivious B-tree}
+\label{sec:cob-perf}
 We found the performance of cache-oblivious B-trees very competitive compared
 to B-trees on both random uniform access patterns and modestly large working
-sets. As seen on Figure \ref{fig:cob-performance}, random successful
+sets. As seen on figure~\ref{fig:cob-performance}, random successful
 \textsc{Find}s were up to twice as fast in large cache-oblivious B-trees
 without ever being significantly slower on small dictionaries.
 The large density of the van Emde Boas tree is the likely reason for these
@@ -59,7 +60,7 @@ make updates of smaller dictionaries more efficient.
 \section{Self-adjusting structures}
 Splay trees are the canonical self-adjusting structure we would like to
 outperfrom. As expected, splay trees are somewhat slower than B-trees on
-unpredictable operations (see Figure~\ref{fig:self-adj-performance-finds}).
+unpredictable operations (see figure~\ref{fig:self-adj-performance-finds}).
 
 \begin{figure}
 \begin{subfigure}[t]{\textwidth}
@@ -119,7 +120,7 @@ accounts for about 20\% of CPU time.
 We experimented with replacing memory allocation with a static array.
 This change brought the performance of $k$-splay trees somewhat closer to
 splay trees, but splay trees still won in every test
-(see Figure~\ref{fig:ksplay-noalloc}).
+(see figure~\ref{fig:ksplay-noalloc}).
 
 \begin{figure}
 \begin{subfigure}[t]{0.48\textwidth}
@@ -143,8 +144,8 @@ $\Theta(k^2)$ keys and pointers in every $k$-splay step, so we believe top-down
 \mbox{$k$-splaying} would not significantly reduce the high cost of
 \texttt{ksplay\_step}.
 
-Our measurements on small working sets (Figure
-\ref{fig:self-adj-performance}\subref{fig:sub:self-adj-ws-1k},
+Our measurements on small working sets
+(figure~\ref{fig:self-adj-performance}\subref{fig:sub:self-adj-ws-1k},
 \subref{fig:sub:self-adj-ws-100k}) confirm that splay trees, $k$-forests
 and $k$-splay trees all have the working set property.
 Even if we only use a small working set, B-trees need more data to reach
@@ -168,7 +169,7 @@ of the dictionary.
 $k$-forests were slow both backed by B-trees and by cache-oblivious B-trees.
 Choosing a larger $k$ slightly helped, but larger values of $k$ also degenerate
 \mbox{$k$-forests} into their backing structure.
-As observed on \ref{fig:self-adj-performance-finds}, \textsc{Find}s in
+As observed on figure~\ref{fig:self-adj-performance-finds}, \textsc{Find}s in
 $k$-forests are much slower when they are successful, probably due to the need
 to promote the found key-value pair. A possible way of speeding up
 \textsc{Find}s may be backing the \mbox{$k$-forest} by a structure that can
@@ -185,9 +186,9 @@ between $1/4$ and $3/4$.
 Since cuckoo hash tables guarantee worst-case $\O(1)$ time for lookups,
 we expected both successful and unsuccessful random \textsc{Find}s to be
 measurably slower with linear probing.
-On random successful \textsc{Find}s (Figure~\ref{fig:hashing-performance-finds}\subref{fig:sub:hashing-1-100}),
+On random successful \textsc{Find}s (figure~\ref{fig:hashing-performance-finds}\subref{fig:sub:hashing-1-100}),
 cuckoo hashing did only very slightly better than linear probing.
-On unsuccessful \textsc{Find}s (Figure~\ref{fig:hashing-performance-finds}\subref{fig:sub:hashing-1-0}),
+On unsuccessful \textsc{Find}s (figure~\ref{fig:hashing-performance-finds}\subref{fig:sub:hashing-1-0}),
 the benefits of cuckoo hashing were more pronounced.
 On the other hand, linear probing allows a higher load factor.
 (Forcing cuckoo hashing to fill the hash tables more fully significantly
@@ -244,7 +245,7 @@ The hash table operations collected from the Firefox session are compressed
 in \texttt{data/firefox-htable.tar.gz}. We replayed the operations on all our
 dictionary implementations. We normalized the measured times by the maximum
 time taken for each recording to allow easier comparison of relative
-performance. Our results are presented in Table \ref{tab:firefox-results}.
+performance. Our results are presented in table~\ref{tab:firefox-results}.
 
 \begin{table}
 \centering
@@ -311,15 +312,15 @@ faster with cuckoo hashing, as they take only 2 memory transfers as any other
 traverse an entire chain.
 
 \subsection{Geospatial database}
-The results of the cloud database experiment are outlined in Table
-\ref{tab:cloud-results}. Cache-oblivious \mbox{B-trees} slightly outperformed
+The results of the cloud database experiment are outlined in
+table~\ref{tab:cloud-results}. Cache-oblivious \mbox{B-trees} slightly outperformed
 standard \mbox{B-trees}. Splay trees were surprisingly fast. One factor that
 might cause them to perform so well might be that stations usually produce
 a~large amount of reports over their lifetime, so when we fetch $S$ closest
 reports for a~point, it is likely that all such reports will be the first $S$
 reports reported by the closest station. Splay trees may thus keep old reports
 near the top. In this experiment, we picked $S=1~000$. Also, as can be
-seen on Figure \ref{fig:cloud-data}, the distribution of stations on the globe
+seen on figure~\ref{fig:cloud-data}, the distribution of stations on the globe
 is very uneven, so stations ``assigned'' to a large area can be kept closer to
 the root.
 

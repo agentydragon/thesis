@@ -201,7 +201,7 @@ We implemented the following dictionary data structures:
 	indended as a~benchmark on very small inputs.
 \item \texttt{dict\_btree}, declared in \texttt{dict/btree.h}:
 	a 2-3-4 tree with nodes aligned to $64\,\text{B}$ cache lines.
-	This is a~slight relaxation of B-trees (Chapter~\ref{chapter:btree})
+	This is a~slight relaxation of B-trees (chapter~\ref{chapter:btree})
 	that allows inner nodes to contain $k\in[1;3]$ keys.
 	An inner node needs to keep $k$~keys and $k+1$~pointers, so, with
 	64-bit key and pointers and 64~B cache lines, an inner node fitting
@@ -209,17 +209,17 @@ We implemented the following dictionary data structures:
 	keys and $k$ values of 64 bits each, which lets us put up to
 	4 key-value pairs into each leaf.
 \item \texttt{dict\_cobt}, declared in \texttt{dict/cobt.h}:
-	a cache-oblivious B-tree (Chapter~\ref{chapter:cob}).
+	a cache-oblivious B-tree (chapter~\ref{chapter:cob}).
 \item \texttt{dict\_htcuckoo}, declared in \texttt{dict/htcuckoo.h}:
 	cuckoo hash table with simple tabulation hashing
-	(Section~\ref{sec:cuckoo}).
+	(section~\ref{sec:cuckoo}).
 \item \texttt{dict\_htlp}, declared in \texttt{dict/htlp.h}:
 	an open-addressing hash table with linear probing and simple tabulation
-	hashing (Section~\ref{sec:open-addressing}).
+	hashing (section~\ref{sec:open-addressing}).
 \item \texttt{dict\_splay}, declared in \texttt{dict/splay.h}:
-	a splay tree (Chapter~\ref{chapter:splay}).
+	a splay tree (chapter~\ref{chapter:splay}).
 \item \texttt{dict\_ksplay}, declared in \texttt{dict/ksplay.h}:
-	a $k$-splay tree (Chapter~\ref{chapter:ksplay}). % FIXME: which K?
+	a $k$-splay tree (chapter~\ref{chapter:ksplay}). % FIXME: which K?
 % TODO: htable
 \end{itemize}
 
@@ -455,7 +455,7 @@ A possible alternative would be using a \emph{Peano curve}
 A desirable property of Peano curves is that if two-dimensional points
 $x$ and $y$ map to neighbouring images in the one-dimensional space, then
 $x$ and $y$ were neighbours in the two-dimensional space. As apparent
-from Figure \ref{fig:z-order}, this does not hold in the Z-order.
+from figure~\ref{fig:z-order}, this does not hold in the Z-order.
 We decided to use the Z-order for the simplicity of its mapping function.
 
 Queries are implemented simply by mixed calls to \texttt{dict\_prev} and

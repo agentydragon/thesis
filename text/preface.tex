@@ -52,11 +52,11 @@ for sorted and unsorted dictionaries. Our choice of data structures was
 intended to sample simple dictionaries for RAM, cache-friendly dictionaries
 for external memory and self-adjusting structures.
 A high-level description of our implementation and benchmarks is presented
-in chapter \ref{chapter:implementation}. The results are discussed in
-chapter \ref{chapter:results}.
+in chapter~\ref{chapter:implementation}. The results are discussed in
+chapter~\ref{chapter:results}.
 
 The most common data structure implementing an unsorted dictionary is a~hash
-table. We describe some variants of hash tables in chapter \ref{chapter:hashing}.
+table. We describe some variants of hash tables in chapter~\ref{chapter:hashing}.
 Most hash tables have expected $\O(1)$ time for all operations, which
 makes them quite practical. On the other hand, there is no simple way to
 implement sorted dictionaries efficiently via hash tables.
@@ -86,10 +86,11 @@ Splay trees are good at storing nonuniformly accessed dictionaries, but
 the expected number of nodes read to \textsc{Find} a key is generally a factor
 of $\Theta(\log b)$ higher than in B-trees. We briefly introduce two
 self-adjusting data structures designed for both exploiting non-uniform
-access patterns and to perform less I/O: \emph{$k$-splay trees} in chapter
-\ref{chapter:ksplay} and \emph{$k$-forests} in chapter \ref{chapter:kforest}.
+access patterns and to perform less I/O: \emph{$k$-splay trees} in
+chapter~\ref{chapter:ksplay} and \emph{$k$-forests} in
+chapter~\ref{chapter:kforest}.
 
-In chapter \ref{chapter:cob}, we describe \emph{cache-oblivious B-trees}.
+In chapter~\ref{chapter:cob}, we describe \emph{cache-oblivious B-trees}.
 The number of memory operations for cache-oblivious B-tree operations
 is within a constant factor of the bounds given by a B-tree optimally tuned
 for the memory hierarchy. In practice, we found the performance of
@@ -103,7 +104,7 @@ Lecture videos and other materials are available through MIT OpenCourseWare.\foo
 
 \section*{Notation and conventions}
 In this thesis, logarithms are in base 2 unless stated otherwise.
-Chapter \ref{chapter:cob} uses the \emph{hyperfloor} operation
+Chapter~\ref{chapter:cob} uses the \emph{hyperfloor} operation
 $\lhfloor x\rhfloor$, which is defined as $2^{\lfloor\log x\rfloor}$.
 
 We denote bitwise XOR as $\oplus$, and similarly $\bigoplus_{i=1}^N

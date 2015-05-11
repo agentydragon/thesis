@@ -11,6 +11,14 @@ in a~cache-oblivious setting.
 amortized block transfers, which is similar to cache-aware B-trees.
 Scanning a~range of $t$ keys also takes $\Theta(\log_B N+t/B)$ time.
 
+We include cache-oblivious B-trees in our survey, because while they
+are simultaneously optimal on every cache boundary, they are also considerably
+more complex. The performance bounds the variant we implemented provides are
+also only amortized, while B-trees also guarantee a fast worst case.
+As we describe in section~\ref{sec:cob-perf}, our implementation of
+cache-oblivious B-trees is significantly faster than simple B-trees
+on large dictionaries.
+
 The original cache-oblivious B-tree as described in \cite{cobt} used
 weight-balanced B-trees. We implement a~simplified version of the structure
 from \cite{brodal01}, which is composed of three components.
@@ -201,7 +209,7 @@ a 64-byte cache line, each node can only store up to 3 keys. In contrast,
 We will only use the van~Emde Boas order to walk in the direction from
 the root node to a leaf or in reverse.
 Given the \emph{van~Emde Boas ID} of a node (denoted as numbers
-inside the nodes in Figure \ref{fig:veb_layout_5}),
+inside the nodes in figure~\ref{fig:veb_layout_5}),
 we can easily calculate the van~Emde~Boas IDs of its children by
 a recursive procedure. This procedure either returns \emph{internal} node
 pointers, referencing actual nodes of the tree, or it returns \emph{external}
@@ -269,8 +277,8 @@ For every depth $d\in[2;h]$, let us precompute the size $B[d]$ of
 bottom trees rooted in depth $d$, the size $T[d]$ of the corresponding
 top tree and the depth $D[d]$ of the top tree's root. The data takes $\O(\log
 N)$ memory and it can be computed in $\O(\log N)$ time by an iterative procedure.
-Table \ref{tab:depth_data_example} shows the values of these arrays
-for the 5-level van Emde Boas layout shown from Figure \ref{fig:veb_layout_5}.
+Table~\ref{tab:depth_data_example} shows the values of these arrays
+for the 5-level van Emde Boas layout shown from figure~\ref{fig:veb_layout_5}.
 
 \begin{table}[h]
 	\centering
@@ -334,7 +342,7 @@ instruction whenever moving to the left sibling.
 	level data.}
 \label{fig:veb_drilldown_speed}
 \end{figure}
-As evident from Figure \ref{fig:veb_drilldown_speed}, using precomputed level
+As evident from figure~\ref{fig:veb_drilldown_speed}, using precomputed level
 data saves a considerable amount of computation, especially with deeper
 van~Emde Boas layouts.
 
