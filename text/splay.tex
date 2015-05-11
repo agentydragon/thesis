@@ -8,19 +8,6 @@ similar to common balanced trees, like AVL trees or red-black trees.
 However, unlike BSTs, splay trees adjust their structure
 according to the access pattern, and a family of theorems proves that
 various non-random access patterns are fast on splay trees.
-According to the \emph{static optimality theorem}, the running time
-of a sufficiently long sequence of \textsc{Find} operations on a splay tree
-is within a constant factor of an optimal static search tree.
-The \emph{working set theorem} proves that the speed of accessing keys in
-any small \emph{working set} depends only on the logarithm of the size
-of the working set.
-Finally, the \emph{dynamic finger theorem} claims that splay trees are also
-fast when accessing keys that are numerically close to recently accessed keys.
-All of these results are implied by the unproven \emph{dynamic optimality
-conjecture}, which proposes that splay trees are dynamically optimal binary
-search trees: if a dynamic binary search tree optimally tuned for an access
-sequence $S$ needs $\mathrm{OPT}(S)$ operations to perform the accesses, splay
-trees are presumed to only need $\O(\mathrm{OPT}(S))$ steps.
 
 Let us also denote stored keys as $K_1,\ldots K_N$ in sorted order.
 Splay trees are binary search trees, so they are composed of nodes, each of
@@ -369,6 +356,18 @@ The total access time is $\O(N\log N + M + \sum_{j=1}^M\log(t(j)+1))$.
 The working set theorem implies that most recently accessed keys (the
 ``working set'') are cheap to access, which makes splay trees behave well when
 the access pattern exhibits temporal locality.
+
+To reiterate, the \emph{static optimality theorem} claims that splay
+trees are as good as any static search tree. The \emph{working set theorem}
+proves that the speed of accessing any small subset does not depend on
+how large the splay tree is. By the \emph{dynamic finger theorem},
+it is fast to access keys that are close to recently accessed keys in
+the order of keys in $K$.
+All of these results are implied by the unproven \emph{dynamic optimality
+conjecture}, which proposes that splay trees are dynamically optimal binary
+search trees: if a dynamic binary search tree optimally tuned for an access
+sequence $S$ needs $\mathrm{OPT}(S)$ operations to perform the accesses, splay
+trees are presumed to only need $\O(\mathrm{OPT}(S))$ steps.
 
 It is conjectured that splay trees are as fast as any other kind of dynamic
 search trees. A dynamic search tree algorithm $X$ is called $k$-competitive,
