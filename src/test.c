@@ -10,6 +10,7 @@
 #include "dict/htlp.h"
 #include "dict/kforest.h"
 #include "dict/ksplay.h"
+#include "dict/rbtree.h"
 #include "dict/splay.h"
 #include "dict/test/blackbox.h"
 #include "dict/test/large.h"
@@ -40,6 +41,7 @@ void run_unit_tests(void) {
 	test_dict_blackbox(&dict_htlp);
 	test_dict_blackbox(&dict_kforest);
 	test_dict_blackbox(&dict_ksplay);
+	test_dict_blackbox(&dict_rbtree);
 	test_dict_blackbox(&dict_splay);
 
 	test_ordered_dict_blackbox(&dict_btree);
@@ -55,6 +57,7 @@ void run_unit_tests(void) {
 	test_dict_large(&dict_htlp, 1 << 20);
 	test_dict_large(&dict_kforest, 1 << 20);
 	test_dict_large(&dict_ksplay, 1 << 20);
+	test_dict_large(&dict_rbtree, 1 << 20);
 	test_dict_large(&dict_splay, 1 << 20);
 }
 

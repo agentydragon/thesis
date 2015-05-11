@@ -139,29 +139,29 @@ int main(int argc, char** argv) {
 			measurement_results_release(result.results);
 		}
 
-		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
-			const dict_api* api = FLAGS.measured_apis[i];
-			if (!dict_api_allows_order_queries(api)) {
-				log_info("order queries not supported by %s, "
-						"skipping.", api->name);
-				continue;
-			}
-			KSPLAY_COUNTERS.ksplay_steps = 0;
-			KSPLAY_COUNTERS.composed_keys = 0;
-			result = measure_ltr_scan(api, size);
+		///for (int i = 0; FLAGS.measured_apis[i]; ++i) {
+		///	const dict_api* api = FLAGS.measured_apis[i];
+		///	if (!dict_api_allows_order_queries(api)) {
+		///		log_info("order queries not supported by %s, "
+		///				"skipping.", api->name);
+		///		continue;
+		///	}
+		///	KSPLAY_COUNTERS.ksplay_steps = 0;
+		///	KSPLAY_COUNTERS.composed_keys = 0;
+		///	result = measure_ltr_scan(api, size);
 
-			json_t* point = json_object();
-			add_common_keys(point, "ltr_scan", size,
-					FLAGS.measured_apis[i], result);
-			if (FLAGS.measured_apis[i] == &dict_ksplay) {
-				json_object_set_new(point, "ksplay_steps",
-						json_integer(KSPLAY_COUNTERS.ksplay_steps));
-				json_object_set_new(point, "ksplay_composed_keys",
-						json_integer(KSPLAY_COUNTERS.composed_keys));
-			}
-			json_array_append_new(json_results, point);
-			measurement_results_release(result.results);
-		}
+		///	json_t* point = json_object();
+		///	add_common_keys(point, "ltr_scan", size,
+		///			FLAGS.measured_apis[i], result);
+		///	if (FLAGS.measured_apis[i] == &dict_ksplay) {
+		///		json_object_set_new(point, "ksplay_steps",
+		///				json_integer(KSPLAY_COUNTERS.ksplay_steps));
+		///		json_object_set_new(point, "ksplay_composed_keys",
+		///				json_integer(KSPLAY_COUNTERS.composed_keys));
+		///	}
+		///	json_array_append_new(json_results, point);
+		///	measurement_results_release(result.results);
+		///}
 
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
 			// TODO: Only measure if there are enough words

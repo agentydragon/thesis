@@ -216,6 +216,10 @@ We implemented the following dictionary data structures:
 \item \texttt{dict\_htlp}, declared in \texttt{dict/htlp.h}:
 	an open-addressing hash table with linear probing and simple tabulation
 	hashing (section~\ref{sec:open-addressing}).
+\item \texttt{dict\_rbtree}, a red-black tree. We reused an implementation
+	from \texttt{libucw} 6.4. % TODO: cite
+	This structure is included as a representative of balanced trees
+	without cache optimization.
 \item \texttt{dict\_splay}, declared in \texttt{dict/splay.h}:
 	a splay tree (chapter~\ref{chapter:splay}).
 \item \texttt{dict\_ksplay}, declared in \texttt{dict/ksplay.h}:

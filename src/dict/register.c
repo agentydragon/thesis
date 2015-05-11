@@ -11,12 +11,15 @@
 #include "dict/htlp.h"
 #include "dict/kforest.h"
 #include "dict/ksplay.h"
+#include "dict/rbtree.h"
 #include "dict/splay.h"
 
 const dict_api* DICT_API_REGISTER[] = {
 	&dict_array, &dict_btree, &dict_cobt,
 	&dict_htlp, &dict_htcuckoo,
-	&dict_kforest, &dict_ksplay, &dict_splay, NULL
+	&dict_kforest, &dict_ksplay, &dict_splay,
+	&dict_rbtree,
+	NULL
 };
 
 const dict_api* dict_api_find(const char* name) {

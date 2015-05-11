@@ -347,7 +347,8 @@ def plot_self_adjusting_performance():
 
   for success_rate in [100, 50, 0]:
     fig = pyplot.figure(1)
-    fig.set_size_inches(*EXPORT_FIGSIZE_FULLWIDTH)
+    #fig.set_size_inches(*EXPORT_FIGSIZE_FULLWIDTH)
+    fig.set_size_inches(*EXPORT_FIGSIZE)
     plot_self_adj(load_data(experiment='serial-findonly',
                             success_percentage=success_rate))
     save_to('export/self-adj-random-find-%d.png' % success_rate)
@@ -443,29 +444,29 @@ def plot_exported_figures():
 def main():
   plot_exported_figures()
 
-  #plot_all_experiments()
+  plot_all_experiments()
 
-  #plot_mispredicts(data=load_data(experiment='serial-findonly',
-  #                                success_percentage=100),
-  #                 title='Mispredicts (random find)')
-  #save_to('random-mispredict.png')
-  #pyplot.clf()
+  plot_mispredicts(data=load_data(experiment='serial-findonly',
+                                  success_percentage=100),
+                   title='Mispredicts (random find)')
+  save_to('random-mispredict.png')
+  pyplot.clf()
 
-  #plot_pma_counters()
-  #plot_cuckoo_counters()
-  #plot_ksplay_ltr_counters()
+  plot_pma_counters()
+  plot_cuckoo_counters()
+  plot_ksplay_ltr_counters()
 
-  #plot_cache_events(implementation='dict_cobt', experiment='serial-both')
-  #save_to('cobt-cache.png')
-  #pyplot.clf()
+  plot_cache_events(implementation='dict_cobt', experiment='serial-both')
+  save_to('cobt-cache.png')
+  pyplot.clf()
 
-  #plot_cache_events(implementation='dict_htable', experiment='serial-findonly',
-  #                  success_percentage=100)
-  #save_to('htable-cache-findonly.png')
-  #pyplot.clf()
+  plot_cache_events(implementation='dict_htable', experiment='serial-findonly',
+                    success_percentage=100)
+  save_to('htable-cache-findonly.png')
+  pyplot.clf()
 
-  #plot_cache_events(implementation='dict_htable', experiment='serial-both')
-  #save_to('htable-cache-both.png')
-  #pyplot.clf()
+  plot_cache_events(implementation='dict_htable', experiment='serial-both')
+  save_to('htable-cache-both.png')
+  pyplot.clf()
 
 main()

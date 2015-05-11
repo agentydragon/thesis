@@ -18,6 +18,7 @@
 #include "dict/kforest.h"
 #include "dict/ksplay.h"
 #include "dict/register.h"
+#include "dict/rbtree.h"
 #include "dict/splay.h"
 #include "log/log.h"
 #include "util/count_of.h"
@@ -52,6 +53,7 @@ static dict_api const * const DEFAULT_APIS[] = {
 	&dict_htlp,
 	&dict_kforest,
 	&dict_ksplay,
+	&dict_rbtree,
 	&dict_splay,
 	NULL
 };

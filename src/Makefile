@@ -1,6 +1,6 @@
 # -pedantic-errors
 CFLAGS=-std=c11 -W -Wall -Werror -O3 -rdynamic -D_GNU_SOURCE -I. -march=native
-LIBS=-lm -lrt
+LIBS=-lm -lrt -lucw-6.4
 
 SOURCES= \
 	btree/*.c \
@@ -20,7 +20,7 @@ SOURCES= \
 .PHONY: asm test test_coverage clean
 
 bin/test: test.c $(SOURCES)
-	$(CC) -g $(CFLAGS) test.c $(SOURCES) $(LIBS) -o $@
+	LD_LIBRARY_PATH=/usr/local/lib $(CC) -g $(CFLAGS) test.c $(SOURCES) $(LIBS) -o $@
 
 bin/test_profile: test.c $(SOURCES)
 	$(CC) -pg $(CFLAGS) test.c $(SOURCES) $(LIBS) -o $@
