@@ -59,35 +59,39 @@ make updates of smaller dictionaries more efficient.
 \section{Self-adjusting structures}
 Splay trees are the canonical self-adjusting structure we would like to
 outperfrom. As expected, splay trees are somewhat slower than B-trees on
-unpredictable operations (see Figure \ref{fig:self-adj-performance}).
+unpredictable operations (see Figure \ref{fig:self-adj-performance-finds}).
 
 \begin{figure}
-\begin{subfigure}[b]{0.31\textwidth}
+\begin{subfigure}[t]{\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/self-adj-random-find-100}
-	\caption{Random \textsc{Find}s (100\% success rate)}
-\end{subfigure}
-~
-\begin{subfigure}[b]{0.31\textwidth}
-	\includegraphics[width=\textwidth]{img/performance/self-adj-random-find-50}
-	\caption{Random \textsc{Find}s (50\% success rate)}
-\end{subfigure}
-~
-\begin{subfigure}[b]{0.31\textwidth}
-	\includegraphics[width=\textwidth]{img/performance/self-adj-random-find-0}
-	\caption{Random \textsc{Find}s (0\% success rate)}
+	\caption{100\% success rate}
 \end{subfigure}
 \\
-\begin{subfigure}[b]{0.45\textwidth}
+\begin{subfigure}[t]{\textwidth}
+	\includegraphics[width=\textwidth]{img/performance/self-adj-random-find-50}
+	\caption{50\% success rate}
+\end{subfigure}
+\\
+\begin{subfigure}[t]{\textwidth}
+	\includegraphics[width=\textwidth]{img/performance/self-adj-random-find-0}
+	\caption{0\% success rate}
+\end{subfigure}
+\caption{Performance of random \textsc{Find}s in self-adjusting structures}
+\label{fig:self-adj-performance-finds}
+\end{figure}
+
+\begin{figure}
+\begin{subfigure}[t]{0.31\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/self-adj-random-insert}
 	\caption{Random \textsc{Insert}s}
 \end{subfigure}
-\\
-\begin{subfigure}[b]{0.45\textwidth}
+~
+\begin{subfigure}[t]{0.31\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/self-adj-ws-1k}
 	\caption{Successful \textsc{Find}s, working set of 1~000 keys}
 \end{subfigure}
 ~
-\begin{subfigure}[b]{0.45\textwidth}
+\begin{subfigure}[t]{0.31\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/self-adj-ws-100k}
 	\caption{Successful \textsc{Find}s, working set of 100~000 keys}
 \end{subfigure}
@@ -123,6 +127,11 @@ and $k$-splay trees all have the working set property.
 $k$-forests were slow both backed by B-trees and by cache-oblivious B-trees.
 Choosing a larger $k$ slightly helped, but larger values of $k$ also degenerate
 \mbox{$k$-forests} into their backing structure.
+As observed on \ref{fig:self-adj-performance-finds}, \textsc{Find}s in
+$k$-forests are much slower when they are successful, probably due to the need
+to promote the found key-value pair. A possible way of speeding up
+\textsc{Find}s may be backing the $k$-forest by a structure that can support
+fast promotions and demotions without complicated structural changes.
 
 \section{Hashing}
 \label{sec:hashing-results}
@@ -135,45 +144,56 @@ between $1/4$ and $3/4$.
 Since cuckoo hash tables guarantee worst-case $\O(1)$ time for lookups,
 we expected both successful and unsuccessful random \textsc{Find}s to be
 measurably slower with linear probing.
-Linear probing lookups, however, performed almost exactly the same as
-with cuckoo hashing, even with a higher load factor (see Figure
-\ref{fig:hashing-performance}).
+On random successful \textsc{Find}s (Figure \ref{fig:hashing-performance-finds}\subref{fig:sub:hashing-1-100}),
+cuckoo hashing did only very slightly better than linear probing.
+On unsuccessful \textsc{Find}s (Figure \ref{fig:hashing-performance-finds}\subref{fig:sub:hashing-1-0}),
+the benefits of cuckoo hashing were more pronounced.
+On the other hand, linear probing allows a higher load factor.
+(Forcing cuckoo hashing to fill the hash tables more fully significantly
+slows down \textsc{Insert}s.)
 
 \textsc{Insert}s into cuckoo hash tables proved significantly slower.
 One possible reason might be the limited independence guaranteed by simple
 tabulation hashing.
 
 \begin{figure}
-\begin{subfigure}[t]{0.31\textwidth}
+\begin{subfigure}[t]{\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/hashing-1-100}
-	\caption{Random \textsc{Find}s (100\% success rate)}
-\end{subfigure}
-~
-\begin{subfigure}[t]{0.31\textwidth}
-	\includegraphics[width=\textwidth]{img/performance/hashing-1-50}
-	\caption{Random \textsc{Find}s (50\% success rate)}
-\end{subfigure}
-~
-\begin{subfigure}[t]{0.31\textwidth}
-	\includegraphics[width=\textwidth]{img/performance/hashing-1-0}
-	\caption{Random \textsc{Find}s (0\% success rate)}
+	\caption{100\% success rate}
+	\label{fig:sub:hashing-1-100}
 \end{subfigure}
 \\
-\begin{subfigure}[t]{0.45\textwidth}
+\begin{subfigure}[t]{\textwidth}
+	\includegraphics[width=\textwidth]{img/performance/hashing-1-50}
+	\caption{50\% success rate}
+\end{subfigure}
+\\
+\begin{subfigure}[t]{\textwidth}
+	\includegraphics[width=\textwidth]{img/performance/hashing-1-0}
+	\caption{0\% success rate}
+	\label{fig:sub:hashing-1-0}
+\end{subfigure}
+\caption{Performance of random \textsc{Find}s in cuckoo hashing and linear probing}
+\label{fig:hashing-performance-finds}
+\end{figure}
+
+\begin{figure}
+\begin{subfigure}[t]{0.31\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/hashing-2}
 	\caption{Random \textsc{Insert}s}
 \end{subfigure}
-\\
-\begin{subfigure}[t]{0.45\textwidth}
+~
+\begin{subfigure}[t]{0.31\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/hashing-3}
 	\caption{Successful \textsc{Find}s, working set of 1~000 keys}
 \end{subfigure}
 ~
-\begin{subfigure}[t]{0.45\textwidth}
+\begin{subfigure}[t]{0.31\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/hashing-4}
 	\caption{Successful \textsc{Find}s, working set of 100~000 keys}
 \end{subfigure}
-\caption{Performance of cuckoo hashing and linear probing}
+\caption{Performance of cuckoo hashing and linear probing on \textsc{Insert}s
+	and \textsc{Find}s in working sets}
 \label{fig:hashing-performance}
 \end{figure}
 
@@ -244,12 +264,10 @@ Interestingly, linear probing does not behave as well on Firefox recordings
 as in synthetic experiments, in which it performed as well as cuckoo hashing
 in random \textsc{Find}s and slightly better on \textsc{Insert}s. One possible
 reason for this is a higher incidence of failed \textsc{Insert} and
-\textsc{Find} operations, which we did not specifically benchmark with
-synthetic workloads. While failed \textsc{Find}s on cuckoo hashing take only
-2 memory transfers as any other \textsc{Find}, an unsuccessful \textsc{Find}
-with linear probing needs to traverse an entire chain.
-
-FIXME: expand above
+\textsc{Find} operations. As we observed above, failed \textsc{Find}s are
+faster with cuckoo hashing, as they take only 2 memory transfers as any other
+\textsc{Find}, while an unsuccessful \textsc{Find} with linear probing needs to
+traverse an entire chain.
 
 \subsection{Geospatial database}
 The results of the cloud database experiment are outlined in Table
