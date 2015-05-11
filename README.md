@@ -24,7 +24,9 @@ Depending on how much time do I have when I'm done implementing everything
 I want, I might write some more.
 
 ## Dependencies
-For benchmarking, you need:
+The code requires `libucw` 6.4 to build (I use its red-black trees).
+
+For benchmarking, you additionally need:
 * [jansson](http://www.digip.org/jansson/) for JSON output
 * [matplotlib](http://matplotlib.org/) for plotting graphs
 
