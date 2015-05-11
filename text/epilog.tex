@@ -28,7 +28,7 @@ completely survey all of them.
 
 The performance of \textsc{Find}s seems to be also dependent on
 the rate of success. Unsuccessful accesses could potentially be filtered out
-early by adding a~\emph{Bloom filter} before the dictionary. We suggest
+early by adding a~\emph{Bloom~filter} before the dictionary. We suggest
 measuring the effect in a practical settings. Our measurements from Mozilla
 Firefox may be biased towards unsuccessful \textsc{Find}s due to the way we
 filtered out unparseable lines.
@@ -46,7 +46,7 @@ time saved by fewer cache misses in the worst case.
 Several data structures based on tries have also been proposed for the
 dictionary problem. One example are \emph{y-fast tries} \cite{y-fast},
 which allow \textsc{Find}s in time $\O(1)$ and updates and predecessor/successor
-queries in time $\O(\log\log |U|)$, where $U$ is the key universe. They require
+queries in time $\O(\log\log |U|)$, where $U$~is the key universe. They require
 $\O(N \log\log |U|)$ memory.
 The RAM model is required by y-fast tries -- they assume that RAM operations
 can be performed on keys in constant time.
