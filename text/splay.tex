@@ -203,9 +203,9 @@ that splay tree \textsc{Find}s and updates also take amortized logarithmic time.
 Proofs of further complexity results will use a similar analysis with
 other choices of the key-weight assignment function~$w$.
 
-Let us denote the subtree rooted at a node $x$ as $T[x]$
-and the key stored in $x$ as $T(x)$. Define the size $s(x)$ of a node $x$ as
-$\sum_{y\in T[x]} w(T(y))$ and the rank $r(x)$ as $\log s(x)$.
+Let us denote the subtree rooted at a node $x$ as $T_x$
+and the key stored in node $x$ as $T[x]$. Define the size $s(x)$ of a node $x$
+as $\sum_{y\in T_x} w(T[y])$ and the rank $r(x)$ as $\log s(x)$.
 For amortization, let us define the potential $\Phi$ of the tree to be the sum
 of the ranks of all its nodes. In a sequence of $M$ accesses, if the $i$-th
 access takes time $t_i$, define its amortized time $a_i$ to be
