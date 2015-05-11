@@ -81,6 +81,9 @@ head takes very little time compared to reading a~random position, which incurs
 a slow disk seek. % TODO: times
 Similarly, modern CPUs contain a~prefetcher, which tries to speculatively
 retrieve data from main memory before it is actually accessed.
+Modern memory is also structured as a matrix, and reading a location consists
+of first reading its row, and then extracting the column. Reading from the last
+accessed row is faster, since the row can be kept in a~prefetch buffer.
 
 Furthermore, if we need to wait for a~long time to get our data from a~slow
 store, it is wise to ask for a~lot of data at once. Imagine an HTTP connection
