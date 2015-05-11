@@ -10,6 +10,14 @@ before_install:
         - sudo apt-get -qq update
 install:
         - sudo apt-get -qq install g++-4.9 libjansson-dev
+        # Download and install libucw-6.4
+        - wget http://www.ucw.cz/libucw/download/libucw-6.4.tar.gz
+        - tar xpf libucw-6.4.tar.gz
+        - cd libucw-6.4
+        - ./configure PREFIX=/usr
+        - make
+        - sudo make install
+        - cd ..
 script:
         - export CC=gcc-4.9
         - cd src
