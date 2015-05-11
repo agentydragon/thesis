@@ -102,7 +102,9 @@ static void test_walk_to(void) {
 	ASSERT(stack.count == 4);
 	ASSERT(stack.nodes[0] == &root && stack.nodes[1] == &c &&
 			stack.nodes[2] == &b && stack.nodes[3] == &a);
+#ifdef KSPLAY_STACK_MALLOC
 	free(stack.nodes);
+#endif
 }
 
 static void test_exact_compose(void) {

@@ -59,6 +59,11 @@ typedef struct {
 	uint64_t capacity;
 } ksplay_node_buffer;
 
+// Select an allocation method for the stack.
+// STATIC is hacky, but much faster.
+// #define KSPLAY_STACK_MALLOC
+#define KSPLAY_STACK_STATIC
+
 ksplay_node_buffer ksplay_walk_to(ksplay* this, uint64_t key);
 void ksplay_flatten(ksplay_node_buffer* stack, ksplay_pair* _pairs,
 		ksplay_node** _children, uint64_t* key_count);

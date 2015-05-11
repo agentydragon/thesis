@@ -199,6 +199,10 @@ void ksplay_destroy(ksplay* this) {
 	free(stack);
 }
 
+#ifdef KSPLAY_STACK_STATIC
+static ksplay_node* GLOBAL_NODE_BUFFER[1024];
+#endif
+
 static const ksplay_node_buffer EMPTY_BUFFER = {
 	.nodes = NULL,
 	.count = 0,
@@ -211,13 +215,20 @@ static void buffer_append(ksplay_node_buffer* buffer, node* appended_node) {
 			buffer->capacity = 1;
 		}
 		buffer->capacity *= 2;
+#ifdef KSPLAY_STACK_MALLOC
 		buffer->nodes = realloc(buffer->nodes,
 				sizeof(node*) * buffer->capacity);
+#else
+		buffer->nodes = GLOBAL_NODE_BUFFER;
+#endif
 		CHECK(buffer->nodes, "failed to allocate %" PRIu64 " nodes",
 				buffer->capacity);
 	}
 	buffer->nodes[buffer->count] = appended_node;
 	++buffer->count;
+#ifdef KSPLAY_STACK_STATIC
+	ASSERT(buffer->count < 1024);
+#endif
 }
 
 ksplay_node_buffer ksplay_walk_to(ksplay* this, uint64_t key) {
@@ -722,7 +733,9 @@ static void ksplay_ksplay(ksplay* this, ksplay_node_buffer* stack) {
 	if (this->size > 0) {
 		assert(node_key_count(this->root) > 0);
 	}
+#ifdef KSPLAY_STACK_MALLOC
 	free(stack->nodes);
+#endif
 }
 
 // ----- Insertion and deletion -----
