@@ -347,8 +347,7 @@ def plot_self_adjusting_performance():
 
   for success_rate in [100, 50, 0]:
     fig = pyplot.figure(1)
-    #fig.set_size_inches(*EXPORT_FIGSIZE_FULLWIDTH)
-    fig.set_size_inches(*EXPORT_FIGSIZE)
+    fig.set_size_inches(*EXPORT_FIGSIZE_FULLWIDTH)
     plot_self_adj(load_data(experiment='serial-findonly',
                             success_percentage=success_rate))
     save_to('export/self-adj-random-find-%d.png' % success_rate)
