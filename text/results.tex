@@ -106,18 +106,20 @@ unpredictable operations (see Figure \ref{fig:self-adj-performance-finds}).
 Unfortunately, we found both $k$-splay trees and $k$-forest lacking in
 performance in every experiment.
 
-Profiling $k$-splay trees showed that about 21\% of time is spent in
-\texttt{ksplay\_walk\_to}, which finds the correct leaf for a key and puts the
-path to the leaf into a buffer. About 37\% of the time is taken by
-\texttt{ksplay\_step}, which performs a splaying step, along with helper
-functions it calls (\texttt{flatten\_explore}, \texttt{compose\_twolevel}).
+Profiling our performance tests running on $k$-splay trees showed that about
+21\% of time is spent in \texttt{ksplay\_walk\_to}, which finds the correct
+leaf for a key and puts the path to the leaf into a buffer. About 37\% of the
+time is taken by \texttt{ksplay\_step}, which performs a splaying step, along
+with helper functions it calls (\texttt{flatten\_explore},
+\texttt{compose\_twolevel}).
 
 One suboptimal property of our implementation is that it dynamically
 allocates the $k$-splayed path on every $k$-splay. Memory allocation alone
 accounts for about 20\% of CPU time.
-We tried replacing memory allocation with a static array. This change
-brought the performance of $k$-splay trees somewhat closer to splay trees,
-but splay trees still won in every test (see Figure \ref{fig:ksplay-noalloc}).
+We experimented with replacing memory allocation with a static array.
+This change brought the performance of $k$-splay trees somewhat closer to
+splay trees, but splay trees still won in every test
+(see Figure \ref{fig:ksplay-noalloc}).
 
 \begin{figure}
 \begin{subfigure}[t]{0.48\textwidth}
