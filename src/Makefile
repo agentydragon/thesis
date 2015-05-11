@@ -20,7 +20,7 @@ SOURCES= \
 .PHONY: asm test test_coverage clean
 
 bin/test: test.c $(SOURCES)
-	LD_LIBRARY_PATH=/usr/local/lib $(CC) -g $(CFLAGS) test.c $(SOURCES) $(LIBS) -o $@
+	$(CC) -g $(CFLAGS) test.c $(SOURCES) $(LIBS) -o $@
 
 bin/test_profile: test.c $(SOURCES)
 	$(CC) -pg $(CFLAGS) test.c $(SOURCES) $(LIBS) -o $@
