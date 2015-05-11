@@ -14,7 +14,9 @@
 
 static char* read_file(const char* path) {
 	FILE* fp = fopen(path, "r");
-	CHECK(fp, "cannot open %s for reading", path);
+	CHECK(fp, "Cannot open %s for reading. "
+			"Please run experiments/performance/data/populate.sh.",
+			path);
 
 	char* content = NULL;
 	uint64_t content_size = 0, content_capacity = 0;
