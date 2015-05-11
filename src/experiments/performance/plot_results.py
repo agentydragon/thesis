@@ -332,11 +332,13 @@ def plot_self_adjusting_performance():
         ('dict_ksplay', 'g-', 'K-splay tree'),
         ('dict_kforest', 'b-', 'K-forest')]:
       api_data = select_api(data, api)
-      plot_data(api_data, color, linewidth=2.0, label=label)
+      if api_data:
+        plot_data(api_data, color, linewidth=2.0, label=label)
 
     api_data = select_api(data, 'dict_btree')
-    plot_data(api_data, '#666666', linewidth=1.0, linestyle='dashed',
-              label='B-tree')
+    if api_data:
+      plot_data(api_data, '#666666', linewidth=1.0, linestyle='dashed',
+                label='B-tree')
 
     pyplot.xscale('log')
     pyplot.legend(loc='upper left')
