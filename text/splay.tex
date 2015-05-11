@@ -304,10 +304,14 @@ the access sequence. Thus the time to perform the access sequence is at most
 $(3\log N+1)M + N\log N = \O((M+N)\log N + M)$.
 \end{proof}
 
-The balance theorem states that on a sufficiently long sequence, lookups in
-a~splay tree are as efficient as in any static search tree, including
-usual balancing search trees (like AVL or red-black trees).
+The balance theorem states that, in the amortized sense, lookups in a~splay
+tree are as efficient as in usual balanced search trees (like AVL or red-black
+trees).
 
+\vskip 1em
+
+Splay trees provide stronger time complexity guarantees than just amortized
+logarithmic time per access.
 For any key $K_i$, let $q(K_i)$ be the number of occurences of $K_i$
 in an access sequence.
 \begin{theorem}[Static Optimality Theorem]
@@ -325,8 +329,13 @@ $\sum_{i=1}^{N}\log(M/q(i))$. The result follows.
 Note that the time to perform the access sequence is equal to
 $\O(M \cdot (1 + H(P)))$, where $H(P)$ is the entropy of the access probability
 distribution defined as $P(i)=q(i)/M$. All static trees must take time
-$\Omega(M\cdot (1+H(P)))$ for the access sequence, so splay trees are statically
-optimal. A proof of this lower bound is available in \cite{information-theory}.
+$\Omega(M\cdot (1+H(P)))$ for the access sequence. A proof of this lower
+bound is available in \cite{information-theory}.
+Since the taken for accesses in splay trees equals the asymptotic lower bound
+for static search trees, they are \emph{statically optimal}, i.e., they are
+as fast as any static search tree.
+
+\vskip 1em
 
 Let us denote the indices of accessed keys in an access sequence $S$ as
 $k_1, \ldots k_M$ so that $S=(K_{k_i})_{i=1}^M$.
