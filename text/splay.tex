@@ -364,18 +364,17 @@ proves that the speed of accessing any small subset does not depend on
 how large the splay tree is. By the \emph{dynamic finger theorem},
 it is fast to access keys that are close to recently accessed keys in
 the order of keys in $K$.
+
 All of these results are implied by the unproven \emph{dynamic optimality
 conjecture}, which proposes that splay trees are dynamically optimal binary
 search trees: if a dynamic binary search tree optimally tuned for an access
 sequence $S$ needs $\mathrm{OPT}(S)$ operations to perform the accesses, splay
 trees are presumed to only need $\O(\mathrm{OPT}(S))$ steps.
-
-It is conjectured that splay trees are as fast as any other kind of dynamic
-search trees. A dynamic search tree algorithm $X$ is called $k$-competitive,
+Generally, a~dynamic search tree algorithm $X$ is called $k$-competitive,
 if for any sequence of operations $S$ and any dynamic search tree algorithm
 $Y$ the time $T_X(S)$ to perform operations $S$ using $X$ is at most $k\cdot
-T_Y(S)$. Splay trees were proven to be $\O(\log N)$-competitive, but
-the dynamic optimality conjecture, which states that splay trees are
+T_Y(S)$. Splay trees were proven to be $\O(\log N)$-competitive in \cite{splay},
+but the dynamic optimality conjecture, which states that splay trees are
 $\O(1)$-competitive, remains an open problem.
 
 \section{Alternate data structures}
