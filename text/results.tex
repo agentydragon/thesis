@@ -89,11 +89,13 @@ unpredictable operations (see Figure \ref{fig:self-adj-performance-finds}).
 \begin{subfigure}[t]{0.31\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/self-adj-ws-1k}
 	\caption{Successful \textsc{Find}s, working set of 1~000 keys}
+	\label{fig:sub:self-adj-ws-1k}
 \end{subfigure}
 ~
 \begin{subfigure}[t]{0.31\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/self-adj-ws-100k}
 	\caption{Successful \textsc{Find}s, working set of 100~000 keys}
+	\label{fig:sub:self-adj-ws-100k}
 \end{subfigure}
 % TODO: word occurrence counting
 \caption{Benchmarks of self-adjusting structures.
@@ -113,16 +115,52 @@ functions it calls (\texttt{flatten\_explore}, \texttt{compose\_twolevel}).
 One suboptimal property of our implementation is that it dynamically
 allocates the $k$-splayed path on every $k$-splay. Memory allocation alone
 accounts for about 20\% of CPU time.
-Keeping a global buffer for $k$-splayed paths could thus potentially bring
-the performance of $k$-splay trees somewhat closer to splay trees.
-As suggested in \cite{ksplay-sherk}, it should be possible to remove the
-need to store the splayed path by top-down $k$-splaying.
-Unfortunately, even with top-down $k$-splaying, every $k$-splay step needs
-to touch $\Theta(k^2)$ keys and pointers, so we believe top-down $k$-splaying
-would not significantly reduce the high cost of \texttt{ksplay\_step}.
+We tried replacing memory allocation with a static array. This change
+brought the performance of $k$-splay trees somewhat closer to splay trees,
+but splay trees still won in every test (see Figure \ref{fig:ksplay-noalloc}).
 
-Our measurements on small working sets confirm that splay trees, $k$-forests
+\begin{figure}
+\begin{subfigure}[t]{0.48\textwidth}
+	\includegraphics[width=\textwidth]{img/ksplay-noalloc-find-50}
+	\caption{Random \textsc{Find}s, 50\% success rate}
+\end{subfigure}
+~
+\begin{subfigure}[t]{0.48\textwidth}
+	\includegraphics[width=\textwidth]{img/ksplay-noalloc-insert}
+	\caption{Random \textsc{Insert}s}
+\end{subfigure}
+\caption{The performance of $k$-splay trees with removed temporary heap
+	allocation, compared to splay trees}
+\label{fig:ksplay-noalloc}
+\end{figure}
+
+As suggested in \cite{ksplay-sherk}, it should be possible to remove the
+need to store the splayed path by top-down \mbox{$k$-splaying}.
+Unfortunately, even top-down \mbox{$k$-splaying} needs to touch
+$\Theta(k^2)$ keys and pointers in every $k$-splay step, so we believe top-down
+\mbox{$k$-splaying} would not significantly reduce the high cost of
+\texttt{ksplay\_step}.
+
+Our measurements on small working sets (Figure
+\ref{fig:self-adj-performance}\subref{fig:sub:self-adj-ws-1k},
+\subref{fig:sub:self-adj-ws-100k}) confirm that splay trees, $k$-forests
 and $k$-splay trees all have the working set property.
+Even if we only use a small working set, B-trees need more data to reach
+its key-value pairs as we increase the size of the dictionary, because values
+are stored in leaves, which are lower in bigger B-trees.
+Unlike B-trees, splay trees and $k$-splay trees can keep the small working set
+close to the root, even as we add many unused key-value pairs into the
+dictionary.
+
+Due to the presence of caches, even non-self-adjusting data structures (like
+B-trees) can exhibit a ``pseudo-working set property'', provided the auxiliary
+data needed to access the working set fits into the cache. However, as we
+increase the size of the dictionary, we can distinguish the ``pseudo-working
+set property'' from the true working set property: in B-trees, more auxiliary
+data is needed, and it eventually ceases to fit in the cache.
+In structures with the true working set property, caches will still contain
+mostly useful key-value pairs, even when the working set is a tiny fraction
+of the dictionary.
 
 $k$-forests were slow both backed by B-trees and by cache-oblivious B-trees.
 Choosing a larger $k$ slightly helped, but larger values of $k$ also degenerate

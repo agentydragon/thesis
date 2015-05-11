@@ -6,9 +6,10 @@ more common data structures in main memory, especially on larger dictionaries
 with frequent \textsc{Find}s and uniform access patterns.
 
 Our implementation of $k$-splay trees and $k$-forests performed badly.
-In our opinion, they alone are not a practical replacement for simple splay
-trees. A more optimized implementation of $k$-splaying might reach parity with
-splay trees.
+In our opinion, $k$-forests alone are not a practical replacement for simple
+splay trees. However, a more optimized implementation of $k$-splaying
+(with removed heap allocation and with top-down $k$-splaying) might reach
+parity with splay trees or slightly beat them.
 
 Experiments on data recorded from Mozilla Firefox suggest that splay trees
 and cuckoo hash tables do well on most dictionaries as they are practically
