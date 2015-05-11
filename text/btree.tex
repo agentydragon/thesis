@@ -16,6 +16,9 @@ B-trees are also an optimal sorted dictionary data structure
 for the external memory model assuming the only operation allowed on
 keys is comparison.
 
+We will use B-trees as a~baseline external memory data structure and as
+a~building block for more complex structures.
+
 B-trees are a generalization of balanced binary search trees.
 Nodes of a B-tree keep up to $2b$ key-value pairs in sorted order.
 An inner node of a binary search tree with key $X$ contains two pointers
@@ -33,6 +36,8 @@ have a value within leaves -- if a key is deleted, it is removed from its leaf
 along with its node, but internal nodes may retain a copy of the key.
 Our implementation stores values only inside leaves to allow tighter packing
 of internal nodes.
+Some sources refer to the variant storing values only within
+leaves as a~\emph{B+~tree}.
 
 The essence of the $[b;2b]$ interval is that when we try to insert
 the $(2b+1)$-th key, we can instead split the node into two valid nodes of size
@@ -89,9 +94,9 @@ $\Theta(\log b \cdot \log_b N)=\Theta(\log N)$ and $\Theta(\log_b N)$
 block transfers. \textsc{FindNext} and \textsc{FindPrevious} also take time
 $\Theta(\log N)$, but if they are invoked after a previous \textsc{Find}, we
 can keep a pointer to the leaf containing the key and accordingly adjust it to
-find the next or previous key, which runs in $\O(1)$ amortized time. Thus,
-B-trees also allow scanning a contiguous range of keys of size $k$ in
-$\Theta(\log_b N + k)$ time.
+find the next or previous key, which runs in $\O(1)$ amortized time.
+By maintaining $\Theta(\log_b N)$ fingers into a stack of nodes, we can
+scan a contiguous range of keys of size $k$ in $\Theta(\log_b N + k)$ time.
 
 The \textsc{Insert} and \textsc{Delete} operations may spend up to
 $\Theta(b)$ time splitting or merging nodes on each level, so they run in
