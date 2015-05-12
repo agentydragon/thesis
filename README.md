@@ -24,8 +24,8 @@ Depending on how much time do I have when I'm done implementing everything
 I want, I might write some more.
 
 ## Dependencies
-The code requires `libucw` 6.4 to build (I use its red-black trees).
-My code assumes that it's installed under the `/usr` prefix.
+The code requires [LibUCW 6.4](http://www.ucw.cz/libucw/) to build (I use its
+red-black trees). My code assumes that it's installed under the `/usr` prefix.
 
 For benchmarking, you additionally need:
 * [jansson](http://www.digip.org/jansson/) for JSON output
