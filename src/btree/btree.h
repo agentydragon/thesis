@@ -67,6 +67,8 @@ void btree_dump_dot(const btree* this, FILE* output);
 
 typedef struct {
 	uint64_t internal_n_keys_histogram[100];
+	uint64_t total_kvp_path_length;
+	uint64_t total_kvps;
 } btree_stats;
 
 btree_stats btree_collect_stats(btree* this);

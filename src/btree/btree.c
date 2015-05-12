@@ -17,7 +17,17 @@
 // TODO: document empty slots; TODO: trick to represent SLOT_UNUSED=SLOT_UNUSED
 
 // Equal to dict DICT_RESERVED_KEY
-#define SLOT_UNUSED 0xFFFFFFFFFFFFFFFF
+#define SLOT_UNUSED UINT64_MAX
+
+#define ASSERT_ALIGNED(x,alignment) ASSERT(((uint64_t) x) % (alignment) == 0)
+
+static btree_node_persisted* alloc_node(void) {
+	btree_node_persisted* node;
+	ASSERT(posix_memalign((void**) &node, 64,
+				sizeof(btree_node_persisted)) == 0);
+	ASSERT_ALIGNED(node, 64);
+	return node;
+}
 
 static btree_node_persisted* new_empty_leaf(void);
 static btree_node_persisted* new_fork_node(uint64_t middle_key,
@@ -149,7 +159,7 @@ bool btree_insert(btree* this, uint64_t key, uint64_t value) {
 				split_leaf(node.persisted, new_right_sibling,
 						&middle_key);
 			} else {
-				new_right_sibling = malloc(sizeof(btree_node_persisted));
+				new_right_sibling = alloc_node();
 				split_internal(node.persisted,
 						new_right_sibling, &middle_key);
 			}
@@ -471,14 +481,14 @@ static void clear_leaf(btree_node_persisted* leaf) {
 }
 
 static btree_node_persisted* new_empty_leaf(void) {
-	btree_node_persisted* new_node = malloc(sizeof(btree_node_persisted));
+	btree_node_persisted* new_node = alloc_node();
 	clear_leaf(new_node);
 	return new_node;
 }
 
 static btree_node_persisted* new_fork_node(uint64_t middle_key,
 		btree_node_persisted* left, btree_node_persisted* right) {
-	btree_node_persisted* new_node = malloc(sizeof(btree_node_persisted));
+	btree_node_persisted* new_node = alloc_node();
 	new_node->internal.key_count = 1;
 	new_node->internal.keys[0] = middle_key;
 	new_node->internal.pointers[0] = left;
@@ -817,8 +827,11 @@ void btree_dump_dot(const btree* this, FILE* output) {
 	fprintf(output, "}\n");
 }
 
-void btree_collect_stats_recursive(btree_node_traversed node, btree_stats* stats) {
+void btree_collect_stats_recursive(btree_node_traversed node,
+		uint64_t depth, btree_stats* stats) {
 	if (nt_is_leaf(node)) {
+		stats->total_kvp_path_length += get_n_leaf_keys(node.persisted) * depth;
+		stats->total_kvps += get_n_leaf_keys(node.persisted);
 		return;
 	}
 	stats->internal_n_keys_histogram[get_n_internal_keys(node.persisted)]++;
@@ -826,7 +839,7 @@ void btree_collect_stats_recursive(btree_node_traversed node, btree_stats* stats
 		btree_collect_stats_recursive((btree_node_traversed) {
 			.persisted = node.persisted->internal.pointers[i],
 			.levels_above_leaves = node.levels_above_leaves - 1
-		}, stats);
+		}, depth + 1, stats);
 	}
 }
 
@@ -834,6 +847,6 @@ btree_stats btree_collect_stats(btree* this) {
 	btree_stats stats = {
 		.internal_n_keys_histogram = { 0 }
 	};
-	btree_collect_stats_recursive(nt_root(this), &stats);
+	btree_collect_stats_recursive(nt_root(this), 0, &stats);
 	return stats;
 }

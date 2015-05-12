@@ -541,4 +541,8 @@ def main():
   save_to('simple-cache-btree.png')
   pyplot.clf()
 
+  plot_simple_cache(implementation='dict_rbtree', experiment='serial-findonly')
+  save_to('simple-cache-rbtree.png')
+  pyplot.clf()
+
 main()
