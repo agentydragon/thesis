@@ -47,7 +47,7 @@ to use more block transfers in the external memory model.
 \section{Cache-oblivious B-tree}
 \label{sec:cob-perf}
 We found the performance of cache-oblivious B-trees very competitive compared
-to B-trees on both random uniform access patterns and modestly large working
+to 2-3-4 trees on both random uniform access patterns and modestly large working
 sets. As seen on figure~\ref{fig:cob-performance}, random successful
 \textsc{Find}s were up to twice as fast in large cache-oblivious B-trees
 without ever being significantly slower on small dictionaries.
@@ -102,7 +102,7 @@ make updates of smaller dictionaries more efficient.
 
 \section{Self-adjusting structures}
 Splay trees are the canonical self-adjusting structure we would like to
-outperfrom. As expected, splay trees are somewhat slower than B-trees on
+outperfrom. As expected, splay trees are somewhat slower than 2-3-4 trees on
 unpredictable operations (see figure~\ref{fig:self-adj-performance-finds}).
 
 \begin{figure}
@@ -143,7 +143,7 @@ unpredictable operations (see figure~\ref{fig:self-adj-performance-finds}).
 \end{subfigure}
 % TODO: word occurrence counting
 \caption{Benchmarks of self-adjusting structures.
-	B-trees are included for reference.}
+	2-3-4 trees are included for reference.}
 \label{fig:self-adj-performance}
 \end{figure}
 
@@ -192,8 +192,8 @@ Our measurements on small working sets
 \subref{fig:sub:self-adj-ws-100k}) confirm that splay trees, $k$-forests
 and $k$-splay trees all have the working set property.
 Even if we only use a small working set, B-trees need more data to reach
-its key-value pairs as we increase the size of the dictionary, because values
-are stored in leaves, which are lower in bigger B-trees.
+the sought key-value pairs as we increase the size of the dictionary, because
+values are stored in leaves, which are lower in bigger B-trees.
 Unlike B-trees, splay trees and $k$-splay trees can keep the small working set
 close to the root, even as we add many unused key-value pairs into the
 dictionary.
@@ -209,7 +209,7 @@ In structures with the true working set property, caches will still contain
 mostly useful key-value pairs, even when the working set is a tiny fraction
 of the dictionary.
 
-$k$-forests were slow both backed by B-trees and by cache-oblivious B-trees.
+$k$-forests were slow both backed by 2-3-4 trees and by cache-oblivious B-trees.
 Choosing a larger $k$ slightly helped, but larger values of $k$ also degenerate
 \mbox{$k$-forests} into their backing structure.
 As observed on figure~\ref{fig:self-adj-performance-finds}, \textsc{Find}s in
@@ -290,51 +290,59 @@ dictionary implementations. We normalized the measured times by the maximum
 time taken for each recording to allow easier comparison of relative
 performance. Our results are presented in table~\ref{tab:firefox-results}.
 
-\begin{table}
+%\begin{table}
+\begin{sidewaystable}
 \centering
 % TODO: Sort!
-% TODO: Add dict_array, dict_rbtree
-\begin{tabular}{|c|r|r|r|r|r|r|r|}
+\begin{tabular}{|c|r|r|r|r|r|r|r|r|r|}
 	\hline
 	Recording &
-		B-tree & COBT &
+		Array & Red-black tree &
+		2-3-4 trees & COBT &
 		Splay & $k$-forest & $k$-splay &
-		Lin. p. & Cuckoo \\
+		Linear probing & Cuckoo \\
+
 	\hline
-	\texttt{0x7f47930300e0} & 15 & 12 & 14 & 100 & 92 & 6 & \textbf{4} \\
+	\texttt{0x7f47930300e0} & 14 & 16 & 15 & 13 & 14 & 100 & 91 & 6 & \textbf{4} \\
 	\hline
-	\texttt{0x7fff84eb8f98} & 11 & 14 & 13 & 65 & 100 & 11 & \textbf{6} \\
+	\texttt{0x7f566e3cb0e0} & 10 & 7 & 8 & 10 & 11 & 100 & 78 & 9 & \textbf{6} \\
 	\hline
-	\texttt{0x7f566e3cb0e0} & 8 & 10 & 10 & 100 & 78 & 9 & \textbf{6} \\
+	\texttt{0x7fff84eb8f98} & 13 & 11 & 12 & 14 & 13 & 64 & 100 & 11 & \textbf{6} \\
 	\hline
-	\texttt{0x7fff1d9c7738} & 15 & 15 & 14 & 59 & 100 & 15 & \textbf{6} \\
+	\texttt{0x7fff1d9c7738} & 16 & 16 & 15 & 15 & 14 & 58 & 100 & 14 & \textbf{6} \\
 	\hline
-	\texttt{0x7fff84eb9148} & 12 & 14 & 13 & 73 & 100 & 11 & \textbf{7} \\
+	\texttt{0x7fff84eb9148} & 14 & 11 & 12 & 14 & 12 & 70 & 100 & 12 & \textbf{7} \\
 	\hline
-	\texttt{0x7f567b64a830} & 17 & 15 & \textbf{4} & 100 & 70 & 9 & 8 \\
+	\texttt{0x7f567b64a830} & 100 & 8 & 7 & 6 & \textbf{1} & 42 & 30 & 4 & 4 \\
 	\hline
-	\texttt{0x7f4791631c60} & 12 & 16 & \textbf{9} & 38 & 100 & 17 & 13 \\
+	\texttt{0x7f4791631c60} & 11 & 12 & 11 & 17 & \textbf{9} & 34 & 100 & 15 & 13 \\
 	\hline
-	\texttt{0x7f47a6e31058} & 11 & 15 & \textbf{9} & 17 & 100 & 23 & 18 \\
+	\texttt{0x7f5671faab80} & 20 & 15 & 18 & 28 & \textbf{11} & 18 & 100 & 24 & 22 \\
 	\hline
-	\texttt{0x7f5671faab80} & 19 & 28 & \textbf{11} & 19 & 100 & 17 & 22 \\
+	\texttt{0x7f47a6e31058} & 10 & \textbf{7} & 11 & 15 & 10 & 13 & 100 & 16 & 19 \\
 	\hline
-	\texttt{0x7f565ca63148} & \textbf{9} & 12 & 13 & 49 & 100 & 14 & 10 \\
+	\texttt{0x7f565ca63148} & 8 & \textbf{8} & 9 & 12 & 12 & 46 & 100 & 13 & 10 \\
 	\hline
 	\hline
-	Average & 13 & 15 & 11 & 62 & 94 & 13 & 10 \\
+	Average & 22 & 11 & 12 & 14 & 11 & 55 & 89 & 12 & 10 \\
 	\hline
 \end{tabular}
 \caption{Results of the Mozilla Firefox experiment. Standardized by maximum
 	time (lower is better). Sorted by which implementation is fastest.
 	Produced by \texttt{experiments/vcr/make\_table.py}.}
 \label{tab:firefox-results}
-\end{table}
+%\end{table}
+\end{sidewaystable}
 
 Overall, the cache-oblivious B-tree (COBT) performed slightly worse than
 \mbox{B-trees} in this experiment. We believe this may be explained by the
 small size of typical hash tables, which forces frequent costly rebuilds of
 the packed memory array.
+
+Interestingly, red-black trees outperformed cache-aware 2-3-4 trees
+even through our synthetic experiments ran slightly faster on 2-3-4 trees.
+One possible explanation is the presence of \texttt{Delete}s in the recording --
+we did not perform any experiment to measure their speed.
 
 Most recordings run fastest either on cuckoo hash tables, or on splay trees.
 By inspecting the recordings, we found that splay trees are better on recordings
@@ -358,7 +366,7 @@ traverse an entire chain.
 \subsection{Geospatial database}
 The results of the cloud database experiment are outlined in
 table~\ref{tab:cloud-results}. Cache-oblivious \mbox{B-trees} slightly outperformed
-standard \mbox{B-trees}. Splay trees were surprisingly fast. One factor that
+standard \mbox{2-3-4 trees}. Splay trees were surprisingly fast. One factor that
 might cause them to perform so well might be that stations usually produce
 a~large amount of reports over their lifetime, so when we fetch $S$ closest
 reports for a~point, it is likely that all such reports will be the first $S$
@@ -414,7 +422,7 @@ however, comparatively weak on cache-oblivious B-trees.
 	\hline
 	$k$-splay tree & 41.69 & 44.72 \cr
 	\hline
-	B-tree & 22.68 & 25.89 \cr
+	2-3-4 tree & 22.68 & 25.89 \cr
 	\hline
 \end{tabular}
 \caption{Results of the cloud database experiment, generated
