@@ -1,6 +1,49 @@
 \chapter{Results}
 \label{chapter:results}
 
+\section{Basic cache-aware and unaware structures}
+We compared our cache-aware 2-3-4 trees to simpler, cache-unaware dictiories:
+red-black trees borrowed from LibUCW and a simple sorted array with binary
+search and $\O(N)$ updates. Note that a binary search needs
+$\Theta(\log N-\log B)$ block transfers, which is asymptotically larger than
+the $\Theta(\log_B N)$ required by B-trees.
+
+\begin{figure}
+\begin{subfigure}[t]{\textwidth}
+	\includegraphics[width=\textwidth]{img/performance/basic-random-find-100}
+	\caption{100\% success rate}
+\end{subfigure}
+\\
+\begin{subfigure}[t]{\textwidth}
+	\includegraphics[width=\textwidth]{img/performance/basic-random-find-50}
+	\caption{50\% success rate}
+\end{subfigure}
+\\
+\begin{subfigure}[t]{\textwidth}
+	\includegraphics[width=\textwidth]{img/performance/basic-random-find-0}
+	\caption{0\% success rate}
+\end{subfigure}
+\caption{Performance of random \textsc{Find}s in simple dictionaries.
+	Arrays cut off early due to very slow insertions.}
+\label{fig:basic-finds}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{subfigure}[t]{0.45\textwidth}
+	\includegraphics[width=\textwidth]{img/performance/basic-random-insert}
+	\caption{Random \textsc{Insert}s}
+\end{subfigure}
+\caption{Performance of simple dictionaries. Arrays cut off early due to very
+	slow insertions.}
+\label{fig:basic-perf}
+\end{figure}
+
+Figures~\ref{fig:basic-finds} and \ref{fig:basic-perf} shows the results.
+Red-black trees ended up slightly slower than our cache-aware 2-3-4 trees.
+Interestingly, sorted arrays win on \textsc{Find}s, even if they are expected
+to use more block transfers in the external memory model.
+
 \section{Cache-oblivious B-tree}
 \label{sec:cob-perf}
 We found the performance of cache-oblivious B-trees very competitive compared
@@ -250,6 +293,7 @@ performance. Our results are presented in table~\ref{tab:firefox-results}.
 \begin{table}
 \centering
 % TODO: Sort!
+% TODO: Add dict_array, dict_rbtree
 \begin{tabular}{|c|r|r|r|r|r|r|r|}
 	\hline
 	Recording &
@@ -343,6 +387,7 @@ however, comparatively weak on cache-oblivious B-trees.
 \begin{table}
 \centering
 \begin{tabular}{|c|S<{\,\si{\s}}|S<{\,\si{\s}}|}
+% TODO: add dict_rbtree
 %--close_count=1000
 %--scatter=GRID
 %--lat_step=100
