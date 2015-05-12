@@ -218,7 +218,7 @@ Since every rotation can be performed in $\O(1)$
 pointer assignments, we can measure the time to splay a node in the number
 of rotations performed (or 1 if no rotations are needed).
 
-\begin{lemma}
+\begin{lemma}[Access Lemma]
 The amortized time $a$ to splay a node $x$ in a tree with root $t$
 is at most $3(r(t)-r(x))+1 = \O(\log(s(t)/s(x)))$.
 \end{lemma}
@@ -291,9 +291,14 @@ the potential drops by at most $\sum_{i=1}^N \log(1/w(K_i))=
 the access sequence is at most $(3\log N+1)M + N\log N = \O((M+N)\log N + M)$.
 \end{proof}
 
-The balance theorem states that, in the amortized sense, lookups in a~splay
-tree are as efficient as in usual balanced search trees (like AVL or red-black
-trees).
+When we \textsc{Find} a key in a splay tree, we first perform a~binary search
+for the node with the key, and then we splay the node. Since the splay
+operation traverses the entire path from the node to the root, we can
+charge the bundle together the cost of the binary search with the cost of the
+splay operation, so according to the balance theorem, the amortized time for
+a \textsc{Find} is $\O(\log N)$.
+Thus, in the amortized sense, lookups in a~splay tree are as efficient as
+in usual balanced search trees (like AVL or red-black trees).
 
 \vskip 1em
 
