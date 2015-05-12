@@ -158,7 +158,7 @@ The set of possible cache locations for lines in memory is determined
 by simply masking out a few address bits. This approach implies that
 accessing too many locations with addresses differing exactly by a power
 of two may result in \emph{cache aliasing} -- the accessed locations will
-all fall within the same set, and the cache will only be able to store only
+all fall within the same set, and the cache will be able to store only
 $t$ useful cache lines at once, which greatly degrades performance.
 
 Programs which have \emph{spatial} and \emph{temporal locality of reference}
