@@ -44,6 +44,7 @@ void run_unit_tests(void) {
 	test_dict_blackbox(&dict_rbtree);
 	test_dict_blackbox(&dict_splay);
 
+	test_ordered_dict_blackbox(&dict_array);
 	test_ordered_dict_blackbox(&dict_btree);
 	test_ordered_dict_blackbox(&dict_cobt);
 	test_ordered_dict_blackbox(&dict_ksplay);
@@ -51,7 +52,6 @@ void run_unit_tests(void) {
 
 	test_dict_large(&dict_array, 1 << 10);
 	test_dict_large(&dict_btree, 1 << 20);
-	// TODO: optimize dict_cobt for better performance
 	test_dict_large(&dict_cobt, 1 << 20);
 	test_dict_large(&dict_htcuckoo, 1 << 20);
 	test_dict_large(&dict_htlp, 1 << 20);
