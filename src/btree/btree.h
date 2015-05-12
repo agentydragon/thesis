@@ -12,10 +12,15 @@
 //	=> "free block count tree":
 //		each node contains lower bound on # of free blocks below
 
-#define LEAF_MAX_KEYS 4
-#define LEAF_MIN_KEYS 2  // todo??
-#define INTERNAL_MAX_KEYS 3
-#define INTERNAL_MIN_KEYS 1
+#define NODE_BYTES 64
+// #define NODE_BYTES 128
+// #define NODE_BYTES 256
+// #define NODE_BYTES 512
+// #define NODE_BYTES 1024
+#define LEAF_MAX_KEYS (NODE_BYTES / (sizeof(uint64_t) * 2))
+#define LEAF_MIN_KEYS (LEAF_MAX_KEYS / 2)
+#define INTERNAL_MAX_KEYS ((NODE_BYTES - sizeof(void*)) / (sizeof(uint64_t) + sizeof(void*)))
+#define INTERNAL_MIN_KEYS (INTERNAL_MAX_KEYS / 2)
 
 typedef struct btree_node_persisted {
 	union {
