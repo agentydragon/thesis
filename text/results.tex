@@ -342,9 +342,10 @@ small size of typical hash tables, which forces frequent costly rebuilds of
 the packed memory array.
 
 Interestingly, red-black trees outperformed cache-aware 2-3-4 trees
-even through our synthetic experiments ran slightly faster on 2-3-4 trees.
-One possible explanation is the presence of \texttt{Delete}s in the recording --
-we did not perform any experiment to measure their speed.
+on the Firefox recordings even through our synthetic experiments ran slightly
+faster on 2-3-4 trees.
+One possible explanation is the presence of \textsc{Delete}s in the recording --
+we did not perform any experiment to explicitly measure their speed.
 
 Most recordings run fastest either on cuckoo hash tables, or on splay trees.
 By inspecting the recordings, we found that splay trees are better on recordings
