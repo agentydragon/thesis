@@ -95,7 +95,7 @@ def point_fits_filters(point, filters):
       return False
   return True
 
-def load_data(discard_trivial=True, **filters):
+def load_data(discard_trivial=1000, **filters):
   global CACHED_DATA_FROM_FILE
 
   if not CACHED_DATA_FROM_FILE:
@@ -103,7 +103,7 @@ def load_data(discard_trivial=True, **filters):
       CACHED_DATA_FROM_FILE = json.load(results_file)
 
   def point_is_good(point):
-    if discard_trivial and point['size'] < 1000:
+    if discard_trivial and point['size'] < discard_trivial:
       return False
     return point_fits_filters(point, filters)
 
@@ -222,7 +222,7 @@ def plot_cob_find_speed_figures():
     pyplot.grid(True)
 
     api_data = select_api(data, 'dict_btree')
-    plot_data(api_data, 'r', linewidth=2.0, label='B-tree')
+    plot_data(api_data, 'r', linewidth=2.0, label='2-3-4 tree')
 
     api_data = select_api(data, 'dict_cobt')
     plot_data(api_data, 'g', linewidth=2.0, label='Cache-oblivious B-tree')
@@ -293,7 +293,7 @@ def plot_cob_performance():
   pyplot.grid(True)
 
   difference = get_difference('dict_btree')
-  plot_data(difference, 'r', linewidth=2.0, label='B-tree')
+  plot_data(difference, 'r', linewidth=2.0, label='2-3-4 tree')
   difference = get_difference('dict_cobt')
   plot_data(difference, 'g', linewidth=2.0, label='Cache-oblivious B-tree')
   difference = get_difference('dict_htlp')
@@ -309,7 +309,7 @@ def plot_cob_performance():
   data = load_data(experiment='serial-findonly', success_percentage=100)
   new_figure()
   for api, color, label in [
-      ('dict_btree', 'r-', 'B-tree'),
+      ('dict_btree', 'r-', '2-3-4 tree'),
       ('dict_cobt', 'g-', 'Cache-oblivious B-tree'),
       ('dict_htcuckoo', 'b-', 'Cuckoo hash table'),
       ('dict_htlp', 'c-', 'Hash table with linear probing'),
@@ -325,6 +325,54 @@ def plot_cob_performance():
   save_to('export/overall-random-find.png')
   pyplot.clf()
 
+def plot_basic_performance():
+  trivial = 1000
+
+  def plot_basic(data):
+    for api, color, label in [
+        ('dict_rbtree', 'r-', 'Red-black tree'),
+        ('dict_btree', 'g-', '2-3-4 tree'),
+        ('dict_cobt', 'c-', 'Cache-oblivious B-tree'),
+        ('dict_array', 'b-', 'Array with binary search')]:
+      api_data = select_api(data, api)
+      api_data = [point for point in api_data if point['time_ns'] / point['size'] < 1000]
+      if api_data:
+        plot_data(api_data, color, linewidth=2.0, label=label)
+
+    pyplot.xscale('log')
+    pyplot.legend(loc='upper left')
+    pyplot.ylabel('Time per operation [ns]')
+    pyplot.grid(True)
+
+  for success_rate in [100, 50, 0]:
+    fig = pyplot.figure(1)
+    fig.set_size_inches(*EXPORT_FIGSIZE_FULLWIDTH)
+    plot_basic(load_data(experiment='serial-findonly',
+                         success_percentage=success_rate,
+                         discard_trivial=trivial))
+    save_to('export/basic-random-find-%d.png' % success_rate)
+    pyplot.clf()
+
+  fig = pyplot.figure(1)
+  fig.set_size_inches(*EXPORT_FIGSIZE)
+  plot_basic(load_data(experiment='serial-insertonly', discard_trivial=trivial))
+  save_to('export/basic-random-insert.png')
+  pyplot.clf()
+
+  new_figure()
+  plot_basic(load_data(experiment='workingset', working_set_size=1000,
+             discard_trivial=trivial))
+  save_to('export/basic-ws-1k.png')
+  pyplot.clf()
+
+  working_set_size = 100000
+  data = load_data(experiment='workingset', working_set_size=working_set_size,
+                   discard_trivial=trivial)
+  new_figure()
+  plot_basic([point for point in data if point['size'] >= working_set_size])
+  save_to('export/basic-ws-100k.png')
+  pyplot.clf()
+
 def plot_self_adjusting_performance():
   def plot_self_adj(data):
     for api, color, label in [
@@ -338,7 +386,7 @@ def plot_self_adjusting_performance():
     api_data = select_api(data, 'dict_btree')
     if api_data:
       plot_data(api_data, '#666666', linewidth=1.0, linestyle='dashed',
-                label='B-tree')
+                label='2-3-4 tree')
 
     pyplot.xscale('log')
     pyplot.legend(loc='upper left')
@@ -388,7 +436,7 @@ def plot_hashing_performance():
 
     api_data = [point for point in data if point['implementation'] == 'dict_btree'
                                         and point['time_ns'] / point['size'] < 500]
-    plot_data(api_data, '#666666', linewidth=1.0, label='B-tree',
+    plot_data(api_data, '#666666', linewidth=1.0, label='2-3-4 tree',
               linestyle='dashed')
     pyplot.legend(loc='upper left')
 
@@ -417,7 +465,7 @@ def plot_hashing_performance():
   difference = get_difference('dict_btree')
   difference = [point for point in difference
                       if point['time_ns'] / point['size'] < 1200]
-  plot_data(difference, '#666666', linewidth=1.0, label='B-tree',
+  plot_data(difference, '#666666', linewidth=1.0, label='2-3-4 tree',
             linestyle='dashed')
   pyplot.legend(loc='upper left')
   save_to('export/hashing-2.png')
@@ -436,6 +484,7 @@ def plot_hashing_performance():
   pyplot.clf()
 
 def plot_exported_figures():
+  plot_basic_performance()
   plot_cob_performance()
   plot_self_adjusting_performance()
   plot_hashing_performance()
