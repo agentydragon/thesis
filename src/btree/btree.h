@@ -65,4 +65,10 @@ uint8_t get_n_leaf_keys(const btree_node_persisted* node);
 
 void btree_dump_dot(const btree* this, FILE* output);
 
+typedef struct {
+	uint64_t internal_n_keys_histogram[100];
+} btree_stats;
+
+btree_stats btree_collect_stats(btree* this);
+
 #endif

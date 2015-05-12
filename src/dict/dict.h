@@ -55,8 +55,8 @@ bool MUST_USE_RESULT dict_prev(dict*, uint64_t key, uint64_t *prev_key);
 void dict_dump(dict*);
 void dict_check(dict*);
 
-// Provides access to implementation pointer. Explicitly disallows modification.
-const void* dict_get_implementation(dict*);
+// Provides access to implementation pointer.
+void* dict_get_implementation(dict*);
 const dict_api* dict_get_api(dict*);
 
 // Derived from dict_find.

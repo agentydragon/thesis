@@ -85,6 +85,11 @@ CUCKOO_CUBE_SOURCES=$(SOURCES) experiments/cuckoo-cube/cuckoo-cube.c
 bin/experiments/cuckoo-cube: $(CUCKOO_CUBE_SOURCES)
 	$(CC) $(CFLAGS) $(CUCKOO_CUBE_SOURCES) $(LIBS) -o $@
 
+# experiments/btree-stats
+BTREE_STATS_SOURCES=$(SOURCES) experiments/btree-stats/btree-stats.c
+bin/experiments/btree-stats: $(BTREE_STATS_SOURCES)
+	$(CC) $(CFLAGS) $(BTREE_STATS_SOURCES) $(LIBS) -o $@
+
 # Continuous integration target
 # TODO: Check that everything else builds, too.
 test: bin/test bin/experiments/performance bin/experiments/vcr bin/experiments/btree-dot bin/experiments/cloud

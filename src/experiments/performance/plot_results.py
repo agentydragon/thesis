@@ -208,6 +208,22 @@ def plot_cache_events(**kwargs):
   pyplot.legend(loc='upper left')
   pyplot.grid(True)
 
+def plot_simple_cache(**kwargs):
+  new_figure()
+  pyplot.xscale('log')
+  pyplot.ylabel('Cache misses per element')
+  data = load_data(**kwargs)
+  for metric, color, label in [
+      ('l1d_read_misses', 'r-', 'L1D read misses'),
+      ('l1d_write_misses', 'r-', 'L1D write misses'),
+      ('l1i_read_misses', 'b-', 'L1I read misses'),
+      ('dtlb_read_misses', 'g-', 'dTLB read misses'),
+      ('dtlb_write_misses', 'g-', 'dTLB write misses')]:
+    pyplot.plot(sizes(data), select_metric_per_element(data, metric),
+                color, label=label)
+  pyplot.legend(loc='upper left')
+  pyplot.grid(True)
+
 #HASH_LABEL = 'Hash table with linear probing (for reference)'
 HASH_LABEL = 'Hash table with linear probing'
 EXPORT_FIGSIZE = (6,6)
@@ -515,6 +531,14 @@ def main():
 
   plot_cache_events(implementation='dict_htable', experiment='serial-both')
   save_to('htable-cache-both.png')
+  pyplot.clf()
+
+  plot_simple_cache(implementation='dict_array', experiment='serial-findonly')
+  save_to('simple-cache-array.png')
+  pyplot.clf()
+
+  plot_simple_cache(implementation='dict_btree', experiment='serial-findonly')
+  save_to('simple-cache-btree.png')
   pyplot.clf()
 
 main()

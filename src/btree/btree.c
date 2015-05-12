@@ -816,3 +816,24 @@ void btree_dump_dot(const btree* this, FILE* output) {
 	_dump_dot(root, output);
 	fprintf(output, "}\n");
 }
+
+void btree_collect_stats_recursive(btree_node_traversed node, btree_stats* stats) {
+	if (nt_is_leaf(node)) {
+		return;
+	}
+	stats->internal_n_keys_histogram[get_n_internal_keys(node.persisted)]++;
+	for (uint8_t i = 0; i <= get_n_internal_keys(node.persisted); ++i) {
+		btree_collect_stats_recursive((btree_node_traversed) {
+			.persisted = node.persisted->internal.pointers[i],
+			.levels_above_leaves = node.levels_above_leaves - 1
+		}, stats);
+	}
+}
+
+btree_stats btree_collect_stats(btree* this) {
+	btree_stats stats = {
+		.internal_n_keys_histogram = { 0 }
+	};
+	btree_collect_stats_recursive(nt_root(this), &stats);
+	return stats;
+}

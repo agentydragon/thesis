@@ -74,7 +74,7 @@ bool dict_prev(dict* this, uint64_t key, uint64_t *prev_key) {
 	log_fatal("dict api %s doesn't implement prev", this->api->name);
 }
 
-const void* dict_get_implementation(dict* this) {
+void* dict_get_implementation(dict* this) {
 	return this->opaque;
 }
 
