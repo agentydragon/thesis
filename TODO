@@ -1,7 +1,5 @@
 * nekde vic detailu
 * (pridat to uvodu reference na clanky o prislusnych strukturach?)
-* $B$-strom => $b$-strom konzistentne
-* experiment: klasicke struktury vc. napriklad Red-Black
 * mereni spotreby pameti
 * jeste nejaka realna data
 * oznamit, ze budu merit na Lenovu
@@ -15,5 +13,3 @@
 * knihovni cast, neobecna (explicitne) VS experimenty nad tim napsane
 * upravovatelne pointery? ("vrat mi pointer, ja ho budu upravovat do dalsiho
   accessu)
-* vraceni intu? mel bych to natypedefovat na chybovou navratovou hodnotu
-* experiment o neuspesnych findech
