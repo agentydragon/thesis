@@ -12,9 +12,9 @@
 //	=> "free block count tree":
 //		each node contains lower bound on # of free blocks below
 
-#define NODE_BYTES 64
+// #define NODE_BYTES 64
 // #define NODE_BYTES 128
-// #define NODE_BYTES 256
+#define NODE_BYTES 256  // 256 B nodes did best on our test.
 // #define NODE_BYTES 512
 // #define NODE_BYTES 1024
 #define LEAF_MAX_KEYS (NODE_BYTES / (sizeof(uint64_t) * 2))

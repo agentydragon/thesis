@@ -33,6 +33,16 @@ measuring the effect in a practical settings. Our measurements from Mozilla
 Firefox may be biased towards unsuccessful \textsc{Find}s due to the way we
 filtered out unparseable lines.
 
+Our implementation of \mbox{B-trees} was largely unoptimized. In particular,
+we used a linear scan when looking within nodes. On small nodes, this is
+not very different from the speed of binary search, but since we found
+that nodes larger than $64\,\text{B}$ cache lines did very well, binary search
+within these large nodes might make a difference.
+
+Many variants of B-trees were developed in the settings of on-disk databases.
+One of them, \emph{B*-trees} \cite{bstar}, use some extra bookkeeping to
+maintain fuller nodes. This may also be a useful optimization in main memory.
+
 We believe an benchmarking various non-traditional self-adjusting structures,
 like Tango trees from \cite{tango} or multi-splay trees from
 \cite{multisplay-trees}, could give interesting results. Splay trees are very

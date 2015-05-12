@@ -1,8 +1,46 @@
 \chapter{Results}
 \label{chapter:results}
 
+\section{\mbox{B-trees} and the choice of $b$}
+At first, we fixed the $b$ parameter of \texttt{dict\_btree} to make nodes
+exactly $64\,\text{B}$ in size to align them with physical cache lines.
+This produces classic 2-3-4 trees. When we compared this \texttt{dict\_btree}
+with simple red-black trees borrowed from LibUCW (\texttt{dict\_rbtree}),
+we found them almost tied in performance (2-3-4 trees won by a small margin).
+
+This was likely at least partially caused by the relatively small effective
+branching factor of 2-3-4 trees (we measured 2.51 on $1\,000\,000$ random
+keys).
+
+\begin{figure}
+\centering
+\begin{subfigure}[t]{0.45\textwidth}
+	\includegraphics[width=\textwidth]{img/btree-b-find-50}
+	\caption{Random \textsc{Find}s, 50\% successful (other success rates
+		produce similar results)}
+\end{subfigure}
+~
+\begin{subfigure}[t]{0.45\textwidth}
+	\includegraphics[width=\textwidth]{img/btree-b-insert}
+	\caption{Random \textsc{Insert}s}
+\end{subfigure}
+\caption{The effect of different choices of $b$ on the performance of B-trees.
+	Note that our initial choice ($64\,\text{B}$ nodes), performs
+	particularly badly.}
+\label{fig:btree-b-perf}
+\end{figure}
+
+We tried setting the size of nodes to larger powers of two, and we found
+that nodes of $256\,\text{B}$ (i.e.,\ up to 15 keys in internal nodes)
+performed the best on random \textsc{Find}s and \textsc{Insert}s.
+We used this node size in all of the following measurements.
+
+Our code for B-trees uses linear search when looking within nodes.
+With nodes this large, the speed of our code could possibly be improved
+by using binary search.
+
 \section{Basic cache-aware and unaware structures}
-We compared our cache-aware 2-3-4 trees to simpler, cache-unaware dictiories:
+We compared our cache-aware B-trees trees to simpler, cache-unaware dictiories:
 red-black trees borrowed from LibUCW and a simple sorted array with binary
 search and $\O(N)$ updates. Note that a binary search needs
 $\Theta(\log N-\log B)$ block transfers, which is asymptotically larger than
@@ -40,14 +78,17 @@ the $\Theta(\log_B N)$ required by B-trees.
 \end{figure}
 
 Figures~\ref{fig:basic-finds} and \ref{fig:basic-perf} shows the results.
-Red-black trees ended up slightly slower than our cache-aware 2-3-4 trees.
+Red-black trees ended up slightly slower than our cache-aware B-trees.
+We were slightly surprised that B-trees did not win over red-black
+trees by a larger margin. The relatively small size of the difference
+
 Interestingly, sorted arrays win on \textsc{Find}s, even if they are expected
 to use more block transfers in the external memory model.
 
 \section{Cache-oblivious B-tree}
 \label{sec:cob-perf}
 We found the performance of cache-oblivious B-trees very competitive compared
-to 2-3-4 trees on both random uniform access patterns and modestly large working
+to B-trees on both random uniform access patterns and modestly large working
 sets. As seen on figure~\ref{fig:cob-performance}, random successful
 \textsc{Find}s were up to twice as fast in large cache-oblivious B-trees
 without ever being significantly slower on small dictionaries.
@@ -104,7 +145,7 @@ make updates of smaller dictionaries more efficient.
 
 \section{Self-adjusting structures}
 Splay trees are the canonical self-adjusting structure we would like to
-outperfrom. As expected, splay trees are somewhat slower than 2-3-4 trees on
+outperfrom. As expected, splay trees are somewhat slower than B-trees on
 unpredictable operations (see figure~\ref{fig:self-adj-performance-finds}).
 
 \begin{figure}
@@ -145,7 +186,7 @@ unpredictable operations (see figure~\ref{fig:self-adj-performance-finds}).
 \end{subfigure}
 % TODO: word occurrence counting
 \caption{Benchmarks of self-adjusting structures.
-	2-3-4 trees are included for reference.}
+	B-trees are included for reference.}
 \label{fig:self-adj-performance}
 \end{figure}
 
@@ -211,7 +252,7 @@ In structures with the true working set property, caches will still contain
 mostly useful key-value pairs, even when the working set is a tiny fraction
 of the dictionary.
 
-$k$-forests were slow both backed by 2-3-4 trees and by cache-oblivious B-trees.
+$k$-forests were slow both backed by B-trees and by cache-oblivious B-trees.
 Choosing a larger $k$ slightly helped, but larger values of $k$ also degenerate
 \mbox{$k$-forests} into their backing structure.
 As observed on figure~\ref{fig:self-adj-performance-finds}, \textsc{Find}s in
@@ -300,7 +341,7 @@ performance. Our results are presented in table~\ref{tab:firefox-results}.
 	\hline
 	Recording &
 		Array & Red-black tree &
-		2-3-4 trees & COBT &
+		B-trees & COBT &
 		Splay & $k$-forest & $k$-splay &
 		Linear probing & Cuckoo \\
 
@@ -341,9 +382,9 @@ Overall, the cache-oblivious B-tree (COBT) performed slightly worse than
 small size of typical hash tables, which forces frequent costly rebuilds of
 the packed memory array.
 
-Interestingly, red-black trees outperformed cache-aware 2-3-4 trees
+Interestingly, red-black trees outperformed cache-aware B-trees
 on the Firefox recordings even through our synthetic experiments ran slightly
-faster on 2-3-4 trees.
+faster on B-trees.
 One possible explanation is the presence of \textsc{Delete}s in the recording --
 we did not perform any experiment to explicitly measure their speed.
 
@@ -369,7 +410,7 @@ traverse an entire chain.
 \subsection{Geospatial database}
 The results of the cloud database experiment are outlined in
 table~\ref{tab:cloud-results}. Cache-oblivious \mbox{B-trees} slightly outperformed
-standard \mbox{2-3-4 trees}. Splay trees were surprisingly fast. One factor that
+standard \mbox{B-trees}. Splay trees were surprisingly fast. One factor that
 might cause them to perform so well might be that stations usually produce
 a~large amount of reports over their lifetime, so when we fetch $S$ closest
 reports for a~point, it is likely that all such reports will be the first $S$
@@ -425,7 +466,7 @@ however, comparatively weak on cache-oblivious B-trees.
 	\hline
 	$k$-splay tree & 41.69 & 44.72 \cr
 	\hline
-	2-3-4 tree & 22.68 & 25.89 \cr
+	B-tree & 22.68 & 25.89 \cr
 	\hline
 \end{tabular}
 \caption{Results of the cloud database experiment, generated

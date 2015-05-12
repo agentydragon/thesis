@@ -200,7 +200,12 @@ We implemented the following dictionary data structures:
 	a sorted array of key-value pairs with $\O(N)$ insertions and deletions,
 	indended as a~benchmark on very small inputs.
 \item \texttt{dict\_btree}, declared in \texttt{dict/btree.h}:
-	a 2-3-4 tree with nodes aligned to $64\,\text{B}$ cache lines.
+	a B-tree. The value of $b$ may be selected by changing compile-time
+	constants.
+
+	In the variant that aligns $b$ to fit one node exactly into a~
+	$64\,\text{B}$ cache line, \texttt{dict\_btree} is, in fact, a 2-3-4
+	tree.
 	This is a~slight relaxation of B-trees (chapter~\ref{chapter:btree})
 	that allows inner nodes to contain $k\in[1;3]$ keys.
 	An inner node needs to keep $k$~keys and $k+1$~pointers, so, with
@@ -224,7 +229,6 @@ We implemented the following dictionary data structures:
 	a splay tree (chapter~\ref{chapter:splay}).
 \item \texttt{dict\_ksplay}, declared in \texttt{dict/ksplay.h}:
 	a $k$-splay tree (chapter~\ref{chapter:ksplay}). % FIXME: which K?
-% TODO: htable
 \end{itemize}
 
 \begin{figure}
