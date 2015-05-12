@@ -52,7 +52,9 @@ sets. As seen on figure~\ref{fig:cob-performance}, random successful
 \textsc{Find}s were up to twice as fast in large cache-oblivious B-trees
 without ever being significantly slower on small dictionaries.
 The large density of the van Emde Boas tree is the likely reason for these
-gains.
+gains. In fact, the speeds of \textsc{Find}s in cache-oblivious B-trees
+approached the speeds of \textsc{Find}s in arrays (compare
+figure~\ref{fig:cob-performance} with figure~\ref{fig:basic-finds}).
 \textsc{FindNext} and \textsc{FindPrev} are also faster in cache-oblivious
 B-trees.
 
