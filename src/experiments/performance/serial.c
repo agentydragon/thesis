@@ -12,7 +12,13 @@ struct metrics measure_serial(const dict_api* api, serial_mode mode,
 	measurement_results *results_just_insert;
 	uint64_t time_just_insert_ns;
 
-	dict* table = seed(api, size);
+	dict* table;
+	if (mode == SERIAL_JUST_FIND) {
+		// Be fast if I don't care about insertion speed.
+		table = seed_bulk(size);
+	} else {
+		table = seed(api, size);
+	}
 	results_just_insert = measurement_end(measurement_just_insert);
 	time_just_insert_ns = stopwatch_read_ns(watch);
 

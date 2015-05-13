@@ -9,7 +9,7 @@ struct metrics measure_working_set(const dict_api* api, uint64_t size,
 	const uint64_t used_ws_size =
 			working_set_size < size ? working_set_size : size;
 
-	dict* table = seed(api, size);
+	dict* table = seed_bulk(api, size);
 
 	measurement* measurement_just_find = measurement_begin();
 	stopwatch watch_just_find = stopwatch_start();

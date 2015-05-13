@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
 
 	// TODO: merge with //performance.c
 	json_t* json_results = json_array();
-	for (double x = 1; x < FLAGS.maximum; x *= FLAGS.base) {
+	for (double x = FLAGS.minimum; x < FLAGS.maximum; x *= FLAGS.base) {
 		const uint64_t size = round(x);
 		log_info("size=%" PRIu64, size);
 

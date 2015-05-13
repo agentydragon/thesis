@@ -29,7 +29,7 @@ static void iterate_ltr(dict* dict) {
 }
 
 struct metrics measure_ltr_scan(const dict_api* api, uint64_t size) {
-	dict* table = seed(api, size);
+	dict* table = seed_bulk(api, size);
 
 	const int K = 3;  // for cache warmup
 	for (int i = 0; i < K; i++) {

@@ -27,6 +27,10 @@
 static int parse_option(int key, char *arg, struct argp_state *state) {
 	(void) state;
 	switch (key) {
+	case 'i':
+		FLAGS.minimum = parse_human_i(arg);
+		log_info("min=%" PRIu64, FLAGS.minimum);
+		break;
 	case 'm':
 		FLAGS.maximum = parse_human_i(arg);
 		log_info("max=%" PRIu64, FLAGS.maximum);
@@ -59,6 +63,7 @@ static dict_api const * const DEFAULT_APIS[] = {
 };
 
 static void set_defaults(void) {
+	FLAGS.minimum = 1;
 	FLAGS.maximum = 1024 * 1024 * 1024;
 	FLAGS.base = 1.2;
 
@@ -73,8 +78,11 @@ void parse_flags(int argc, char** argv) {
 
 	struct argp_option options[] = {
 		{
+			.name = 0, .key = 'i', .arg = "MIN", .flags = 0,
+			.doc = "Store MIN elements at least", .group = 0
+		}, {
 			.name = 0, .key = 'm', .arg = "MAX", .flags = 0,
-			.doc = "Store MAX elements to store at most", .group = 0
+			.doc = "Store MAX elements at most", .group = 0
 		}, {
 			.name = 0, .key = 'b', .arg = "BASE", .flags = 0,
 			.doc = "Multiply by BASE at each iteration", .group = 0
