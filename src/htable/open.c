@@ -140,7 +140,7 @@ static int8_t resize(htlp* this, uint64_t new_capacity) {
 	sth_init(&new_this.hash, new_capacity, &this->rand);
 	new_this.rand = this->rand;
 
-	log_info("resizing to %" PRIu64, new_this.capacity);
+	// log_info("resizing to %" PRIu64, new_this.capacity);
 
 	for (uint64_t i = 0; i < new_capacity; ++i) {
 		new_this.keys[i] = HTLP_EMPTY;
@@ -170,8 +170,8 @@ static int8_t resize_to_fit(htlp* this, uint64_t to_fit) {
 
 	// TODO: make this operation a takeback instead?
 	if (new_capacity != this->capacity) {
-		log_info("will resize to %" PRIu64 " to fit %" PRIu64,
-				new_capacity, to_fit);
+		// log_info("will resize to %" PRIu64 " to fit %" PRIu64,
+		// 		new_capacity, to_fit);
 		return resize(this, new_capacity);
 	}
 	return 0;
