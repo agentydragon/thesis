@@ -201,17 +201,18 @@ We implemented the following dictionary data structures:
 	indended as a~benchmark on very small inputs.
 \item \texttt{dict\_btree}, declared in \texttt{dict/btree.h}:
 	a B-tree. The value of $b$ may be selected by changing compile-time
-	constants.
+	constants. Our eventual choice of~$b$ is described in
+	section~\ref{sec:btree-b-choice}.
 
-	In the variant that aligns $b$ to fit one node exactly into a~
-	$64\,\text{B}$ cache line, \texttt{dict\_btree} is, in fact, a 2-3-4
+	In the variant that aligns $b$ to fit one node exactly into
+	a~$64\,\text{B}$ cache line, \texttt{dict\_btree} is, in fact, a 2-3-4
 	tree.
 	This is a~slight relaxation of B-trees (chapter~\ref{chapter:btree})
 	that allows inner nodes to contain $k\in[1;3]$ keys.
 	An inner node needs to keep $k$~keys and $k+1$~pointers, so, with
-	64-bit key and pointers and 64~B cache lines, an inner node fitting
-	into a~cache line can keep at most 3 keys. However, leaves hold $k$
-	keys and $k$ values of 64 bits each, which lets us put up to
+	64-bit key and pointers and $64\,\text{B}$ cache lines, an inner node
+	fitting into a~cache line can keep at most 3~keys. However, leaves hold
+	$k$~keys and $k$~values of 64 bits each, which lets us put up to
 	4 key-value pairs into each leaf.
 \item \texttt{dict\_cobt}, declared in \texttt{dict/cobt.h}:
 	a cache-oblivious B-tree (chapter~\ref{chapter:cob}).
@@ -234,7 +235,8 @@ We implemented the following dictionary data structures:
 \begin{figure}
 \centering
 \includegraphics[width=\linewidth]{img/btree}
-\caption{A 2-3-4 tree with bigger leaves (\texttt{dict\_btree})}
+\caption{A 2-3-4 tree with bigger leaves (one configuration of
+	\texttt{dict\_btree})}
 \end{figure}
 
 \section{Performance measurement}
