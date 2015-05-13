@@ -15,7 +15,7 @@ struct metrics measure_serial(const dict_api* api, serial_mode mode,
 	dict* table;
 	if (mode == SERIAL_JUST_FIND) {
 		// Be fast if I don't care about insertion speed.
-		table = seed_bulk(size);
+		table = seed_bulk(api, size);
 	} else {
 		table = seed(api, size);
 	}

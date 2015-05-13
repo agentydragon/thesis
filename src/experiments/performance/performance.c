@@ -80,6 +80,7 @@ int main(int argc, char** argv) {
 			json_array_append_new(json_results, point);
 			measurement_results_release(result.results);
 		}
+
 		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
 			result = measure_serial(FLAGS.measured_apis[i],
 					SERIAL_JUST_FIND, size, 100);

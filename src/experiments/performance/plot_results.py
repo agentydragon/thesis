@@ -42,6 +42,7 @@ def plot_graph(data, title=None):
   new_figure()
   subplot = pyplot.subplot(211)
   subplot.set_title(title)
+  subplot.set_xscale('log')
   for api, color in apis_with_colors(data):
     api_data = select_api(data, api)
     plot_data(api_data, color, linewidth=2.0, label=api)
