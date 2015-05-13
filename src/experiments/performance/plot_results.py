@@ -122,7 +122,8 @@ def plot_all_experiments():
     fig = pyplot.figure(1)
     fig.set_size_inches(*EXPORT_FIGSIZE_FULLWIDTH)
     plot_graph(data=load_data(experiment='serial-findonly',
-                              success_percentage=success_rate), title=title)
+                              success_percentage=success_rate),
+               title=('Serial, find-only, %d%%' % success_rate))
     save_to('serial-findonly-%d.png' % success_rate)
     pyplot.clf()
 
@@ -521,15 +522,6 @@ def main():
 
   plot_cache_events(implementation='dict_cobt', experiment='serial-both')
   save_to('cobt-cache.png')
-  pyplot.clf()
-
-  plot_cache_events(implementation='dict_htable', experiment='serial-findonly',
-                    success_percentage=100)
-  save_to('htable-cache-findonly.png')
-  pyplot.clf()
-
-  plot_cache_events(implementation='dict_htable', experiment='serial-both')
-  save_to('htable-cache-both.png')
   pyplot.clf()
 
   plot_simple_cache(implementation='dict_array', experiment='serial-findonly')
