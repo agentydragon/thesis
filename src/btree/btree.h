@@ -19,7 +19,8 @@
 // #define NODE_BYTES 1024
 #define LEAF_MAX_KEYS (NODE_BYTES / (sizeof(uint64_t) * 2))
 #define LEAF_MIN_KEYS (LEAF_MAX_KEYS / 2)
-#define INTERNAL_MAX_KEYS ((NODE_BYTES - sizeof(void*)) / (sizeof(uint64_t) + sizeof(void*)))
+// TODO: Why does this need the typecast?
+#define INTERNAL_MAX_KEYS ((int) ((NODE_BYTES - sizeof(void*)) / (sizeof(uint64_t) + sizeof(void*))))
 #define INTERNAL_MIN_KEYS (INTERNAL_MAX_KEYS / 2)
 
 typedef struct btree_node_persisted {
