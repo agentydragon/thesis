@@ -82,12 +82,8 @@ def save_to(filename):
 def point_fits_filters(point, filters):
   for key in filters:
     if key in point:
-      if type(filters[key]) is list:
-        if point[key] not in filters[key]:
-          return False
-      else:
-        if point[key] != filters[key]:
-          return False
+      if point[key] != filters[key]:
+        return False
     elif key in point['metrics']:
       if point['metrics'][key] != filters[key]:
         return False
@@ -200,9 +196,7 @@ def plot_cob_find_speed_figures():
 
     pyplot.legend(loc='upper left')
   def find_speed_fig(**kwargs):
-    data = load_data(implementation=['dict_rbtree', 'dict_cobt', 'dict_htlp'],
-                     **kwargs)
-    find_speed_fig_internal(data)
+    find_speed_fig_internal(load_data(**kwargs))
 
   for success_rate in [100, 50, 0]:
     new_figure(EXPORT_FIGSIZE)
@@ -223,8 +217,7 @@ def plot_cob_find_speed_figures():
   save_to('export/cob-performance-5.png')
 
   new_figure(EXPORT_FIGSIZE, ylabel='Time per indexed word')
-  data = load_data(experiment='word_frequency',
-                   implementation=['dict_btree', 'dict_cobt', 'dict_htlp'])
+  data = load_data(experiment='word_frequency')
   data = [point for point in data if point['size'] <= 800 * 1000]
   find_speed_fig_internal(data)
   pyplot.xlabel('Indexed words')
