@@ -180,7 +180,8 @@ lower cache levels. If the time to make a query is $30\,\text{ms}$,
 optimizing transfers between L2 and L3 caches would be unlikely to help.
 
 The cache and the disk are divided to blocks of size $B$. The size of the cache 
-in bytes is fixed and is denoted $M$ ($M=m\cdot B$).
+in bytes is fixed and is denoted $M$, and the number of blocks in the cache
+is denoted $m$, such that $M=m\cdot B$.
 In the context of main memory, $B$ is the size of a cache line
 ($64\,\text{B}$).
 
