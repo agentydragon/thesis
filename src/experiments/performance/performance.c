@@ -47,12 +47,11 @@ int main(int argc, char** argv) {
 			CUCKOO_COUNTERS.inserts = 0;
 			CUCKOO_COUNTERS.full_rehashes = 0;
 			CUCKOO_COUNTERS.traversed_edges = 0;
-
 			result = measure_serial(FLAGS.measured_apis[i],
-					SERIAL_BOTH, size, 100);
+					SERIAL_JUST_INSERT, size, 100);
 
 			json_t* point = json_object();
-			add_common_keys(point, "serial-both", size,
+			add_common_keys(point, "serial-insertonly", size,
 					FLAGS.measured_apis[i], result);
 			if (FLAGS.measured_apis[i] == &dict_cobt) {
 				json_object_set_new(point, "pma_reorganized",
@@ -66,17 +65,6 @@ int main(int argc, char** argv) {
 				json_object_set_new(point, "cuckoo_traversed_edges",
 						json_integer(CUCKOO_COUNTERS.traversed_edges));
 			}
-			json_array_append_new(json_results, point);
-			measurement_results_release(result.results);
-		}
-
-		for (int i = 0; FLAGS.measured_apis[i]; ++i) {
-			result = measure_serial(FLAGS.measured_apis[i],
-					SERIAL_JUST_INSERT, size, 100);
-
-			json_t* point = json_object();
-			add_common_keys(point, "serial-insertonly", size,
-					FLAGS.measured_apis[i], result);
 			json_array_append_new(json_results, point);
 			measurement_results_release(result.results);
 		}

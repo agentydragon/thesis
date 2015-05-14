@@ -112,7 +112,8 @@ def load_data(discard_trivial=1000, **filters):
 def plot_all_experiments():
   for experiment, title in [
       ('word_frequency', 'Word frequency'),
-      ('serial-both', 'Random insert+find'),
+      ('serial-insertonly', 'Random insert'),
+      ('serial-findonly', 'Random find'),
       ('ltr_scan', 'Left-to-right scan')]:
     plot_graph(data=load_data(experiment=experiment), title=title)
     save_to(experiment + '.png')
@@ -145,7 +146,7 @@ def plot_ksplay_ltr_counters():
   save_to('ltr-composes.png')
 
 def plot_cuckoo_counters():
-  data = load_data(implementation='dict_htcuckoo', experiment='serial-both')
+  data = load_data(implementation='dict_htcuckoo', experiment='serial-insertonly')
   new_figure(ylabel='Cost of full rehashes per insert')
   pyplot.plot(sizes(data), [point['cuckoo_full_rehashes'] for point in data],
               'r-')
@@ -158,7 +159,7 @@ def plot_cuckoo_counters():
   save_to('cuckoo-traversed-edges.png')
 
 def plot_pma_counters():
-  data = load_data(implementation='dict_cobt', experiment='serial-both')
+  data = load_data(implementation='dict_cobt', experiment='serial-insertonly')
   new_figure(ylabel='Reorganizations per element')
   pyplot.plot(sizes(data),
               [point['pma_reorganized'] / point['size'] for point in data],
@@ -267,7 +268,9 @@ def plot_basic_performance():
         ('dict_btree', 'g-', 'B-tree'),
         ('dict_array', 'b-', 'Array with binary search')]:
       api_data = select_api(data, api)
-      api_data = [point for point in api_data if point['time_ns'] / point['size'] < 1000]
+      api_data = [point for point in api_data
+                  if point['time_ns'] / point['size'] < 1400 or
+                     point['implementation'] != 'dict_array']
       plot_data(api_data, color, linewidth=2.0, label=label)
 
     pyplot.legend(loc='upper left')
@@ -298,16 +301,14 @@ def plot_basic_performance():
 
 def plot_self_adjusting_performance():
   def plot_self_adj(data):
-    for api, color, label in [
-        ('dict_splay', 'r-', 'Splay tree'),
-        ('dict_ksplay', 'g-', 'K-splay tree'),
-        ('dict_kforest', 'b-', 'K-forest')]:
+    for api, color, style_args in [
+        ('dict_splay', 'r-', {'label': 'Splay tree', 'linewidth': 2.0}),
+        ('dict_ksplay', 'g-', {'label': 'K-splay tree', 'linewidth': 2.0}),
+        ('dict_kforest', 'b-', {'label': 'K-forest', 'linewidth': 2.0}),
+        ('dict_rbtree', '#333333', {'label': 'Red-black tree', 'linewidth': 1.0, 'linestyle': 'dashed'}),
+        ('dict_btree', '#666666', {'label': 'B-tree', 'linewidth': 1.0, 'linestyle': 'dotted'})]:
       api_data = select_api(data, api)
-      plot_data(api_data, color, linewidth=2.0, label=label)
-
-    api_data = select_api(data, 'dict_btree')
-    plot_data(api_data, '#666666', linewidth=1.0, linestyle='dashed',
-              label='B-tree')
+      plot_data(api_data, color, **style_args)
 
     pyplot.legend(loc='upper left')
     pyplot.ylabel('Time per operation [ns]')
@@ -322,13 +323,13 @@ def plot_self_adjusting_performance():
   plot_self_adj(load_data(experiment='serial-insertonly'))
   save_to('export/self-adj-random-insert.png')
 
-  new_figure()
+  new_figure(EXPORT_FIGSIZE)
   plot_self_adj(load_data(experiment='workingset', working_set_size=1000))
   save_to('export/self-adj-ws-1k.png')
 
   working_set_size = 100000
   data = load_data(experiment='workingset', working_set_size=working_set_size)
-  new_figure()
+  new_figure(EXPORT_FIGSIZE)
   plot_self_adj([point for point in data if point['size'] >= working_set_size])
   save_to('export/self-adj-ws-100k.png')
 
