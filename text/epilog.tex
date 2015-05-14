@@ -44,7 +44,7 @@ would switch its internal representation based on the previously seen access
 pattern. Another approach may be collecting the access pattern first, and
 then automatically choosing the best data structure at compile time.
 
-\subsection{B-trees and their variants}
+\subsection*{B-trees and their variants}
 Our implementation of \mbox{B-trees} was largely unoptimized. In particular,
 we used a~linear scan when looking within nodes. On small nodes, this is
 not very different from the speed of binary search, but since we found
@@ -55,7 +55,7 @@ Many variants of B-trees were developed in the settings of on-disk databases.
 One of them, \emph{B*-trees} \cite{bstar}, use some extra bookkeeping to
 maintain fuller nodes. This may also be a useful optimization in main memory.
 
-\subsection{Cache-oblivious B-trees}
+\subsection*{Cache-oblivious B-trees}
 The cache-oblivious B-tree shows promise: without any tuning, it almost
 matched a hand-optimized B-tree. By choosing the tuning constants (i.e.,\ the
 minimum and maximum density and piece sizes) more carefully, we might obtain
@@ -64,7 +64,7 @@ layout. For example, we might choose a simpler and more predictable
 representation for small trees that fit within a single cache line
 (e.g.,\ the BFS layout).
 
-\subsection{Other self-adjusting structures}
+\subsection*{Other self-adjusting structures}
 We believe benchmarking various non-traditional self-adjusting structures,
 like Tango trees from \cite{tango} or multi-splay trees from
 \cite{multisplay-trees}, could give interesting results. Splay trees are very
@@ -75,7 +75,7 @@ multi-splay trees). On the other hand, the code for splay trees would
 likely be considerably simpler, so the complexity of operations might outweight
 time saved by fewer cache misses in the worst case.
 
-\subsection{Other approaches}
+\subsection*{Other approaches}
 Several data structures based on tries have also been proposed for the
 dictionary problem. One example are \emph{y-fast tries} \cite{y-fast},
 which allow \textsc{Find}s in time $\O(1)$ and updates and predecessor/successor
