@@ -111,7 +111,7 @@
 	their performance in main memory.
 
 	To illustrate the importance of cache-aware design in modern computers,
-	we benchmark hand-optimized B-trees against more traditional data
+	we benchmark hand-optimized \mbox{B-trees} against more traditional data
 	structures (red-black trees and hashing).
 	Cache-oblivious algorithms can take advantage of the memory hierarchy
 	without explicit hand-tuning. We also implemented a cache-oblivious
@@ -121,7 +121,7 @@
 	Self-adjusting data structures, like splay trees, are difficult to
 	reconcile with block operations in a memory hierarchy: for example,
 	splay trees perform $\O(\log N)$ amortized memory reads from
-	unpredictable locations on every \textsc{Find}, where B-trees
+	unpredictable locations on every \textsc{Find}, where \mbox{B-trees}
 	only need $\O(\log_B N)$ cache misses.
 	Splay trees are probably the most common self-adjusting dictionary.
 	We compare their performance with non-self-adjusting structures and
