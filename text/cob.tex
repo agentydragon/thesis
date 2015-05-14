@@ -698,18 +698,18 @@ in $\Theta(\frac{\log^2 (N/\log N)}{B})$ amortized transfers.
 Similarly, if the piece is too sparse, we merge the piece with one of its
 neighbors. A neighbor can be found in $\O(1)$, because the pieces are
 stored in the packed memory array, which guarantees gaps of constant size.
-If the two pieces have more than $3P/4$ items, we only ``borrow'' some keys from
+If the two pieces have more than $3P/4$~items, we only ``borrow'' some keys from
 the neighbor and update the bootstrapping structure in $\Theta(\log_B N)$
 to reflect new piece minima.
-If there are less than $3P/4$ items in total, the pieces get merged and one
+If there are less than $3P/4$~items in total, the pieces get merged and one
 of them will be deleted from the bootstrapping structure in
 $\Theta(\frac{\log^2 (N/\log N)}{B})$.
 
 Thus, updates take $\Theta(\log_B N)$ plus $\Theta(\frac{\log^2 N}{B})$
 every time we need a~split or a~merge. However, we don't need splits and
-merges too often: splitting a full piece creates two pieces of size $P/2$,
+merges too often: splitting a~full piece creates two pieces of size $P/2$,
 which will be only split or merged again after $\Theta(P)$ more updates.
-Merging two pieces yields a piece with between $P/2$~and~$3P/4$ items.
+Merging two pieces yields a piece with between~$P/2$~and~$3P/4$~items.
 This new piece will also be updated only after $\Theta(P)$ more updates.
 Thus, we can charge each update $\Theta(\frac{1}{\log N}\frac{\log^2 N}{B})$
 for splits and merges, which gives us $\Theta(\log_B N+\frac{\log N}{B})=

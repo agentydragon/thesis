@@ -46,10 +46,10 @@ then automatically choosing the best data structure at compile time.
 
 \subsection{B-trees and their variants}
 Our implementation of \mbox{B-trees} was largely unoptimized. In particular,
-we used a linear scan when looking within nodes. On small nodes, this is
+we used a~linear scan when looking within nodes. On small nodes, this is
 not very different from the speed of binary search, but since we found
 that nodes larger than $64\,\text{B}$ cache lines did very well, binary search
-within these large nodes might make a difference.
+within these large nodes might make a~difference.
 
 Many variants of B-trees were developed in the settings of on-disk databases.
 One of them, \emph{B*-trees} \cite{bstar}, use some extra bookkeeping to
@@ -91,7 +91,7 @@ for operations.
 \emph{Judy arrays} are highly optimized dictionaries developed at
 Hewlett-Packard \cite{judy-shop-manual, judy-patent}.
 HP sources claim that Judy arrays are very efficient in practice.
-The data structure is based on sparse 256-ary tries with implementation tricks
+The~data structure is based on sparse 256-ary tries with implementation tricks
 that compress the representation.
 Unfortunately, we found the existing documentation highly complex and sometimes
 incomplete. On the other hand, an open-source implementation is available
