@@ -6,8 +6,8 @@ is just binary, so walking to a~node in depth $d$ takes $\O(\log d)$ block
 transfers. B-trees improve this by a~factor of $\log B$ by storing more keys
 per node.
 
-Self-adjusting $k$-ary search trees (or \emph{$k$-splay trees}) developed
-by \cite{ksplay-sherk} use a~heuristic called \emph{$k$-splaying}
+Self-adjusting $k$-ary search trees (also known as \emph{$k$-splay trees})
+developed in \cite{ksplay-sherk} use a~heuristic called \emph{$k$-splaying}
 to dynamically adjust their structure according to the query sequence.
 We decided to implement and benchmark this data structure because of
 the potential to combine self-adjustment for a~specific search sequence with
