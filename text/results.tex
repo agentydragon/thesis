@@ -3,15 +3,11 @@
 
 \section{\mbox{B-trees} and the choice of $b$}
 \label{sec:btree-b-choice}
-At first, we fixed the $b$ parameter of \texttt{dict\_btree} to make nodes
-exactly $64\,\text{B}$ in size to align them with physical cache lines.
-This produces classic 2-3-4 trees. When we compared this \texttt{dict\_btree}
-with simple red-black trees borrowed from LibUCW (\texttt{dict\_rbtree}),
-we found them almost tied in performance (2-3-4 trees won by a small margin).
-
-This was likely at least partially caused by the relatively small effective
-branching factor of 2-3-4 trees (we measured 2.51 on $1\,000\,000$ random
-keys).
+As noted in chapter~\ref{chapter:implementation}, our implementation of
+cache-aware B-trees (\texttt{dict\_btree}) was written for generic bounds
+on node capacities. We experimented with several values of the B-tree parameter
+$b$, which is tied to the size of a node. The results are presented in
+figure~\ref{fig:btree-b-perf}.
 
 \begin{figure}
 \centering
@@ -25,32 +21,33 @@ keys).
 	\includegraphics[width=\textwidth]{img/btree-b-insert}
 	\caption{Random \textsc{Insert}s}
 \end{subfigure}
-\caption{The effect of different choices of $b$ on the performance of B-trees.
-	Note that our initial choice ($64\,\text{B}$ nodes), performs
-	particularly badly.}
+\caption{The effect of different choices of $b$ on the performance of B-trees.}
 \label{fig:btree-b-perf}
 \end{figure}
 
-We tried setting the size of nodes to larger powers of two, and we found
-that nodes of $256\,\text{B}$ (i.e.,\ with 7--15 keys in internal nodes)
-performed the best on random \textsc{Find}s and \textsc{Insert}s (see
-figure~\ref{fig:btree-b-perf}).
-We used this node size in all of the following measurements.
+On dictionaries larger than $10^5$ keys, a node size of $256\,\text{B}$
+performed the best. However, on smaller dictionaries, it appears that
+$128\,\text{B}$ might be a slightly better choice.
+For all further experiments, we fixed the node size to $256\,\text{B}$
+(which yields at most 15 keys per internal node).
 
-Our code for B-trees uses linear search when looking within nodes.
-With nodes this large, the speed of our code could possibly be improved
-by using binary search.
+Our code for B-trees uses linear search when looking within nodes,
+as we originally did not expect the need for large nodes.
+Since one node of $256\,\text{B}$ spans 4 cache lines, binary searching
+within nodes might require fewer memory transfers, and hence be faster.
 
 \section{Basic cache-aware and unaware structures}
-We compared our cache-aware B-trees trees to simpler, cache-unaware dictiories:
+To assess the benefits of optimizing for cache hierarchies, we compared
+our optimized B-trees to simpler, cache-unaware dictiories:
 red-black trees borrowed from LibUCW and a simple sorted array with binary
-search and $\O(N)$ updates. Note that a binary search needs
+search and $\O(N)$ updates.
+Note that in the external memory model, a binary search needs
 $\Theta(\log N-\log B)$ block transfers, which is asymptotically larger than
-the $\Theta(\log_B N)$ required by B-trees.
+the $\Theta(\log_B N)$ required by B-trees. Thus, theoretically lookups
+on B-trees should be more efficient than binary searches on nontrivially
+large dictionaries.
 
 \begin{figure}
-FIXME: readd arrays
-FIXME: REDO FIGURE
 \begin{subfigure}[t]{\textwidth}
 	\includegraphics[width=\textwidth]{img/performance/basic-random-find-100}
 	\caption{100\% success rate}
@@ -65,54 +62,50 @@ FIXME: REDO FIGURE
 	\includegraphics[width=\textwidth]{img/performance/basic-random-find-0}
 	\caption{0\% success rate}
 \end{subfigure}
-\caption{Performance of random \textsc{Find}s in simple dictionaries.
-	Arrays cut off early due to very slow insertions.}
+\caption{Performance of random \textsc{Find}s in basic dictionaries.}
 \label{fig:basic-finds}
 \end{figure}
 
-FIXME: readd arrays
 \begin{figure}
 \centering
-\begin{subfigure}[t]{0.45\textwidth}
-	\includegraphics[width=\textwidth]{img/performance/basic-random-insert}
-	\caption{Random \textsc{Insert}s}
-\end{subfigure}
-\caption{Performance of simple dictionaries. Arrays cut off early due to very
-	slow insertions.}
+\includegraphics[width=0.5\textwidth]{img/performance/basic-random-insert}
+\caption{Performance of random \textsc{Insert}s in basic dictionaries.}
 \label{fig:basic-perf}
 \end{figure}
 
-Figures~\ref{fig:basic-finds} and \ref{fig:basic-perf} show the results.
-After we tuned the node capacity of our B-trees for optimal performance,
-red-black trees ended up much slower.
+Figures~\ref{fig:basic-finds}~and~\ref{fig:basic-perf} present the results.
+The slow speed of operations in red-black trees (compared to binary search
+and B-trees) is unsurprising.
+It was, however, unexpected to find that lookups in B-trees start to overtake
+binary search only on very large dictiories (with $\approx10^7$ keys).
 \footnote{%
-	Originally, we used $64\,\text{B}$ nodes in B-trees, and
-	the performance of B-trees in this experiment was much closer
-	to red-black trees. This seemingly reasonable, but actually unlucky
-	choice highlights the problem of optimizing performance in the presence
-	of a complex memory hierarchy.
+	Originally, we fixed the node size of our B-trees to $64\,\text{B}$,
+	thinking it was the obviously correct choice (i.e.,\ the size of
+	a~cache line). Such B-trees (or, to be more precise, 2-3-4 trees)
+	were only slightly faster than red-black trees, and much slower
+	than simple binary search.
+	These findings prompted our suspicions and led us to trying other
+	node sizes.
+	As figure~\ref{fig:btree-b-perf} illustrates, our initial choice
+	was actually particularly unlucky.
+	The moral of this short story is that optimizing for modern machines
+	is harder than it may seem.
 }
-
-FIXME: Interestingly, sorted arrays win on \textsc{Find}s, even if they are expected
-to use more block transfers in the external memory model.
+Let us repeat here that B-tree \textsc{Find}s might be sped up by
+replacing linear scans within B-tree nodes by binary search and repeating
+the process of selecting a good value of $b$.
 
 \section{Cache-oblivious B-tree}
 \label{sec:cob-perf}
-Overall, cache-oblivious B-trees roughly matched the performance of our
-hand-optimized B-trees. The results are presented in
-figure~\ref{fig:cob-performance}. The speed of random \textsc{Find}s was
-almost the same in both structures. While cache-aware B-trees did slightly
-better on working sets, cache-oblivious B-trees had slightly faster
-\textsc{FindNext} and \textsc{FindPrev} operations.
-One possible reason for the fast order queries is less need for
-``pointer chasing'' when finding successors and predecessors.
-
-\textsc{Insert} operations are comparatively slow in smaller cache-oblivious
-B-trees (e.g.,\ $\leq$ 100~000 keys). We believe this slowdown is probably due
-to the cost of rebuilds, which properly amortizes away only on larger
-dictionaries. A~smarter choice of tuning constants (i.e.,\ the minimum and
-maximum density and piece sizes) might make updates of smaller dictionaries
-more efficient.
+A comparison between hand-optimized B-trees and cache-oblivious B-trees is
+presented in figure~\ref{fig:cob-performance}. Overall, cache-oblivious
+B-trees roughly matched the performance of cache-aware B-trees.
+The speed of random \textsc{Find}s was almost the same in both structures.
+While cache-aware B-trees did slightly better on working set access patterns,
+cache-oblivious B-trees had faster \textsc{FindNext} and \textsc{FindPrev}
+operations.
+\textsc{Insert} operations were about $1.5\times$ slower in cache-oblivious
+B-trees.
 
 \begin{figure}
 \centering
@@ -152,10 +145,23 @@ more efficient.
 \end{figure}
 
 \section{Self-adjusting structures}
+Figures~\ref{fig:self-adj-performance-finds}~and~\ref{fig:self-adj-performance}
+show a benchmark of our implementations of self-adjusting dictionaries:
+splay trees, $k$-splay trees and $k$-forests.
+Both figures include B-trees as a benchmark and red-black trees as a
+representative of cache-unaware tree balancing schemes.
+The $k$-forests are backed by our optimized B-trees, and their $k$ parameter
+is picked to match our choice of $b$ (i.e.,\ $k=16$).
+In $k$-splay trees, we picked $k=3$; since each $k$-splay step takes
+$\Theta(k^2)$ time, we expect that higher values $k$ would not give better
+performance.  % TODO: Experiment.
+
 Splay trees are the canonical self-adjusting structure we would like to
-outperfrom. As expected, splay trees are much slower than optimized B-trees on
-unpredictable operations (see figure~\ref{fig:self-adj-performance-finds}).
-FIXME: comparing basic perf, they are slower than RB-trees
+outperfrom. As expected, splay trees are much slower than optimized B-trees.
+Red-black trees are also faster than splay trees, through less dramatically
+than B-trees. Interestingly, splay trees were slower in every experiment,
+including experiments specifically aimed at exploiting the working set
+property.
 
 \begin{figure}
 \begin{subfigure}[t]{\textwidth}
@@ -194,13 +200,17 @@ FIXME: comparing basic perf, they are slower than RB-trees
 	\label{fig:sub:self-adj-ws-100k}
 \end{subfigure}
 % TODO: word occurrence counting
-\caption{Benchmarks of self-adjusting structures.
-	B-trees are included for reference.}
+\caption{Benchmarks of self-adjusting structures.}
 \label{fig:self-adj-performance}
 \end{figure}
 
-Unfortunately, we found both $k$-splay trees and $k$-forest lacking in
-performance in every experiment.
+Regarding the speed of random \textsc{Find}s, neither $k$-forests nor $k$-splay
+trees managed to outperform splay trees. Interestingly, unsuccessful
+\textsc{Find}s in $k$-forests are much faster than successful ones. This
+suggests that reading from all trees of a $k$-forest is much cheaper than
+promoting within a limited number of trees. It might be possible to improve
+$k$-forests by switching to a backing structure with simpler demotions and
+promotions.
 
 Profiling our performance tests running on $k$-splay trees showed that about
 21\% of time is spent in \texttt{ksplay\_walk\_to}, which finds the correct
@@ -242,39 +252,11 @@ $\Theta(k^2)$ keys and pointers in every $k$-splay step, so we believe top-down
 Our measurements on small working sets
 (figure~\ref{fig:self-adj-performance}\subref{fig:sub:self-adj-ws-1k},
 \subref{fig:sub:self-adj-ws-100k}) illustrate that splay trees, $k$-forests
-and $k$-splay trees all have the working set property.
+and $k$-splay trees have the working set property.
 However, even through \mbox{B-trees} do not have the theoretical working set
 property, they easily outperformed self-adjusting data structures on
 benchmarks explicitly designed to benefit structures optimized for small
 working sets.
-
-FIXME:
-Even if we only use a small working set, B-trees need more data to reach
-the sought key-value pairs as we increase the size of the dictionary, because
-values are stored in leaves, which are lower in bigger B-trees.
-Unlike B-trees, splay trees and $k$-splay trees can keep the small working set
-close to the root, even as we add many unused key-value pairs into the
-dictionary.
-
-Due to the presence of caches, even non-self-adjusting data structures (like
-\mbox{B-trees}) can exhibit a ``pseudo-working set property'', provided
-the auxiliary data needed to access the working set fits into the cache.
-However, as we increase the size of the dictionary, we can distinguish
-the ``pseudo-working set property'' from the true working set property:
-in B-trees, more auxiliary data is needed, and it eventually ceases to fit
-in the cache.
-In structures with the true working set property, caches will still contain
-mostly useful key-value pairs, even when the working set is a tiny fraction
-of the dictionary.
-
-$k$-forests were slow both backed by B-trees and by cache-oblivious B-trees.
-Choosing a larger $k$ slightly helped, but larger values of $k$ also degenerate
-\mbox{$k$-forests} into their backing structure.
-As observed on figure~\ref{fig:self-adj-performance-finds}, \textsc{Find}s in
-$k$-forests are much slower when they are successful, probably due to the need
-to promote the found key-value pair. A possible way of speeding up
-\textsc{Find}s may be backing the \mbox{$k$-forest} by a structure that can
-support fast promotions and demotions without complicated structural changes.
 
 \section{Hashing}
 \label{sec:hashing-results}
@@ -294,10 +276,6 @@ the benefits of cuckoo hashing were more pronounced.
 On the other hand, linear probing allows a higher load factor.
 (Forcing cuckoo hashing to fill the hash tables more fully significantly
 slows down \textsc{Insert}s.)
-
-\textsc{Insert}s into cuckoo hash tables proved significantly slower.
-One possible reason might be the limited independence guaranteed by simple
-tabulation hashing.
 
 \begin{figure}
 \begin{subfigure}[t]{\textwidth}
@@ -340,18 +318,25 @@ tabulation hashing.
 \label{fig:hashing-performance}
 \end{figure}
 
+\textsc{Insert}s into cuckoo hash tables proved significantly slower.
+One possible reason might be the limited independence guaranteed by simple
+tabulation hashing.
+
+Another interesting fact is that insertions into \mbox{B-trees} with
+less than $\approx10^7$ keys were faster than inserting into hash tables
+with linear probing.  % TODO: WHY?!
+
 \section{Practical experiments}
 \subsection{Mozilla Firefox}
 The hash table operations collected from the Firefox session are compressed
 in \texttt{data/firefox-htable.tar.gz}. We replayed the operations on all our
 dictionary implementations. We normalized the measured times by the maximum
 time taken for each recording to allow easier comparison of relative
-performance. Our results are presented in table~\ref{tab:firefox-results}.
+performance. Table~\ref{tab:firefox-results} summarizes the results.
 
-%\begin{table}
 \begin{sidewaystable}
 \centering
-% TODO: Sort!
+% TODO: Sort by best result automatically in make_table.py
 \begin{tabular}{|c|r|r|r|r|r|r|r|r|r|}
 	\hline
 	Recording &
@@ -384,11 +369,10 @@ performance. Our results are presented in table~\ref{tab:firefox-results}.
 	Average & 21 & 10 & 21 & 14 & 11 & 69 & 88 & 16 & 9 \\
 	\hline
 \end{tabular}
-\caption{Results of the Mozilla Firefox experiment. Standardized by maximum
+\caption{Results of the Mozilla Firefox experiment. Normalized by maximum
 	time (lower is better). Sorted by which implementation is fastest.
 	Produced by \texttt{experiments/vcr/make\_table.py}.}
 \label{tab:firefox-results}
-%\end{table}
 \end{sidewaystable}
 
 Overall, \mbox{B-trees} performed worse than our synthetic experiments would
@@ -399,18 +383,17 @@ we did not perform any experiment to explicitly measure their speed.
 
 Interestingly, cache-oblivious B-trees (COBT) do not appear to have the same
 problem as cache-optimized \mbox{B-trees}. This suggests that our choice
-of $b$ in section~\ref{sec:btree-b-choice} may have been biased towards
+of $b$ in section~\ref{sec:btree-b-choice} may have been too biased towards
 large dictionaries, which may be slowed down by a different bottleneck
 than small dictionaries. Cache-oblivious B-trees avoid committing to one
 $b$ via cache-obliviousness.
 
 The winning structure in all recordings were either cuckoo hash tables,
 splay trees, or red-black trees.
+
 By inspecting the recordings, we found that splay trees are better than
 cuckoo hash tables on recordings with many updates, while cuckoo tables
-win when there are many more \textsc{Find}s. Choosing the wrong structure
-can reduce the performance, typically about $2\times$, but, as seen in the
-case of \texttt{0x7f47930300e0}, the difference can be up to $4\times$.
+win when there are many more \textsc{Find}s.
 We believe a data structure that would dynamically switch
 its internal representation between these three data structures based
 on the access pattern may be a~good compromise on small dictionaries.
@@ -425,20 +408,18 @@ failed \textsc{Find}s are faster with cuckoo hashing, as they take only
 \textsc{Find} with linear probing needs to traverse an entire chain.
 
 \subsection{Geospatial database}
-FIXME
 The results of the cloud database experiment are outlined in
-table~\ref{tab:cloud-results}. Cache-oblivious \mbox{B-trees} slightly outperformed
-standard \mbox{B-trees}. Splay trees were surprisingly fast. One factor that
-might cause them to perform so well might be that stations usually produce
-a~large amount of reports over their lifetime, so when we fetch $S$ closest
-reports for a~point, it is likely that all such reports will be the first $S$
-reports reported by the closest station. Splay trees may thus keep old reports
-near the top. In this experiment, we picked $S=1~000$. Also, as can be
-seen on figure~\ref{fig:cloud-data}, the distribution of stations on the globe
-is very uneven, so stations ``assigned'' to a large area can be kept closer to
-the root.
+table~\ref{tab:cloud-results}. Cache-oblivious \mbox{B-trees} slightly
+outperformed standard \mbox{B-trees}. Splay trees were surprisingly fast.
+One factor that might cause them to perform so well might be that stations
+usually produce a~large amount of reports over their lifetime, so when we
+fetch $S$~closest reports for a~point, it is likely that all such reports will
+be the first $S$ reports reported by the closest station. Splay trees may thus
+keep old reports near the top. In this experiment, we picked $S=1~000$. Also,
+as can be seen on figure~\ref{fig:cloud-data}, the distribution of stations on
+the globe is very uneven, so stations ``assigned'' to a large area can be kept
+closer to the root.
 
-FIXME
 Additionally, we tried two algorithms for sampling query points on the globe.
 The first algorithm simply iterated through points on the latitude-longitude
 grid with whole number coordinates (i.e.,\
@@ -451,13 +432,12 @@ The algorithm can be selected by passing different values of the
 (\texttt{--scatter=GRID} for grid sampling, or \texttt{--scatter=RANDOM
 --samples=64800} for random sampling).
 
-All data structures performed slightly better on the first one, which shows
-that more predictable accesses are better for performance. The effect was,
-however, comparatively weak on cache-oblivious B-trees.
+Self-adjusting structures (splay trees and $k$-splay trees) did better
+on the first one, which shows that they were probably able to take advantage
+of the more predictable access pattern.
 
 \begin{table}
 \centering
-FIXME: REDO
 \begin{tabular}{|c|S<{\,\si{\s}}|S<{\,\si{\s}}|}
 % TODO: add dict_rbtree
 %--close_count=1000
@@ -466,27 +446,27 @@ FIXME: REDO
 %--lon_step=100
 %--min_year=1997
 %--max_year=2005 ===>
-%	       dict_cobt:     20 687 539 351 ns
-%	      dict_splay:      6 030 131 877 ns
-%	     dict_ksplay:     41 687 825 004 ns
-%	      dict_btree:     22 677 805 459 ns
+%       dict_cobt:     20 476 499 412 ns
+%      dict_splay:      6 213 928 367 ns
+%     dict_ksplay:     41 214 679 911 ns
+%      dict_btree:     21 766 627 838 ns
 %
 %--samples=64800 (180*360)
 %--scatter=RANDOM ===>
-%	       dict_cobt:     20 583 667 067 ns
-%	      dict_splay:      6 647 207 153 ns
-%	     dict_ksplay:     44 717 377 069 ns
-%	      dict_btree:     25 884 347 926 ns
+%       dict_cobt:     20 265 292 402 ns
+%      dict_splay:      6 674 812 507 ns
+%     dict_ksplay:     47 527 882 719 ns
+%      dict_btree:     21 265 393 179 ns
 	\hline
 	Dictionary & \multicolumn{1}{c|}{Grid sampling} & \multicolumn{1}{c|}{Random sampling} \cr
 	\hline
-	Cache-oblivious B-tree & 20.69 & 20.58 \cr
+	Cache-oblivious B-tree & 20.47 & 20.27 \cr
 	\hline
-	Splay tree & 6.03 & 6.65 \cr
+	Splay tree & 6.21 & 6.67 \cr
 	\hline
-	$k$-splay tree & 41.69 & 44.72 \cr
+	$k$-splay tree & 41.21 & 47.53 \cr
 	\hline
-	B-tree & 22.68 & 25.89 \cr
+	B-tree & 21.77 & 21.27 \cr
 	\hline
 \end{tabular}
 \caption{Results of the cloud database experiment, generated

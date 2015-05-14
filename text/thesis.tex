@@ -102,35 +102,32 @@ FIXME: dedication.
 
 % Abstract (recommended length around 80-200 words; this is not a copy of your thesis assignment!)
 \def\Abstract{%
-	We implement and benchmark several common and uncommon
-	data structures for ordered and unordered dictionaries.
+	In this thesis, we implement several common and uncommon
+	data structures for ordered and unordered dictionaries and we benchmark
+	their performance in main memory.
 
-	Modern computers have several layers of memory hierarchy. The
-	performance of programs in the presence of slow and fast memory
-	is not predicted very closely by traditional models of computation
-	like Turing machines or RAM.
-	Many data structures have been developed to exploit memory hierarchies.
-	It is well known that cache-aware data structures, like B-trees,
-	perform very well on hard drives. To gauge the benefits that can be
-	gained by cache-aware data structures in main memory, we benchmark
-	B-trees and cache-oblivious B-trees.
+	To illustrate the importance of cache-aware design in modern computers,
+	we benchmark hand-optimized B-trees against more traditional data
+	structures (red-black trees and hashing).
+	Cache-oblivious algorithms can take advantage of the memory hierarchy
+	without explicit hand-tuning. We also implemented a cache-oblivious
+	equivalent of B-trees and compared its performance to hand-tuned
+	B-trees.
 
-	Many dictionary data structures are self-adjusting, and such data
-	structures are difficult to reconcile with block operations
-	in a memory hierarchy: for example, splay trees perform $\O(\log N)$
-	amortized memory reads from unpredictable locations on every
-	\textsc{Find}. In comparison, B-trees only need $\O(\log_B N)$ cache
-	misses per access.
-
-	Splay trees are probably the most common self-adjusting dictionary
-	implementation. We compare their performance with non-self-adjusting
-	structures and with self-adjusting structures designed for block
-	memory access ($k$-forests and $k$-splay trees).
+	Self-adjusting data structures, like splay trees, are difficult to
+	reconcile with block operations in a memory hierarchy: for example,
+	splay trees perform $\O(\log N)$ amortized memory reads from
+	unpredictable locations on every \textsc{Find}, where B-trees
+	only need $\O(\log_B N)$ cache misses.
+	Splay trees are probably the most common self-adjusting dictionary.
+	We compare their performance with non-self-adjusting structures and
+	with more exotic self-adjusting structures designed for block memory
+	access ($k$-forests and $k$-splay trees).
 }
 
 % 3 to 5 keywords (recommended), each enclosed in curly braces
 \def\Keywords{
-	{cache oblivious algorithms}, {data structures}, {dictionaries},
+	{cache-oblivious algorithms}, {data structures}, {dictionaries},
 	{search trees}
 }
 

@@ -1,26 +1,27 @@
 \chapter*{Conclusion}
 \addcontentsline{toc}{chapter}{Conclusion}
 
-FIXME
-We confirmed that cache-oblivious B-trees are practically competitive with
-more common data structures in main memory, especially on larger dictionaries
-with frequent \textsc{Find}s and uniform access patterns.
+We confirmed that cache-oblivious B-trees are competitive with more common
+data structures in main memory. A hand-optimized B-tree does better on some
+operations, but at the cost of optimizing for one memory level in advance.
+As we have seen on the Firefox recordings, parameters good for one size of
+dictionaries may also do not so well in other settings.
 
-Our implementation of $k$-splay trees and $k$-forests performed badly.
-In our opinion, $k$-forests alone are not a practical replacement for simple
-splay trees. However, a more optimized implementation of $k$-splaying
-(with removed heap allocation and with top-down $k$-splaying) might reach
-parity with splay trees or slightly beat them.
+Our implementations of $k$-splay trees and $k$-forests were outperformed
+by traditional splay trees. In our opinion, $k$-forests alone are not
+a practical replacement for simple splay trees. However, a more optimized
+implementation of $k$-splaying (with removed heap allocation and with top-down
+$k$-splaying) might reach parity with splay trees or slightly beat them
+on large dictionaries.
 
-Experiments on data recorded from Mozilla Firefox suggest that splay trees
-and cuckoo hash tables do well on most dictionaries as they are practically
-used. A particularly interesting conclusion that can be drawn from
+Experiments on data recorded from Mozilla Firefox suggest that splay trees,
+cuckoo hash tables and red-black trees do well on most dictionaries as they are
+practically used. A particularly interesting conclusion that can be drawn from
 table~\ref{tab:firefox-results} is that hashing with linear probing may
 be (somewhat counterintuitively) slower than splay trees.
 Larger databases that require order queries also seem to be best served
 by splay trees, followed by cache-oblivious \mbox{B-trees} and cache-aware
 \mbox{B-trees}.
-FIXME
 
 \section*{Suggestions for further research}
 The dictionary problem is well-explored, including structures for efficient
@@ -35,6 +36,15 @@ measuring the effect in a practical settings. Our measurements from Mozilla
 Firefox may be biased towards unsuccessful \textsc{Find}s due to the way we
 filtered out unparseable lines.
 
+In the Firefox recording, we found that eithre cuckoo hash tables, splay trees,
+or red-black trees were always the winning data structure. Analyzing the
+recorded access pattern may allow predicting which data structure would win.
+Based on such analysis, it may be possible to develop a data structure that
+would switch its internal representation based on the previously seen access
+pattern. Another approach may be collecting the access pattern first, and
+then automatically choosing the best data structure at compile time.
+
+\subsection{B-trees and their variants}
 Our implementation of \mbox{B-trees} was largely unoptimized. In particular,
 we used a linear scan when looking within nodes. On small nodes, this is
 not very different from the speed of binary search, but since we found
@@ -45,16 +55,27 @@ Many variants of B-trees were developed in the settings of on-disk databases.
 One of them, \emph{B*-trees} \cite{bstar}, use some extra bookkeeping to
 maintain fuller nodes. This may also be a useful optimization in main memory.
 
-We believe an benchmarking various non-traditional self-adjusting structures,
+\subsection{Cache-oblivious B-trees}
+The cache-oblivious B-tree shows promise: without any tuning, it almost
+matched a hand-optimized B-tree. By choosing the tuning constants (i.e.,\ the
+minimum and maximum density and piece sizes) more carefully, we might obtain
+a better match. Another possible point of improvement may be the van Emde Boas
+layout. For example, we might choose a simpler and more predictable
+representation for small trees that fit within a single cache line
+(e.g.,\ the BFS layout).
+
+\subsection{Other self-adjusting structures}
+We believe benchmarking various non-traditional self-adjusting structures,
 like Tango trees from \cite{tango} or multi-splay trees from
 \cite{multisplay-trees}, could give interesting results. Splay trees are very
 performant on practical access patterns, but their worst-case $\O(N)$ behavior
 limits their usefulness in time-sensitive systems. Some self-adjusting
 structures provide better worst-case access times (e.g.,\ $\O(\log N)$ in
-multi-splay trees. On the other hand, the implementation of splay trees
-are considerably simpler, so the complexity of operations might outweight
+multi-splay trees). On the other hand, the code for splay trees would
+likely be considerably simpler, so the complexity of operations might outweight
 time saved by fewer cache misses in the worst case.
 
+\subsection{Other approaches}
 Several data structures based on tries have also been proposed for the
 dictionary problem. One example are \emph{y-fast tries} \cite{y-fast},
 which allow \textsc{Find}s in time $\O(1)$ and updates and predecessor/successor
