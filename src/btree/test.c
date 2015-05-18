@@ -5,8 +5,6 @@
 
 #define MOCK(x) ((void*) (x))
 
-// TODO: reenable tests
-
 static void test_internal_splitting(void) {
 	btree_node_persisted node = {
 		.internal = {
@@ -32,39 +30,6 @@ static void test_internal_splitting(void) {
 			new_right_sibling.internal.pointers[1] == MOCK(350));
 }
 
-/*
-static void test_leaf_splitting(void) {
-	btree_node_persisted node = {
-		.leaf = {
-			.key_count = 4,
-			.keys = { 10, 20, 30, 40 },
-			.values = { 111, 222, 333, 444 }
-		}
-	};
-	btree_node_persisted new_right_sibling = {
-		.leaf = { .key_count = 0 }
-	};
-	uint64_t middle;
-
-	split_leaf(&node, &new_right_sibling, &middle);
-
-	assert(node.leaf.key_count == 2);
-	assert(node.leaf.keys[0] == 10);
-	assert(node.leaf.values[0] == 111);
-	assert(node.leaf.keys[1] == 20);
-	assert(node.leaf.values[1] == 222);
-
-	assert(middle == 30);
-
-	assert(new_right_sibling.leaf.key_count == 2);
-	assert(new_right_sibling.leaf.keys[0] == 30 &&
-			new_right_sibling.leaf.keys[1] == 40);
-	assert(new_right_sibling.leaf.values[0] == 333 &&
-			new_right_sibling.leaf.values[1] == 444);
-	log_info("leaf splitting ok");
-}
-*/
-
 static void test_insert_pointer(void) {
 	btree_node_persisted node = {
 		.internal = {
@@ -82,24 +47,6 @@ static void test_insert_pointer(void) {
 			node.internal.pointers[2] == MOCK(250) &&
 			node.internal.pointers[3] == MOCK(350));
 }
-
-/*
-static void test_insert_key_value_pair(void) {
-	btree_node_persisted node = {
-		.leaf = {
-			.key_count = 2,
-			.keys = { 100, 300 },
-			.values = { 11, 33 }
-		}
-	};
-	insert_key_value_pair(&node, 200, 22);
-	assert(node.leaf.key_count == 3);
-	assert(node.leaf.keys[0] = 100 && node.leaf.keys[1] == 200 &&
-			node.leaf.keys[2] == 300);
-	assert(node.leaf.values[0] == 11 && node.leaf.values[1] == 22 &&
-			node.leaf.values[2] == 33);
-}
-*/
 
 static void test_inserting(void) {
 	btree tree;
@@ -176,9 +123,7 @@ static void test_deletion(void) {
 
 void test_btree(void) {
 	test_internal_splitting();
-	//test_leaf_splitting();
 	test_insert_pointer();
-//	test_insert_key_value_pair();
 	test_inserting();
 	test_deletion();
 }

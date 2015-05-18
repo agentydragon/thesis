@@ -270,19 +270,15 @@ static void test_insert(void) {
 	ksplay *tree = malloc(sizeof(ksplay));
 	ksplay_init(tree);
 	assert_not_found(10);
-	//ksplay_dump(tree);
 
 	ksplay_insert(tree, 10, 100);
-	//ksplay_dump(tree);
 	assert_found(10, 100);
 
 	ksplay_insert(tree, 20, 200);
-	//ksplay_dump(tree);
 	assert_found(10, 100);
 	assert_found(20, 200);
 
 	ksplay_insert(tree, 30, 300);
-	//ksplay_dump(tree);
 	assert_found(10, 100);
 	assert_found(20, 200);
 	assert_found(30, 300);

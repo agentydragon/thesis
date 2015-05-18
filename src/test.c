@@ -19,7 +19,6 @@
 #include "log/log.h"
 #include "math/test.h"
 #include "rand/test.h"
-#include "splay/test.h"
 #include "veb_layout/test.h"
 
 void run_unit_tests(void) {
@@ -31,8 +30,6 @@ void run_unit_tests(void) {
 	test_math();
 	test_rand();
 	test_veb_layout();
-
-	test_splay_tree();
 
 	test_dict_blackbox(&dict_array);
 	test_dict_blackbox(&dict_btree);
