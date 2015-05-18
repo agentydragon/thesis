@@ -1,7 +1,8 @@
 \chapter{Hash tables}
 \label{chapter:hashing}
-When implementing an unordered dictionary, hashing is the most common tool.
-\footnote{Indeed, one of the many established meanings of the word ``hash''
+When implementing an unordered dictionary, hashing is the most common
+tool.\footnote{%
+	Indeed, one of the many established meanings of the word ``hash''
 	is ``unordered dictionary''.}
 Hashing is a very old idea and the approaches to hashing are numerous. Hashing
 techniques usually allow expected constant-time \textsc{Find}, \textsc{Insert}
@@ -13,8 +14,7 @@ bounds, like deterministic constant time for \textsc{Find}s in cuckoo hashing
 The idea of hashing is reducing the size of the large key universe
 $\mathcal{U}$ to a smaller \emph{hash space} $H$ via a \emph{hashing function}
 $h\mathop{:}\mathcal{U}\rightarrow H$.
-In this chapter, let us denote the size of the hash space $M$.
-\footnote{%
+In this chapter, let us denote the size of the hash space $M$.\footnote{%
 	No hashing schemes presented in this chapter are specific to external
 	memory, so we do not need $M$ to denote the cache size in this chapter.
 }
@@ -60,7 +60,7 @@ If we pick the hash function $h$ at random (i.e.,\ by independently randomly
 assigning $h(k)$ for all $k\in\mathcal{U}$), we have $\forall i\in H,
 k\in\mathcal{U}: \Pr[h(k)=i]=1/M$.
 By linearity of expectation, we have $\E[C_i]=N/M$, which is
-constant if we maintain $M=\O(N)$. Since the expected length of any chain
+constant if we maintain $M=\Theta(N)$. Since the expected length of any chain
 is constant, the expected time per operation is also constant.
 The $N/M$ ratio is commonly called the \emph{load factor}.
 
@@ -175,8 +175,8 @@ is constant:
 $$\E_{g_i\in\mathcal{G}}[\text{\# of collisions in }B_i]=
 	{b_i\choose 2}\cdot\O\left(\frac{1}{b_i^2}\right)=\O(1)$$
 By tuning the constant $\beta$, we can make the expected number of collisions
-small (e.g., $\leq\frac{1}{2}$), so we can push the probability of having no
-collisions above a~constant (e.g., $\geq\frac{1}{2}$). This ensures that for
+small (e.g.,\ $\leq\frac{1}{2}$), so we can push the probability of having no
+collisions above a~constant (e.g.,\ $\geq\frac{1}{2}$). This ensures that for
 every bucket, we will find an injective hash function in expected $\O(1)$
 trials.
 
@@ -188,8 +188,8 @@ We maintain $\O(N)$ buckets, and whenever $N$ increases or decreases by
 a~constant factor, we rebuild the whole FKS hash table in expected time
 $\O(N)$, which amortizes to expected $\O(1)$ per update. Each bucket $B_i$
 has $\O(b_i^2)$ slots. Whenever $b_i$ increases or decreases by a~constant
-factor (e.g., 2), we resize the reservation by the constant factor's square
-(e.g., 4).
+factor (e.g.,\ 2), we resize the reservation by the constant factor's square
+(e.g.,\ 4).
 The expected amortized time for \textsc{Insert} and \textsc{Delete} is $\O(1)$.
 \cite{univ-class-of-hfns} enhances this to $\O(1)$ with high probability.
 
@@ -251,11 +251,10 @@ interval to take $\O(j-i)$ time per operation and to extend the chain further.
 
 However, linear probing performs well if we can avoid long chains: it has
 much better locality of reference than quadratic or double hashing.
-\cite{knuth-linear} showed that if $M=(1+\varepsilon) N$, then using a~random
-hash function gives expected time $\O(1/\varepsilon^2)$ with linear probing.
-\cite{linear-probing-ci} proved that 5-independent hash functions suffice
-to get this bound, and \cite{linear-probing-constant} showed that
-4-independence does not suffice.
+If $M=(1+\varepsilon) N$, then using a~random hash function gives expected
+time $\O(1/\varepsilon^2)$ with linear probing~\cite{knuth-linear}.
+5-independent hash function suffice to get this bound~\cite{linear-probing-ci},
+and 4-independence is not enough~\cite{linear-probing-constant}.
 \cite{power-of-simple-tab} gives a~proof that simple tabulation hashing,
 which is only 3-independent and which can be implemented faster than usual
 5-independent schemes, also achieves $\O(1/\varepsilon^2)$.
@@ -273,14 +272,15 @@ $L$~and~$R$.
 Each key-value pair $(k,v)$ is stored either in $L$ at position $h_\ell(k)$,
 or in $R$ at position $h_r(k)$.
 
-The cuckoo hash table can also be visualized as a bipartite ``cuckoo graph''
-$G$, where parts are slots in $L$ and~$R$. Edges correspond to stored keys:
+The cuckoo hash table can also be visualized as a bipartite
+``cuckoo~graph''~$G$, where parts are slots in $L$ and~$R$. Edges
+correspond to stored keys:
 a stored key $k$ connects $h_\ell(k)$ in $L$ and~$h_r(k)$ in $R$.
 
 Denote the vertices and edges of $G$ as $V$ and $E$.
 Let us define the \emph{incidence graph} $G_I$ of $G$. The vertices of $G_I$
-are vertices and edges of $G$, and the edges of $G_I$ are $\{(x,(xy)): x\in V,
-(xy)\in E\}$. The cuckoo graph $G$ can be represented as a valid cuckoo hash
+are vertices and edges of $G$, and the edges of $G_I$ are $\{\{x,\{x,y\}\}: x\in V,
+\{x,y\}\in E\}$. The cuckoo graph $G$ can be represented as a valid cuckoo hash
 table if and only if $G_I$ has a perfect matching.
 
 \textsc{Find}s take $\O(1)$ worst-case time: they compute $h_\ell(k)$ and $h_r(k)$
@@ -400,8 +400,8 @@ With $\Theta(\log N)$-independent hash functions, \textsc{Insert}s take
 expected amortized time $\O(1)$ and the failure probability (i.e.,\ the
 probability that an \textsc{Insert} will force a full rebuild) is
 $\O(1/N)$ \cite{cuckoo-hashing}.
-6-independence is not enough: some 6-independent hash functions lead to a
-failure probability of $\O(1-\frac{1}{N})$ \cite{cuckoo-hashing-indep-bounds}.
+\mbox{6-independence} is not enough: some \mbox{6-independent} hash functions
+lead to a~failure probability of $\O(1-\frac{1}{N})$ \cite{cuckoo-hashing-indep-bounds}.
 The build failure probability when using simple tabulation hashing is
 $\O(N^{1/3})$. \cite{power-of-simple-tab} demonstrates that storing all keys
 $(a,b,c)$, where $a,b,c\in[N^{1/3}]$, is a degenerate case with
@@ -462,7 +462,7 @@ memory setting without expensive rehashing. Some are presented in
 chapter~9~of~\cite{em-ads}.
 
 In \cite{kirsch2009more}, cuckoo hash tables are extended with a small
-constant-sized \emph{stash} (e.g., 3 or 4 items), which lowers the probability
+constant-sized \emph{stash} (e.g.,\ 3 or 4 items), which lowers the probability
 of build failures and enhances performance (both theoretically and practically).
 
 Cuckoo hashing can be generalized to more than two subtables.

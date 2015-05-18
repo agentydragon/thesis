@@ -2,7 +2,7 @@
 \label{chapter:btree}
 The B-tree is a very common data structure for storing sorted dictionaries.
 They were introduced in 1970 as a method of efficiently maintaining an ordered
-index \cite{btree}.
+index~\cite{btree}.
 B-trees are particularly useful where the external memory model is accurate,
 because all information in every transferred block is actively used
 in searching. For example, the ext4, Btrfs and NTFS filesystems use variants
@@ -56,7 +56,7 @@ equals $K$, we fetch the value from the node and abort the search.
 
 The process of finding a key-value pair in a B-tree generalizes this
 by picking the child pointer corresponding to the only range that contains
-the sought key $K$. To pick the child pointer, we can either do a simple
+the sought key~$K$. To pick the child pointer, we can either do a simple
 linear scan in $\Theta(b)$, or we can use binary search to get
 $\Theta(\log b)$ if $b$ is not negligible.
 Once we reach a leaf, we scan its keys and return the value for $K$

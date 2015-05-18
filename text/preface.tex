@@ -5,7 +5,8 @@ It is a well-known fact that there is a widening gap between
 the performance of CPUs and memory. To optimize memory accesses,
 modern computers include several small and fast caches between the CPU and
 main memory. However, if programs access data mostly randomly, I/O can become
-the performance bottleneck, even for programs running only in main memory.
+the performance bottleneck, even for programs running only in main memory
+(e.g.,\ RAM).
 
 Standard models of computation only measure the performance of algorithms
 in the number of CPU instructions executed and the number of memory cells used.
@@ -17,7 +18,7 @@ algorithms in memory hierarchies. This model adds a \emph{block transfer}
 measure, which is the number of \emph{blocks} transferred between a fast cache
 and a slow \emph{external memory}.
 While the original motivation was developing fast algorithms for data stored on
-hard drives, the model can also be used to reason about boundaries between
+hard disks, the model can also be used to reason about boundaries between
 internal memory and caches.
 
 \emph{Cache-oblivious algorithms} are a class of external memory algorithms
@@ -30,19 +31,21 @@ The external memory model and cache-oblivious algorithms are introduced in more
 detail in chapter~\ref{chapter:models}.
 
 This thesis explores the performance implications of memory hierarchies
-on data structures implementing dictionaries or sorted dictionaries.
+on data structures implementing \emph{dictionaries} or \emph{sorted
+dictionaries}.
 Especially unsorted dictionaries are very useful in practice, as illustrated
-by modern programming languages, which frequently reserve a built-in
+by modern programming languages, which frequently offer~a~built-in
 data type for unsorted dictionaries (e.g.,\ \texttt{std::unordered\_map} in
 \Cpp{}, \texttt{dict} in Python, or hashes in Perl).
 
-Dictionaries maintain a set of $N$ key-value pairs with distinct keys.
-Denote the set of stored keys by $K$.
+Dictionaries maintain a set of~$N$~key-value pairs with distinct keys.
+Let us denote the set of stored keys by~$K$.
+The keys are selected from an~ordered \emph{key universe}~$\mathcal{U}$.
 The \textsc{Find} operation find the value associated with a~given key, or
 it reports that no such value exists. \textsc{Insert} inserts a new
 key-value pair and \textsc{Delete} removes a key-value pair given its key.
-Sorted dictionaries additionally maintain an ordering on the keys and they
-allow \textsc{FindNext} and \textsc{FindPrevious} operations.
+Sorted dictionaries additionally allow queries on the set of keys $K$ ordered
+by the ordering of $\mathcal{U}$.
 Given a key $k$, which may or may not be present in the dictionary,
 \textsc{FindNext} and \textsc{FindPrevious} find the closest larger or smaller
 key present in the dictionary.
@@ -71,7 +74,7 @@ $h=\Theta(\log N)$. B-trees store $\Theta(b)$ keys per node, where $b\geq 2$,
 and they maintain all leaves at the same depth, so operations on B-trees
 touch $\Theta(\log_b N)$ nodes.
 
-Splay trees are binary search trees with a self-adjusting rule, but splay
+\emph{Splay trees} are binary search trees with a self-adjusting rule, but splay
 trees are not balanced, as this rule does not guarantee a small height in all
 cases. The structure of a splay tree depends not only on the sequence of
 \textsc{Insert}s and \textsc{Delete}s, but also on executed \textsc{Find}s.

@@ -30,8 +30,8 @@ and \textsc{Delete}s in $\O(\log_k s(i))$ time, so \mbox{B-trees} with
 $b=\O(k)$ are a natural choice for representing the trees.
 
 Every tree, with the possible exception of the last one, is kept full,
-so if we represent the trees as \mbox{B-trees}, then $T_1$ has height 1,
-$T_2$ has height 2, $T_3$ has height 4, and so on.
+so if we represent the trees as \mbox{B-trees}, then $T_1$ has height~1,
+$T_2$ has height~2, $T_3$ has height~4, and so on.
 Each key-value pair inserted into the data structure is always kept in one
 tree $T_i$. The self-adjusting operation moves elements between trees to
 keep more recently accessed elements in smaller trees that are faster

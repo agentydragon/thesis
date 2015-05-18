@@ -6,8 +6,10 @@
 As noted in chapter~\ref{chapter:implementation}, our implementation of
 cache-aware B-trees (\texttt{dict\_btree}) was written for generic bounds
 on node capacities. We experimented with several values of the B-tree parameter
-$b$, which is tied to the size of a node. The results are presented in
-figure~\ref{fig:btree-b-perf}.
+$b$, which is tied to the size of a node. \mbox{B-trees} with large values
+of~$b$ are shallow, so a~search for a~key follows fewer pointers, but on the
+other hand, reading large nodes requires more slow memory transfers.
+The results are presented in figure~\ref{fig:btree-b-perf}.
 
 \begin{figure}
 \centering
@@ -77,8 +79,7 @@ Figures~\ref{fig:basic-finds}~and~\ref{fig:basic-perf} present the results.
 The slow speed of operations in red-black trees (compared to binary search
 and B-trees) is unsurprising.
 It was, however, unexpected to find that lookups in B-trees start to overtake
-binary search only on very large dictiories (with $\approx10^7$ keys).
-\footnote{%
+binary search only on very large dictiories (with at least $10^7$ keys).\footnote{%
 	Originally, we fixed the node size of our B-trees to $64\,\text{B}$,
 	thinking it was the obviously correct choice (i.e.,\ the size of
 	a~cache line). Such B-trees (or, to be more precise, 2-3-4 trees)
