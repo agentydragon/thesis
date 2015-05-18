@@ -16,13 +16,6 @@ code in C.
 I am developing this project on Linux with GCC. It may work somewhere else,
 but only accidentally.
 
-## Documentation
-There is a very little bit of documentation on `doc/`. You can [read it
-online](http://prvak-thesis.readthedocs.org) at
-[http://prvak-thesis.readthedocs.org](http://prvak-thesis.readthedocs.org).
-Depending on how much time do I have when I'm done implementing everything
-I want, I might write some more.
-
 ## Dependencies
 The code requires [LibUCW 6.4](http://www.ucw.cz/libucw/) to build (I use its
 red-black trees). My code assumes that it's installed under the `/usr` prefix.
@@ -67,10 +60,4 @@ some interesting graphs by running:
 ```bash
 cd experiments/performance
 ./plot_results.py
-```
-
-## Spell checking
-To spell check my TeX:
-```bash
-aspell --mode tex -c (something).tex
 ```
