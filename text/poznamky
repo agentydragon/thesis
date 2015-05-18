@@ -1,8 +1,0 @@
-2014-09-20:
-	Pomohlo tomu hodne zmenit hash funkci na neco jineho.
-	Kybliky mely spatnou distribuci velikosti, takze se hodne zvetsovala
-	typicka doba na dotaz.
-
-	Funkce byla:
-		PRIME_X = 433024253L, PRIME_Y = 817504243;
-		=> ((x * PRIME_X) ^ (x * PRIME_Y)) % max;
