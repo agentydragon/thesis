@@ -9,9 +9,11 @@ This is my Charles University CS bachelor thesis.
 Feel free to grab what you like, but don't sell it and keep attribution
 (legalese: http://creativecommons.org/licenses/by-nc-sa/2.0/legalcode,
  humanese: http://creativecommons.org/licenses/by-nc-sa/2.0/).
+The source code is hosted
+[on GitHub](https://github.com/MichalPokorny/thesis.git).
 
 `text/` contains the text of the thesis. `src/` contains associated source
-code in C.
+code in C. `TODO.md` contains some ideas for future work.
 
 I am developing this project on Linux with GCC. It may work somewhere else,
 but only accidentally.
