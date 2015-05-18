@@ -415,7 +415,7 @@ updates.
 The search for a node to redistribute is implemented as two interspersed scans,
 one extending the scanned range to the left, one to the right. The
 redistribution can be done by collecting all items in the array on the left side
-of the array using a left-to-right scan, followed by a right-to-left scan
+using a left-to-right scan, followed by a right-to-left scan
 putting items into their final destinations. Thus,
 redistributing a range of $K$ items takes $\Theta(K/B)$ block transfers.
 

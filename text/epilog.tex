@@ -31,17 +31,18 @@ completely survey all of them.
 
 The performance of \textsc{Find}s seems to be also dependent on
 the rate of success. Unsuccessful accesses could potentially be filtered out
-early by adding a~\emph{Bloom~filter} before the dictionary. We suggest
-measuring the effect in practical settings. Our measurements from Mozilla
-Firefox may be biased towards unsuccessful \textsc{Find}s due to the way we
-filtered out unparseable lines.
+early by adding a~\emph{Bloom~filter}\cite{bloom} before the dictionary.
+We suggest measuring the effect in practical settings. Our measurements from
+Mozilla Firefox may be biased towards unsuccessful \textsc{Find}s due to the
+way we filtered out unparseable lines.
 
 In the Firefox recording, we found that either cuckoo hash tables, splay trees,
-or red-black trees were always the winning data structure. Analyzing the
-recorded access pattern may allow predicting which data structure would win.
-Based on such analysis, it may be possible to develop a data structure that
-would switch its internal representation based on the previously seen access
-pattern. Another approach may be collecting the access pattern first, and
+or red-black trees always won among our sample of data structures.
+Analyzing the recorded access pattern may allow predicting which data structure
+would win. Based on such analysis, it may be possible to develop a data
+structure that would switch its internal representation based on the previously
+seen access pattern.
+Another approach may be collecting the access pattern first, and
 then automatically choosing the best data structure at compile time.
 
 \subsection*{B-trees and their variants}
