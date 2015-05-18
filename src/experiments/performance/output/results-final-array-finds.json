@@ -1,0 +1,5873 @@
+[
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 1,
+    "time_ns": 45322,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 1,
+    "time_ns": 41655,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 1,
+    "time_ns": 41389,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 1,
+    "time_ns": 41896,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 1,
+    "time_ns": 41596,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 1,
+    "time_ns": 41178,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 1,
+    "time_ns": 53472,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 1,
+    "time_ns": 52083,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 1,
+    "time_ns": 51591,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 2,
+    "time_ns": 53084,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 2,
+    "time_ns": 52379,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 2,
+    "time_ns": 51978,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 2,
+    "time_ns": 53408,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 2,
+    "time_ns": 52206,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 2,
+    "time_ns": 52035,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 2,
+    "time_ns": 52610,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 2,
+    "time_ns": 52063,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 2,
+    "time_ns": 49065,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 3,
+    "time_ns": 48637,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 3,
+    "time_ns": 47826,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 3,
+    "time_ns": 47919,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 4,
+    "time_ns": 48510,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 4,
+    "time_ns": 48313,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 4,
+    "time_ns": 48476,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 4,
+    "time_ns": 48804,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 4,
+    "time_ns": 47684,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 4,
+    "time_ns": 47656,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 5,
+    "time_ns": 132835,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 15,
+      "dtlb_read_misses": 0,
+      "branches": 163,
+      "branch_mispredicts": 7,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 5,
+    "time_ns": 48189,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 5,
+    "time_ns": 47903,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 6,
+    "time_ns": 48726,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 6,
+    "time_ns": 48504,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 6,
+    "time_ns": 48357,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 7,
+    "time_ns": 45492,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 7,
+    "time_ns": 45321,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 7,
+    "time_ns": 45238,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 9,
+    "time_ns": 46345,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 9,
+    "time_ns": 45651,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 9,
+    "time_ns": 45652,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 11,
+    "time_ns": 46473,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 11,
+    "time_ns": 45925,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 11,
+    "time_ns": 46835,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 13,
+    "time_ns": 46703,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 13,
+    "time_ns": 46411,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 13,
+    "time_ns": 46102,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 15,
+    "time_ns": 47815,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 15,
+    "time_ns": 46672,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 15,
+    "time_ns": 58956,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 18,
+    "time_ns": 44339,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 18,
+    "time_ns": 43860,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 18,
+    "time_ns": 43473,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 22,
+    "time_ns": 45062,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 22,
+    "time_ns": 47360,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 22,
+    "time_ns": 44374,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 27,
+    "time_ns": 46067,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 27,
+    "time_ns": 45322,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 27,
+    "time_ns": 51736,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 32,
+    "time_ns": 48677,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 32,
+    "time_ns": 47004,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 32,
+    "time_ns": 45895,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 38,
+    "time_ns": 45263,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 38,
+    "time_ns": 44734,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 38,
+    "time_ns": 43544,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 46,
+    "time_ns": 47054,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 46,
+    "time_ns": 46349,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 46,
+    "time_ns": 172839,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 1,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 6,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 55,
+    "time_ns": 48235,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 55,
+    "time_ns": 47485,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 55,
+    "time_ns": 45413,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 66,
+    "time_ns": 50031,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 66,
+    "time_ns": 50054,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 66,
+    "time_ns": 47493,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 79,
+    "time_ns": 289693,
+    "metrics": {
+      "cache_misses": 2,
+      "cache_references": 58,
+      "dtlb_read_misses": 0,
+      "branches": 172,
+      "branch_mispredicts": 7,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 79,
+    "time_ns": 48576,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 79,
+    "time_ns": 45447,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 95,
+    "time_ns": 50888,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 95,
+    "time_ns": 51798,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 95,
+    "time_ns": 49111,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 114,
+    "time_ns": 53734,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 114,
+    "time_ns": 54352,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 114,
+    "time_ns": 51189,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 137,
+    "time_ns": 58315,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 137,
+    "time_ns": 57986,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 137,
+    "time_ns": 53649,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 165,
+    "time_ns": 59277,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 165,
+    "time_ns": 59494,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 165,
+    "time_ns": 53889,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 198,
+    "time_ns": 63535,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 198,
+    "time_ns": 64797,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 198,
+    "time_ns": 57659,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 237,
+    "time_ns": 70292,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 237,
+    "time_ns": 71282,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 237,
+    "time_ns": 62313,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 285,
+    "time_ns": 78406,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 285,
+    "time_ns": 80098,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 285,
+    "time_ns": 71052,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 342,
+    "time_ns": 83455,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 342,
+    "time_ns": 85427,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 342,
+    "time_ns": 73487,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 410,
+    "time_ns": 101985,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 410,
+    "time_ns": 95014,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 410,
+    "time_ns": 79558,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 492,
+    "time_ns": 107044,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 492,
+    "time_ns": 201010,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 492,
+    "time_ns": 84278,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 591,
+    "time_ns": 127078,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 591,
+    "time_ns": 124411,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 591,
+    "time_ns": 99194,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 709,
+    "time_ns": 135544,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 709,
+    "time_ns": 138040,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 709,
+    "time_ns": 257528,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 851,
+    "time_ns": 171504,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 851,
+    "time_ns": 161097,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 851,
+    "time_ns": 132245,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 1021,
+    "time_ns": 188078,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 1021,
+    "time_ns": 184432,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 1021,
+    "time_ns": 136074,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 1225,
+    "time_ns": 211382,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 1225,
+    "time_ns": 242902,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 1225,
+    "time_ns": 167223,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 1470,
+    "time_ns": 250416,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 1470,
+    "time_ns": 253981,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 1470,
+    "time_ns": 203587,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 1764,
+    "time_ns": 282862,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 1764,
+    "time_ns": 293127,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 1764,
+    "time_ns": 232537,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 2116,
+    "time_ns": 340044,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 2116,
+    "time_ns": 350645,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 2116,
+    "time_ns": 290814,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 2540,
+    "time_ns": 408648,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 2540,
+    "time_ns": 403002,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 2540,
+    "time_ns": 332255,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 3048,
+    "time_ns": 477108,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 3048,
+    "time_ns": 490000,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 3048,
+    "time_ns": 410482,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 3657,
+    "time_ns": 518205,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 3657,
+    "time_ns": 565265,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 3657,
+    "time_ns": 466704,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 4389,
+    "time_ns": 670887,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 4389,
+    "time_ns": 700497,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 4389,
+    "time_ns": 640456,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 5266,
+    "time_ns": 778900,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 5266,
+    "time_ns": 836023,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 5266,
+    "time_ns": 695271,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 6320,
+    "time_ns": 904931,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 6320,
+    "time_ns": 990535,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 6320,
+    "time_ns": 866439,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 7584,
+    "time_ns": 1113119,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 7584,
+    "time_ns": 1131716,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 7584,
+    "time_ns": 990033,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 9100,
+    "time_ns": 1263615,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 9100,
+    "time_ns": 1340116,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 9100,
+    "time_ns": 1165520,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 10921,
+    "time_ns": 1481661,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 10921,
+    "time_ns": 1582252,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 10921,
+    "time_ns": 1407406,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 13105,
+    "time_ns": 1782326,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 13105,
+    "time_ns": 1859237,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 13105,
+    "time_ns": 1593331,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 15726,
+    "time_ns": 2066315,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 15726,
+    "time_ns": 2109064,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 15726,
+    "time_ns": 1895342,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 18871,
+    "time_ns": 2565531,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 18871,
+    "time_ns": 2570400,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 18871,
+    "time_ns": 2314539,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 22645,
+    "time_ns": 3172794,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 22645,
+    "time_ns": 3229518,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 22645,
+    "time_ns": 2879896,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 27174,
+    "time_ns": 3638591,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 27174,
+    "time_ns": 3860692,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 27174,
+    "time_ns": 3673797,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 32609,
+    "time_ns": 4584052,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 32609,
+    "time_ns": 4828898,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 32609,
+    "time_ns": 4542607,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 39130,
+    "time_ns": 5707196,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 39130,
+    "time_ns": 6106997,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 39130,
+    "time_ns": 5374391,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 46956,
+    "time_ns": 6880431,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 46956,
+    "time_ns": 7243029,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 46956,
+    "time_ns": 6687845,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 56348,
+    "time_ns": 8425802,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 56348,
+    "time_ns": 9025971,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 56348,
+    "time_ns": 8237971,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 67617,
+    "time_ns": 10391749,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 67617,
+    "time_ns": 10853427,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 67617,
+    "time_ns": 10040102,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 81140,
+    "time_ns": 12914267,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 81140,
+    "time_ns": 13505534,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 81140,
+    "time_ns": 12421416,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 97369,
+    "time_ns": 16086652,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 97369,
+    "time_ns": 16535699,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 97369,
+    "time_ns": 15557904,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 116842,
+    "time_ns": 19717648,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 91620,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 116842,
+    "time_ns": 20414763,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 56224,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 116842,
+    "time_ns": 18727451,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 0,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 140211,
+    "time_ns": 23794621,
+    "metrics": {
+      "cache_misses": 473,
+      "cache_references": 224510,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 140211,
+    "time_ns": 26121606,
+    "metrics": {
+      "cache_misses": 6367,
+      "cache_references": 471932,
+      "dtlb_read_misses": 0,
+      "branches": 514091,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 140211,
+    "time_ns": 22169910,
+    "metrics": {
+      "cache_misses": 0,
+      "cache_references": 96572,
+      "dtlb_read_misses": 0,
+      "branches": 0,
+      "branch_mispredicts": 0,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 168253,
+    "time_ns": 31755392,
+    "metrics": {
+      "cache_misses": 39673,
+      "cache_references": 839095,
+      "dtlb_read_misses": 0,
+      "branches": 2897857,
+      "branch_mispredicts": 213499,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 1718819,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 168253,
+    "time_ns": 32763511,
+    "metrics": {
+      "cache_misses": 26371,
+      "cache_references": 802763,
+      "dtlb_read_misses": 0,
+      "branches": 2267605,
+      "branch_mispredicts": 160094,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 168253,
+    "time_ns": 31012763,
+    "metrics": {
+      "cache_misses": 39434,
+      "cache_references": 847027,
+      "dtlb_read_misses": 0,
+      "branches": 2310198,
+      "branch_mispredicts": 152219,
+      "l1i_read_misses": 0,
+      "stalled_cycles_frontend": 0,
+      "l1d_read_misses": 0,
+      "l1d_write_misses": 0,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 201903,
+    "time_ns": 41178224,
+    "metrics": {
+      "cache_misses": 89865,
+      "cache_references": 856313,
+      "dtlb_read_misses": 0,
+      "branches": 4603021,
+      "branch_mispredicts": 588459,
+      "l1i_read_misses": 2,
+      "stalled_cycles_frontend": 14622597,
+      "l1d_read_misses": 621500,
+      "l1d_write_misses": 162,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 201903,
+    "time_ns": 42683963,
+    "metrics": {
+      "cache_misses": 84757,
+      "cache_references": 828695,
+      "dtlb_read_misses": 0,
+      "branches": 4286584,
+      "branch_mispredicts": 625732,
+      "l1i_read_misses": 97,
+      "stalled_cycles_frontend": 17233569,
+      "l1d_read_misses": 752981,
+      "l1d_write_misses": 244,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 201903,
+    "time_ns": 39696486,
+    "metrics": {
+      "cache_misses": 81965,
+      "cache_references": 887880,
+      "dtlb_read_misses": 0,
+      "branches": 4522401,
+      "branch_mispredicts": 612415,
+      "l1i_read_misses": 90,
+      "stalled_cycles_frontend": 14979084,
+      "l1d_read_misses": 654396,
+      "l1d_write_misses": 236,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 242284,
+    "time_ns": 50643188,
+    "metrics": {
+      "cache_misses": 120329,
+      "cache_references": 817525,
+      "dtlb_read_misses": 221,
+      "branches": 4490527,
+      "branch_mispredicts": 578036,
+      "l1i_read_misses": 169,
+      "stalled_cycles_frontend": 20195341,
+      "l1d_read_misses": 1210860,
+      "l1d_write_misses": 556,
+      "dtlb_write_misses": 1
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 242284,
+    "time_ns": 52638543,
+    "metrics": {
+      "cache_misses": 119592,
+      "cache_references": 793297,
+      "dtlb_read_misses": 434,
+      "branches": 4195849,
+      "branch_mispredicts": 614306,
+      "l1i_read_misses": 228,
+      "stalled_cycles_frontend": 20243257,
+      "l1d_read_misses": 1161480,
+      "l1d_write_misses": 550,
+      "dtlb_write_misses": 7153
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 242284,
+    "time_ns": 49089662,
+    "metrics": {
+      "cache_misses": 119528,
+      "cache_references": 854719,
+      "dtlb_read_misses": 307,
+      "branches": 4342344,
+      "branch_mispredicts": 592808,
+      "l1i_read_misses": 189,
+      "stalled_cycles_frontend": 20451752,
+      "l1d_read_misses": 1239469,
+      "l1d_write_misses": 1007,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 290741,
+    "time_ns": 64713451,
+    "metrics": {
+      "cache_misses": 170154,
+      "cache_references": 838624,
+      "dtlb_read_misses": 123,
+      "branches": 4243864,
+      "branch_mispredicts": 550667,
+      "l1i_read_misses": 121,
+      "stalled_cycles_frontend": 20900414,
+      "l1d_read_misses": 1158344,
+      "l1d_write_misses": 626,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 290741,
+    "time_ns": 68851287,
+    "metrics": {
+      "cache_misses": 170411,
+      "cache_references": 818600,
+      "dtlb_read_misses": 24374,
+      "branches": 3899357,
+      "branch_mispredicts": 567609,
+      "l1i_read_misses": 134,
+      "stalled_cycles_frontend": 20826422,
+      "l1d_read_misses": 1114022,
+      "l1d_write_misses": 633,
+      "dtlb_write_misses": 16390
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 290741,
+    "time_ns": 67140252,
+    "metrics": {
+      "cache_misses": 168060,
+      "cache_references": 827358,
+      "dtlb_read_misses": 24336,
+      "branches": 3868851,
+      "branch_mispredicts": 530059,
+      "l1i_read_misses": 123,
+      "stalled_cycles_frontend": 19591561,
+      "l1d_read_misses": 1144148,
+      "l1d_write_misses": 674,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 348889,
+    "time_ns": 82963476,
+    "metrics": {
+      "cache_misses": 215350,
+      "cache_references": 973702,
+      "dtlb_read_misses": 71,
+      "branches": 4023089,
+      "branch_mispredicts": 521368,
+      "l1i_read_misses": 142,
+      "stalled_cycles_frontend": 21379497,
+      "l1d_read_misses": 1129582,
+      "l1d_write_misses": 552,
+      "dtlb_write_misses": 2
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 348889,
+    "time_ns": 87687948,
+    "metrics": {
+      "cache_misses": 316014,
+      "cache_references": 1406598,
+      "dtlb_read_misses": 144,
+      "branches": 4827453,
+      "branch_mispredicts": 571027,
+      "l1i_read_misses": 151,
+      "stalled_cycles_frontend": 21493265,
+      "l1d_read_misses": 1089592,
+      "l1d_write_misses": 646,
+      "dtlb_write_misses": 15460
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 348889,
+    "time_ns": 81474084,
+    "metrics": {
+      "cache_misses": 216881,
+      "cache_references": 936116,
+      "dtlb_read_misses": 128,
+      "branches": 3895128,
+      "branch_mispredicts": 530128,
+      "l1i_read_misses": 105,
+      "stalled_cycles_frontend": 21630470,
+      "l1d_read_misses": 1151264,
+      "l1d_write_misses": 632,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 418667,
+    "time_ns": 105343102,
+    "metrics": {
+      "cache_misses": 501243,
+      "cache_references": 1609571,
+      "dtlb_read_misses": 5,
+      "branches": 7514134,
+      "branch_mispredicts": 986157,
+      "l1i_read_misses": 303,
+      "stalled_cycles_frontend": 43366305,
+      "l1d_read_misses": 2160393,
+      "l1d_write_misses": 1109,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 418667,
+    "time_ns": 107873375,
+    "metrics": {
+      "cache_misses": 495225,
+      "cache_references": 1586661,
+      "dtlb_read_misses": 1,
+      "branches": 7243750,
+      "branch_mispredicts": 1058628,
+      "l1i_read_misses": 372,
+      "stalled_cycles_frontend": 43803989,
+      "l1d_read_misses": 2131028,
+      "l1d_write_misses": 1172,
+      "dtlb_write_misses": 18336
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 418667,
+    "time_ns": 102326647,
+    "metrics": {
+      "cache_misses": 515791,
+      "cache_references": 1684033,
+      "dtlb_read_misses": 0,
+      "branches": 7469942,
+      "branch_mispredicts": 1020871,
+      "l1i_read_misses": 244,
+      "stalled_cycles_frontend": 41313777,
+      "l1d_read_misses": 1814763,
+      "l1d_write_misses": 1164,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 502400,
+    "time_ns": 135717753,
+    "metrics": {
+      "cache_misses": 637561,
+      "cache_references": 1639391,
+      "dtlb_read_misses": 965,
+      "branches": 7059746,
+      "branch_mispredicts": 933148,
+      "l1i_read_misses": 274,
+      "stalled_cycles_frontend": 42168105,
+      "l1d_read_misses": 2178390,
+      "l1d_write_misses": 1296,
+      "dtlb_write_misses": 4
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 502400,
+    "time_ns": 139420051,
+    "metrics": {
+      "cache_misses": 594428,
+      "cache_references": 1636552,
+      "dtlb_read_misses": 832,
+      "branches": 6774431,
+      "branch_mispredicts": 981526,
+      "l1i_read_misses": 311,
+      "stalled_cycles_frontend": 43362297,
+      "l1d_read_misses": 2075129,
+      "l1d_write_misses": 1343,
+      "dtlb_write_misses": 30163
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 502400,
+    "time_ns": 132521078,
+    "metrics": {
+      "cache_misses": 619425,
+      "cache_references": 1724612,
+      "dtlb_read_misses": 1157,
+      "branches": 7003663,
+      "branch_mispredicts": 957524,
+      "l1i_read_misses": 263,
+      "stalled_cycles_frontend": 43444269,
+      "l1d_read_misses": 2189195,
+      "l1d_write_misses": 1337,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 602880,
+    "time_ns": 167709617,
+    "metrics": {
+      "cache_misses": 957802,
+      "cache_references": 2478595,
+      "dtlb_read_misses": 4,
+      "branches": 10588500,
+      "branch_mispredicts": 1391073,
+      "l1i_read_misses": 383,
+      "stalled_cycles_frontend": 64701945,
+      "l1d_read_misses": 3214775,
+      "l1d_write_misses": 1583,
+      "dtlb_write_misses": 4
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 602880,
+    "time_ns": 176648057,
+    "metrics": {
+      "cache_misses": 1038545,
+      "cache_references": 2339078,
+      "dtlb_read_misses": 4553,
+      "branches": 9676809,
+      "branch_mispredicts": 1427743,
+      "l1i_read_misses": 629,
+      "stalled_cycles_frontend": 66159765,
+      "l1d_read_misses": 3052148,
+      "l1d_write_misses": 1636,
+      "dtlb_write_misses": 41113
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 602880,
+    "time_ns": 161003231,
+    "metrics": {
+      "cache_misses": 950355,
+      "cache_references": 2580070,
+      "dtlb_read_misses": 242,
+      "branches": 10464693,
+      "branch_mispredicts": 1444354,
+      "l1i_read_misses": 189,
+      "stalled_cycles_frontend": 61392359,
+      "l1d_read_misses": 2802795,
+      "l1d_write_misses": 2020,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 723456,
+    "time_ns": 206972559,
+    "metrics": {
+      "cache_misses": 1119730,
+      "cache_references": 3011896,
+      "dtlb_read_misses": 59870,
+      "branches": 10488168,
+      "branch_mispredicts": 1364797,
+      "l1i_read_misses": 156,
+      "stalled_cycles_frontend": 66320708,
+      "l1d_read_misses": 3253211,
+      "l1d_write_misses": 2169,
+      "dtlb_write_misses": 3
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 723456,
+    "time_ns": 219513958,
+    "metrics": {
+      "cache_misses": 1471117,
+      "cache_references": 3197587,
+      "dtlb_read_misses": 59420,
+      "branches": 12648626,
+      "branch_mispredicts": 1845997,
+      "l1i_read_misses": 126,
+      "stalled_cycles_frontend": 82499956,
+      "l1d_read_misses": 3621728,
+      "l1d_write_misses": 1682,
+      "dtlb_write_misses": 43689
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 723456,
+    "time_ns": 208413121,
+    "metrics": {
+      "cache_misses": 1363353,
+      "cache_references": 3312448,
+      "dtlb_read_misses": 59048,
+      "branches": 10904614,
+      "branch_mispredicts": 1391872,
+      "l1i_read_misses": 410,
+      "stalled_cycles_frontend": 67252624,
+      "l1d_read_misses": 3293618,
+      "l1d_write_misses": 1815,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 868147,
+    "time_ns": 259779542,
+    "metrics": {
+      "cache_misses": 1564528,
+      "cache_references": 3490688,
+      "dtlb_read_misses": 255,
+      "branches": 13262778,
+      "branch_mispredicts": 1744070,
+      "l1i_read_misses": 433,
+      "stalled_cycles_frontend": 88587869,
+      "l1d_read_misses": 4342137,
+      "l1d_write_misses": 2601,
+      "dtlb_write_misses": 3
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 868147,
+    "time_ns": 260226709,
+    "metrics": {
+      "cache_misses": 1448434,
+      "cache_references": 3365240,
+      "dtlb_read_misses": 278,
+      "branches": 13020325,
+      "branch_mispredicts": 1914504,
+      "l1i_read_misses": 1074,
+      "stalled_cycles_frontend": 90169955,
+      "l1d_read_misses": 4305103,
+      "l1d_write_misses": 3107,
+      "dtlb_write_misses": 59469
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 868147,
+    "time_ns": 256202052,
+    "metrics": {
+      "cache_misses": 1508641,
+      "cache_references": 3504278,
+      "dtlb_read_misses": 424,
+      "branches": 13119751,
+      "branch_mispredicts": 1808592,
+      "l1i_read_misses": 513,
+      "stalled_cycles_frontend": 89317502,
+      "l1d_read_misses": 4380368,
+      "l1d_write_misses": 2679,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 1041777,
+    "time_ns": 315127824,
+    "metrics": {
+      "cache_misses": 2054611,
+      "cache_references": 4476058,
+      "dtlb_read_misses": 4888,
+      "branches": 16558334,
+      "branch_mispredicts": 2190053,
+      "l1i_read_misses": 290,
+      "stalled_cycles_frontend": 111678641,
+      "l1d_read_misses": 5604568,
+      "l1d_write_misses": 3694,
+      "dtlb_write_misses": 5
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 1041777,
+    "time_ns": 322510947,
+    "metrics": {
+      "cache_misses": 2031078,
+      "cache_references": 4543230,
+      "dtlb_read_misses": 4200,
+      "branches": 15631256,
+      "branch_mispredicts": 2323352,
+      "l1i_read_misses": 274,
+      "stalled_cycles_frontend": 113171228,
+      "l1d_read_misses": 5496324,
+      "l1d_write_misses": 2883,
+      "dtlb_write_misses": 74798
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 1041777,
+    "time_ns": 310303582,
+    "metrics": {
+      "cache_misses": 2090800,
+      "cache_references": 4536277,
+      "dtlb_read_misses": 4049,
+      "branches": 15942280,
+      "branch_mispredicts": 2228847,
+      "l1i_read_misses": 206,
+      "stalled_cycles_frontend": 112587551,
+      "l1d_read_misses": 5723688,
+      "l1d_write_misses": 3024,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 1250132,
+    "time_ns": 386579512,
+    "metrics": {
+      "cache_misses": 2721278,
+      "cache_references": 5897092,
+      "dtlb_read_misses": 411,
+      "branches": 20166970,
+      "branch_mispredicts": 2616318,
+      "l1i_read_misses": 256,
+      "stalled_cycles_frontend": 135208786,
+      "l1d_read_misses": 6717636,
+      "l1d_write_misses": 3368,
+      "dtlb_write_misses": 5
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 1250132,
+    "time_ns": 396820659,
+    "metrics": {
+      "cache_misses": 2925409,
+      "cache_references": 6044783,
+      "dtlb_read_misses": 535,
+      "branches": 21641856,
+      "branch_mispredicts": 3079858,
+      "l1i_read_misses": 638,
+      "stalled_cycles_frontend": 147458454,
+      "l1d_read_misses": 6745628,
+      "l1d_write_misses": 3268,
+      "dtlb_write_misses": 88323
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 1250132,
+    "time_ns": 381048165,
+    "metrics": {
+      "cache_misses": 2583109,
+      "cache_references": 5441363,
+      "dtlb_read_misses": 789,
+      "branches": 19121055,
+      "branch_mispredicts": 2654402,
+      "l1i_read_misses": 292,
+      "stalled_cycles_frontend": 135764207,
+      "l1d_read_misses": 6776500,
+      "l1d_write_misses": 4591,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 1500159,
+    "time_ns": 476286963,
+    "metrics": {
+      "cache_misses": 3589065,
+      "cache_references": 7283579,
+      "dtlb_read_misses": 6,
+      "branches": 25881331,
+      "branch_mispredicts": 3433119,
+      "l1i_read_misses": 437,
+      "stalled_cycles_frontend": 180369875,
+      "l1d_read_misses": 9119329,
+      "l1d_write_misses": 5214,
+      "dtlb_write_misses": 19
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 1500159,
+    "time_ns": 493558897,
+    "metrics": {
+      "cache_misses": 3544959,
+      "cache_references": 7067441,
+      "dtlb_read_misses": 1066,
+      "branches": 24315352,
+      "branch_mispredicts": 3599480,
+      "l1i_read_misses": 1103,
+      "stalled_cycles_frontend": 181322290,
+      "l1d_read_misses": 8813766,
+      "l1d_write_misses": 6483,
+      "dtlb_write_misses": 122529
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 1500159,
+    "time_ns": 494904312,
+    "metrics": {
+      "cache_misses": 3930686,
+      "cache_references": 7128924,
+      "dtlb_read_misses": 1133,
+      "branches": 23609130,
+      "branch_mispredicts": 3280425,
+      "l1i_read_misses": 454,
+      "stalled_cycles_frontend": 177298161,
+      "l1d_read_misses": 8881164,
+      "l1d_write_misses": 5454,
+      "dtlb_write_misses": 0
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 1800190,
+    "time_ns": 646911700,
+    "metrics": {
+      "cache_misses": 5787333,
+      "cache_references": 9455553,
+      "dtlb_read_misses": 258,
+      "branches": 31614375,
+      "branch_mispredicts": 4218927,
+      "l1i_read_misses": 1759,
+      "stalled_cycles_frontend": 232825112,
+      "l1d_read_misses": 11592872,
+      "l1d_write_misses": 8988,
+      "dtlb_write_misses": 6
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 1800190,
+    "time_ns": 682337916,
+    "metrics": {
+      "cache_misses": 5879110,
+      "cache_references": 9431947,
+      "dtlb_read_misses": 1262,
+      "branches": 29264612,
+      "branch_mispredicts": 4320044,
+      "l1i_read_misses": 3370,
+      "stalled_cycles_frontend": 238598484,
+      "l1d_read_misses": 11254140,
+      "l1d_write_misses": 7665,
+      "dtlb_write_misses": 180602
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 1800190,
+    "time_ns": 649010215,
+    "metrics": {
+      "cache_misses": 6026607,
+      "cache_references": 9461916,
+      "dtlb_read_misses": 1762,
+      "branches": 30097348,
+      "branch_mispredicts": 4230445,
+      "l1i_read_misses": 2900,
+      "stalled_cycles_frontend": 235734698,
+      "l1d_read_misses": 11786940,
+      "l1d_write_misses": 8904,
+      "dtlb_write_misses": 1
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 2160228,
+    "time_ns": 1006472210,
+    "metrics": {
+      "cache_misses": 9318190,
+      "cache_references": 13294526,
+      "dtlb_read_misses": 3950183,
+      "branches": 37868525,
+      "branch_mispredicts": 5048251,
+      "l1i_read_misses": 4538,
+      "stalled_cycles_frontend": 356811810,
+      "l1d_read_misses": 15301862,
+      "l1d_write_misses": 24812,
+      "dtlb_write_misses": 299
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 2160228,
+    "time_ns": 1002909141,
+    "metrics": {
+      "cache_misses": 8975219,
+      "cache_references": 13199709,
+      "dtlb_read_misses": 3899594,
+      "branches": 37101204,
+      "branch_mispredicts": 5502611,
+      "l1i_read_misses": 7397,
+      "stalled_cycles_frontend": 371814438,
+      "l1d_read_misses": 15505528,
+      "l1d_write_misses": 27971,
+      "dtlb_write_misses": 227917
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 2160228,
+    "time_ns": 851110599,
+    "metrics": {
+      "cache_misses": 6915116,
+      "cache_references": 11710659,
+      "dtlb_read_misses": 3907141,
+      "branches": 35158557,
+      "branch_mispredicts": 4941033,
+      "l1i_read_misses": 4967,
+      "stalled_cycles_frontend": 311191036,
+      "l1d_read_misses": 14352546,
+      "l1d_write_misses": 15908,
+      "dtlb_write_misses": 15
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 2592274,
+    "time_ns": 1050557260,
+    "metrics": {
+      "cache_misses": 8893475,
+      "cache_references": 14800309,
+      "dtlb_read_misses": 3909811,
+      "branches": 45186918,
+      "branch_mispredicts": 5987824,
+      "l1i_read_misses": 1080,
+      "stalled_cycles_frontend": 376647311,
+      "l1d_read_misses": 17185037,
+      "l1d_write_misses": 18112,
+      "dtlb_write_misses": 208
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 2592274,
+    "time_ns": 1057574176,
+    "metrics": {
+      "cache_misses": 8835486,
+      "cache_references": 14825088,
+      "dtlb_read_misses": 3855239,
+      "branches": 45247486,
+      "branch_mispredicts": 6614437,
+      "l1i_read_misses": 4222,
+      "stalled_cycles_frontend": 396743441,
+      "l1d_read_misses": 17054538,
+      "l1d_write_misses": 36091,
+      "dtlb_write_misses": 235839
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 2592274,
+    "time_ns": 1019689383,
+    "metrics": {
+      "cache_misses": 8548152,
+      "cache_references": 14460363,
+      "dtlb_read_misses": 3977783,
+      "branches": 43382853,
+      "branch_mispredicts": 6073941,
+      "l1i_read_misses": 800,
+      "stalled_cycles_frontend": 382087813,
+      "l1d_read_misses": 17481649,
+      "l1d_write_misses": 16035,
+      "dtlb_write_misses": 12
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 3110729,
+    "time_ns": 1248517511,
+    "metrics": {
+      "cache_misses": 10951848,
+      "cache_references": 18085857,
+      "dtlb_read_misses": 3904497,
+      "branches": 55556832,
+      "branch_mispredicts": 7472824,
+      "l1i_read_misses": 1171,
+      "stalled_cycles_frontend": 472218346,
+      "l1d_read_misses": 21762521,
+      "l1d_write_misses": 15129,
+      "dtlb_write_misses": 163
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 3110729,
+    "time_ns": 1279053063,
+    "metrics": {
+      "cache_misses": 10743845,
+      "cache_references": 17648415,
+      "dtlb_read_misses": 3943391,
+      "branches": 52741304,
+      "branch_mispredicts": 7835768,
+      "l1i_read_misses": 1057,
+      "stalled_cycles_frontend": 483468314,
+      "l1d_read_misses": 21516599,
+      "l1d_write_misses": 12770,
+      "dtlb_write_misses": 307705
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 3110729,
+    "time_ns": 1243189356,
+    "metrics": {
+      "cache_misses": 11099203,
+      "cache_references": 18189092,
+      "dtlb_read_misses": 3852301,
+      "branches": 52917925,
+      "branch_mispredicts": 7435651,
+      "l1i_read_misses": 2973,
+      "stalled_cycles_frontend": 467271448,
+      "l1d_read_misses": 21384612,
+      "l1d_write_misses": 11993,
+      "dtlb_write_misses": 4
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 3732875,
+    "time_ns": 1526135778,
+    "metrics": {
+      "cache_misses": 13483329,
+      "cache_references": 22369235,
+      "dtlb_read_misses": 3958644,
+      "branches": 64882366,
+      "branch_mispredicts": 8733229,
+      "l1i_read_misses": 1205,
+      "stalled_cycles_frontend": 551027540,
+      "l1d_read_misses": 26038641,
+      "l1d_write_misses": 17367,
+      "dtlb_write_misses": 360
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 3732875,
+    "time_ns": 1550976278,
+    "metrics": {
+      "cache_misses": 13768620,
+      "cache_references": 22432841,
+      "dtlb_read_misses": 3984695,
+      "branches": 65559467,
+      "branch_mispredicts": 9746083,
+      "l1i_read_misses": 5154,
+      "stalled_cycles_frontend": 596563034,
+      "l1d_read_misses": 26848455,
+      "l1d_write_misses": 17265,
+      "dtlb_write_misses": 383802
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 3732875,
+    "time_ns": 1505813123,
+    "metrics": {
+      "cache_misses": 13549967,
+      "cache_references": 22097088,
+      "dtlb_read_misses": 4011923,
+      "branches": 62938244,
+      "branch_mispredicts": 8849142,
+      "l1i_read_misses": 6013,
+      "stalled_cycles_frontend": 559479298,
+      "l1d_read_misses": 26371277,
+      "l1d_write_misses": 18425,
+      "dtlb_write_misses": 31
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 4479450,
+    "time_ns": 2114098994,
+    "metrics": {
+      "cache_misses": 19189390,
+      "cache_references": 29130966,
+      "dtlb_read_misses": 9745062,
+      "branches": 79707905,
+      "branch_mispredicts": 10814973,
+      "l1i_read_misses": 2478,
+      "stalled_cycles_frontend": 779547783,
+      "l1d_read_misses": 34390088,
+      "l1d_write_misses": 26836,
+      "dtlb_write_misses": 423
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 4479450,
+    "time_ns": 2142796347,
+    "metrics": {
+      "cache_misses": 19207867,
+      "cache_references": 29588562,
+      "dtlb_read_misses": 9628882,
+      "branches": 78478922,
+      "branch_mispredicts": 11677381,
+      "l1i_read_misses": 10488,
+      "stalled_cycles_frontend": 804409230,
+      "l1d_read_misses": 33877178,
+      "l1d_write_misses": 76219,
+      "dtlb_write_misses": 472622
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 4479450,
+    "time_ns": 2073562880,
+    "metrics": {
+      "cache_misses": 19236331,
+      "cache_references": 29524347,
+      "dtlb_read_misses": 9604108,
+      "branches": 76675420,
+      "branch_mispredicts": 10741123,
+      "l1i_read_misses": 4375,
+      "stalled_cycles_frontend": 767625510,
+      "l1d_read_misses": 33860210,
+      "l1d_write_misses": 21342,
+      "dtlb_write_misses": 21
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 5375340,
+    "time_ns": 2462963370,
+    "metrics": {
+      "cache_misses": 22947324,
+      "cache_references": 35004081,
+      "dtlb_read_misses": 9612711,
+      "branches": 97486062,
+      "branch_mispredicts": 13194839,
+      "l1i_read_misses": 2363,
+      "stalled_cycles_frontend": 933575634,
+      "l1d_read_misses": 41439640,
+      "l1d_write_misses": 32347,
+      "dtlb_write_misses": 603
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 5375340,
+    "time_ns": 2504998502,
+    "metrics": {
+      "cache_misses": 23216309,
+      "cache_references": 35372170,
+      "dtlb_read_misses": 9491898,
+      "branches": 95771819,
+      "branch_mispredicts": 14291159,
+      "l1i_read_misses": 7627,
+      "stalled_cycles_frontend": 973516721,
+      "l1d_read_misses": 41540493,
+      "l1d_write_misses": 31753,
+      "dtlb_write_misses": 573679
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 5375340,
+    "time_ns": 2444681748,
+    "metrics": {
+      "cache_misses": 23190110,
+      "cache_references": 35551615,
+      "dtlb_read_misses": 9486215,
+      "branches": 94091967,
+      "branch_mispredicts": 13255956,
+      "l1i_read_misses": 4574,
+      "stalled_cycles_frontend": 933629648,
+      "l1d_read_misses": 41412330,
+      "l1d_write_misses": 30355,
+      "dtlb_write_misses": 35
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 6450408,
+    "time_ns": 2982915999,
+    "metrics": {
+      "cache_misses": 29630592,
+      "cache_references": 44382511,
+      "dtlb_read_misses": 9853611,
+      "branches": 119240340,
+      "branch_mispredicts": 16059782,
+      "l1i_read_misses": 2822,
+      "stalled_cycles_frontend": 1136546279,
+      "l1d_read_misses": 51182276,
+      "l1d_write_misses": 35057,
+      "dtlb_write_misses": 622
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 6450408,
+    "time_ns": 3077956443,
+    "metrics": {
+      "cache_misses": 28985229,
+      "cache_references": 43356444,
+      "dtlb_read_misses": 9980122,
+      "branches": 114417165,
+      "branch_mispredicts": 17081567,
+      "l1i_read_misses": 7037,
+      "stalled_cycles_frontend": 1158592621,
+      "l1d_read_misses": 51238075,
+      "l1d_write_misses": 30945,
+      "dtlb_write_misses": 729274
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 6450408,
+    "time_ns": 2940417503,
+    "metrics": {
+      "cache_misses": 28982358,
+      "cache_references": 43592043,
+      "dtlb_read_misses": 9952246,
+      "branches": 113281777,
+      "branch_mispredicts": 16009615,
+      "l1i_read_misses": 8002,
+      "stalled_cycles_frontend": 1124063472,
+      "l1d_read_misses": 51231671,
+      "l1d_write_misses": 30146,
+      "dtlb_write_misses": 18
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 7740489,
+    "time_ns": 3594842990,
+    "metrics": {
+      "cache_misses": 36908756,
+      "cache_references": 55076089,
+      "dtlb_read_misses": 10202042,
+      "branches": 142887334,
+      "branch_mispredicts": 19392742,
+      "l1i_read_misses": 3503,
+      "stalled_cycles_frontend": 1381385487,
+      "l1d_read_misses": 63953166,
+      "l1d_write_misses": 35051,
+      "dtlb_write_misses": 214
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 7740489,
+    "time_ns": 3650436246,
+    "metrics": {
+      "cache_misses": 36567165,
+      "cache_references": 54634570,
+      "dtlb_read_misses": 10182398,
+      "branches": 140024444,
+      "branch_mispredicts": 20888042,
+      "l1i_read_misses": 3132,
+      "stalled_cycles_frontend": 1422850276,
+      "l1d_read_misses": 63879971,
+      "l1d_write_misses": 34855,
+      "dtlb_write_misses": 915913
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 7740489,
+    "time_ns": 3514239890,
+    "metrics": {
+      "cache_misses": 36031836,
+      "cache_references": 54686788,
+      "dtlb_read_misses": 10025103,
+      "branches": 135984173,
+      "branch_mispredicts": 19148948,
+      "l1i_read_misses": 2370,
+      "stalled_cycles_frontend": 1334826312,
+      "l1d_read_misses": 62607891,
+      "l1d_write_misses": 41945,
+      "dtlb_write_misses": 1
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 9288587,
+    "time_ns": 4839325964,
+    "metrics": {
+      "cache_misses": 47711174,
+      "cache_references": 70079402,
+      "dtlb_read_misses": 22638885,
+      "branches": 172770777,
+      "branch_mispredicts": 23477906,
+      "l1i_read_misses": 3120,
+      "stalled_cycles_frontend": 1850752880,
+      "l1d_read_misses": 80634822,
+      "l1d_write_misses": 47084,
+      "dtlb_write_misses": 1408
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 9288587,
+    "time_ns": 4842653623,
+    "metrics": {
+      "cache_misses": 46812055,
+      "cache_references": 69538192,
+      "dtlb_read_misses": 22502368,
+      "branches": 169640893,
+      "branch_mispredicts": 25395862,
+      "l1i_read_misses": 4088,
+      "stalled_cycles_frontend": 1895391292,
+      "l1d_read_misses": 80506008,
+      "l1d_write_misses": 50587,
+      "dtlb_write_misses": 1087769
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 9288587,
+    "time_ns": 4730189847,
+    "metrics": {
+      "cache_misses": 46663441,
+      "cache_references": 69294562,
+      "dtlb_read_misses": 22465379,
+      "branches": 165707367,
+      "branch_mispredicts": 23532951,
+      "l1i_read_misses": 11000,
+      "stalled_cycles_frontend": 1831706429,
+      "l1d_read_misses": 80649627,
+      "l1d_write_misses": 47370,
+      "dtlb_write_misses": 52
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 11146304,
+    "time_ns": 5697104383,
+    "metrics": {
+      "cache_misses": 57888976,
+      "cache_references": 85180187,
+      "dtlb_read_misses": 22945860,
+      "branches": 209793504,
+      "branch_mispredicts": 28575980,
+      "l1i_read_misses": 3803,
+      "stalled_cycles_frontend": 2220334172,
+      "l1d_read_misses": 98839585,
+      "l1d_write_misses": 60889,
+      "dtlb_write_misses": 2464
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 11146304,
+    "time_ns": 5796412269,
+    "metrics": {
+      "cache_misses": 58166110,
+      "cache_references": 85643204,
+      "dtlb_read_misses": 22978514,
+      "branches": 205198728,
+      "branch_mispredicts": 30588842,
+      "l1i_read_misses": 15440,
+      "stalled_cycles_frontend": 2279085071,
+      "l1d_read_misses": 98358219,
+      "l1d_write_misses": 59347,
+      "dtlb_write_misses": 1350324
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 11146304,
+    "time_ns": 5661314476,
+    "metrics": {
+      "cache_misses": 57640373,
+      "cache_references": 84782685,
+      "dtlb_read_misses": 22983402,
+      "branches": 200227315,
+      "branch_mispredicts": 28373705,
+      "l1i_read_misses": 11937,
+      "stalled_cycles_frontend": 2199583903,
+      "l1d_read_misses": 98375792,
+      "l1d_write_misses": 64080,
+      "dtlb_write_misses": 154
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 13375565,
+    "time_ns": 6892188365,
+    "metrics": {
+      "cache_misses": 73349211,
+      "cache_references": 106702234,
+      "dtlb_read_misses": 24136768,
+      "branches": 253694613,
+      "branch_mispredicts": 34672959,
+      "l1i_read_misses": 5436,
+      "stalled_cycles_frontend": 2708289408,
+      "l1d_read_misses": 123237218,
+      "l1d_write_misses": 66738,
+      "dtlb_write_misses": 1877
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 13375565,
+    "time_ns": 7103818386,
+    "metrics": {
+      "cache_misses": 74193395,
+      "cache_references": 106863263,
+      "dtlb_read_misses": 24516259,
+      "branches": 247113116,
+      "branch_mispredicts": 36973186,
+      "l1i_read_misses": 21336,
+      "stalled_cycles_frontend": 2801298070,
+      "l1d_read_misses": 123365995,
+      "l1d_write_misses": 75893,
+      "dtlb_write_misses": 1658049
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 13375565,
+    "time_ns": 8194805095,
+    "metrics": {
+      "cache_misses": 89449977,
+      "cache_references": 115145941,
+      "dtlb_read_misses": 27972648,
+      "branches": 241677727,
+      "branch_mispredicts": 34432919,
+      "l1i_read_misses": 45570,
+      "stalled_cycles_frontend": 3183284565,
+      "l1d_read_misses": 132400018,
+      "l1d_write_misses": 599763,
+      "dtlb_write_misses": 176
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 16050678,
+    "time_ns": 9824102938,
+    "metrics": {
+      "cache_misses": 111225453,
+      "cache_references": 143359953,
+      "dtlb_read_misses": 31312817,
+      "branches": 305151291,
+      "branch_mispredicts": 41745460,
+      "l1i_read_misses": 43087,
+      "stalled_cycles_frontend": 3766711890,
+      "l1d_read_misses": 163527781,
+      "l1d_write_misses": 626886,
+      "dtlb_write_misses": 2909
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 16050678,
+    "time_ns": 9982865350,
+    "metrics": {
+      "cache_misses": 111459558,
+      "cache_references": 144346003,
+      "dtlb_read_misses": 31570625,
+      "branches": 299885986,
+      "branch_mispredicts": 44937387,
+      "l1i_read_misses": 64678,
+      "stalled_cycles_frontend": 3869320402,
+      "l1d_read_misses": 164439235,
+      "l1d_write_misses": 495382,
+      "dtlb_write_misses": 2217037
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 16050678,
+    "time_ns": 9789760736,
+    "metrics": {
+      "cache_misses": 110527395,
+      "cache_references": 143758468,
+      "dtlb_read_misses": 31609079,
+      "branches": 292048072,
+      "branch_mispredicts": 41581243,
+      "l1i_read_misses": 65831,
+      "stalled_cycles_frontend": 3788687391,
+      "l1d_read_misses": 163293870,
+      "l1d_write_misses": 585036,
+      "dtlb_write_misses": 175
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 19260814,
+    "time_ns": 12067133348,
+    "metrics": {
+      "cache_misses": 127127892,
+      "cache_references": 174512767,
+      "dtlb_read_misses": 57266110,
+      "branches": 371522309,
+      "branch_mispredicts": 50972967,
+      "l1i_read_misses": 15194,
+      "stalled_cycles_frontend": 4872882041,
+      "l1d_read_misses": 199028003,
+      "l1d_write_misses": 219903,
+      "dtlb_write_misses": 13989
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 19260814,
+    "time_ns": 12056048588,
+    "metrics": {
+      "cache_misses": 125936752,
+      "cache_references": 173563976,
+      "dtlb_read_misses": 56774170,
+      "branches": 363291382,
+      "branch_mispredicts": 54616933,
+      "l1i_read_misses": 29894,
+      "stalled_cycles_frontend": 4918344913,
+      "l1d_read_misses": 198734332,
+      "l1d_write_misses": 133478,
+      "dtlb_write_misses": 2548966
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 19260814,
+    "time_ns": 11928835974,
+    "metrics": {
+      "cache_misses": 127001402,
+      "cache_references": 174568309,
+      "dtlb_read_misses": 57047287,
+      "branches": 356128331,
+      "branch_mispredicts": 50677819,
+      "l1i_read_misses": 32599,
+      "stalled_cycles_frontend": 4800420310,
+      "l1d_read_misses": 198115006,
+      "l1d_write_misses": 170565,
+      "dtlb_write_misses": 805
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 23112977,
+    "time_ns": 14402283077,
+    "metrics": {
+      "cache_misses": 155703151,
+      "cache_references": 213607646,
+      "dtlb_read_misses": 60755456,
+      "branches": 449611202,
+      "branch_mispredicts": 61757610,
+      "l1i_read_misses": 20656,
+      "stalled_cycles_frontend": 5828535558,
+      "l1d_read_misses": 243081529,
+      "l1d_write_misses": 340332,
+      "dtlb_write_misses": 5242
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 23112977,
+    "time_ns": 16399501702,
+    "metrics": {
+      "cache_misses": 174441088,
+      "cache_references": 224114732,
+      "dtlb_read_misses": 67687612,
+      "branches": 439772425,
+      "branch_mispredicts": 65982209,
+      "l1i_read_misses": 85034,
+      "stalled_cycles_frontend": 6698334514,
+      "l1d_read_misses": 253570155,
+      "l1d_write_misses": 721817,
+      "dtlb_write_misses": 3250019
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 23112977,
+    "time_ns": 17476987602,
+    "metrics": {
+      "cache_misses": 154021058,
+      "cache_references": 215963111,
+      "dtlb_read_misses": 69089162,
+      "branches": 430564230,
+      "branch_mispredicts": 61579897,
+      "l1i_read_misses": 1168481,
+      "stalled_cycles_frontend": 9108150853,
+      "l1d_read_misses": 244034344,
+      "l1d_write_misses": 30787813,
+      "dtlb_write_misses": 2756
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 27735572,
+    "time_ns": 18426309288,
+    "metrics": {
+      "cache_misses": 206856568,
+      "cache_references": 272040769,
+      "dtlb_read_misses": 72145798,
+      "branches": 542637611,
+      "branch_mispredicts": 74655981,
+      "l1i_read_misses": 41453,
+      "stalled_cycles_frontend": 7395160446,
+      "l1d_read_misses": 307060733,
+      "l1d_write_misses": 472821,
+      "dtlb_write_misses": 21061
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 27735572,
+    "time_ns": 19943672578,
+    "metrics": {
+      "cache_misses": 218221161,
+      "cache_references": 276693270,
+      "dtlb_read_misses": 75856383,
+      "branches": 531585117,
+      "branch_mispredicts": 79804281,
+      "l1i_read_misses": 92611,
+      "stalled_cycles_frontend": 7979689878,
+      "l1d_read_misses": 312541697,
+      "l1d_write_misses": 1098058,
+      "dtlb_write_misses": 3980927
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 27735572,
+    "time_ns": 18951625471,
+    "metrics": {
+      "cache_misses": 209866257,
+      "cache_references": 273976938,
+      "dtlb_read_misses": 73739758,
+      "branches": 520585901,
+      "branch_mispredicts": 74292717,
+      "l1i_read_misses": 105990,
+      "stalled_cycles_frontend": 7641921864,
+      "l1d_read_misses": 308369874,
+      "l1d_write_misses": 1302078,
+      "dtlb_write_misses": 1237
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 33282687,
+    "time_ns": 20867975057,
+    "metrics": {
+      "cache_misses": 240121370,
+      "cache_references": 328208882,
+      "dtlb_read_misses": 83271417,
+      "branches": 652612741,
+      "branch_mispredicts": 90149606,
+      "l1i_read_misses": 15662,
+      "stalled_cycles_frontend": 8468966338,
+      "l1d_read_misses": 372123737,
+      "l1d_write_misses": 225441,
+      "dtlb_write_misses": 40089
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 33282687,
+    "time_ns": 20929710536,
+    "metrics": {
+      "cache_misses": 236859579,
+      "cache_references": 327256907,
+      "dtlb_read_misses": 82956952,
+      "branches": 639384536,
+      "branch_mispredicts": 96464599,
+      "l1i_read_misses": 45084,
+      "stalled_cycles_frontend": 8636734006,
+      "l1d_read_misses": 370745130,
+      "l1d_write_misses": 255170,
+      "dtlb_write_misses": 4771834
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 33282687,
+    "time_ns": 21860359127,
+    "metrics": {
+      "cache_misses": 252235021,
+      "cache_references": 334662287,
+      "dtlb_read_misses": 86953842,
+      "branches": 624894207,
+      "branch_mispredicts": 89896075,
+      "l1i_read_misses": 81822,
+      "stalled_cycles_frontend": 8906368111,
+      "l1d_read_misses": 379874801,
+      "l1d_write_misses": 334452,
+      "dtlb_write_misses": 2440
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 39939224,
+    "time_ns": 28714020005,
+    "metrics": {
+      "cache_misses": 305814118,
+      "cache_references": 409154984,
+      "dtlb_read_misses": 141011200,
+      "branches": 793505676,
+      "branch_mispredicts": 109679730,
+      "l1i_read_misses": 19486,
+      "stalled_cycles_frontend": 12159982864,
+      "l1d_read_misses": 462923671,
+      "l1d_write_misses": 315871,
+      "dtlb_write_misses": 4868
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 39939224,
+    "time_ns": 33961801666,
+    "metrics": {
+      "cache_misses": 343519825,
+      "cache_references": 427851496,
+      "dtlb_read_misses": 160267648,
+      "branches": 779273823,
+      "branch_mispredicts": 117541666,
+      "l1i_read_misses": 367079,
+      "stalled_cycles_frontend": 14439281674,
+      "l1d_read_misses": 483089748,
+      "l1d_write_misses": 4399113,
+      "dtlb_write_misses": 5619154
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 39939224,
+    "time_ns": 30908625091,
+    "metrics": {
+      "cache_misses": 324297643,
+      "cache_references": 417495952,
+      "dtlb_read_misses": 150013204,
+      "branches": 761784422,
+      "branch_mispredicts": 109444412,
+      "l1i_read_misses": 95694,
+      "stalled_cycles_frontend": 12899189082,
+      "l1d_read_misses": 472885925,
+      "l1d_write_misses": 460458,
+      "dtlb_write_misses": 405
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 47927069,
+    "time_ns": 33964357892,
+    "metrics": {
+      "cache_misses": 374730467,
+      "cache_references": 501825211,
+      "dtlb_read_misses": 155810290,
+      "branches": 962049157,
+      "branch_mispredicts": 132988349,
+      "l1i_read_misses": 21455,
+      "stalled_cycles_frontend": 14392390480,
+      "l1d_read_misses": 565090037,
+      "l1d_write_misses": 381930,
+      "dtlb_write_misses": 21851
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 47927069,
+    "time_ns": 34125358874,
+    "metrics": {
+      "cache_misses": 373730948,
+      "cache_references": 501303570,
+      "dtlb_read_misses": 156183055,
+      "branches": 940712894,
+      "branch_mispredicts": 141666816,
+      "l1i_read_misses": 86594,
+      "stalled_cycles_frontend": 14523563080,
+      "l1d_read_misses": 564545127,
+      "l1d_write_misses": 343514,
+      "dtlb_write_misses": 6854371
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 47927069,
+    "time_ns": 33436015778,
+    "metrics": {
+      "cache_misses": 372742328,
+      "cache_references": 499858477,
+      "dtlb_read_misses": 155745463,
+      "branches": 923131613,
+      "branch_mispredicts": 132428700,
+      "l1i_read_misses": 75554,
+      "stalled_cycles_frontend": 14122964232,
+      "l1d_read_misses": 563566241,
+      "l1d_write_misses": 444524,
+      "dtlb_write_misses": 1445
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 57512482,
+    "time_ns": 39995818445,
+    "metrics": {
+      "cache_misses": 459865210,
+      "cache_references": 615016029,
+      "dtlb_read_misses": 177299613,
+      "branches": 1160416809,
+      "branch_mispredicts": 160541743,
+      "l1i_read_misses": 23389,
+      "stalled_cycles_frontend": 16779769648,
+      "l1d_read_misses": 689372730,
+      "l1d_write_misses": 439263,
+      "dtlb_write_misses": 46312
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 57512482,
+    "time_ns": 40463035974,
+    "metrics": {
+      "cache_misses": 460249883,
+      "cache_references": 615920719,
+      "dtlb_read_misses": 177797384,
+      "branches": 1137469939,
+      "branch_mispredicts": 171396451,
+      "l1i_read_misses": 113246,
+      "stalled_cycles_frontend": 17125280348,
+      "l1d_read_misses": 690280862,
+      "l1d_write_misses": 443459,
+      "dtlb_write_misses": 8587360
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 57512482,
+    "time_ns": 39780141217,
+    "metrics": {
+      "cache_misses": 459680430,
+      "cache_references": 614945154,
+      "dtlb_read_misses": 177249706,
+      "branches": 1114246074,
+      "branch_mispredicts": 160064685,
+      "l1i_read_misses": 77440,
+      "stalled_cycles_frontend": 16710664600,
+      "l1d_read_misses": 689755725,
+      "l1d_write_misses": 380575,
+      "dtlb_write_misses": 2379
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 69014979,
+    "time_ns": 63718093182,
+    "metrics": {
+      "cache_misses": 628487707,
+      "cache_references": 790090792,
+      "dtlb_read_misses": 366013656,
+      "branches": 1398141397,
+      "branch_mispredicts": 194718340,
+      "l1i_read_misses": 153684,
+      "stalled_cycles_frontend": 27308674760,
+      "l1d_read_misses": 904821235,
+      "l1d_write_misses": 2158449,
+      "dtlb_write_misses": 97857
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 69014979,
+    "time_ns": 59310564686,
+    "metrics": {
+      "cache_misses": 596647499,
+      "cache_references": 780011052,
+      "dtlb_read_misses": 344555359,
+      "branches": 1371140376,
+      "branch_mispredicts": 207900987,
+      "l1i_read_misses": 142606,
+      "stalled_cycles_frontend": 26041918509,
+      "l1d_read_misses": 891290945,
+      "l1d_write_misses": 708196,
+      "dtlb_write_misses": 10739370
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 69014979,
+    "time_ns": 58185037451,
+    "metrics": {
+      "cache_misses": 593044847,
+      "cache_references": 776512358,
+      "dtlb_read_misses": 342819715,
+      "branches": 1343204386,
+      "branch_mispredicts": 194156240,
+      "l1i_read_misses": 29817,
+      "stalled_cycles_frontend": 25433034352,
+      "l1d_read_misses": 888885970,
+      "l1d_write_misses": 617958,
+      "dtlb_write_misses": 5019
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 82817975,
+    "time_ns": 74646650209,
+    "metrics": {
+      "cache_misses": 777189465,
+      "cache_references": 969137455,
+      "dtlb_read_misses": 381482634,
+      "branches": 1699499884,
+      "branch_mispredicts": 236530489,
+      "l1i_read_misses": 120944,
+      "stalled_cycles_frontend": 31754210835,
+      "l1d_read_misses": 1087657015,
+      "l1d_write_misses": 1548470,
+      "dtlb_write_misses": 191491
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 82817975,
+    "time_ns": 68826435695,
+    "metrics": {
+      "cache_misses": 727986322,
+      "cache_references": 950579270,
+      "dtlb_read_misses": 357295545,
+      "branches": 1665773396,
+      "branch_mispredicts": 251951899,
+      "l1i_read_misses": 156749,
+      "stalled_cycles_frontend": 30290523532,
+      "l1d_read_misses": 1065659372,
+      "l1d_write_misses": 750451,
+      "dtlb_write_misses": 12290794
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 82817975,
+    "time_ns": 74300489941,
+    "metrics": {
+      "cache_misses": 776602525,
+      "cache_references": 970139111,
+      "dtlb_read_misses": 379981263,
+      "branches": 1633655392,
+      "branch_mispredicts": 235579402,
+      "l1i_read_misses": 255906,
+      "stalled_cycles_frontend": 31655363247,
+      "l1d_read_misses": 1087741064,
+      "l1d_write_misses": 1181254,
+      "dtlb_write_misses": 10993
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 99381569,
+    "time_ns": 91851810003,
+    "metrics": {
+      "cache_misses": 907714823,
+      "cache_references": 1175016582,
+      "dtlb_read_misses": 547139244,
+      "branches": 2054319046,
+      "branch_mispredicts": 286309724,
+      "l1i_read_misses": 61394,
+      "stalled_cycles_frontend": 40915631187,
+      "l1d_read_misses": 1339420785,
+      "l1d_write_misses": 958637,
+      "dtlb_write_misses": 121752
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 99381569,
+    "time_ns": 92744878041,
+    "metrics": {
+      "cache_misses": 909646571,
+      "cache_references": 1174043953,
+      "dtlb_read_misses": 548383844,
+      "branches": 2013970355,
+      "branch_mispredicts": 304859997,
+      "l1i_read_misses": 230182,
+      "stalled_cycles_frontend": 41468748009,
+      "l1d_read_misses": 1339308076,
+      "l1d_write_misses": 1333736,
+      "dtlb_write_misses": 15485850
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 99381569,
+    "time_ns": 103828589114,
+    "metrics": {
+      "cache_misses": 912109469,
+      "cache_references": 1171981467,
+      "dtlb_read_misses": 583163792,
+      "branches": 1975823569,
+      "branch_mispredicts": 285255509,
+      "l1i_read_misses": 2991566,
+      "stalled_cycles_frontend": 49755059153,
+      "l1d_read_misses": 1330697941,
+      "l1d_write_misses": 66237038,
+      "dtlb_write_misses": 8525
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 100,
+    "implementation": "dict_array",
+    "size": 119257883,
+    "time_ns": 119906470332,
+    "metrics": {
+      "cache_misses": 1143997510,
+      "cache_references": 1454240436,
+      "dtlb_read_misses": 714779054,
+      "branches": 2475499194,
+      "branch_mispredicts": 345360110,
+      "l1i_read_misses": 237245,
+      "stalled_cycles_frontend": 53773655275,
+      "l1d_read_misses": 1654109683,
+      "l1d_write_misses": 4346748,
+      "dtlb_write_misses": 201027
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 50,
+    "implementation": "dict_array",
+    "size": 119257883,
+    "time_ns": 118411969783,
+    "metrics": {
+      "cache_misses": 1134098379,
+      "cache_references": 1449040625,
+      "dtlb_read_misses": 706478708,
+      "branches": 2430813265,
+      "branch_mispredicts": 368188628,
+      "l1i_read_misses": 321296,
+      "stalled_cycles_frontend": 53158765647,
+      "l1d_read_misses": 1647486109,
+      "l1d_write_misses": 2004398,
+      "dtlb_write_misses": 19023018
+    }
+  },
+  {
+    "experiment": "serial-findonly",
+    "success_percentage": 0,
+    "implementation": "dict_array",
+    "size": 119257883,
+    "time_ns": 124095434563,
+    "metrics": {
+      "cache_misses": 1169051448,
+      "cache_references": 1458620073,
+      "dtlb_read_misses": 721702235,
+      "branches": 2383208442,
+      "branch_mispredicts": 344501259,
+      "l1i_read_misses": 918657,
+      "stalled_cycles_frontend": 55230992250,
+      "l1d_read_misses": 1659020481,
+      "l1d_write_misses": 13148721,
+      "dtlb_write_misses": 11393
+    }
+  }
+]

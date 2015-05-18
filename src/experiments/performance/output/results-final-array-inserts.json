@@ -1,0 +1,1316 @@
+[
+  {
+    "metrics": {
+      "cache_references": 111,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 50,
+      "branches": 429,
+      "branch_mispredicts": 52,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 34641,
+    "size": 1
+  },
+  {
+    "metrics": {
+      "cache_references": 100,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 0,
+      "branches": 278,
+      "branch_mispredicts": 35,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 26435,
+    "size": 1
+  },
+  {
+    "metrics": {
+      "cache_references": 96,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 0,
+      "branches": 278,
+      "branch_mispredicts": 22,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 26188,
+    "size": 1
+  },
+  {
+    "metrics": {
+      "cache_references": 292,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 40,
+      "branches": 593,
+      "branch_mispredicts": 60,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 36018,
+    "size": 2
+  },
+  {
+    "metrics": {
+      "cache_references": 128,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 2,
+      "branches": 348,
+      "branch_mispredicts": 59,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 26682,
+    "size": 2
+  },
+  {
+    "metrics": {
+      "cache_references": 132,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 0,
+      "branches": 336,
+      "branch_mispredicts": 36,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 26153,
+    "size": 2
+  },
+  {
+    "metrics": {
+      "cache_references": 130,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 2,
+      "branches": 463,
+      "branch_mispredicts": 56,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 27247,
+    "size": 3
+  },
+  {
+    "metrics": {
+      "cache_references": 141,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 2,
+      "branches": 422,
+      "branch_mispredicts": 45,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 26520,
+    "size": 4
+  },
+  {
+    "metrics": {
+      "cache_references": 135,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 1,
+      "branches": 422,
+      "branch_mispredicts": 30,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 26316,
+    "size": 4
+  },
+  {
+    "metrics": {
+      "cache_references": 138,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 2,
+      "branches": 555,
+      "branch_mispredicts": 60,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 27295,
+    "size": 5
+  },
+  {
+    "metrics": {
+      "cache_references": 139,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 1,
+      "branches": 583,
+      "branch_mispredicts": 60,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 27585,
+    "size": 6
+  },
+  {
+    "metrics": {
+      "cache_references": 129,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 0,
+      "branches": 550,
+      "branch_mispredicts": 41,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 26351,
+    "size": 7
+  },
+  {
+    "metrics": {
+      "cache_references": 122,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 2,
+      "branches": 646,
+      "branch_mispredicts": 42,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 26844,
+    "size": 9
+  },
+  {
+    "metrics": {
+      "cache_references": 129,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 1,
+      "branches": 714,
+      "branch_mispredicts": 43,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 26879,
+    "size": 11
+  },
+  {
+    "metrics": {
+      "cache_references": 124,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 5,
+      "branches": 781,
+      "branch_mispredicts": 52,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 27162,
+    "size": 13
+  },
+  {
+    "metrics": {
+      "cache_references": 137,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 1,
+      "branches": 857,
+      "branch_mispredicts": 51,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 25718,
+    "size": 15
+  },
+  {
+    "metrics": {
+      "cache_references": 147,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 1,
+      "branches": 1002,
+      "branch_mispredicts": 59,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 25750,
+    "size": 18
+  },
+  {
+    "metrics": {
+      "cache_references": 146,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 3,
+      "branches": 1239,
+      "branch_mispredicts": 99,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 27011,
+    "size": 22
+  },
+  {
+    "metrics": {
+      "cache_references": 161,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 4,
+      "branches": 1396,
+      "branch_mispredicts": 119,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 27392,
+    "size": 27
+  },
+  {
+    "metrics": {
+      "cache_references": 153,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 2,
+      "branches": 1561,
+      "branch_mispredicts": 104,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 27410,
+    "size": 32
+  },
+  {
+    "metrics": {
+      "cache_references": 101,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 2,
+      "branches": 1852,
+      "branch_mispredicts": 130,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 39910,
+    "size": 38
+  },
+  {
+    "metrics": {
+      "cache_references": 154,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 0,
+      "branches": 2216,
+      "branch_mispredicts": 187,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 29630,
+    "size": 46
+  },
+  {
+    "metrics": {
+      "cache_references": 135,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 0,
+      "branches": 2615,
+      "branch_mispredicts": 201,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 30060,
+    "size": 55
+  },
+  {
+    "metrics": {
+      "cache_references": 158,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 1,
+      "branches": 3151,
+      "branch_mispredicts": 247,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 31329,
+    "size": 66
+  },
+  {
+    "metrics": {
+      "cache_references": 163,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 2,
+      "branches": 3786,
+      "branch_mispredicts": 346,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 33578,
+    "size": 79
+  },
+  {
+    "metrics": {
+      "cache_references": 169,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 10,
+      "branches": 4554,
+      "branch_mispredicts": 385,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 35663,
+    "size": 95
+  },
+  {
+    "metrics": {
+      "cache_references": 158,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 0,
+      "branches": 5546,
+      "branch_mispredicts": 450,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 37933,
+    "size": 114
+  },
+  {
+    "metrics": {
+      "cache_references": 177,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 17,
+      "branches": 6842,
+      "branch_mispredicts": 585,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 42145,
+    "size": 137
+  },
+  {
+    "metrics": {
+      "cache_references": 232,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 31,
+      "branches": 8797,
+      "branch_mispredicts": 826,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 49554,
+    "size": 165
+  },
+  {
+    "metrics": {
+      "cache_references": 162,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 2,
+      "branches": 10360,
+      "branch_mispredicts": 957,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 50375,
+    "size": 198
+  },
+  {
+    "metrics": {
+      "cache_references": 202,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 23,
+      "branches": 13236,
+      "branch_mispredicts": 1244,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 60119,
+    "size": 237
+  },
+  {
+    "metrics": {
+      "cache_references": 173,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 11,
+      "branches": 16010,
+      "branch_mispredicts": 1478,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 68560,
+    "size": 285
+  },
+  {
+    "metrics": {
+      "cache_references": 289,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 73,
+      "branches": 20423,
+      "branch_mispredicts": 1884,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 83522,
+    "size": 342
+  },
+  {
+    "metrics": {
+      "cache_references": 259,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 2,
+      "branches": 25547,
+      "branch_mispredicts": 2424,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 100613,
+    "size": 410
+  },
+  {
+    "metrics": {
+      "cache_references": 228,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 2,
+      "branches": 32146,
+      "branch_mispredicts": 2852,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 122322,
+    "size": 492
+  },
+  {
+    "metrics": {
+      "cache_references": 224,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 24,
+      "branches": 40326,
+      "branch_mispredicts": 3373,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 147144,
+    "size": 591
+  },
+  {
+    "metrics": {
+      "cache_references": 401,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 145,
+      "branches": 51684,
+      "branch_mispredicts": 4426,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 189501,
+    "size": 709
+  },
+  {
+    "metrics": {
+      "cache_references": 394,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 18,
+      "branches": 66203,
+      "branch_mispredicts": 5216,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 252319,
+    "size": 851
+  },
+  {
+    "metrics": {
+      "cache_references": 520,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 11,
+      "branches": 85036,
+      "branch_mispredicts": 6445,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 428243,
+    "size": 1021
+  },
+  {
+    "metrics": {
+      "cache_references": 391,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 141,
+      "branches": 109911,
+      "branch_mispredicts": 8018,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 396239,
+    "size": 1225
+  },
+  {
+    "metrics": {
+      "cache_references": 393,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 17,
+      "branches": 142849,
+      "branch_mispredicts": 9620,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 511645,
+    "size": 1470
+  },
+  {
+    "metrics": {
+      "cache_references": 407,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 22,
+      "branches": 186148,
+      "branch_mispredicts": 11605,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 666600,
+    "size": 1764
+  },
+  {
+    "metrics": {
+      "cache_references": 444,
+      "stalled_cycles_frontend": 0,
+      "cache_misses": 41,
+      "branches": 246521,
+      "branch_mispredicts": 14130,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 942288,
+    "size": 2116
+  },
+  {
+    "metrics": {
+      "cache_references": 286,
+      "stalled_cycles_frontend": 338060,
+      "cache_misses": 17,
+      "branches": 336089,
+      "branch_mispredicts": 17273,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 1303302,
+    "size": 2540
+  },
+  {
+    "metrics": {
+      "cache_references": 768,
+      "stalled_cycles_frontend": 485454,
+      "cache_misses": 9,
+      "branches": 454236,
+      "branch_mispredicts": 21139,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 1721987,
+    "size": 3048
+  },
+  {
+    "metrics": {
+      "cache_references": 1012,
+      "stalled_cycles_frontend": 1262049,
+      "cache_misses": 4,
+      "branches": 611889,
+      "branch_mispredicts": 25585,
+      "l1d_read_misses": 0,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 2463366,
+    "size": 3657
+  },
+  {
+    "metrics": {
+      "cache_references": 189,
+      "stalled_cycles_frontend": 3235710,
+      "cache_misses": 4,
+      "branches": 825858,
+      "branch_mispredicts": 31359,
+      "l1d_read_misses": 111369,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 3608608,
+    "size": 4389
+  },
+  {
+    "metrics": {
+      "cache_references": 1023,
+      "stalled_cycles_frontend": 4181324,
+      "cache_misses": 18,
+      "branches": 1102374,
+      "branch_mispredicts": 38295,
+      "l1d_read_misses": 250480,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 0,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 4916325,
+    "size": 5266
+  },
+  {
+    "metrics": {
+      "cache_references": 218,
+      "stalled_cycles_frontend": 8177138,
+      "cache_misses": 14,
+      "branches": 1318658,
+      "branch_mispredicts": 46512,
+      "l1d_read_misses": 1138509,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 349154,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 7443066,
+    "size": 6320
+  },
+  {
+    "metrics": {
+      "cache_references": 1201,
+      "stalled_cycles_frontend": 8222819,
+      "cache_misses": 145,
+      "branches": 1978663,
+      "branch_mispredicts": 57298,
+      "l1d_read_misses": 1218865,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 292133,
+      "l1i_read_misses": 0
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 9923009,
+    "size": 7584
+  },
+  {
+    "metrics": {
+      "cache_references": 206,
+      "stalled_cycles_frontend": 14700102,
+      "cache_misses": 33,
+      "branches": 1487801,
+      "branch_mispredicts": 56149,
+      "l1d_read_misses": 3490317,
+      "dtlb_write_misses": 0,
+      "dtlb_read_misses": 9,
+      "l1d_write_misses": 2502206,
+      "l1i_read_misses": 702
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 13975301,
+    "size": 9100
+  },
+  {
+    "metrics": {
+      "cache_references": 1106,
+      "stalled_cycles_frontend": 16059236,
+      "cache_misses": 434,
+      "branches": 1955656,
+      "branch_mispredicts": 63722,
+      "l1d_read_misses": 4383210,
+      "dtlb_write_misses": 4,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 4267518,
+      "l1i_read_misses": 116
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 19487735,
+    "size": 10921
+  },
+  {
+    "metrics": {
+      "cache_references": 180254,
+      "stalled_cycles_frontend": 17656555,
+      "cache_misses": 165,
+      "branches": 2436709,
+      "branch_mispredicts": 63277,
+      "l1d_read_misses": 4647208,
+      "dtlb_write_misses": 18,
+      "dtlb_read_misses": 3,
+      "l1d_write_misses": 4764352,
+      "l1i_read_misses": 84
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 27559003,
+    "size": 13105
+  },
+  {
+    "metrics": {
+      "cache_references": 426108,
+      "stalled_cycles_frontend": 29487618,
+      "cache_misses": 1058,
+      "branches": 4636544,
+      "branch_mispredicts": 81564,
+      "l1d_read_misses": 6444873,
+      "dtlb_write_misses": 18,
+      "dtlb_read_misses": 6,
+      "l1d_write_misses": 5669054,
+      "l1i_read_misses": 155
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 71809133,
+    "size": 15726
+  },
+  {
+    "metrics": {
+      "cache_references": 676113,
+      "stalled_cycles_frontend": 41908559,
+      "cache_misses": 2045,
+      "branches": 5839607,
+      "branch_mispredicts": 89722,
+      "l1d_read_misses": 10210024,
+      "dtlb_write_misses": 15,
+      "dtlb_read_misses": 1,
+      "l1d_write_misses": 9140427,
+      "l1i_read_misses": 186
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 72187400,
+    "size": 18871
+  },
+  {
+    "metrics": {
+      "cache_references": 1168435,
+      "stalled_cycles_frontend": 57524217,
+      "cache_misses": 4260,
+      "branches": 7378396,
+      "branch_mispredicts": 103660,
+      "l1d_read_misses": 15471665,
+      "dtlb_write_misses": 16,
+      "dtlb_read_misses": 5,
+      "l1d_write_misses": 15001726,
+      "l1i_read_misses": 274
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 77598782,
+    "size": 22645
+  },
+  {
+    "metrics": {
+      "cache_references": 2569462,
+      "stalled_cycles_frontend": 83732118,
+      "cache_misses": 1175,
+      "branches": 10725620,
+      "branch_mispredicts": 124657,
+      "l1d_read_misses": 21188817,
+      "dtlb_write_misses": 21,
+      "dtlb_read_misses": 0,
+      "l1d_write_misses": 19627506,
+      "l1i_read_misses": 286
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 103817773,
+    "size": 27174
+  },
+  {
+    "metrics": {
+      "cache_references": 6412701,
+      "stalled_cycles_frontend": 105852276,
+      "cache_misses": 4219,
+      "branches": 14943682,
+      "branch_mispredicts": 141723,
+      "l1d_read_misses": 27386283,
+      "dtlb_write_misses": 31,
+      "dtlb_read_misses": 15,
+      "l1d_write_misses": 27083519,
+      "l1i_read_misses": 400
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 150879193,
+    "size": 32609
+  },
+  {
+    "metrics": {
+      "cache_references": 11071952,
+      "stalled_cycles_frontend": 169622845,
+      "cache_misses": 15379,
+      "branches": 21280664,
+      "branch_mispredicts": 167642,
+      "l1d_read_misses": 41736633,
+      "dtlb_write_misses": 48,
+      "dtlb_read_misses": 14,
+      "l1d_write_misses": 40232274,
+      "l1i_read_misses": 851
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 222758481,
+    "size": 39130
+  },
+  {
+    "metrics": {
+      "cache_references": 21196910,
+      "stalled_cycles_frontend": 236618241,
+      "cache_misses": 18880,
+      "branches": 30302857,
+      "branch_mispredicts": 205644,
+      "l1d_read_misses": 58579039,
+      "dtlb_write_misses": 86,
+      "dtlb_read_misses": 49,
+      "l1d_write_misses": 58034883,
+      "l1i_read_misses": 938
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 324745335,
+    "size": 46956
+  },
+  {
+    "metrics": {
+      "cache_references": 34608031,
+      "stalled_cycles_frontend": 345873576,
+      "cache_misses": 98644,
+      "branches": 42538914,
+      "branch_mispredicts": 233103,
+      "l1d_read_misses": 84653200,
+      "dtlb_write_misses": 89,
+      "dtlb_read_misses": 170,
+      "l1d_write_misses": 83412991,
+      "l1i_read_misses": 1281
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 469008037,
+    "size": 56348
+  },
+  {
+    "metrics": {
+      "cache_references": 53794473,
+      "stalled_cycles_frontend": 513732208,
+      "cache_misses": 1199923,
+      "branches": 58171089,
+      "branch_mispredicts": 286429,
+      "l1d_read_misses": 113753066,
+      "dtlb_write_misses": 130,
+      "dtlb_read_misses": 8224,
+      "l1d_write_misses": 112641348,
+      "l1i_read_misses": 7368
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 685616278,
+    "size": 67617
+  },
+  {
+    "metrics": {
+      "cache_references": 89520706,
+      "stalled_cycles_frontend": 837715412,
+      "cache_misses": 4547301,
+      "branches": 83569762,
+      "branch_mispredicts": 345433,
+      "l1d_read_misses": 164334719,
+      "dtlb_write_misses": 219,
+      "dtlb_read_misses": 15976,
+      "l1d_write_misses": 161068612,
+      "l1i_read_misses": 14945
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 1070056710,
+    "size": 81140
+  },
+  {
+    "metrics": {
+      "cache_references": 147138348,
+      "stalled_cycles_frontend": 1243328878,
+      "cache_misses": 6196155,
+      "branches": 124019794,
+      "branch_mispredicts": 406828,
+      "l1d_read_misses": 243489869,
+      "dtlb_write_misses": 234,
+      "dtlb_read_misses": 7962,
+      "l1d_write_misses": 239517007,
+      "l1i_read_misses": 12158
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 1573057484,
+    "size": 97369
+  },
+  {
+    "metrics": {
+      "cache_references": 223622711,
+      "stalled_cycles_frontend": 1775548526,
+      "cache_misses": 7638720,
+      "branches": 173916586,
+      "branch_mispredicts": 479388,
+      "l1d_read_misses": 342270807,
+      "dtlb_write_misses": 249,
+      "dtlb_read_misses": 10629,
+      "l1d_write_misses": 338917371,
+      "l1i_read_misses": 4966
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 2227865420,
+    "size": 116842
+  },
+  {
+    "metrics": {
+      "cache_references": 339061854,
+      "stalled_cycles_frontend": 3277552783,
+      "cache_misses": 42154087,
+      "branches": 248101275,
+      "branch_mispredicts": 573880,
+      "l1d_read_misses": 492583067,
+      "dtlb_write_misses": 1203,
+      "dtlb_read_misses": 138853,
+      "l1d_write_misses": 485258277,
+      "l1i_read_misses": 38286
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 3944962237,
+    "size": 140211
+  },
+  {
+    "metrics": {
+      "cache_references": 518036828,
+      "stalled_cycles_frontend": 5220521725,
+      "cache_misses": 79779924,
+      "branches": 356406707,
+      "branch_mispredicts": 693088,
+      "l1d_read_misses": 702501473,
+      "dtlb_write_misses": 5950,
+      "dtlb_read_misses": 964220,
+      "l1d_write_misses": 689514607,
+      "l1i_read_misses": 64545
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 6155486608,
+    "size": 168253
+  },
+  {
+    "metrics": {
+      "cache_references": 793774040,
+      "stalled_cycles_frontend": 8123692024,
+      "cache_misses": 137755492,
+      "branches": 520049700,
+      "branch_mispredicts": 837670,
+      "l1d_read_misses": 1031410889,
+      "dtlb_write_misses": 18389,
+      "dtlb_read_misses": 3252108,
+      "l1d_write_misses": 1009354342,
+      "l1i_read_misses": 89304
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 9374549638,
+    "size": 201903
+  },
+  {
+    "metrics": {
+      "cache_references": 1206351475,
+      "stalled_cycles_frontend": 13016610463,
+      "cache_misses": 259019616,
+      "branches": 749698677,
+      "branch_mispredicts": 1014461,
+      "l1d_read_misses": 1496172601,
+      "dtlb_write_misses": 47442,
+      "dtlb_read_misses": 8554726,
+      "l1d_write_misses": 1465575885,
+      "l1i_read_misses": 110237
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 14694832900,
+    "size": 242284
+  },
+  {
+    "metrics": {
+      "cache_references": 1762374079,
+      "stalled_cycles_frontend": 19592939099,
+      "cache_misses": 415385609,
+      "branches": 1060201440,
+      "branch_mispredicts": 1232766,
+      "l1d_read_misses": 2108668289,
+      "dtlb_write_misses": 54993,
+      "dtlb_read_misses": 11218530,
+      "l1d_write_misses": 2071127860,
+      "l1i_read_misses": 147389
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 21761755003,
+    "size": 290741
+  },
+  {
+    "metrics": {
+      "cache_references": 2597110488,
+      "stalled_cycles_frontend": 32402073718,
+      "cache_misses": 648960944,
+      "branches": 1512001536,
+      "branch_mispredicts": 1511474,
+      "l1d_read_misses": 3007044464,
+      "dtlb_write_misses": 78948,
+      "dtlb_read_misses": 23338339,
+      "l1d_write_misses": 2892883489,
+      "l1i_read_misses": 650402
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 34485869414,
+    "size": 348889
+  },
+  {
+    "metrics": {
+      "cache_references": 3925986225,
+      "stalled_cycles_frontend": 58966396482,
+      "cache_misses": 1247906262,
+      "branches": 2197061527,
+      "branch_mispredicts": 1875169,
+      "l1d_read_misses": 4383496681,
+      "dtlb_write_misses": 145068,
+      "dtlb_read_misses": 34620900,
+      "l1d_write_misses": 4151424464,
+      "l1i_read_misses": 1369578
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 60788648764,
+    "size": 418667
+  },
+  {
+    "metrics": {
+      "cache_references": 5735446780,
+      "stalled_cycles_frontend": 80264725958,
+      "cache_misses": 1763762495,
+      "branches": 3150506439,
+      "branch_mispredicts": 2284546,
+      "l1d_read_misses": 6297571045,
+      "dtlb_write_misses": 237507,
+      "dtlb_read_misses": 52253649,
+      "l1d_write_misses": 6022297811,
+      "l1i_read_misses": 2000568
+    },
+    "experiment": "serial-insertonly",
+    "implementation": "dict_array",
+    "time_ns": 81681767702,
+    "size": 502400
+  }
+]
