@@ -29,6 +29,7 @@ This file contains ideas for future improvements of this work.
 - PMA should reallocate, not allocate + free
 - cache-sensitive b+ trees (increase tree fanout by eliminating pointers)
 - pearson correlation coefficient (for counter-time correlation)
+- hopscotch hashing
 
 # Ideas:
 - Cache-oblivious B-trees are about 4-competitive, something log(e)-optimal
@@ -47,6 +48,8 @@ This file contains ideas for future improvements of this work.
 * implicit data structures for weighted elements
 * CSB+ trees (http://www.cs.columbia.edu/~kar/software/csb+/readme)
 * http://pizzachili.dcc.uchile.cl/texts/nlang/
+* http://backtrace.io/blog/blog/2015/03/13/workload-specialization/
+* https://github.com/goossaert/hashmap
 
 # Datasets:
 * Enron e-mails dataset
@@ -57,3 +60,4 @@ This file contains ideas for future improvements of this work.
   (given a website, find next click on that website; key = `timestamp;website hash`)
 * DIMACS implementation challenge 5 (dictionaries):
   http://www.cs.amherst.edu/~ccm/challenge5/
+* compression algorithms (7zip, xzip, zlib hash table in Firefox, ...?)
