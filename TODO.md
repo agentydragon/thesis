@@ -55,3 +55,5 @@ This file contains ideas for future improvements of this work.
 * wikipedia snapshot
 * Indiana university Click dataset (HTTP requests)
   (given a website, find next click on that website; key = `timestamp;website hash`)
+* DIMACS implementation challenge 5 (dictionaries):
+  http://www.cs.amherst.edu/~ccm/challenge5/
